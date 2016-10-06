@@ -1,0 +1,24 @@
+{
+  "name": "chat-sdk",
+  "description": "PubNub Chat SDK",
+  "main": "index.js",
+  "authors": [
+    "PubNub"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "pubnub",
+    "chat",
+    "sdk",
+    "realtime"
+  ],
+  "homepage": "https://github.com/pubnub/pubnub-chat-sdk",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
