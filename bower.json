@@ -1,6 +1,6 @@
 {
-  "name": "chat-sdk",
-  "description": "PubNub Chat SDK",
+  "name": "ocr",
+  "description": "PubNub Open Chat Framework",
   "main": "index.js",
   "authors": [
     "PubNub"
@@ -12,7 +12,7 @@
     "sdk",
     "realtime"
   ],
-  "homepage": "https://github.com/pubnub/pubnub-chat-sdk",
+  "homepage": "https://github.com/pubnub/open-chat-framework",
   "private": true,
   "ignore": [
     "**/.*",
