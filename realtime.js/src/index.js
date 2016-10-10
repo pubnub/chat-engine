@@ -1,1 +1,0 @@
-var Realtime = PubNub;
