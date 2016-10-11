@@ -3,58 +3,11 @@
 const EventEmitter = require('events');
 
 var Rltm = require('rltm');
-
 var me;
 
-// const TypingModule extends Class Chat() {
-    
-//     this.isTyping = false;
-//     this.emitter 
+let Chat = function(userIds) {
 
-//     this.startTyping = (timeout) => {
-//         this.rltm.publish(['typing', me, {isTyping: true}]);
-        
-//         setTimeout(function() {
-//             // this.isTyping = false;
-//         });
-
-//     };
-
-//     this.stopTyping = () => {
-//         this.rltm.publish(['typing', me, {isTyping: false}]);
-//     };    
-
-// };
-
-// ////////////////////////////////////////
-// const TypingModule extends Class Chat() {
-    
-//     this.isTyping = false;
-//     this.sendGif = (text) => {
-
-//         if(!text.length) {
-//             alert('please supply a gif to search for');
-//         }
-
-//         this.publish('/gif');  
-//     };
-
-// };
-
-// // block.js
-// function(request) {
-//     request.message.gif = http://gif.com/gif.gif
-//     return request;
-// }
-
-// $('.gif').click(function(){ 
-// })
-
-////////////////////////////////////////
-
-var Chat = class {
-
-    constructor(userIds) {
+    const init = (userIds) => {
 
         // sort alphabetically between people
         // add self into this
@@ -88,11 +41,7 @@ var Chat = class {
 
     }
 
-    get on() {
-        return this.emitter.on;
-    }
-
-    publish(payload) {
+    this.publish = (payload) => {
 
         this.rltm.publish({
             message: ['message', me, payload],
@@ -101,7 +50,49 @@ var Chat = class {
 
     }
 
+    init(userIds);
+
+    return this;
+
 };
+
+// typing
+Chat.prototype.startTyping = function() {
+
+    console.log(this.rltm)
+    return this;
+    
+};
+
+var a = new Chat(['ian']);
+
+a.getThis();
+
+// class TypingIndicator {
+
+//     constructor(chat) {
+//         this.chat = chat;
+//     };
+
+//     startTyping
+
+//     // this.isTyping = false;
+//     console.log(this.emitter);
+
+//     this.startTyping = (timeout) => {
+//         this.rltm.publish(['typing', me, {isTyping: true}]);
+        
+//         setTimeout(function() {
+//             // this.isTyping = false;
+//         });
+
+//     };
+
+//     this.stopTyping = () => {
+//         this.rltm.publish(['typing', me, {isTyping: false}]);
+//     };    
+
+// };
 
 const User = function(id, data) {
 
@@ -116,9 +107,9 @@ const User = function(id, data) {
 
 me = new User('ian', {value: true});
 
-var chat = me.createChat(['john', 'mary']);
+Chat.startTyping = function() {}
 
-console.log(chat)
+var chat = me.createChat(['john', 'mary']);
 
 chat.emitter.on('message', function(message) {
     console.log('got chat message bind 1', message);
