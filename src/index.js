@@ -8,9 +8,9 @@ var rltm = new Rltm({
 
 var me;
 
-const Chat = function(userIds, callback) {
+const Chat = function(userIds) {
 
-    this.channel = userIds.join(':');
+    this.channels = [userIds.join(':')];
 
     this.emitter = new EventEmitter();
 
@@ -23,30 +23,37 @@ const Chat = function(userIds, callback) {
                 }
             },
             message: (message) => {
-                // handle message
+                this.emitter.emit('message', message);
             },
             presence: (presenceEvent) => {
-                // handle presence
+                this.emitter.emit('presence', presenceEvent);
             }
         })
          
         rltm.subscribe({ 
-            channels: ['ch1', 'ch2', 'ch3'] 
+            channels: this.channels
         });
 
     };
 
     this.startTyping = () => {
-        rltm.publish();
+        rltm.publish(['typing', me, {isTyping: true}]);
     };
 
-    this.startTyping = () => {
-        rltm.publish();
+    this.stopTyping = () => {
+        rltm.publish(['typing', me, {isTyping: false}]);
+    };
+
+    this.publish = (payload) => {
+        rltm.publish({
+            message: ['message', me, payload],
+            channel: this.channels[0]
+        });
     };
 
     this.init();
 
-    return this.emitter;
+    return this;
 
 };
 
@@ -56,19 +63,29 @@ const User = function(id, data) {
     this.data = data;
 
     this.createChat = (users) => {
-
+        return new Chat(users);
     };
 
 };
 
 me = new User('ian', {value: true});
 
-var chat = new Chat(['john', 'mary']);
+var chat = me.createChat(['john', 'mary']);
 
-chat.on('ready', function() {
-  console.log('got foo');
+chat.emitter.on('message', function(message) {
+    console.log('got chat message bind 1', message);
 });
 
-console.log(rltm);
+chat.emitter.on('message', function(message) {
+    console.log('got chat message bind 2', message);
+});
 
-var chatSDK = {};
+chat.emitter.on('ready', function() {
+
+    console.log('chat is ready, sending message');
+
+    chat.publish({
+        text: 'hello world'
+    });
+
+});
