@@ -1,5 +1,2 @@
 .DS_Store
-chat-sdk/sdk/node_modules
-chat-sdk/sdk/bower_components
-realtime.js/node_modules
-realtime.js/bower_components
+node_modules
