@@ -3,11 +3,12 @@
 const EventEmitter = require('events');
 
 var Rltm = require('rltm');
+
 var me;
 
-let Chat = function(userIds) {
+class Chat {
 
-    const init = (userIds) => {
+    constructor(userIds) {
 
         // sort alphabetically between people
         // add self into this
@@ -41,7 +42,11 @@ let Chat = function(userIds) {
 
     }
 
-    this.publish = (payload) => {
+    get on() {
+        return this.emitter.on;
+    }
+
+    publish(payload) {
 
         this.rltm.publish({
             message: ['message', me, payload],
@@ -50,23 +55,10 @@ let Chat = function(userIds) {
 
     }
 
-    init(userIds);
-
-    return this;
-
 };
 
-// typing
-Chat.prototype.startTyping = function() {
+console.log(new Chat(['ian']));
 
-    console.log(this.rltm)
-    return this;
-    
-};
-
-var a = new Chat(['ian']);
-
-a.getThis();
 
 // class TypingIndicator {
 
@@ -79,18 +71,18 @@ a.getThis();
 //     // this.isTyping = false;
 //     console.log(this.emitter);
 
-//     this.startTyping = (timeout) => {
-//         this.rltm.publish(['typing', me, {isTyping: true}]);
+    // this.startTyping = (timeout) => {
+    //     this.rltm.publish(['typing', me, {isTyping: true}]);
         
-//         setTimeout(function() {
-//             // this.isTyping = false;
-//         });
+    //     setTimeout(function() {
+    //         // this.isTyping = false;
+    //     });
 
-//     };
+    // };
 
-//     this.stopTyping = () => {
-//         this.rltm.publish(['typing', me, {isTyping: false}]);
-//     };    
+    // this.stopTyping = () => {
+    //     this.rltm.publish(['typing', me, {isTyping: false}]);
+    // };    
 
 // };
 
