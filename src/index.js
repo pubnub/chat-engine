@@ -1,10 +1,7 @@
-"use strict";
-
 const EventEmitter = require('events');
 
-var Rltm = require('rltm');
-
-var me;
+let Rltm = require('rltm');
+let me = false;
 
 class Chat {
 
@@ -42,10 +39,6 @@ class Chat {
 
     }
 
-    get on() {
-        return this.emitter.on;
-    }
-
     publish(payload) {
 
         this.rltm.publish({
@@ -57,51 +50,30 @@ class Chat {
 
 };
 
-console.log(new Chat(['ian']));
+class User {
 
+    constructor(id, data) {
 
-// class TypingIndicator {
+        this.id = id;
+        this.data = data;
+           
+    }
 
-//     constructor(chat) {
-//         this.chat = chat;
-//     };
-
-//     startTyping
-
-//     // this.isTyping = false;
-//     console.log(this.emitter);
-
-    // this.startTyping = (timeout) => {
-    //     this.rltm.publish(['typing', me, {isTyping: true}]);
-        
-    //     setTimeout(function() {
-    //         // this.isTyping = false;
-    //     });
-
-    // };
-
-    // this.stopTyping = () => {
-    //     this.rltm.publish(['typing', me, {isTyping: false}]);
-    // };    
-
-// };
-
-const User = function(id, data) {
-
-    this.id = id;
-    this.data = data;
-
-    this.createChat = (users) => {
+    createChat(users) {
         return new Chat(users);
     };
 
 };
 
+Chat.prototype.doStuff = function() {
+    console.log('doing things')
+};
+
 me = new User('ian', {value: true});
 
-Chat.startTyping = function() {}
-
 var chat = me.createChat(['john', 'mary']);
+
+chat.doStuff();
 
 chat.emitter.on('message', function(message) {
     console.log('got chat message bind 1', message);
