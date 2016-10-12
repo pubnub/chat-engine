@@ -22,6 +22,6 @@
     "tests"
   ],
   "dependencies": {
-    "rltm": "^0.0.1"
+    "rltm": "^0.0.4"
   }
 }

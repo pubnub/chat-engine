@@ -1,3 +1,4 @@
+"use strict";
 const EventEmitter = require('events');
 
 let Rltm = require('rltm');
@@ -5,9 +6,9 @@ let me = false;
 
 class Chat {
 
-    constructor(userIds) {
+    constructor(me, userIds) {
 
-        console.log('ids', userIds)
+        userIds.push(me.id);
 
         this.channels = [userIds.sort().join(':')];
 
@@ -39,7 +40,7 @@ class Chat {
 
     }
 
-    publish(type, payload = null) {
+    publish(type, payload) {
 
         this.rltm.publish({
             message: [type, me, payload],
@@ -58,8 +59,7 @@ class User {
     }
 
     createChat(users) {
-        users.push(this.id);
-        return new Chat(users);
+        return new Chat(this, users);
     };
 
 };
@@ -72,8 +72,6 @@ module.exports = function(plugins) {
     for(let i in plugins) {
 
         Object.keys(plugins[i]).forEach(function (className) {
-
-            console.log(plugins[i], className);
 
             Object.keys(plugins[i][className]).forEach(function (methodName) {
                 classes[className].prototype[methodName] = plugins[i][className][methodName];

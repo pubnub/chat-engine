@@ -1,12 +1,14 @@
-var typingIndicator = require('./plugins/typingIndicator.js')({
+"use strict";
+
+let typingIndicator = require('./plugins/typingIndicator.js')({
     timeout: 1000
 });
-var OCF = require('./src/index.js')([]);
 
-let Chat = OCF.Chat;
+let OCF = require('./src/index.js')([typingIndicator]);
+
 let User = OCF.User;
 
-me = new User('ian', {value: true});
+let me = new User('ian', {value: true});
 
 var chat = me.createChat(['john', 'mary']);
 
@@ -27,10 +29,6 @@ chat.emitter.on('ready', () => {
     console.log('chat is ready');
 
     chat.startTyping();
-
-    setTimeout(function() {
-
-    });
 
     chat.publish('message', {
         text: 'hello world'

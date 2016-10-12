@@ -6,7 +6,7 @@ const source = require('vinyl-source-stream');
 gulp.task('compile', function () {
     
     browserify({
-        entries: 'src/index.js',
+        entries: ['src/index.js', 'src/pack.js'],
         debug: true
     })
     .bundle()
