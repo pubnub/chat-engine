@@ -1,0 +1,65 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Open Chat Framework Dev</title>
+
+</head>
+
+<body>
+    <div id="chat">
+    </div>
+    <input type="text" id="message">
+    <input type="submit" id="submit">
+    <div id="typing"></div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+  <script src="web/ocf.js" type="text/javascript"></script>
+  <script src="plugins/typingIndicator.js" type="text/javascript"></script>
+  <script type="text/javascript">
+
+    OCF.typingIndicator.config({timeout: 2000}); // optional config
+
+    let me = new OCF.User('ian', {value: true});
+
+    var chat = me.createChat(['john', 'mary']);
+
+    chat.emitter.on('message', (user, packet) => {
+        console.log('got message', user, packet);
+
+        $('#chat').append($('<div>' + packet.text + '</div>'));
+
+    });
+
+    $('#message').on('change keyup paste click blur', () => {
+        chat.startTyping();
+    });
+
+    $('#submit').click(() => {
+        
+        chat.stopTyping();
+
+        chat.publish('message', {
+            text: $('#message').val()
+        });
+
+        $('#message').val('');
+
+    });
+
+    chat.emitter.on('startTyping', (user, packet) => {
+        $('#typing').text('Typing...');
+    });
+
+    chat.emitter.on('stopTyping', (user, packet) => {
+        $('#typing').text('');
+    });
+
+    chat.emitter.on('ready', () => {
+
+    });
+
+  </script>
+</body>
+</html>
