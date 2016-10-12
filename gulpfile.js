@@ -6,8 +6,9 @@ const source = require('vinyl-source-stream');
 gulp.task('compile', function () {
     
     browserify({
-        entries: ['src/index.js', 'src/pack.js'],
-        debug: true
+        entries: ['src/index.js'],
+        debug: true,
+        standalone: 'OCF'
     })
     .bundle()
     .pipe(source('ocf.js'))

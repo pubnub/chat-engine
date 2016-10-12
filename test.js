@@ -1,10 +1,11 @@
 "use strict";
 
-let typingIndicator = require('./plugins/typingIndicator.js')({
-    timeout: 1000
-});
-
-let OCF = require('./src/index.js')([typingIndicator]);
+require('./src/index.js');
+require('./plugins/typingIndicator.js');
+OCF.typingIndicator({timeout: 1000});
+// ({
+//     timeout: 1000
+// });
 
 let User = OCF.User;
 

@@ -1,20 +1,15 @@
-
-module.exports = (config) => {
+OCF.typingIndicator = function(config) {
 
     config.timeout = config.timeout || 1000;
-
-    return {
-        Chat: {
-            startTyping: function() {
-                this.publish('startTyping');
-                setTimeout (() => {
-                    this.stopTyping();
-                }, config.timeout);
-            },
-            stopTyping: function() {
-                this.publish('stopTyping');
-            }   
-        }
+    
+    OCF.Chat.prototype.startTyping = function() {
+        this.publish('startTyping');
+        setTimeout (() => {
+            this.stopTyping();
+        }, 1000);
     }
+    OCF.Chat.prototype.stopTyping = function() {
+        this.publish('stopTyping');
+    }   
 
 }

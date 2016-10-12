@@ -64,23 +64,27 @@ class User {
 
 };
 
+var OCF = {Chat, User};
 
-module.exports = function(plugins) {
+module.exports = OCF;
+global.OCF = OCF;
 
-    let classes = {Chat, User};
+// function(plugins) {
 
-    for(let i in plugins) {
+//     let classes = {Chat, User};
 
-        Object.keys(plugins[i]).forEach(function (className) {
+//     // for(let i in plugins) {
 
-            Object.keys(plugins[i][className]).forEach(function (methodName) {
-                classes[className].prototype[methodName] = plugins[i][className][methodName];
-            });
+//     //     Object.keys(plugins[i]).forEach(function (className) {
 
-        });
+//     //         Object.keys(plugins[i][className]).forEach(function (methodName) {
+//     //             classes[className].prototype[methodName] = plugins[i][className][methodName];
+//     //         });
 
-    }
+//     //     });
 
-    return classes;
+//     // }
 
-}
+//     return classes;
+
+// }
