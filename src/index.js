@@ -64,7 +64,19 @@ class User {
 
 };
 
-var OCF = {Chat, User};
+class Plugin {
+    constructor(defaults, funct) {
+
+        this.funct = funct;
+        this.funct(defaults);
+
+    }
+    config(params) {
+        this.funct(params);
+    }
+};
+
+var OCF = {Chat, User, Plugin};
 
 module.exports = OCF;
 global.OCF = OCF;

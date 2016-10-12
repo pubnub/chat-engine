@@ -4,7 +4,7 @@ require('./src/index.js');
 require('./plugins/typingIndicator.js');
 
 // from here on out is same on node / web
-OCF.typingIndicator({timeout: 1000});
+OCF.typingIndicator.config({timeout: 2000}); // optional config
 
 let me = new OCF.User('ian', {value: true});
 

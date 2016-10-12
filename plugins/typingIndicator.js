@@ -1,15 +1,22 @@
-OCF.typingIndicator = function(config) {
+"use strict";
 
-    config.timeout = config.timeout || 1000;
+const defaults = {
+    timeout: 1000
+};
+
+let plugin = function(config) {
     
     OCF.Chat.prototype.startTyping = function() {
         this.publish('startTyping');
         setTimeout (() => {
             this.stopTyping();
-        }, 1000);
+        }, config.timeout);
     }
+
     OCF.Chat.prototype.stopTyping = function() {
         this.publish('stopTyping');
-    }   
+    }
 
 }
+
+OCF.typingIndicator = new OCF.Plugin(defaults, plugin);
