@@ -65,45 +65,25 @@ class User {
 
 };
 
-Chat.prototype.doStuff = function() {
-    console.log('doing things')
-};
 
-me = new User('ian', {value: true});
+module.exports = function(plugins) {
 
-var chat = me.createChat(['john', 'mary']);
+    let classes = {Chat, User};
 
-chat.doStuff();
+    for(let i in plugins) {
 
-chat.emitter.on('message', function(message) {
-    console.log('got chat message bind 1', message);
-});
+        Object.keys(plugins[i]).forEach(function (className) {
 
-chat.emitter.on('message', function(message) {
-    console.log('got chat message bind 2', message);
-});
+            console.log(plugins[i], className);
 
-chat.emitter.on('ready', function() {
+            Object.keys(plugins[i][className]).forEach(function (methodName) {
+                classes[className].prototype[methodName] = plugins[i][className][methodName];
+            });
 
-    console.log('chat is ready, sending message');
-    chat.publish({
-        text: 'hello world'
-    });
+        });
 
-});
+    }
 
-var chat2 = me.createChat(['dustin', 'adam']);
+    return classes;
 
-chat2.emitter.on('message', function(message) {
-    console.log('got chat 2 message bind 1', message);
-});
-
-chat.emitter.on('ready', function() {
-
-    console.log('chat2 is ready, sending message');
-
-    chat2.publish({
-        text: 'hello world'
-    });
-
-});
+}
