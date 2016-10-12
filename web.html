@@ -12,37 +12,36 @@
   <script src="web/ocf.js" type="text/javascript"></script>
   <script src="plugins/typingIndicator.js" type="text/javascript"></script>
   <script type="text/javascript">
-      OCF.typingIndicator({timeout: 1000});
-      let User = OCF.User;
 
-      let me = new User('ian', {value: true});
+  OCF.typingIndicator({timeout: 1000});
 
-      var chat = me.createChat(['john', 'mary']);
+  let me = new OCF.User('ian', {value: true});
 
-      chat.emitter.on('message', (user, packet) => {
-          console.log('got message', user, packet);
+  var chat = me.createChat(['john', 'mary']);
+
+  chat.emitter.on('message', (user, packet) => {
+      console.log('got message', user, packet);
+  });
+
+  chat.emitter.on('startTyping', (user, packet) => {
+      console.log('start typing', user, packet);
+  });
+
+  chat.emitter.on('stopTyping', (user, packet) => {
+      console.log('stop typing', user, packet);
+  });
+
+  chat.emitter.on('ready', () => {
+
+      console.log('chat is ready');
+
+      chat.startTyping();
+
+      chat.publish('message', {
+          text: 'hello world'
       });
 
-      chat.emitter.on('startTyping', (user, packet) => {
-          console.log('start typing', user, packet);
-      });
-
-      chat.emitter.on('stopTyping', (user, packet) => {
-          console.log('stop typing', user, packet);
-      });
-
-      chat.emitter.on('ready', () => {
-
-          console.log('chat is ready');
-
-          chat.startTyping();
-
-          chat.publish('message', {
-              text: 'hello world'
-          });
-
-      });
-
+  });
 
   </script>
 </body>

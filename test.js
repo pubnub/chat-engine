@@ -2,14 +2,11 @@
 
 require('./src/index.js');
 require('./plugins/typingIndicator.js');
+
+// from here on out is same on node / web
 OCF.typingIndicator({timeout: 1000});
-// ({
-//     timeout: 1000
-// });
 
-let User = OCF.User;
-
-let me = new User('ian', {value: true});
+let me = new OCF.User('ian', {value: true});
 
 var chat = me.createChat(['john', 'mary']);
 
