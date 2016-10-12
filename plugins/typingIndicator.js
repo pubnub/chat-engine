@@ -2,12 +2,12 @@ module.exports = {
     Chat: {
         startTyping: function() {
             this.publish('startTyping');
-            setTimeout => {
+            setTimeout (() => {
                 this.stopTyping();
-            }, 1000;
+            }, 1000);
         },
         stopTyping: function() {
-            this.publish('startTyping');
+            this.publish('stopTyping');
         }   
     }
 }
