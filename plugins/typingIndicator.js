@@ -1,11 +1,13 @@
 module.exports = {
     Chat: {
-        doStuff: function() {
-            
-            this.emitter.on('message', function(message) {
-                console.log('plugin got message', message);
-            });
-            
+        startTyping: function() {
+            this.publish('startTyping');
+            setTimeout => {
+                this.stopTyping();
+            }, 1000;
+        },
+        stopTyping: function() {
+            this.publish('startTyping');
         }   
     }
 }

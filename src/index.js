@@ -7,6 +7,8 @@ class Chat {
 
     constructor(userIds) {
 
+        console.log('ids', userIds)
+
         this.channels = [userIds.sort().join(':')];
 
         // use star channels ian:*
@@ -23,8 +25,8 @@ class Chat {
                     this.emitter.emit('ready');
                 }
             },
-            message: (message) => {
-                this.emitter.emit('message', message);
+            message: (m) => {
+                this.emitter.emit(m.message[0], m.message[1], m.message[2]);
             },
             presence: (presenceEvent) => {
                 this.emitter.emit('presence', presenceEvent);
@@ -37,10 +39,10 @@ class Chat {
 
     }
 
-    publish(payload) {
+    publish(type, payload = null) {
 
         this.rltm.publish({
-            message: ['message', me, payload],
+            message: [type, me, payload],
             channel: this.channels[0]
         });
 
@@ -58,7 +60,8 @@ class User {
     }
 
     createChat(users) {
-        return new Chat(users.push(this.id));
+        users.push(this.id);
+        return new Chat(users);
     };
 
 };
