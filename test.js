@@ -1,5 +1,4 @@
 var typingIndicator = require('./plugins/typingIndicator.js');
-
 var OCF = require('./src/index.js')([typingIndicator]);
 
 let Chat = OCF.Chat;

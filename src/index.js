@@ -7,9 +7,7 @@ class Chat {
 
     constructor(userIds) {
 
-        // sort alphabetically between people
-        // add self into this
-        this.channels = [userIds.join(':')];
+        this.channels = [userIds.sort().join(':')];
 
         // use star channels ian:*
         this.emitter = new EventEmitter();
@@ -60,7 +58,7 @@ class User {
     }
 
     createChat(users) {
-        return new Chat(users);
+        return new Chat(users.push(this.id));
     };
 
 };
