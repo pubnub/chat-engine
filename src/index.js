@@ -53,10 +53,8 @@ class Chat {
 class User {
 
     constructor(id, data) {
-
         this.id = id;
         this.data = data;
-           
     }
 
     createChat(users) {

@@ -1,13 +1,15 @@
-module.exports = {
-    Chat: {
+module.exports = (conifg) => {
+
+    return {
         startTyping: function() {
             this.publish('startTyping');
             setTimeout (() => {
                 this.stopTyping();
-            }, 1000);
+            }, config.timeout);
         },
         stopTyping: function() {
             this.publish('stopTyping');
         }   
     }
+
 }

@@ -1,5 +1,7 @@
-var typingIndicator = require('./plugins/typingIndicator.js');
-var OCF = require('./src/index.js')([typingIndicator]);
+var typingIndicator = require('./plugins/typingIndicator.js')({
+    timeout: 1000
+});
+var OCF = require('./src/index.js')([]);
 
 let Chat = OCF.Chat;
 let User = OCF.User;
