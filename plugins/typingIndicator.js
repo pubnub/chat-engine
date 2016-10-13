@@ -35,4 +35,4 @@ let plugin = function(config) {
 
 }
 
-OCF.typingIndicator = new OCF.Plugin(plugin, plugin);
+OCF.typingIndicator = new OCF.Plugin(defaults, plugin);
