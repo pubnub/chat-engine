@@ -2,37 +2,45 @@
 
 const defaults = {timeout: 1000};
 
-let plugin = function(config) {
+module.exports = function(config) {
 
     let isTyping = false;
     let stopTypingTimeout = null;
     
-    OCF.Chat.prototype.startTyping = function() {
+    let Chat = {
+        startTyping: function() {
 
-        if(!isTyping) {
+            if(!isTyping) {
 
-            isTyping = true;
+                isTyping = true;
 
-            this.publish('startTyping');
+                this.publish('startTyping');
 
-            setTimeout (() => {
-                this.stopTyping();
-            }, config.timeout);
+                setTimeout (() => {
+                    this.stopTyping();   
+
+                }, config.timeout);
+
+            }
+
+        },
+        stopTyping: function() {
+
+            if(isTyping) {
+                clearTimeout(stopTypingTimeout);
+                this.publish('stopTyping');   
+                isTyping = false;
+            }
 
         }
 
     }
 
-    OCF.Chat.prototype.stopTyping = function() {
-
-        if(isTyping) {
-            clearTimeout(stopTypingTimeout);
-            this.publish('stopTyping');   
-            isTyping = false;
+    return {
+        namespace: 'typing',
+        extends: {
+            Chat
         }
-
     }
 
 }
-
-OCF.typingIndicator = new OCF.Plugin(defaults, plugin);

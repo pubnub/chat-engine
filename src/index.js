@@ -64,39 +64,27 @@ class User {
 
 };
 
-class Plugin {
-    constructor(defaults, funct) {
+module.exports = class {
+    constructor(config, plugins) {
 
-        this.funct = funct;
-        this.funct(defaults);
+        let classes = {Chat, User};
+
+        for(let i in plugins) {
+
+            Object.keys(plugins[i].extends).forEach(function (className) {
+
+                Object.keys(plugins[i].extends[className]).forEach(function (methodName) {
+                    classes[className].prototype[methodName] = plugins[i].extends[className][methodName];
+                });
+
+            });
+
+        }
+
+        return classes;
 
     }
     config(params) {
-        this.funct(params);
+        // do some config
     }
 };
-
-var OCF = {Chat, User, Plugin};
-
-module.exports = OCF;
-global.OCF = OCF;
-
-// function(plugins) {
-
-//     let classes = {Chat, User};
-
-//     // for(let i in plugins) {
-
-//     //     Object.keys(plugins[i]).forEach(function (className) {
-
-//     //         Object.keys(plugins[i][className]).forEach(function (methodName) {
-//     //             classes[className].prototype[methodName] = plugins[i][className][methodName];
-//     //         });
-
-//     //     });
-
-//     // }
-
-//     return classes;
-
-// }

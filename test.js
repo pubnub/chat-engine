@@ -1,10 +1,14 @@
 "use strict";
 
-require('./src/index.js');
-require('./plugins/typingIndicator.js');
+var typingIndicator = require('./plugins/typingIndicator.js');
 
-// from here on out is same on node / web
-OCF.typingIndicator.config({timeout: 2000}); // optional config
+var OCFBuilder = require('./src/index.js'); 
+
+var OCF = new OCFBuilder({
+    globalConfigs: 'here'
+}, [
+    typingIndicator({timeout: 2000})
+]);
 
 let me = new OCF.User('ian', {value: true});
 
