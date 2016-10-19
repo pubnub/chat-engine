@@ -8,9 +8,15 @@ let plugins = [];
 
 
 function addChild(ob, childName, childOb) {
-
    ob[childName] = childOb;
    childOb.parent = ob;
+}
+
+function loadPlugins(obj) {
+
+    for(let i in plugins) {
+        addChild(obj, plugins[i].namespace, plugins[i].extends[obj.constructor.name]);
+    }
 
 }
 
@@ -18,12 +24,7 @@ class Chat {
 
     constructor(me, userIds) {
 
-
-        for(let i in plugins) {
-
-            addChild(this, plugins[i].namespace, plugins[i].extends.Chat);
-
-        }
+        loadPlugins(this);
 
         userIds.push(me.id);
 
