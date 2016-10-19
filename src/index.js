@@ -12,13 +12,17 @@ function addChild(ob, childName, childOb) {
    childOb.parent = ob;
 }
 
-function loadPlugins(obj) {
+function loadClassPlugins(obj) {
 
     let className = obj.constructor.name;
 
     for(let i in plugins) {
         // do plugin error checking here
-        addChild(obj, plugins[i].namespace, plugins[i].extends[className]);
+
+        if(plugins[i].extends[className]) {
+            addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
+        }
+
     }
 
 }
@@ -27,7 +31,7 @@ class Chat {
 
     constructor(me, userIds) {
 
-        loadPlugins(this);
+        loadClassPlugins(this);
 
         userIds.push(me.id);
 
@@ -73,10 +77,11 @@ class Chat {
 };
 
 class User {
-    
-    loadPlugins(this);
 
     constructor(id, data) {
+    
+        loadClassPlugins(this);
+        
         this.id = id;
         this.data = data;
     }
