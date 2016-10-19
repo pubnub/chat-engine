@@ -70,7 +70,7 @@ class Chat {
                     }
                 }
 
-                this.emitter.emit(m.message[0], m.message[1], m.message[2]);
+                this.emitter.emit(payload.event, payload.data);
 
             },
             presence: (presenceEvent) => {
@@ -84,11 +84,11 @@ class Chat {
 
     }
 
-    publish(type, data) {
+    publish(event, data) {
 
         var payload = {
             chat: this,
-            type: type,
+            event: event,
             data: data
         };
 
@@ -98,7 +98,7 @@ class Chat {
             }
         }
 
-        delete payload.chat;
+        delete payload.chat; // will be rebuilt on subscribe
 
         this.rltm.publish({
             message: payload,
