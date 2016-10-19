@@ -14,8 +14,11 @@ function addChild(ob, childName, childOb) {
 
 function loadPlugins(obj) {
 
+    let className = obj.constructor.name;
+
     for(let i in plugins) {
-        addChild(obj, plugins[i].namespace, plugins[i].extends[obj.constructor.name]);
+        // do plugin error checking here
+        addChild(obj, plugins[i].namespace, plugins[i].extends[className]);
     }
 
 }
@@ -70,6 +73,8 @@ class Chat {
 };
 
 class User {
+    
+    loadPlugins(this);
 
     constructor(id, data) {
         this.id = id;
