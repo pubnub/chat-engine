@@ -1,13 +1,15 @@
 "use strict";
 
 var typingIndicator = require('./plugins/typingIndicator.js');
+var pubSubModify = require('./plugins/pubSubModify.js');
 
 var OCFBuilder = require('./src/index.js'); 
 
 var OCF = new OCFBuilder({
     globalConfigs: 'here'
 }, [
-    new typingIndicator()
+    new typingIndicator(),
+    new pubSubModify()
 ]);
 
 let me = new OCF.User('ian', {value: true});

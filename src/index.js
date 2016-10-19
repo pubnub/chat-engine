@@ -6,7 +6,6 @@ let me = false;
 
 let plugins = [];
 
-
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
    childOb.parent = ob;
@@ -19,7 +18,7 @@ function loadClassPlugins(obj) {
     for(let i in plugins) {
         // do plugin error checking here
 
-        if(plugins[i].extends[className]) {
+        if(plugins[i].extends && plugins[i].extends[className]) {
             addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
         }
 
@@ -33,11 +32,14 @@ class Chat {
 
         loadClassPlugins(this);
 
+        this.me = me;
+        this.users = users;
+
         let userIds = [];
-        for(var i in users) {
-            userIds.push(users[i].id); 
+        for(var i in this.users) {
+            userIds.push(this.users[i].id); 
         };
-        userIds.push(me.id);
+        userIds.push(this.me.id);
 
         this.channels = [userIds.sort().join(':')];
 
@@ -51,12 +53,25 @@ class Chat {
             
         this.rltm.addListener({
             status: (statusEvent) => {
+                
                 if (statusEvent.category === "PNConnectedCategory") {
                     this.emitter.emit('ready');
                 }
+
             },
             message: (m) => {
+
+                var payload = m.message;
+                payload.chat = this;
+
+                for(let i in plugins) {
+                    if(plugins[i].middleware && plugins[i].middleware.subscribe) {
+                        plugins[i].middleware.subscribe(payload, function(){});
+                    }
+                }
+
                 this.emitter.emit(m.message[0], m.message[1], m.message[2]);
+
             },
             presence: (presenceEvent) => {
                 this.emitter.emit('presence', presenceEvent);
@@ -69,10 +84,24 @@ class Chat {
 
     }
 
-    publish(type, payload) {
+    publish(type, data) {
+
+        var payload = {
+            chat: this,
+            type: type,
+            data: data
+        };
+
+        for(let i in plugins) {
+            if(plugins[i].middleware && plugins[i].middleware.publish) {
+                plugins[i].middleware.publish(payload, function(){});
+            }
+        }
+
+        delete payload.chat;
 
         this.rltm.publish({
-            message: [type, me, payload],
+            message: payload,
             channel: this.channels[0]
         });
 
