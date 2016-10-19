@@ -29,10 +29,14 @@ function loadClassPlugins(obj) {
 
 class Chat {
 
-    constructor(me, userIds) {
+    constructor(me, users) {
 
         loadClassPlugins(this);
 
+        let userIds = [];
+        for(var i in users) {
+            userIds.push(users[i].id); 
+        };
         userIds.push(me.id);
 
         this.channels = [userIds.sort().join(':')];

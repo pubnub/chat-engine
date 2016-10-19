@@ -12,7 +12,10 @@ var OCF = new OCFBuilder({
 
 let me = new OCF.User('ian', {value: true});
 
-var chat = me.createChat(['john', 'mary']);
+let john = new OCF.User('john', {value: true});
+let mary = new OCF.User('mary', {value: true});
+
+var chat = me.createChat([john, mary]);
 
 chat.emitter.on('message', (user, packet) => {
     console.log('got message', user, packet);
