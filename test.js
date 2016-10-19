@@ -7,7 +7,7 @@ var OCFBuilder = require('./src/index.js');
 var OCF = new OCFBuilder({
     globalConfigs: 'here'
 }, [
-    typingIndicator({timeout: 2000})
+    new typingIndicator()
 ]);
 
 let me = new OCF.User('ian', {value: true});
@@ -30,7 +30,7 @@ chat.emitter.on('ready', () => {
 
     console.log('chat is ready');
 
-    chat.startTyping();
+    chat.typing.startTyping();
 
     chat.publish('message', {
         text: 'hello world'

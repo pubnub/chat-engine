@@ -4,9 +4,26 @@ const EventEmitter = require('events');
 let Rltm = require('rltm');
 let me = false;
 
+let plugins = [];
+
+
+function addChild(ob, childName, childOb) {
+
+   ob[childName] = childOb;
+   childOb.parent = ob;
+
+}
+
 class Chat {
 
     constructor(me, userIds) {
+
+
+        for(let i in plugins) {
+
+            addChild(this, plugins[i].namespace, plugins[i].extends.Chat);
+
+        }
 
         userIds.push(me.id);
 
@@ -65,21 +82,11 @@ class User {
 };
 
 module.exports = class {
-    constructor(config, plugins) {
+    constructor(config, plugs) {
+
+        plugins = plugs;
 
         let classes = {Chat, User};
-
-        for(let i in plugins) {
-
-            Object.keys(plugins[i].extends).forEach(function (className) {
-
-                Object.keys(plugins[i].extends[className]).forEach(function (methodName) {
-                    classes[className].prototype[methodName] = plugins[i].extends[className][methodName];
-                });
-
-            });
-
-        }
 
         return classes;
 

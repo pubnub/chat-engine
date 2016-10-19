@@ -4,6 +4,8 @@ const defaults = {timeout: 1000};
 
 module.exports = function(config) {
 
+    config = config || {timeout: 1000};
+
     let isTyping = false;
     let stopTypingTimeout = null;
     
@@ -14,7 +16,7 @@ module.exports = function(config) {
 
                 isTyping = true;
 
-                this.publish('startTyping');
+                this.parent.publish('startTyping');
 
                 setTimeout (() => {
                     this.stopTyping();   
@@ -28,7 +30,7 @@ module.exports = function(config) {
 
             if(isTyping) {
                 clearTimeout(stopTypingTimeout);
-                this.publish('stopTyping');   
+                this.parent.publish('stopTyping');   
                 isTyping = false;
             }
 
