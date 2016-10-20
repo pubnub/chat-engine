@@ -6,6 +6,8 @@ let me = false;
 
 let plugins = [];
 
+let waterfall = require('async/waterfall');
+
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
    childOb.parent = ob;
@@ -65,13 +67,21 @@ class Chat {
                 var payload = m.message[1];
                 payload.chat = this;
 
+                var plugin_queue = [];
+
+                plugin_queue.push(function(next){
+                    next(null, payload);
+                });
+
                 for(let i in plugins) {
-                    if(plugins[i].middleware && plugins[i].middleware.subscribe) {
-                        plugins[i].middleware.subscribe(event, payload, function(){});
+                    if(plugins[i].middleware && plugins[i].middleware.subscribe && plugins[i].middleware.subscribe[event]) {
+                        plugin_queue.push(plugins[i].middleware.subscribe[event]);
                     }
                 }
 
-                this.emitter.emit(event, payload);
+                waterfall(plugin_queue, (err, payload) => {
+                   this.emitter.emit(event, payload);
+                });
 
             },
             presence: (presenceEvent) => {
@@ -94,8 +104,8 @@ class Chat {
         };
 
         for(let i in plugins) {
-            if(plugins[i].middleware && plugins[i].middleware.publish) {
-                plugins[i].middleware.publish(event, payload, function(){});
+            if(plugins[i].middleware && plugins[i].middleware.publish && plugins[i].middleware.publish[event]) {
+                plugins[i].middleware.publish[event](payload, function(){});
             }
         }
 
