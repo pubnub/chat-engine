@@ -19,16 +19,16 @@ let mary = new OCF.User('mary', {value: true});
 
 var chat = me.createChat([john, mary]);
 
-chat.emitter.on('message', (user, packet) => {
-    console.log('got message', user, packet);
+chat.emitter.on('message', (payload) => {
+    console.log('got message', payload.sender, payload.data);
 });
 
-chat.emitter.on('startTyping', (user, packet) => {
-    console.log('start typing', user, packet);
+chat.emitter.on('startTyping', (payload) => {
+    console.log('start typing', payload.sender, payload.data);
 });
 
-chat.emitter.on('stopTyping', (user, packet) => {
-    console.log('stop typing', user, packet);
+chat.emitter.on('stopTyping', (payload) => {
+    console.log('stop typing', payload.sender, payload.data);
 });
 
 chat.emitter.on('ready', () => {

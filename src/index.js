@@ -61,16 +61,17 @@ class Chat {
             },
             message: (m) => {
 
-                var payload = m.message;
+                var event = m.message[0];
+                var payload = m.message[1];
                 payload.chat = this;
 
                 for(let i in plugins) {
                     if(plugins[i].middleware && plugins[i].middleware.subscribe) {
-                        plugins[i].middleware.subscribe(payload, function(){});
+                        plugins[i].middleware.subscribe(event, payload, function(){});
                     }
                 }
 
-                this.emitter.emit(payload.event, payload.data);
+                this.emitter.emit(event, payload);
 
             },
             presence: (presenceEvent) => {
@@ -87,21 +88,21 @@ class Chat {
     publish(event, data) {
 
         var payload = {
+            sender: this.me,
             chat: this,
-            event: event,
             data: data
         };
 
         for(let i in plugins) {
             if(plugins[i].middleware && plugins[i].middleware.publish) {
-                plugins[i].middleware.publish(payload, function(){});
+                plugins[i].middleware.publish(event, payload, function(){});
             }
         }
 
         delete payload.chat; // will be rebuilt on subscribe
 
         this.rltm.publish({
-            message: payload,
+            message: [event, payload],
             channel: this.channels[0]
         });
 

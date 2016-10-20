@@ -4,11 +4,11 @@ const defaults = {timeout: 1000};
 
 module.exports = function(config) {
 
-    var publish = function(payload, next) {
+    var publish = function(event, payload, next) {
         next(null, payload);
     }
 
-    var subscribe = function(payload, next) {
+    var subscribe = function(event, payload, next) {
         next(null, payload);
     }
 
