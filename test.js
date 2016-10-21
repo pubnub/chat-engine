@@ -1,19 +1,13 @@
 "use strict";
 
 var typingIndicator = require('./plugins/typingIndicator.js');
-var append1 = require('./plugins/append1.js');
-var append2 = require('./plugins/append2.js');
-var append3 = require('./plugins/append3.js');
 
 var OCFBuilder = require('./src/index.js'); 
 
 var OCF = new OCFBuilder({
     globalConfigs: 'here'
 }, [
-    new typingIndicator(),
-    new append1(),
-    new append2(),
-    new append3()
+    new typingIndicator()
 ]);
 
 let me = new OCF.User('ian', {value: true});

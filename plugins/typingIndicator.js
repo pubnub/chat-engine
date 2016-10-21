@@ -2,7 +2,7 @@
 
 const defaults = {timeout: 1000};
 
-module.exports = function(config) {
+var plugin = function(config) {
 
     config = config || {timeout: 1000};
 
@@ -45,4 +45,10 @@ module.exports = function(config) {
         }
     }
 
+}
+
+if(typeof module !== "undefined") {
+    module.exports = plugin;
+} else {
+    window.typingIndicator = plugin;
 }
