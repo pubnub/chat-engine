@@ -124,7 +124,7 @@ class Chat {
                     message: [event, payload],
                     channel: this.channels[0]
                 });
-                
+
             }
         );
 
@@ -140,6 +140,7 @@ class User {
         
         this.id = id;
         this.data = data;
+        
     }
 
     createChat(users) {

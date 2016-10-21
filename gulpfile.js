@@ -7,8 +7,7 @@ gulp.task('compile', function () {
     
     browserify({
         entries: ['src/index.js'],
-        debug: true,
-        standalone: 'OCF'
+        debug: true
     })
     .bundle()
     .pipe(source('ocf.js'))
