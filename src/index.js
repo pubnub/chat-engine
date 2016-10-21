@@ -57,7 +57,9 @@ class Chat {
         for(var i in this.users) {
             userIds.push(this.users[i].id); 
         };
+
         userIds.push(this.me.id);
+        this.users.push(this.me);
 
         this.channels = [userIds.sort().join(':')];
 
@@ -82,6 +84,16 @@ class Chat {
                 var event = m.message[0];
                 var payload = m.message[1];
                 payload.chat = this;
+
+                console.log(payload.sender)
+
+                if(payload.sender) {
+                    for(var i in this.users) {
+                        if(this.users[i].id == payload.sender.id) {
+                            payload.sender = this.users[i];
+                        }
+                    }
+                }
 
                 runPluginQueue('subscribe', event, 
                     (next) => {
