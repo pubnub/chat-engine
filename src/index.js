@@ -28,6 +28,22 @@ function loadClassPlugins(obj) {
 
 }
 
+var runPluginQueue = function(location, event, first, last) {
+    
+    var plugin_queue = [];
+
+    plugin_queue.push(first);
+
+    for(let i in plugins) {
+        if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
+            plugin_queue.push(plugins[i].middleware[location][event]);
+        }
+    }
+
+    waterfall(plugin_queue, last);
+
+}
+
 class Chat {
 
     constructor(me, users) {
@@ -67,21 +83,14 @@ class Chat {
                 var payload = m.message[1];
                 payload.chat = this;
 
-                var plugin_queue = [];
-
-                plugin_queue.push(function(next){
-                    next(null, payload);
-                });
-
-                for(let i in plugins) {
-                    if(plugins[i].middleware && plugins[i].middleware.subscribe && plugins[i].middleware.subscribe[event]) {
-                        plugin_queue.push(plugins[i].middleware.subscribe[event]);
+                runPluginQueue('subscribe', event, 
+                    (next) => {
+                        next(null, payload);
+                    },
+                    (err, payload) => {
+                       this.emitter.emit(event, payload);
                     }
-                }
-
-                waterfall(plugin_queue, (err, payload) => {
-                   this.emitter.emit(event, payload);
-                });
+                );
 
             },
             presence: (presenceEvent) => {
@@ -103,18 +112,21 @@ class Chat {
             data: data
         };
 
-        for(let i in plugins) {
-            if(plugins[i].middleware && plugins[i].middleware.publish && plugins[i].middleware.publish[event]) {
-                plugins[i].middleware.publish[event](payload, function(){});
+        runPluginQueue('publish', event, 
+            (next) => {
+                next(null, payload);
+            },
+            (err, payload) => {
+
+                delete payload.chat; // will be rebuilt on subscribe
+
+                this.rltm.publish({
+                    message: [event, payload],
+                    channel: this.channels[0]
+                });
+                
             }
-        }
-
-        delete payload.chat; // will be rebuilt on subscribe
-
-        this.rltm.publish({
-            message: [event, payload],
-            channel: this.channels[0]
-        });
+        );
 
     }
 
