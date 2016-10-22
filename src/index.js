@@ -85,8 +85,6 @@ class Chat {
                 var payload = m.message[1];
                 payload.chat = this;
 
-                console.log(payload.sender)
-
                 if(payload.sender) {
                     for(var i in this.users) {
                         if(this.users[i].id == payload.sender.id) {

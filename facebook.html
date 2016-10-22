@@ -57,6 +57,15 @@
 
             let me = new OCF.User(response.id, response);
 
+            FB.api(
+                "/"+response.id+"/picture",
+                function (response) {
+                  if (response && !response.error) {
+                    me.data.avatar = response.data.url
+                  }
+                }
+            );
+
             let john = new OCF.User('john', {value: true});
             let mary = new OCF.User('mary', {value: true});
 
@@ -64,9 +73,7 @@
 
             chat.emitter.on('message', (payload) => {
 
-                console.log(payload)
-
-                $('#chat').append($('<div><strong>'+payload.sender.data.name+':</strong> ' + payload.data.text + '</div>'));
+                $('#chat').append($('<div><img src="'+payload.sender.data.avatar+'" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/><strong>'+payload.sender.data.name+':</strong> ' + payload.data.text + '</div>'));
 
             });
 
@@ -87,6 +94,7 @@
             });
 
             chat.emitter.on('startTyping', (payload) => {
+                console.log(payload.sender.data.name)
                 $('#typing').text('Typing...');
             });
 
