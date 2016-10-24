@@ -1,11 +1,18 @@
 const gulp = require('gulp');
-const uglify = require("gulp-uglify");
- 
+const browserify = require('browserify');
+const source = require('vinyl-source-stream');
+
 // task
-gulp.task('minify-js', function () {
-    gulp.src('./src/*.js')
-    .pipe(uglify())
-    .pipe(gulp.dest('./dist'));
+gulp.task('compile', function () {
+    
+    browserify({
+        entries: ['window.js'],
+        debug: true
+    })
+    .bundle()
+    .pipe(source('ocf.js'))
+    .pipe(gulp.dest('./web/'));
+
 });
 
-gulp.task('default', ['minify-js']);
+gulp.task('default', ['compile']);
