@@ -10,7 +10,9 @@ var OCFBuilder = require('./src/index.js');
 var OCF = new OCFBuilder({
     globalConfigs: 'here'
 }, [
-    new typingIndicator(),
+    new typingIndicator({
+        timeout: 5000
+    }),
     new append1(),
     new append2(),
     new append3(),

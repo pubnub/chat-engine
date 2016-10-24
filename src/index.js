@@ -67,15 +67,28 @@ class Chat {
         this.emitter = new EventEmitter();
 
         this.rltm = new Rltm({
-            publishKey: 'pub-c-72832def-4ca3-4802-971d-68112db1b30a',
-            subscribeKey: 'sub-c-28e05466-8c18-11e6-a68c-0619f8945a4f'
+            publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
+            subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe'
         });
+
+        // this.rltm.setUUID(this.me.id);
             
         this.rltm.addListener({
             status: (statusEvent) => {
                 
                 if (statusEvent.category === "PNConnectedCategory") {
+                    
                     this.emitter.emit('ready');
+
+                    this.rltm.setState({
+                            state: this.me,
+                            channels: this.channels
+                        },
+                        function (status, response) {
+                            // handle status, response
+                        }
+                    );
+
                 }
 
             },
@@ -104,12 +117,17 @@ class Chat {
 
             },
             presence: (presenceEvent) => {
+
+                console.log('presence')
+                console.log(presenceEvent)
+
                 this.emitter.emit('presence', presenceEvent);
             }
-        })
-         
+        });
+
         this.rltm.subscribe({ 
-            channels: this.channels
+            channels: this.channels,
+            withPresence: true
         });
 
     }
