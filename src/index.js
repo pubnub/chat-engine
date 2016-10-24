@@ -71,7 +71,17 @@ class Chat {
             subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe'
         });
 
-        // this.rltm.setUUID(this.me.id);
+        this.rltm.setUUID(this.me.id);
+
+        this.rltm.hereNow(
+            {
+                channels: this.channels, 
+                includeUUIDs: true,
+                includeState: true
+            }, (status, response) => {
+                console.log(response.channels[this.channels[0]])
+            }
+        );
             
         this.rltm.addListener({
             status: (statusEvent) => {
