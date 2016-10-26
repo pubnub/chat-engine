@@ -2,9 +2,10 @@
 const EventEmitter = require('events');
 
 let Rltm = require('rltm');
-let me = false;
 
-let plugins = [];
+let plugins = []; 
+
+let me = false;
 
 let waterfall = require('async/waterfall');
 
@@ -46,11 +47,12 @@ var runPluginQueue = function(location, event, first, last) {
 
 class Chat {
 
-    constructor(users, me) {
+    constructor(users, anonymous) {
 
         loadClassPlugins(this);
 
         this.users = users;
+        this.isIdentified = !anonymous && me;
 
         let userIds = [];
         for(var i in this.users) {
@@ -84,10 +86,10 @@ class Chat {
                     
                     this.emitter.emit('ready');
 
-                    if(this.me) {
+                    if(this.isIdentified) {
 
                         this.rltm.setState({
-                                state: this.me,
+                                state: me,
                                 channels: this.channels
                             },
                             function (status, response) {
@@ -138,41 +140,44 @@ class Chat {
             withPresence: true
         });
 
-        if(me) {
-            this.me = me;
-            userIds.push(this.me.id);
-            this.users.push(this.me);
-            this.rltm.setUUID(this.me.id);
+        if(this.isIdentified) {
+            userIds.push(me.id);
+            this.users.push(me);
+            this.rltm.setUUID(me.id);
         }
 
     }
 
     publish(event, data) {
 
-        var payload = {
-            chat: this,
-            data: data
-        };
+        if(this.isIdentified) {
 
-        if(this.me) {
-            payload.sender = this.me
+            var payload = {
+                chat: this,
+                data: data
+            };
+
+            payload.sender = me;
+
+            runPluginQueue('publish', event, 
+                (next) => {
+                    next(null, payload);
+                },
+                (err, payload) => {
+
+                    delete payload.chat; // will be rebuilt on subscribe
+
+                    this.rltm.publish({
+                        message: [event, payload],
+                        channel: this.channels[0]
+                    });
+
+                }
+            );
+
+        } else {
+            console.log('cant publish to chat you are not in');
         }
-
-        runPluginQueue('publish', event, 
-            (next) => {
-                next(null, payload);
-            },
-            (err, payload) => {
-
-                delete payload.chat; // will be rebuilt on subscribe
-
-                this.rltm.publish({
-                    message: [event, payload],
-                    channel: this.channels[0]
-                });
-
-            }
-        );
 
     }
 
@@ -196,12 +201,16 @@ module.exports = class {
 
         plugins = plugs;
 
-        let classes = {Chat, User};
+        this.class = {Chat, User};
 
-        return classes;
+        return this;
 
     }
     config(params) {
         // do some config
+    }
+    identify(id, data) {
+        me = new User(id, data);
+        return me;
     }
 };

@@ -18,12 +18,12 @@ var OCF = new OCFBuilder({
     new append3(),
 ]);
 
-let me = new OCF.User('ian', {value: true});
+var me = OCF.identify('ian', {value: true});
 
-let john = new OCF.User('john', {value: true});
-let mary = new OCF.User('mary', {value: true});
+let john = new OCF.class.User('john', {value: true});
+let mary = new OCF.class.User('mary', {value: true});
 
-var chat = new OCF.Chat([john, mary], me);
+var chat = new OCF.class.Chat([john, mary]);
 
 chat.emitter.on('message', (payload) => {
     console.log('got message', payload.sender, payload.data);
