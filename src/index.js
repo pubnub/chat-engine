@@ -181,10 +181,6 @@ class User {
         
     }
 
-    createChat(users) {
-        return new Chat(this, users);
-    };
-
 };
 
 module.exports = class {
