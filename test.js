@@ -23,7 +23,7 @@ let me = new OCF.User('ian', {value: true});
 let john = new OCF.User('john', {value: true});
 let mary = new OCF.User('mary', {value: true});
 
-var chat = new OCF.Chat(me, [john, mary]);
+var chat = new OCF.Chat([john, mary], me);
 
 chat.emitter.on('message', (payload) => {
     console.log('got message', payload.sender, payload.data);

@@ -46,11 +46,10 @@ var runPluginQueue = function(location, event, first, last) {
 
 class Chat {
 
-    constructor(me, users) {
+    constructor(users, me) {
 
         loadClassPlugins(this);
 
-        this.me = me;
         this.users = users;
 
         let userIds = [];
@@ -58,10 +57,7 @@ class Chat {
             userIds.push(this.users[i].id); 
         };
 
-        userIds.push(this.me.id);
-        this.users.push(this.me);
-
-        this.channels = [userIds.sort().join(':')];
+        this.channels = [new Date().getTime()]; // replace with uuid
 
         // use star channels ian:*
         this.emitter = new EventEmitter();
@@ -70,8 +66,6 @@ class Chat {
             publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
             subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe'
         });
-
-        this.rltm.setUUID(this.me.id);
 
         this.rltm.hereNow(
             {
@@ -90,14 +84,18 @@ class Chat {
                     
                     this.emitter.emit('ready');
 
-                    this.rltm.setState({
-                            state: this.me,
-                            channels: this.channels
-                        },
-                        function (status, response) {
-                            // handle status, response
-                        }
-                    );
+                    if(this.me) {
+
+                        this.rltm.setState({
+                                state: this.me,
+                                channels: this.channels
+                            },
+                            function (status, response) {
+                                // handle status, response
+                            }
+                        );
+
+                    }
 
                 }
 
@@ -140,15 +138,25 @@ class Chat {
             withPresence: true
         });
 
+        if(me) {
+            this.me = me;
+            userIds.push(this.me.id);
+            this.users.push(this.me);
+            this.rltm.setUUID(this.me.id);
+        }
+
     }
 
     publish(event, data) {
 
         var payload = {
-            sender: this.me,
             chat: this,
             data: data
         };
+
+        if(this.me) {
+            payload.sender = this.me
+        }
 
         runPluginQueue('publish', event, 
             (next) => {
