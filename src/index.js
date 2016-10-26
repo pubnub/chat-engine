@@ -18,7 +18,6 @@ function loadClassPlugins(obj) {
     let className = obj.constructor.name;
 
     for(let i in plugins) {
-        // do plugin error checking here
 
         if(plugins[i].extends && plugins[i].extends[className]) {
             addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
@@ -46,20 +45,18 @@ var runPluginQueue = function(location, event, first, last) {
 
 class Chat {
 
-    constructor(me, users) {
+    constructor(users) {
+
+        console.log(this.constructor.name);
 
         loadClassPlugins(this);
 
-        this.me = me;
         this.users = users;
 
         let userIds = [];
         for(var i in this.users) {
             userIds.push(this.users[i].id); 
         };
-
-        userIds.push(this.me.id);
-        this.users.push(this.me);
 
         this.channels = [userIds.sort().join(':')];
 
@@ -70,9 +67,7 @@ class Chat {
             publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
             subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe'
         });
-
-        this.rltm.setUUID(this.me.id);
-
+        
         this.rltm.hereNow(
             {
                 channels: this.channels, 
@@ -89,15 +84,6 @@ class Chat {
                 if (statusEvent.category === "PNConnectedCategory") {
                     
                     this.emitter.emit('ready');
-
-                    this.rltm.setState({
-                            state: this.me,
-                            channels: this.channels
-                        },
-                        function (status, response) {
-                            // handle status, response
-                        }
-                    );
 
                 }
 
@@ -145,7 +131,6 @@ class Chat {
     publish(event, data) {
 
         var payload = {
-            sender: this.me,
             chat: this,
             data: data
         };
@@ -178,14 +163,33 @@ class User {
         
         this.id = id;
         this.data = data;
-        
+
     }
 
-    createChat(users) {
-        return new Chat(this, users);
-    };
-
 };
+
+class Me extends User {
+    constructor() {
+
+        this.emitter.on('ready', () => {
+            
+            this.rltm.setState({
+                    state: this.me,
+                    channels: this.channels
+                },
+                function (status, response) {
+                    // handle status, response
+                }
+            );
+
+        });
+
+        sender: this.me;
+
+        this.rltm.setUUID(this.id);
+
+    }
+}
 
 module.exports = class {
     constructor(config, plugs) {
