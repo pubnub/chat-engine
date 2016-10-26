@@ -47,12 +47,11 @@ var runPluginQueue = function(location, event, first, last) {
 
 class Chat {
 
-    constructor(users, anonymous) {
+    constructor(users) {
 
         loadClassPlugins(this);
 
         this.users = users;
-        this.isIdentified = !anonymous && me;
 
         let userIds = [];
         for(var i in this.users) {
@@ -86,7 +85,7 @@ class Chat {
                     
                     this.emitter.emit('ready');
 
-                    if(this.isIdentified) {
+                    if(me) {
 
                         this.rltm.setState({
                                 state: me,
@@ -140,7 +139,7 @@ class Chat {
             withPresence: true
         });
 
-        if(this.isIdentified) {
+        if(me) {
             userIds.push(me.id);
             this.users.push(me);
             this.rltm.setUUID(me.id);
@@ -150,7 +149,7 @@ class Chat {
 
     publish(event, data) {
 
-        if(this.isIdentified) {
+        if(me) {
 
             var payload = {
                 chat: this,
