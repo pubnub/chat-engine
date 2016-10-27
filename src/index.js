@@ -84,21 +84,6 @@ class Chat {
             status: (statusEvent) => {
                 
                 if (statusEvent.category === "PNConnectedCategory") {
-
-                    if(me) {
-
-                        this.rltm.setState({
-                            state: me.state,
-                            channels: this.channels
-                        }, (status, response) => {
-
-                        });
-
-                        this.users[me.uuid] = me;
-
-                        console.log('setting me as', me)
-
-                    } 
                     
                     this.emitter.emit('ready');
 
@@ -171,6 +156,8 @@ class Chat {
             withPresence: true
         });
 
+        me.joinChat(this);
+
     }
 
     publish(event, data) {
@@ -194,6 +181,8 @@ class Chat {
 
             delete payload.chat; // will be rebuilt on subscribe
 
+            console.log(event, payload)
+
             this.rltm.publish({
                 message: [event, payload],
                 channel: this.channels[0]
@@ -208,10 +197,6 @@ class Chat {
 class User {
 
     constructor(uuid, state) {
-    
-        // get list of all chats a user is in
-        // update their chat based state
-        // or their entire user based state
 
         loadClassPlugins(this);
         
@@ -221,6 +206,47 @@ class User {
     }
 
 };
+
+class Me extends User {
+    constructor(uuid, state) {
+    
+        // get list of all chats a user is in
+        // update their chat based state
+        // or their entire user based state
+
+        // create a set command
+
+        super(uuid, state);
+        
+        let chats = [];
+
+        this.joinChat = (chat) => {
+            chats.push(chat)
+        }
+        this.getChats = (chat) => {
+            return chats;
+        }
+    }
+    set(property, value) {
+
+        this.state[property] = value;
+
+        let chats = this.getChats();
+
+        for(let i in chats) {
+
+            this.rltm.setState({
+                state: this.state,
+                channels: this.chats[i].channels
+            }, (status, response) => {
+                console.log(status)
+                console.log(response)
+            });
+
+        }
+
+    }
+}
 
 module.exports = class {
     constructor(config, plugs) {
@@ -237,7 +263,8 @@ module.exports = class {
         // do some config
     }
     identify(uuid, state) {
-        me = new User(uuid, state);
+
+        me = new Me(uuid, state);
 
         console.log('I am ', me.uuid)
 
