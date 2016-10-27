@@ -26,8 +26,8 @@ function loadClassPlugins(obj) {
             addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
 
             // this is a reserved function in plugins that run at start of class            
-            if(obj[plugins[i].namespace].init) {
-                obj[plugins[i].namespace].init();
+            if(obj[plugins[i].namespace].construct) {
+                obj[plugins[i].namespace].construct();
             }
 
         }
@@ -81,6 +81,8 @@ class Chat {
             for(let i in occupants) {
                 this.users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state)
             }
+            
+            this.emitter.emit('online-list', this.users);
 
         });
             
@@ -88,9 +90,7 @@ class Chat {
             status: (statusEvent) => {
                 
                 if (statusEvent.category === "PNConnectedCategory") {
-                    
                     this.emitter.emit('ready');
-
                 }
 
             },
@@ -152,6 +152,13 @@ class Chat {
         });
 
         me.chats.push(this);
+        
+        this.rltm.setState({
+            state: me.data.state,
+            channels: this.channels
+        }, (status, response) => {
+            console.log(status, response)
+        });
 
         loadClassPlugins(this);
 
@@ -189,7 +196,7 @@ class User {
         
         this.data = {
             uuid: uuid,
-            state: state
+            state: state || {}
         }
         
     }
@@ -215,6 +222,7 @@ class Me extends User {
                 state: this.data.state,
                 channels: this.chats[i].channels
             }, (status, response) => {
+                console.log(status, response)
             });
 
         }

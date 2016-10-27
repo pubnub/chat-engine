@@ -9,47 +9,60 @@
 </head>
 
 <body>
-  <script src="../web/ocf.js" type="text/javascript"></script>
-  <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
-  <script type="text/javascript">
 
-    var OCF = new OCFBuilder({
+    <h1>You are <span id="me"></span></h1>
+
+    <ul id="online-list">
+    </ul>
+    
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="../web/ocf.js" type="text/javascript"></script>
+    <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
+    <script src="../plugins/randomUsername.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+   var OCF = new OCFBuilder({
         globalConfigs: 'here'
     }, [
-        new typingIndicator()
+        new typingIndicator({
+            timeout: 5000
+        }),
+        new randomUsername()
     ]);
 
-    var me = OCF.identify('ian' + new Date().getTime(), {value: true});
+    var me = OCF.identify(new Date().getTime(), {value: true});
 
-    let john = new OCF.User('john', {value: true});
-    let mary = new OCF.User('mary', {value: true});
+    $('#me').text(me.data.state.username + '(' + me.data.uuid + ')');
 
-    var chat = me.createChat([john, mary]);
+    var chat = new OCF.Chat('online-list-tester');
+
+    chat.emitter.on('online-list', (users) => {
+
+        $('#online-list').empty();
+
+        for(var i in users) {
+            $('#online-list').append('<li>' + users[i].data.state.username  + '</li>');
+        }
+
+    });
+
+    chat.emitter.on('state-change', (packet) => {
+        console.log('state-chante', packet)
+    });
+
+
+    chat.emitter.on('join', (payload) => {
+        console.log('got join', payload);
+    });
 
     chat.emitter.on('message', (payload) => {
         console.log('got message', payload.sender, payload.data);
     });
 
-    chat.emitter.on('startTyping', (payload) => {
-        console.log('start typing', payload.sender, payload.data);
-    });
-
-    chat.emitter.on('stopTyping', (payload) => {
-        console.log('stop typing', payload.sender, payload.data);
-    });
 
     chat.emitter.on('ready', () => {
 
-        console.log('chat is ready');
-
-        chat.typing.startTyping();
-
-        chat.publish('message', {
-            text: 'hello world'
-        });
-
     });
-
 
   </script>
 </body>

@@ -10,18 +10,15 @@ var randomName = function() {
 
 }
 
-const defaults = {timeout: 1000};
-
 var plugin = function() {
     
     let Me = {
-        init: function() {
+        construct: function() {
+
             console.log('init called', this.parent);
 
-            if(!this.parent.state) {
-                this.parent.state = {};
-            }
-            this.parent.state.username = randomName();
+            this.parent.set('username', randomName());
+
         }
 
     }
