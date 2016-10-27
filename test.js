@@ -4,6 +4,7 @@ var typingIndicator = require('./plugins/typingIndicator.js');
 var append1 = require('./plugins/append1.js');
 var append2 = require('./plugins/append2.js');
 var append3 = require('./plugins/append3.js');
+var randomUsername = require('./plugins/randomUsername.js');
 
 var OCFBuilder = require('./src/index.js'); 
 
@@ -16,6 +17,7 @@ var OCF = new OCFBuilder({
     new append1(),
     new append2(),
     new append3(),
+    new randomUsername()
 ]);
 
 var me = OCF.identify('ian' + new Date().getTime(), {value: true});

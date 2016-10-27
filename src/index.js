@@ -22,8 +22,16 @@ function loadClassPlugins(obj) {
         // do plugin error checking here
 
         if(plugins[i].extends && plugins[i].extends[className]) {
+            
             addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
+
+            // this is a reserved function in plugins that run at start of class            
+            if(obj[plugins[i].namespace].init) {
+                obj[plugins[i].namespace].init();
+            }
+
         }
+
 
     }
 
@@ -49,8 +57,6 @@ class Chat {
 
     constructor(channel) {
 
-        loadClassPlugins(this);
-
         this.users = {};
 
         this.channels = [channel]; // replace with uuid
@@ -61,7 +67,7 @@ class Chat {
         this.rltm = new Rltm({
             publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
             subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe',
-            uuid: me ? me.uuid : null
+            uuid: me ? me.data.uuid : null
         });
 
         this.rltm.hereNow({
@@ -75,8 +81,6 @@ class Chat {
             for(let i in occupants) {
                 this.users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state)
             }
-
-            console.log(this.users);
 
         });
             
@@ -96,15 +100,9 @@ class Chat {
                 let payload = m.message[1];
                 payload.chat = this;
 
-                console.log('got message')
-
-                console.log(payload.sender.state.avatar)
-                console.log(this.users[payload.sender.uuid].state.avatar)
-
                 if(payload.sender) {
                     if(this.users[payload.sender.uuid]) {
                         payload.sender = this.users[payload.sender.uuid];
-                        console.log('setting sender as ', payload.sender)
                     }
                 }
 
@@ -119,8 +117,6 @@ class Chat {
 
                 if(presenceEvent.action == "join") {
 
-                    console.log('user not set, setting with', presenceEvent.uuid, presenceEvent.state)
-
                     if(!this.users[presenceEvent.uuid]) {
                         this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
                     }
@@ -133,7 +129,6 @@ class Chat {
                     // set idle?   
                 }
                 if(presenceEvent.action == "state-change") {
-                    console.log('updating state', presenceEvent.uuid, presenceEvent.state)
                     this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
                 }
 
@@ -156,28 +151,23 @@ class Chat {
             withPresence: true
         });
 
-        me.joinChat(this);
+        me.chats.push(this);
+
+        loadClassPlugins(this);
 
     }
 
     publish(event, data) {
 
         let payload = {
-            chat: this,
             data: data
         };
 
-        console.log('publish', me.state.avatar)
-
-        payload.sender = me;
-
-        console.log('after paylaod set', me.state.avatar)
+        payload.sender = me.data;
 
         runPluginQueue('publish', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
-
-            console.log('after plugin queue', payload.sender.state.avatar)
 
             delete payload.chat; // will be rebuilt on subscribe
 
@@ -195,52 +185,36 @@ class Chat {
 };
 
 class User {
-
     constructor(uuid, state) {
-
-        loadClassPlugins(this);
         
-        this.uuid = uuid;
-        this.state = state;
+        this.data = {
+            uuid: uuid,
+            state: state
+        }
         
     }
-
 };
 
 class Me extends User {
     constructor(uuid, state) {
-    
-        // get list of all chats a user is in
-        // update their chat based state
-        // or their entire user based state
-
-        // create a set command
 
         super(uuid, state);
         
-        let chats = [];
+        this.chats = [];
+        
+        loadClassPlugins(this);
 
-        this.joinChat = (chat) => {
-            chats.push(chat)
-        }
-        this.getChats = (chat) => {
-            return chats;
-        }
     }
     set(property, value) {
 
-        this.state[property] = value;
+        this.data.state[property] = value;
 
-        let chats = this.getChats();
-
-        for(let i in chats) {
+        for(let i in this.chats) {
 
             this.rltm.setState({
-                state: this.state,
+                state: this.data.state,
                 channels: this.chats[i].channels
             }, (status, response) => {
-                console.log(status)
-                console.log(response)
             });
 
         }
@@ -265,8 +239,6 @@ module.exports = class {
     identify(uuid, state) {
 
         me = new Me(uuid, state);
-
-        console.log('I am ', me.uuid)
 
         return me;
     }
