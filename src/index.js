@@ -29,9 +29,9 @@ function loadClassPlugins(obj) {
 
 }
 
-var runPluginQueue = function(location, event, first, last) {
+let runPluginQueue = function(location, event, first, last) {
     
-    var plugin_queue = [];
+    let plugin_queue = [];
 
     plugin_queue.push(first);
 
@@ -47,69 +47,72 @@ var runPluginQueue = function(location, event, first, last) {
 
 class Chat {
 
-    constructor(users) {
+    constructor(channel) {
 
         loadClassPlugins(this);
 
-        this.users = users;
+        this.users = {};
 
-        let userIds = [];
-        for(var i in this.users) {
-            userIds.push(this.users[i].id); 
-        };
-
-        this.channels = [new Date().getTime()]; // replace with uuid
+        this.channels = [channel]; // replace with uuid
 
         // use star channels ian:*
         this.emitter = new EventEmitter();
 
         this.rltm = new Rltm({
             publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
-            subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe'
+            subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe',
+            uuid: me ? me.uuid : null
         });
 
-        this.rltm.hereNow(
-            {
-                channels: this.channels, 
-                includeUUIDs: true,
-                includeState: true
-            }, (status, response) => {
-                console.log(response.channels[this.channels[0]])
+        this.rltm.hereNow({
+            channels: this.channels, 
+            includeUUIDs: true,
+            includeState: true
+        }, (status, response) => {
+
+            let occupants = response.channels[this.channels[0]].occupants;
+
+            for(let i in occupants) {
+                this.users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state)
             }
-        );
+
+            console.log(this.users);
+
+        });
             
         this.rltm.addListener({
             status: (statusEvent) => {
                 
                 if (statusEvent.category === "PNConnectedCategory") {
-                    
-                    this.emitter.emit('ready');
 
                     if(me) {
 
                         this.rltm.setState({
-                                state: me,
+                                state: me.state,
                                 channels: this.channels
-                            },
-                            function (status, response) {
-                                // handle status, response
+                            }, (status, response) => {
+
                             }
                         );
 
-                    }
+                        this.users[me.uuid] = new User(me.uuid, me.state);
+
+                    } 
+                    
+                    this.emitter.emit('ready');
 
                 }
 
             },
             message: (m) => {
 
-                var event = m.message[0];
-                var payload = m.message[1];
+                let event = m.message[0];
+                let payload = m.message[1];
                 payload.chat = this;
 
                 if(payload.sender) {
-                    for(var i in this.users) {
-                        if(this.users[i].id == payload.sender.id) {
+                    for(let i in this.users) {
+                        if(this.users[i].uuid == payload.sender.uuid) {
                             payload.sender = this.users[i];
                         }
                     }
@@ -127,10 +130,37 @@ class Chat {
             },
             presence: (presenceEvent) => {
 
-                console.log('presence')
-                console.log(presenceEvent)
+                if(presenceEvent.action == "join") {
 
-                this.emitter.emit('presence', presenceEvent);
+                    if(!this.users[presenceEvent.uuid]) {
+                        this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
+                    }
+
+                }
+                if(presenceEvent.action == "leave") {
+                    delete this.users[presenceEvent.uuid];
+                }
+                if(presenceEvent.action == "timeout") {
+                    // set idle?   
+                }
+                if(presenceEvent.action == "state-change") {
+                    this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
+                }
+
+                let payload = {
+                    user: this.users[presenceEvent.uuid],
+                    data: presenceEvent
+                }
+
+                runPluginQueue(presenceEvent.action, presenceEvent, 
+                    (next) => {
+                        next(null, payload);
+                    },
+                    (err, payload) => {
+                       this.emitter.emit(presenceEvent.action, payload);
+                    }
+                );
+
             }
         });
 
@@ -139,44 +169,32 @@ class Chat {
             withPresence: true
         });
 
-        if(me) {
-            userIds.push(me.id);
-            this.users.push(me);
-            this.rltm.setUUID(me.id);
-        }
-
     }
 
     publish(event, data) {
 
-        if(me) {
+        let payload = {
+            chat: this,
+            data: data
+        };
 
-            var payload = {
-                chat: this,
-                data: data
-            };
+        payload.sender = me;
 
-            payload.sender = me;
+        runPluginQueue('publish', event, 
+            (next) => {
+                next(null, payload);
+            },
+            (err, payload) => {
 
-            runPluginQueue('publish', event, 
-                (next) => {
-                    next(null, payload);
-                },
-                (err, payload) => {
+                delete payload.chat; // will be rebuilt on subscribe
 
-                    delete payload.chat; // will be rebuilt on subscribe
+                this.rltm.publish({
+                    message: [event, payload],
+                    channel: this.channels[0]
+                });
 
-                    this.rltm.publish({
-                        message: [event, payload],
-                        channel: this.channels[0]
-                    });
-
-                }
-            );
-
-        } else {
-            console.log('cant publish to chat you are not in');
-        }
+            }
+        );
 
     }
 
@@ -184,12 +202,12 @@ class Chat {
 
 class User {
 
-    constructor(id, data) {
+    constructor(uuid, state) {
     
         loadClassPlugins(this);
         
-        this.id = id;
-        this.data = data;
+        this.uuid = uuid;
+        this.state = state;
         
     }
 
@@ -208,8 +226,11 @@ module.exports = class {
     config(params) {
         // do some config
     }
-    identify(id, data) {
-        me = new User(id, data);
+    identify(uuid, state) {
+        me = new User(uuid, state);
+
+        console.log('I am ', me.uuid)
+
         return me;
     }
 };

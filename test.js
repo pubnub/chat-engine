@@ -18,12 +18,18 @@ var OCF = new OCFBuilder({
     new append3(),
 ]);
 
-var me = OCF.identify('ian', {value: true});
+var channel = 'dogs2';
+
+var me = OCF.identify('ian' + new Date().getTime(), {value: true});
 
 let john = new OCF.class.User('john', {value: true});
 let mary = new OCF.class.User('mary', {value: true});
 
-var chat = new OCF.class.Chat([john, mary]);
+var chat = new OCF.class.Chat(channel);
+
+chat.emitter.on('join', (payload) => {
+    console.log('got join', payload.user.uuid);
+});
 
 chat.emitter.on('message', (payload) => {
     console.log('got message', payload.sender, payload.data);
@@ -40,6 +46,8 @@ chat.emitter.on('stopTyping', (payload) => {
 chat.emitter.on('ready', () => {
 
     console.log('chat is ready');
+
+    console.log(chat.users)
 
     chat.typing.startTyping();
 
