@@ -65,7 +65,6 @@
                                 if (response && !response.error) {
 
                                     console.log(me)
-
                                     me.state.avatar = response.data.url
                                 }
                             }
@@ -73,7 +72,7 @@
 
                         chat.emitter.on('message', (payload) => {
 
-                            console.log(payload)
+                            console.log(payload.sender)
 
                             $('#chat').append($('<div><img src="' + payload.sender.state.avatar + '" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/><strong>' + payload.sender.state.name + ':</strong> ' + payload.data.text + '</div>'));
 

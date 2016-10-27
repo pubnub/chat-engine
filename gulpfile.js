@@ -16,3 +16,7 @@ gulp.task('compile', function () {
 });
 
 gulp.task('default', ['compile']);
+
+gulp.task('watch', function() {
+  gulp.watch('./src/*', ['compile']);
+});

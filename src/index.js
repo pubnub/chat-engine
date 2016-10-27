@@ -96,6 +96,8 @@ class Chat {
 
                         this.users[me.uuid] = me;
 
+                        console.log('setting me as', me)
+
                     } 
                     
                     this.emitter.emit('ready');
@@ -109,11 +111,15 @@ class Chat {
                 let payload = m.message[1];
                 payload.chat = this;
 
+                console.log('got message')
+
+                console.log(payload.sender.state.avatar)
+                console.log(this.users[payload.sender.uuid].state.avatar)
+
                 if(payload.sender) {
-                    for(let i in this.users) {
-                        if(this.users[i].uuid == payload.sender.uuid) {
-                            payload.sender = this.users[i];
-                        }
+                    if(this.users[payload.sender.uuid]) {
+                        payload.sender = this.users[payload.sender.uuid];
+                        console.log('setting sender as ', payload.sender)
                     }
                 }
 
@@ -128,6 +134,8 @@ class Chat {
 
                 if(presenceEvent.action == "join") {
 
+                    console.log('user not set, setting with', presenceEvent.uuid, presenceEvent.state)
+
                     if(!this.users[presenceEvent.uuid]) {
                         this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
                     }
@@ -140,6 +148,7 @@ class Chat {
                     // set idle?   
                 }
                 if(presenceEvent.action == "state-change") {
+                    console.log('updating state', presenceEvent.uuid, presenceEvent.state)
                     this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
                 }
 
@@ -171,11 +180,17 @@ class Chat {
             data: data
         };
 
+        console.log('publish', me.state.avatar)
+
         payload.sender = me;
+
+        console.log('after paylaod set', me.state.avatar)
 
         runPluginQueue('publish', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
+
+            console.log('after plugin queue', payload.sender.state.avatar)
 
             delete payload.chat; // will be rebuilt on subscribe
 
@@ -194,6 +209,10 @@ class User {
 
     constructor(uuid, state) {
     
+        // get list of all chats a user is in
+        // update their chat based state
+        // or their entire user based state
+
         loadClassPlugins(this);
         
         this.uuid = uuid;
