@@ -19,7 +19,7 @@
         new typingIndicator()
     ]);
 
-    let me = new OCF.User('ian', {value: true});
+    var me = OCF.identify('ian' + new Date().getTime(), {value: true});
 
     let john = new OCF.User('john', {value: true});
     let mary = new OCF.User('mary', {value: true});

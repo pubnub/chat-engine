@@ -88,14 +88,13 @@ class Chat {
                     if(me) {
 
                         this.rltm.setState({
-                                state: me.state,
-                                channels: this.channels
-                            }, (status, response) => {
+                            state: me.state,
+                            channels: this.channels
+                        }, (status, response) => {
 
-                            }
-                        );
+                        });
 
-                        this.users[me.uuid] = new User(me.uuid, me.state);
+                        this.users[me.uuid] = me;
 
                     } 
                     
@@ -118,14 +117,11 @@ class Chat {
                     }
                 }
 
-                runPluginQueue('subscribe', event, 
-                    (next) => {
-                        next(null, payload);
-                    },
-                    (err, payload) => {
-                       this.emitter.emit(event, payload);
-                    }
-                );
+                runPluginQueue('subscribe', event, (next) => {
+                    next(null, payload);
+                }, (err, payload) => {
+                   this.emitter.emit(event, payload);
+                });
 
             },
             presence: (presenceEvent) => {
@@ -152,14 +148,11 @@ class Chat {
                     data: presenceEvent
                 }
 
-                runPluginQueue(presenceEvent.action, presenceEvent, 
-                    (next) => {
-                        next(null, payload);
-                    },
-                    (err, payload) => {
-                       this.emitter.emit(presenceEvent.action, payload);
-                    }
-                );
+                runPluginQueue(presenceEvent.action, presenceEvent, (next) => {
+                    next(null, payload);
+                }, (err, payload) => {
+                   this.emitter.emit(presenceEvent.action, payload);
+                });
 
             }
         });
@@ -180,21 +173,18 @@ class Chat {
 
         payload.sender = me;
 
-        runPluginQueue('publish', event, 
-            (next) => {
-                next(null, payload);
-            },
-            (err, payload) => {
+        runPluginQueue('publish', event, (next) => {
+            next(null, payload);
+        }, (err, payload) => {
 
-                delete payload.chat; // will be rebuilt on subscribe
+            delete payload.chat; // will be rebuilt on subscribe
 
-                this.rltm.publish({
-                    message: [event, payload],
-                    channel: this.channels[0]
-                });
+            this.rltm.publish({
+                message: [event, payload],
+                channel: this.channels[0]
+            });
 
-            }
-        );
+        });
 
     }
 
@@ -218,7 +208,8 @@ module.exports = class {
 
         plugins = plugs;
 
-        this.class = {Chat, User};
+        this.Chat = Chat;
+        this.User = User;
 
         return this;
 

@@ -18,14 +18,9 @@ var OCF = new OCFBuilder({
     new append3(),
 ]);
 
-var channel = 'dogs2';
-
 var me = OCF.identify('ian' + new Date().getTime(), {value: true});
 
-let john = new OCF.class.User('john', {value: true});
-let mary = new OCF.class.User('mary', {value: true});
-
-var chat = new OCF.class.Chat(channel);
+var chat = new OCF.Chat('dogsandcats');
 
 chat.emitter.on('join', (payload) => {
     console.log('got join', payload.user.uuid);
