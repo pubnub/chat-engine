@@ -43,49 +43,52 @@
 
     var chat = new OCF.Chat('online-list-tester-4');
 
-    var showChat = function(user) {
+    var appendChat = function(channel) {
 
-        $('#chats').empty();
-        
-        var privatechat = new OCF.Chat([user.data.state.username, me.data.state.username].sort().join(':'));
+        var privateChat = new OCF.Chat(channel);
 
-        var $chat = $('<div class="chat"><h3 class="title">'+user.data.state.username+ ' and '+me.data.state.username +'</h3><div class="log"></div><input type="text" class="message"><input type="submit" class="submit"><div class="typing"></div></div>');
+        var $privateChat = $('<div class="chat"><h3 class="title">'+channel+ '</h3><div class="log"></div><input type="text" class="message"><input type="submit" class="submit"><div class="typing"></div><a href="#" class="close">close</a></div>');
 
-        $chat.find('.message').on('change keyup paste click blur', () => {
-            privatechat.typing.startTyping();
+        $privateChat.find('.message').on('change keyup paste click blur', () => {
+            privateChat.typing.startTyping();
         });
 
-        $chat.find('.submit').click(() => {
+        $privateChat.find('.submit').click(() => {
 
-            privatechat.typing.stopTyping();
+            privateChat.typing.stopTyping();
 
-            privatechat.publish('message', {
-                text: $chat.find('.message').val()
+            privateChat.publish('message', {
+                text: $privateChat.find('.message').val()
             });
 
-            $chat.find('.message').val('');
+            $privateChat.find('.message').val('');
 
         });
 
-        privatechat.emitter.on('message', (payload) => {
+        privateChat.emitter.on('message', (payload) => {
 
-            $chat.find('.log').append($('<div><strong>' + payload.sender.data.state.username + ':</strong> ' + payload.data.text + '</div>'));
+            $privateChat.find('.log').append($('<div><strong>' + payload.sender.data.state.username + ':</strong> ' + payload.data.text + '</div>'));
 
         });
 
-        privatechat.emitter.on('startTyping', (payload) => {
+        privateChat.emitter.on('startTyping', (payload) => {
 
-            $chat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
+            $privateChat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
             $('#online-list').find('#' + payload.sender.data.uuid).find('.typing').show();
 
         });
 
-        privatechat.emitter.on('stopTyping', (payload) => {
-            $chat.find('.typing').text('');
+        privateChat.emitter.on('stopTyping', (payload) => {
+            $privateChat.find('.typing').text('');
             $('#online-list').find('#' + payload.sender.data.uuid).find('.typing').hide();
         });
 
-        $('#chats').append($chat);
+        $privateChat.find('.close').click(() => {
+            // disconnect
+            $privateChat.remove();
+        });
+
+        $('#chats').append($privateChat);
 
     }    
 
@@ -94,7 +97,14 @@
         var $onlineUser = $('<li id="' + user.data.uuid + '"><a href="#">' + user.data.state.username  + '</a> <span class="typing">is typing...</span></li>');
 
         $onlineUser.find('a').click(() => {
-            showChat(user);
+            
+            appendChat([user.data.uuid, me.data.uuid].sort().join(':'));
+
+            chat.publish('private-invite', {
+                from: me.data.uuid,
+                to: user.data.uuid // this is coming in as string for some reason?
+            });
+            
         });
 
         $onlineUser.find('.typing').hide();
@@ -131,15 +141,25 @@
     chat.emitter.on('state-change', (packet) => {
 
         $('#' + packet.user.data.uuid).remove();
-        appendUser(packet.user)
+        appendUser(packet.user);
 
         // console.log('state change', packet)
         // user can join empty and have their state set later
+        // maybe ignore unless they have some special state property set?
+        // is this up to gui to decide?
 
     });
 
     chat.emitter.on('message', (payload) => {
         console.log('got message', payload.sender, payload.data);
+    });
+
+    chat.emitter.on('private-invite', (payload) => {
+
+        if(payload.data.to == me.data.uuid) {
+            appendChat([payload.data.from, payload.data.to].sort().join(':'));   
+        }
+
     });
 
     chat.emitter.on('ready', () => {
