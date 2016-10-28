@@ -129,7 +129,13 @@ class Chat {
                     // set idle?   
                 }
                 if(presenceEvent.action == "state-change") {
-                    this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
+
+                    if(this.users[presenceEvent.uuid]) {
+                        this.users[presenceEvent.uuid].update(presenceEvent.state);   
+                    } else {
+                        this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);   
+                    }
+
                 }
 
                 let payload = {
@@ -157,7 +163,6 @@ class Chat {
             state: me.data.state,
             channels: this.channels
         }, (status, response) => {
-            console.log(status, response)
         });
 
         loadClassPlugins(this);
@@ -176,9 +181,7 @@ class Chat {
             next(null, payload);
         }, (err, payload) => {
 
-            delete payload.chat; // will be rebuilt on subscribe
-
-            console.log(event, payload)
+            delete payload.chat;
 
             this.rltm.publish({
                 message: [event, payload],
@@ -199,6 +202,27 @@ class User {
             state: state || {}
         }
         
+        this.emitter = new EventEmitter();
+        
+    }
+    set(property, value) {
+
+        // this is global
+
+        this.data.state[property] = value;
+
+        this.emitter.emit('state-update', {
+            property: property,
+            value: value
+        });
+
+    }
+    update(state) {
+        
+        for(var key in state) {
+            this.set(key, state[key]);
+        }
+
     }
 };
 
@@ -214,7 +238,7 @@ class Me extends User {
     }
     set(property, value) {
 
-        this.data.state[property] = value;
+        super.set(property, value);
 
         for(let i in this.chats) {
 
@@ -222,7 +246,6 @@ class Me extends User {
                 state: this.data.state,
                 channels: this.chats[i].channels
             }, (status, response) => {
-                console.log(status, response)
             });
 
         }

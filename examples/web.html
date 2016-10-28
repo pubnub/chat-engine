@@ -14,6 +14,13 @@
 
     <ul id="online-list">
     </ul>
+
+    <hr />
+
+    <h2 id="chat-title"></h2>
+
+    <div id="chats">
+    </div>
     
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="../web/ocf.js" type="text/javascript"></script>
@@ -34,31 +41,106 @@
 
     $('#me').text(me.data.state.username + '(' + me.data.uuid + ')');
 
-    var chat = new OCF.Chat('online-list-tester');
+    var chat = new OCF.Chat('online-list-tester-10');
+
+    var showChat = function(user) {
+
+        $('#chats').empty();
+        
+        var privatechat = new OCF.Chat([user.data.state.username, me.data.state.username].sort().join(':'));
+
+        var $chat = $('<div class="chat"><h3 class="title">'+user.data.state.username+ ' and '+me.data.state.username +'</h3><div class="log"></div><input type="text" class="message"><input type="submit" class="submit"><div class="typing"></div></div>');
+
+        $chat.find('.message').on('change keyup paste click blur', () => {
+            privatechat.typing.startTyping();
+        });
+
+        $chat.find('.submit').click(() => {
+
+            privatechat.typing.stopTyping();
+
+            privatechat.publish('message', {
+                text: $chat.find('.message').val()
+            });
+
+            $chat.find('.message').val('');
+
+        });
+
+        privatechat.emitter.on('message', (payload) => {
+
+            $chat.find('.log').append($('<div><strong>' + payload.sender.data.state.username + ':</strong> ' + payload.data.text + '</div>'));
+
+        });
+
+        privatechat.emitter.on('startTyping', (payload) => {
+
+            console.log(payload);
+
+            $chat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
+            $('#online-list').find('#' + payload.sender.data.uuid).find('.typing').show();
+
+        });
+
+        privatechat.emitter.on('stopTyping', (payload) => {
+            $chat.find('.typing').text('');
+            $('#online-list').find('#' + payload.sender.data.uuid).find('.typing').hide();
+        });
+
+        $('#chats').append($chat);
+
+    }    
+
+    var appendUser = function(user) {
+        
+        console.log('append user', user.data.uuid, user.data.state.username)
+
+        // $('#' + user.data.uuid).remove();
+
+        var $onlineUser = $('<li id="' + user.data.uuid + '"><a href="#">' + user.data.state.username  + '</a> <span class="typing">is typing...</span></li>');
+
+        $onlineUser.find('a').click(() => {
+            showChat(user);
+        });
+
+        $onlineUser.find('.typing').hide();
+        $('#online-list').append($onlineUser);
+
+    }
+
+    chat.emitter.on('join', (payload) => {
+        console.log('join')
+        appendUser(payload.user);
+    });
 
     chat.emitter.on('online-list', (users) => {
+
+        console.log('online-list')
 
         $('#online-list').empty();
 
         for(var i in users) {
-            $('#online-list').append('<li>' + users[i].data.state.username  + '</li>');
+            appendUser(users[i]);
         }
 
     });
 
     chat.emitter.on('state-change', (packet) => {
-        console.log('state-chante', packet)
-    });
 
+        console.log($('#' + packet.data.uuid))
 
-    chat.emitter.on('join', (payload) => {
-        console.log('got join', payload);
+        console.log('state-change')
+
+        appendUser(packet.user);
+
+        // console.log('state change', packet)
+        // user can join empty and have their state set later
+
     });
 
     chat.emitter.on('message', (payload) => {
         console.log('got message', payload.sender, payload.data);
     });
-
 
     chat.emitter.on('ready', () => {
 

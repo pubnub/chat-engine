@@ -20,7 +20,6 @@ var plugin = function(config) {
 
                 setTimeout (() => {
                     this.stopTyping();   
-
                 }, config.timeout);
 
             }
