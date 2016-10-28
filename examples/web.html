@@ -41,7 +41,7 @@
 
     $('#me').text(me.data.state.username + '(' + me.data.uuid + ')');
 
-    var chat = new OCF.Chat('online-list-tester-3');
+    var chat = new OCF.Chat('online-list-tester-4');
 
     var showChat = function(user) {
 
@@ -75,8 +75,6 @@
 
         privatechat.emitter.on('startTyping', (payload) => {
 
-            console.log(payload);
-
             $chat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
             $('#online-list').find('#' + payload.sender.data.uuid).find('.typing').show();
 
@@ -92,8 +90,6 @@
     }    
 
     var appendUser = function(user) {
-        
-        console.log('append user', user.data.uuid, user.data.state.username)
 
         var $onlineUser = $('<li id="' + user.data.uuid + '"><a href="#">' + user.data.state.username  + '</a> <span class="typing">is typing...</span></li>');
 
@@ -107,8 +103,7 @@
     }
 
     chat.emitter.on('join', (payload) => {
-        
-        console.log('join')
+
         $('#' + payload.user.data.uuid).remove();
 
         if(payload.user.data.state.username) {
@@ -118,15 +113,10 @@
     });
     
     chat.emitter.on('leave', (payload) => {
-        
-        console.log('leave')
         $('#' + payload.user.data.uuid).remove();
-
     });
 
     chat.emitter.on('online-list', (users) => {
-
-        console.log('online-list')
 
         $('#online-list').empty();
 
@@ -140,18 +130,8 @@
 
     chat.emitter.on('state-change', (packet) => {
 
-        console.log('#' + packet.user.data.uuid)
-
-        console.log($('#' + packet.user.data.uuid).length   )
-
-
         $('#' + packet.user.data.uuid).remove();
         appendUser(packet.user)
-
-
-        console.log('state-change')
-
-        console.log(packet)
 
         // console.log('state change', packet)
         // user can join empty and have their state set later
