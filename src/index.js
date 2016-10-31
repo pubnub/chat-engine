@@ -1,10 +1,12 @@
 "use strict";
 const EventEmitter = require('events');
 
+
+
 let Rltm = require('rltm');
 let waterfall = require('async/waterfall');
 
-isDebug = true // toggle this to turn on / off for global controll
+let isDebug = true // toggle this to turn on / off for global controll
 
 let plugins = []; 
 let me = false;
@@ -293,24 +295,22 @@ class Me extends User {
     }
 }
 
-module.exports = class {
-    constructor(config, plugs) {
+module.exports = {
+    init(config, plugs) {
 
         plugins = plugs;
 
         this.Chat = Chat;
         this.User = User;
 
+        this.plugin = {};
+
         return this;
 
-    }
-    config(params) {
-        // do some config
-    }
+    },
     identify(uuid, state) {
-
         me = new Me(uuid, state);
-
         return me;
-    }
+    },
+    plugin: {}
 };

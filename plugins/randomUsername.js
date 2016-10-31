@@ -29,5 +29,5 @@ var plugin = function() {
 if(typeof module !== "undefined") {
     module.exports = plugin;
 } else {
-    window.randomUsername = plugin;
+    window.OCF.plugin.randomUsername = plugin;
 }

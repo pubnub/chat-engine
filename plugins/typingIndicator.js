@@ -49,5 +49,5 @@ var plugin = function(config) {
 if(typeof module !== "undefined") {
     module.exports = plugin;
 } else {
-    window.typingIndicator = plugin;
+    window.OCF.plugin.typingIndicator = plugin;
 }
