@@ -100,17 +100,19 @@ class Chat {
                     } else {
                         
                         if(!users[occupants[i].uuid] && occupants[i].state && occupants[i].state._initialized) {
-
                             users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state);
                         }
 
                     }
 
+                    console.log('loop=join', users[occupants[i].uuid])
+
+                    this.broadcast('join', {
+                        user: users[occupants[i].uuid],
+                        chat: this
+                    });
 
                 }
-                
-                // emit the list of online users
-                this.emitter.emit('online-list', users);
 
             } else {
                 console.log(status, response);
@@ -128,8 +130,6 @@ class Chat {
             },
             message: (m) => {
 
-                console.log('subscribe', m)
-
                 let event = m.message[0];
                 let payload = m.message[1];
                 payload.chat = this;
@@ -138,31 +138,14 @@ class Chat {
                     payload.sender = users[payload.sender];
                 }
 
-                runPluginQueue('subscribe', event, (next) => {
-                    next(null, payload);
-                }, (err, payload) => {
-
-                    console.log(event, payload)
-
-                   this.emitter.emit(event, payload);
-                });
+                this.broadcast(event, payload);
 
             },
             presence: (presenceEvent) => {
 
-                let broadcast = (eventName) => {
-
-                    let payload = {
-                        user: users[presenceEvent.uuid],
-                        data: presenceEvent
-                    }
-
-                    runPluginQueue(eventName, presenceEvent, (next) => {
-                        next(null, payload);
-                    }, (err, payload) => {
-                       this.emitter.emit(eventName, payload);
-                    });
-
+                let payload = {
+                    user: users[presenceEvent.uuid],
+                    data: presenceEvent
                 }
 
                 if(presenceEvent.action == "join") {
@@ -171,18 +154,18 @@ class Chat {
 
                     if(!users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
                         users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
-                        broadcast('join');
+                        this.broadcast('join', payload);
 
                     }
 
                 }
                 if(presenceEvent.action == "leave") {
                     delete users[presenceEvent.uuid];
-                    broadcast('leave');
+                    this.broadcast('leave', payload);
                 }
                 if(presenceEvent.action == "timeout") {
                     // set idle?
-                    broadcast('timeout');  
+                    this.broadcast('timeout', payload);  
                 }
                 if(presenceEvent.action == "state-change") {
 
@@ -191,12 +174,15 @@ class Chat {
                     if(users[presenceEvent.uuid]) {
                         users[presenceEvent.uuid].update(presenceEvent.state);
                         // this will broadcast every change individually
+                        // probably doesn't work anymore
                     } else {
                         
                         if(!users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
 
                             users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
-                            broadcast('join');
+
+                            payload.user = users[presenceEvent.uuid];
+                            this.broadcast('join', payload);
                         }
 
                     }
@@ -246,6 +232,17 @@ class Chat {
             });
 
         });
+
+    }
+
+    broadcast(event, payload) {
+
+        runPluginQueue(event, payload, (next) => {
+            next(null, payload);
+        }, (err, payload) => {
+           this.emitter.emit(event, payload);
+        });
+
 
     }
 

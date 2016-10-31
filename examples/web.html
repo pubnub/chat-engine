@@ -63,7 +63,7 @@
 
     $('#me').text(me.data.state.username + ' ' + me.data.uuid);
 
-    let globalChat = new OCF.Chat('online-list-tester-15    ');   
+    let globalChat = new OCF.Chat('online-list-tester-16');   
 
     let onlineList = function($el, chat) {
 
@@ -84,7 +84,7 @@
 
         chat.emitter.on('join', (payload) => {
 
-            console.log('join', payload.user.chat)
+            console.log('join', payload);
 
             payload.user.chat.emitter.on('private-invite', () => {
 
@@ -100,26 +100,6 @@
         chat.emitter.on('leave', (payload) => {
             console.log('leave', payload.user)
             $('.' + payload.user.data.uuid).remove();
-        });
-
-        chat.emitter.on('online-list', (users) => {
-
-            console.log('online-list', users);
-
-            $el.empty();
-
-            for(var i in users) {
-                appendUser(users[i]);
-
-                users[i].chat.emitter.on('private-invite', (payload) => {
-
-                    console.log('private invite', payload);
-                    appendChat(users[i].chat);
-
-                });
-
-            }
-
         });
 
     }
