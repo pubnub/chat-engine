@@ -6,6 +6,8 @@
 
   <title>Open Chat Framework Dev</title>
 
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
 
@@ -44,8 +46,6 @@
       </div>
     </div>
     
-
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="../web/ocf.js" type="text/javascript"></script>
     <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
     <script src="../plugins/randomUsername.js" type="text/javascript"></script>
@@ -64,7 +64,7 @@
 
     $('#me').text(me.data.state.username + ' ' + me.data.uuid);
 
-    var chat = new OCF.Chat('online-list-tester-5');
+    var globalChat = new OCF.Chat('online-list-tester-1');
 
     var appendChat = function(channel) {
 
@@ -123,7 +123,7 @@
             
             appendChat([user.data.uuid, me.data.uuid].sort().join(':'));
 
-            chat.publish('private-invite', {
+            globalChat.publish('private-invite', {
                 from: me.data.uuid,
                 to: user.data.uuid // this is coming in as string for some reason?
             });
@@ -135,49 +135,33 @@
 
     }
 
-    chat.emitter.on('join', (payload) => {
-
-        $('#' + payload.user.data.uuid).remove();
-
-        if(payload.user.data.state.username) {
-            appendUser(payload.user);   
-        }
-
+    globalChat.emitter.on('join', (payload) => {
+        appendUser(payload.user);
     });
     
-    chat.emitter.on('leave', (payload) => {
+    globalChat.emitter.on('leave', (payload) => {
         $('#' + payload.user.data.uuid).remove();
     });
 
-    chat.emitter.on('online-list', (users) => {
+    globalChat.emitter.on('online-list', (users) => {
 
         $('#online-list').empty();
 
         for(var i in users) {
-            if(users[i].data.state.username) {
-                appendUser(users[i]);
-            }
+            appendUser(users[i]);
         }
 
     });
 
-    chat.emitter.on('state-change', (packet) => {
-
-        $('#' + packet.user.data.uuid).remove();
+    globalChat.emitter.on('state-change', (packet) => {
         appendUser(packet.user);
-
-        // console.log('state change', packet)
-        // user can join empty and have their state set later
-        // maybe ignore unless they have some special state property set?
-        // is this up to gui to decide?
-
     });
 
-    chat.emitter.on('message', (payload) => {
+    globalChat.emitter.on('message', (payload) => {
         console.log('got message', payload.sender, payload.data);
     });
 
-    chat.emitter.on('private-invite', (payload) => {
+    globalChat.emitter.on('private-invite', (payload) => {
 
         if(payload.data.to == me.data.uuid) {
             appendChat([payload.data.from, payload.data.to].sort().join(':'));   
@@ -185,7 +169,7 @@
 
     });
 
-    chat.emitter.on('ready', () => {
+    globalChat.emitter.on('ready', () => {
 
     });
 

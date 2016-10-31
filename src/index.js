@@ -57,31 +57,38 @@ class Chat {
 
     constructor(channel) {
 
+        // key/value of user sin channel
         this.users = {};
 
-        this.channels = [channel]; // replace with uuid
+        // turn our singular string into an array of channels
+        this.channels = [channel];
 
-        // use star channels ian:*
+        // our events published over this event emitter
         this.emitter = new EventEmitter();
 
+        // initialize RLTM with pubnub keys
         this.rltm = new Rltm({
             publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
             subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe',
             uuid: me ? me.data.uuid : null
         });
 
+        // get users online now
         this.rltm.hereNow({
             channels: this.channels, 
             includeUUIDs: true,
             includeState: true
         }, (status, response) => {
 
+            // get the result of who's online
             let occupants = response.channels[this.channels[0]].occupants;
 
+            // for every occupant, create a model user
             for(let i in occupants) {
                 this.users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state)
             }
             
+            // emit the list of online users
             this.emitter.emit('online-list', this.users);
 
         });
@@ -115,39 +122,53 @@ class Chat {
             },
             presence: (presenceEvent) => {
 
-                if(presenceEvent.action == "join") {
+                let broadcast = (eventName) => {
 
-                    if(!this.users[presenceEvent.uuid]) {
+                    let payload = {
+                        user: this.users[presenceEvent.uuid],
+                        data: presenceEvent
+                    }
+
+                    runPluginQueue(eventName, presenceEvent, (next) => {
+                        next(null, payload);
+                    }, (err, payload) => {
+                       this.emitter.emit(eventName, payload);
+                    });
+
+                }
+
+                if(presenceEvent.action == "join") {
+                    
+                    if(!this.users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
                         this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
+                        broadcast('join');
                     }
 
                 }
                 if(presenceEvent.action == "leave") {
                     delete this.users[presenceEvent.uuid];
+                    broadcast('leave');
                 }
                 if(presenceEvent.action == "timeout") {
-                    // set idle?   
+                    // set idle?
+                    broadcast('timeout');  
                 }
                 if(presenceEvent.action == "state-change") {
 
                     if(this.users[presenceEvent.uuid]) {
-                        this.users[presenceEvent.uuid].update(presenceEvent.state);   
+                        this.users[presenceEvent.uuid].update(presenceEvent.state);
+                        // this will broadcast every change individually
                     } else {
-                        this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);   
+                        
+                        if(!this.users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
+
+                            this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
+                            broadcast('join');
+                        }
+
                     }
 
                 }
-
-                let payload = {
-                    user: this.users[presenceEvent.uuid],
-                    data: presenceEvent
-                }
-
-                runPluginQueue(presenceEvent.action, presenceEvent, (next) => {
-                    next(null, payload);
-                }, (err, payload) => {
-                   this.emitter.emit(presenceEvent.action, payload);
-                });
 
             }
         });
@@ -196,21 +217,30 @@ class Chat {
 
 class User {
     constructor(uuid, state) {
-        
+
+        // this is public data exposed to the network
+        // we can't JSON stringify the object without circular reference        
         this.data = {
             uuid: uuid,
             state: state || {}
         }
+
+        // user can be created before network sync has begun
+        // this property lets us know when that has happened
+        this.data.state._initialized = true;
         
+        // our personal event emitter
         this.emitter = new EventEmitter();
+        
+        loadClassPlugins(this);
         
     }
     set(property, value) {
 
-        // this is global
-
+        // this is a public setter that sets locally and publishes an event
         this.data.state[property] = value;
 
+        // publish data to the network
         this.emitter.emit('state-update', {
             property: property,
             value: value
@@ -219,6 +249,7 @@ class User {
     }
     update(state) {
         
+        // shorthand loop for updating multiple properties with set
         for(var key in state) {
             this.set(key, state[key]);
         }
@@ -229,17 +260,22 @@ class User {
 class Me extends User {
     constructor(uuid, state) {
 
+        // call the User constructor
         super(uuid, state);
         
+        // we keep a list of chats we're subscribed to
         this.chats = [];
         
+        // load Me plugins
         loadClassPlugins(this);
 
     }
     set(property, value) {
 
+        // set the property using User method
         super.set(property, value);
 
+        // but we also need to broadcast the state change to all chats
         for(let i in this.chats) {
 
             this.rltm.setState({
