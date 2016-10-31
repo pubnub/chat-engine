@@ -26,6 +26,7 @@ function loadClassPlugins(obj) {
 
         if(plugins[i].extends && plugins[i].extends[className]) {
             
+            // add properties from plugin object to class under plugin namespace
             addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
 
             // this is a reserved function in plugins that run at start of class            
