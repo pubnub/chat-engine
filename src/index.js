@@ -11,13 +11,12 @@ let isDebug = true // toggle this to turn on / off for global controll
 let plugins = []; 
 let me = false;
 
-if (isDebug) var debug = console.log.bind(window.console);
-else var debug = function(){}
-
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
    childOb.parent = ob;
 }
+
+var users = {};
 
 function loadClassPlugins(obj) {
 
@@ -63,11 +62,12 @@ class Chat {
 
     constructor(channel) {
 
-        // key/value of user sin channel
-        this.users = {};
+        console.log('new Chat', channel)
 
-        // turn our singular string into an array of channels
-        this.channels = [channel];
+        this.channel = channel;
+
+        // key/value of user sin channel
+        // users = {};
 
         // our events published over this event emitter
         this.emitter = new EventEmitter();
@@ -81,21 +81,40 @@ class Chat {
 
         // get users online now
         this.rltm.hereNow({
-            channels: this.channels, 
+            channels: [this.channel],
             includeUUIDs: true,
             includeState: true
         }, (status, response) => {
 
-            // get the result of who's online
-            let occupants = response.channels[this.channels[0]].occupants;
+            if(!status.error) {
 
-            // for every occupant, create a model user
-            for(let i in occupants) {
-                this.users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state)
+                // get the result of who's online
+                let occupants = response.channels[this.channel].occupants;
+
+                // for every occupant, create a model user
+                for(let i in occupants) {
+
+                    if(users[occupants[i].uuid]) {
+                        users[occupants[i].uuid].update(occupants[i].state);
+                        // this will broadcast every change individually
+                    } else {
+                        
+                        if(!users[occupants[i].uuid] && occupants[i].state && occupants[i].state._initialized) {
+
+                            users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state);
+                        }
+
+                    }
+
+
+                }
+                
+                // emit the list of online users
+                this.emitter.emit('online-list', users);
+
+            } else {
+                console.log(status, response);
             }
-            
-            // emit the list of online users
-            this.emitter.emit('online-list', this.users);
 
         });
             
@@ -109,19 +128,22 @@ class Chat {
             },
             message: (m) => {
 
+                console.log('subscribe', m)
+
                 let event = m.message[0];
                 let payload = m.message[1];
                 payload.chat = this;
 
-                if(payload.sender) {
-                    if(this.users[payload.sender.uuid]) {
-                        payload.sender = this.users[payload.sender.uuid];
-                    }
+                if(payload.sender && users[payload.sender]) {
+                    payload.sender = users[payload.sender];
                 }
 
                 runPluginQueue('subscribe', event, (next) => {
                     next(null, payload);
                 }, (err, payload) => {
+
+                    console.log(event, payload)
+
                    this.emitter.emit(event, payload);
                 });
 
@@ -131,7 +153,7 @@ class Chat {
                 let broadcast = (eventName) => {
 
                     let payload = {
-                        user: this.users[presenceEvent.uuid],
+                        user: users[presenceEvent.uuid],
                         data: presenceEvent
                     }
 
@@ -144,15 +166,18 @@ class Chat {
                 }
 
                 if(presenceEvent.action == "join") {
-                    
-                    if(!this.users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
-                        this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
+
+                    console.log('join', presenceEvent.uuid, presenceEvent.state);
+
+                    if(!users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
+                        users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
                         broadcast('join');
+
                     }
 
                 }
                 if(presenceEvent.action == "leave") {
-                    delete this.users[presenceEvent.uuid];
+                    delete users[presenceEvent.uuid];
                     broadcast('leave');
                 }
                 if(presenceEvent.action == "timeout") {
@@ -161,14 +186,16 @@ class Chat {
                 }
                 if(presenceEvent.action == "state-change") {
 
-                    if(this.users[presenceEvent.uuid]) {
-                        this.users[presenceEvent.uuid].update(presenceEvent.state);
+                    console.log('state change', presenceEvent.uuid, presenceEvent.state);
+
+                    if(users[presenceEvent.uuid]) {
+                        users[presenceEvent.uuid].update(presenceEvent.state);
                         // this will broadcast every change individually
                     } else {
                         
-                        if(!this.users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
+                        if(!users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
 
-                            this.users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
+                            users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
                             broadcast('join');
                         }
 
@@ -179,16 +206,19 @@ class Chat {
             }
         });
 
+        console.log('subscribing to', this.channel)
+
         this.rltm.subscribe({ 
-            channels: this.channels,
+            channels: [this.channel],
             withPresence: true
         });
 
         me.chats.push(this);
-        
+        // console.log(me.chats.length)
+
         this.rltm.setState({
             state: me.data.state,
-            channels: this.channels
+            channels: [this.channel]
         }, (status, response) => {
         });
 
@@ -202,7 +232,7 @@ class Chat {
             data: data
         };
 
-        payload.sender = me.data;
+        payload.sender = me.data.uuid;
 
         runPluginQueue('publish', event, (next) => {
             next(null, payload);
@@ -212,7 +242,7 @@ class Chat {
 
             this.rltm.publish({
                 message: [event, payload],
-                channel: this.channels[0]
+                channel: this.channel
             });
 
         });
@@ -221,7 +251,7 @@ class Chat {
 
 };
 
-class User {
+class Person {
     constructor(uuid, state) {
 
         // this is public data exposed to the network
@@ -237,8 +267,6 @@ class User {
         
         // our personal event emitter
         this.emitter = new EventEmitter();
-        
-        loadClassPlugins(this);
         
     }
     set(property, value) {
@@ -263,8 +291,24 @@ class User {
     }
 };
 
-class Me extends User {
+class User extends Person {
     constructor(uuid, state) {
+        
+        console.log('new User');
+
+        super(uuid, state);
+
+        this.chat = new Chat([uuid, me.data.uuid].sort().join(':'));
+        
+        loadClassPlugins(this);
+
+    }   
+}
+
+class Me extends Person {
+    constructor(uuid, state) {
+        
+        console.log('new me');
 
         // call the User constructor
         super(uuid, state);
@@ -281,12 +325,17 @@ class Me extends User {
         // set the property using User method
         super.set(property, value);
 
+        console.log(this.chats)
+
         // but we also need to broadcast the state change to all chats
         for(let i in this.chats) {
 
-            this.rltm.setState({
+            console.log(this.chats[i]);
+            console.log('setting statusate in chats');
+
+            this.chats[i].rltm.setState({
                 state: this.data.state,
-                channels: this.chats[i].channels
+                channels: [this.chats[i].channel]
             }, (status, response) => {
             });
 
