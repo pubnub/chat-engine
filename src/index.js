@@ -2,12 +2,15 @@
 const EventEmitter = require('events');
 
 let Rltm = require('rltm');
+let waterfall = require('async/waterfall');
+
+isDebug = true // toggle this to turn on / off for global controll
 
 let plugins = []; 
-
 let me = false;
 
-let waterfall = require('async/waterfall');
+if (isDebug) var debug = console.log.bind(window.console);
+else var debug = function(){}
 
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
