@@ -70,7 +70,7 @@
 
         var appendUser = function(user) {
 
-            var $onlineUser = $('<li class="' + user.data.uuid + ' list-group-item"><a href="#">' + user.data.state.username  + '</a> <span class="typing">is typing...</span></li>');
+            var $onlineUser = $('<li class="' + user.data.uuid + ' list-group-item"><a href="#">' + user.data.state.username  + '</a> <span class="show-typing">is typing...</span></li>');
 
             $onlineUser.find('a').click(() => {
                 
@@ -83,7 +83,7 @@
 
             });
 
-            $onlineUser.find('.typing').hide();
+            $onlineUser.find('.show-typing').hide();
             $el.append($onlineUser);
 
         }
@@ -143,21 +143,21 @@
         });
 
         privateChat.emitter.on('message', (payload) => {
-
             $privateChat.find('.log').append($('<div><strong>' + payload.sender.data.state.username + ':</strong> ' + payload.data.text + '</div>'));
-
         });
 
         privateChat.emitter.on('startTyping', (payload) => {
 
+            console.log(payload)
+
             $privateChat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
-            $('.' + payload.sender.data.uuid).find('.typing').show();
+            $('.' + payload.sender.data.uuid).find('.show-typing').show();
 
         });
 
         privateChat.emitter.on('stopTyping', (payload) => {
             $privateChat.find('.typing').text('');
-            $('.' + payload.sender.data.uuid).find('.typing').hide();
+            $('.' + payload.sender.data.uuid).find('.show-typing').hide();
         });
 
         $privateChat.find('.close').click(() => {
