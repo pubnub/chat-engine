@@ -1,15 +1,13 @@
 "use strict";
 const EventEmitter = require('events');
 
-
-
 let Rltm = require('rltm');
 let waterfall = require('async/waterfall');
 
-let isDebug = true // toggle this to turn on / off for global controll
-
 let plugins = []; 
+
 let me = false;
+let globalChat = false;
 
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
@@ -78,47 +76,6 @@ class Chat {
             subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe',
             uuid: me ? me.data.uuid : null
         });
-
-        // get users online now
-        this.rltm.hereNow({
-            channels: [this.channel],
-            includeUUIDs: true,
-            includeState: true
-        }, (status, response) => {
-
-            if(!status.error) {
-
-                // get the result of who's online
-                let occupants = response.channels[this.channel].occupants;
-
-                // for every occupant, create a model user
-                for(let i in occupants) {
-
-                    if(users[occupants[i].uuid]) {
-                        users[occupants[i].uuid].update(occupants[i].state);
-                        // this will broadcast every change individually
-                    } else {
-                        
-                        if(!users[occupants[i].uuid] && occupants[i].state && occupants[i].state._initialized) {
-                            users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state);
-                        }
-
-                    }
-
-                    console.log('loop=join', users[occupants[i].uuid])
-
-                    this.broadcast('join', {
-                        user: users[occupants[i].uuid],
-                        chat: this
-                    });
-
-                }
-
-            } else {
-                console.log(status, response);
-            }
-
-        });
             
         this.rltm.addListener({
             status: (statusEvent) => {
@@ -140,7 +97,68 @@ class Chat {
 
                 this.broadcast(event, payload);
 
-            },
+            }
+        });
+
+        console.log('subscribing to', this.channel)
+
+        this.rltm.subscribe({ 
+            channels: [this.channel],
+            withPresence: true
+        });
+
+        this.rltm.setState({
+            state: me.data.state,
+            channels: [this.channel]
+        }, (status, response) => {
+        });
+
+        loadClassPlugins(this);
+
+    }
+
+    publish(event, data) {
+
+        let payload = {
+            data: data
+        };
+
+        payload.sender = me.data.uuid;
+
+        runPluginQueue('publish', event, (next) => {
+            next(null, payload);
+        }, (err, payload) => {
+
+            delete payload.chat;
+
+            this.rltm.publish({
+                message: [event, payload],
+                channel: this.channel
+            });
+
+        });
+
+    }
+
+    broadcast(event, payload) {
+
+        runPluginQueue(event, payload, (next) => {
+            next(null, payload);
+        }, (err, payload) => {
+           this.emitter.emit(event, payload);
+        });
+
+
+    }
+
+};
+
+class GlobalChat extends Chat {
+    constructor(channel) {
+
+        super(channel);
+
+        this.rltm.addListener({
             presence: (presenceEvent) => {
 
                 let payload = {
@@ -192,61 +210,48 @@ class Chat {
             }
         });
 
-        console.log('subscribing to', this.channel)
 
-        this.rltm.subscribe({ 
+        // get users online now
+        this.rltm.hereNow({
             channels: [this.channel],
-            withPresence: true
-        });
-
-        me.chats.push(this);
-        // console.log(me.chats.length)
-
-        this.rltm.setState({
-            state: me.data.state,
-            channels: [this.channel]
+            includeUUIDs: true,
+            includeState: true
         }, (status, response) => {
+
+            if(!status.error) {
+
+                // get the result of who's online
+                let occupants = response.channels[this.channel].occupants;
+
+                // for every occupant, create a model user
+                for(let i in occupants) {
+
+                    if(users[occupants[i].uuid]) {
+                        users[occupants[i].uuid].update(occupants[i].state);
+                        // this will broadcast every change individually
+                    } else {
+                        
+                        if(!users[occupants[i].uuid] && occupants[i].state && occupants[i].state._initialized) {
+                            users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state);
+                        }
+
+                    }
+
+                    this.broadcast('join', {
+                        user: users[occupants[i].uuid],
+                        chat: this
+                    });
+
+                }
+
+            } else {
+                console.log(status, response);
+            }
+
         });
 
-        loadClassPlugins(this);
-
     }
-
-    publish(event, data) {
-
-        let payload = {
-            data: data
-        };
-
-        payload.sender = me.data.uuid;
-
-        runPluginQueue('publish', event, (next) => {
-            next(null, payload);
-        }, (err, payload) => {
-
-            delete payload.chat;
-
-            this.rltm.publish({
-                message: [event, payload],
-                channel: this.channel
-            });
-
-        });
-
-    }
-
-    broadcast(event, payload) {
-
-        runPluginQueue(event, payload, (next) => {
-            next(null, payload);
-        }, (err, payload) => {
-           this.emitter.emit(event, payload);
-        });
-
-
-    }
-
-};
+}
 
 class Person {
     constructor(uuid, state) {
@@ -310,9 +315,6 @@ class Me extends Person {
         // call the User constructor
         super(uuid, state);
         
-        // we keep a list of chats we're subscribed to
-        this.chats = [];
-        
         // load Me plugins
         loadClassPlugins(this);
 
@@ -321,8 +323,6 @@ class Me extends Person {
 
         // set the property using User method
         super.set(property, value);
-
-        console.log(this.chats)
 
         // but we also need to broadcast the state change to all chats
         for(let i in this.chats) {
@@ -344,10 +344,11 @@ class Me extends Person {
 module.exports = {
     init(config, plugs) {
 
-        plugins = plugs;
+        config.globalChannel = config.globalChannel || 'ofc-global';
 
-        this.Chat = Chat;
-        this.User = User;
+        globalChat = new GlobalChat(config.globalChannel);
+
+        plugins = plugs;
 
         this.plugin = {};
 
@@ -358,5 +359,9 @@ module.exports = {
         me = new Me(uuid, state);
         return me;
     },
+    Chat: Chat,
+    GlobalChat: GlobalChat,
+    User: User,
+    Me: Me,
     plugin: {}
 };
