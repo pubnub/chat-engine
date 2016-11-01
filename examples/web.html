@@ -51,7 +51,7 @@
     <script type="text/javascript">
 
    OCF.config({
-        globalChannel: new Date().getTime()
+        globalChannel: 'ofc-tester-2'
     }, [
         OCF.plugin.typingIndicator({
             timeout: 5000
@@ -59,7 +59,7 @@
         OCF.plugin.randomUsername()
     ]);
 
-    let me = OCF.identify('ian', {value: true});
+    let me = OCF.identify(new Date().getTime(), {value: true});
 
     let globalChat = OCF.getGlobalChat();
 
@@ -91,7 +91,8 @@
             payload.user.feed.emitter.on('private-invite', () => {
 
                 console.log('private invite', payload);
-                appendChat(payload.user.feed);
+
+                appendChat(new OCF.GroupChat([me, payload.user]));
 
             });
 

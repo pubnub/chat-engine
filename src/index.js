@@ -102,7 +102,7 @@ class Chat {
             }
         });
 
-        console.log('subscribing to', this.channel)
+        console.log('subscribing to', this.channel);
 
         this.rltm.subscribe({ 
             channels: [this.channel],
@@ -149,13 +149,15 @@ class Chat {
 
 };
 
-class GlobalChat extends Chat {
+class PresenceChat extends Chat {
     constructor(channel) {
-
+        
         super(channel);
 
         this.rltm.addListener({
             presence: (presenceEvent) => {
+
+                console.log(presenceEvent)
 
                 let payload = {
                     user: users[presenceEvent.uuid],
@@ -217,6 +219,8 @@ class GlobalChat extends Chat {
 
             if(!status.error) {
 
+                console.log(response)
+
                 // get the result of who's online
                 let occupants = response.channels[this.channel].occupants;
 
@@ -246,6 +250,13 @@ class GlobalChat extends Chat {
             }
 
         });
+    }
+}
+
+class GlobalChat extends PresenceChat {
+    constructor(channel) {
+
+        super(channel);
 
     }
     setState(state) {
@@ -255,6 +266,14 @@ class GlobalChat extends Chat {
             channels: [this.channel]
         }, (status, response) => {
         });
+
+    }
+}
+
+class GroupChat extends PresenceChat {
+    constructor() {
+
+        super([globalChat.channel, 'group', new Date().getTime()].join('.'));
 
     }
 }
@@ -359,6 +378,7 @@ module.exports = {
     },
     Chat: Chat,
     GlobalChat: GlobalChat,
+    GroupChat: GroupChat,
     User: User,
     Me: Me,
     plugin: {}

@@ -9,7 +9,7 @@ var plugin = function(config) {
     let isTyping = false;
     let stopTypingTimeout = null;
     
-    let Chat = {
+    let GroupChat = {
         startTyping: function() {
 
             if(!isTyping) {
@@ -40,7 +40,7 @@ var plugin = function(config) {
     return {
         namespace: 'typing',
         extends: {
-            Chat
+            GroupChat
         }
     }
 
