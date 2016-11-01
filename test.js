@@ -2,7 +2,6 @@
 
 let OCF = require('./src/index.js'); 
 
-
 OCF.config();
 
 var me = OCF.identify('ian' + new Date().getTime(), {value: true});
@@ -20,8 +19,6 @@ chat.emitter.on('message', (payload) => {
 chat.emitter.on('ready', () => {
 
     console.log('chat is ready');
-
-    console.log(chat.users)
 
     chat.publish('message', {
         text: 'hello world'

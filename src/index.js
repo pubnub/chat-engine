@@ -345,7 +345,11 @@ module.exports = {
 
     },
     identify(uuid, state) {
+        
         me = new Me(uuid, state);
+
+        globalChat = new GlobalChat(globalChannel);
+
         return me;
     },
     Chat: Chat,
