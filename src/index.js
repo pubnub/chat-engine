@@ -385,7 +385,10 @@ class Me extends User {
         console.log('new me', uuid, state);
 
         // call the User constructor
+
         super(uuid, state);
+        
+        this.update(state)
         
         // load Me plugins
         loadClassPlugins(this);
