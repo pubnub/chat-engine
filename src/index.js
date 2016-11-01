@@ -6,9 +6,9 @@ let waterfall = require('async/waterfall');
 
 let plugins = []; 
 
+let uuid = null;
 let me = false;
 let globalChat = false;
-let globalChannel = 'ofc-global';
 
 
 function addChild(ob, childName, childOb) {
@@ -76,7 +76,7 @@ class Chat {
         this.rltm = new Rltm({
             publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
             subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe',
-            uuid: me ? me.data.uuid : null
+            uuid: uuid
         });
             
         this.rltm.addListener({
@@ -208,7 +208,6 @@ class GlobalChat extends Chat {
             }
         });
 
-
         // get users online now
         this.rltm.hereNow({
             channels: [this.channel],
@@ -274,7 +273,7 @@ class User {
         // this property lets us know when that has happened
         this.data.state._initialized = true;
 
-        this.feed = new Chat([globalChannel, 'feed', uuid].join('.'));
+        this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
         
         // our personal event emitter
         this.emitter = new EventEmitter();
@@ -334,8 +333,9 @@ class Me extends User {
 module.exports = {
     config(config, plugs) {
 
-        config = config || {};
-        globalChannel = config.globalChannel || globalChannel;
+        this.config = config || {};
+
+        this.config.globalChannel = this.config.globalChannel || 'ofc-global';
 
         plugins = plugs;
 
@@ -344,13 +344,18 @@ module.exports = {
         return this;
 
     },
-    identify(uuid, state) {
-        
+    identify(id, state) {
+
+        uuid = id;
+
+        globalChat = new GlobalChat(this.config.globalChannel);
+
         me = new Me(uuid, state);
 
-        globalChat = new GlobalChat(globalChannel);
-
         return me;
+    },
+    getGlobalChat() {
+        return globalChat
     },
     Chat: Chat,
     GlobalChat: GlobalChat,
