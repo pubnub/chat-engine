@@ -51,7 +51,7 @@
     <script type="text/javascript">
 
    OCF.config({
-        globalChannel: 'ofc-tester-2'
+        globalChannel: 'ofc-tester-5'
     }, [
         OCF.plugin.typingIndicator({
             timeout: 5000
@@ -60,6 +60,10 @@
     ]);
 
     let me = OCF.identify(new Date().getTime(), {value: true});
+
+    me.direct.emitter.on('private-invite', (payload) => {
+        appendChat(new OCF.GroupChat(payload.data.channel));
+    });
 
     let globalChat = OCF.getGlobalChat();
 
@@ -74,7 +78,13 @@
             var $onlineUser = $('<li class="' + user.data.uuid + ' list-group-item"><a href="#">' + user.data.state.username  + '</a> <span class="show-typing">is typing...</span></li>');
 
             $onlineUser.find('a').click(() => {
-                user.feed.publish('private-invite');
+
+                let newChat = new OCF.GroupChat();
+
+                appendChat(newChat);
+
+                user.direct.publish('private-invite', {channel: newChat.channel});
+
             });
 
             $onlineUser.find('.show-typing').hide();
@@ -85,16 +95,6 @@
         chat.emitter.on('join', (payload) => {
 
             console.log('join', payload);
-
-            console.log(payload.user.feed)
-
-            payload.user.feed.emitter.on('private-invite', () => {
-
-                console.log('private invite', payload);
-
-                appendChat(new OCF.GroupChat([me, payload.user]));
-
-            });
 
             appendUser(payload.user);
 
@@ -116,6 +116,9 @@
         onlineList($privateChat.find('.online-list-sub'), privateChat);
 
         $privateChat.find('.message').on('change keyup paste click blur', () => {
+
+            console.log(privateChat)
+
             privateChat.typing.startTyping();
         });
 

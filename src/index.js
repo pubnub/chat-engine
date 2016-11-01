@@ -115,6 +115,8 @@ class Chat {
 
     publish(event, data) {
 
+        console.log(event, data)
+
         let payload = {
             data: data
         };
@@ -149,10 +151,11 @@ class Chat {
 
 };
 
-class PresenceChat extends Chat {
+class GlobalChat extends Chat {
     constructor(channel) {
-        
+
         super(channel);
+
 
         this.rltm.addListener({
             presence: (presenceEvent) => {
@@ -250,13 +253,7 @@ class PresenceChat extends Chat {
             }
 
         });
-    }
-}
-
-class GlobalChat extends PresenceChat {
-    constructor(channel) {
-
-        super(channel);
+    
 
     }
     setState(state) {
@@ -270,10 +267,69 @@ class GlobalChat extends PresenceChat {
     }
 }
 
-class GroupChat extends PresenceChat {
-    constructor() {
+class GroupChat extends Chat {
+    constructor(channel) {
 
-        super([globalChat.channel, 'group', new Date().getTime()].join('.'));
+        channel = channel || [globalChat.channel, 'group', new Date().getTime()].join('.');
+
+        super(channel);
+
+        this.rltm.addListener({
+            presence: (presenceEvent) => {
+
+                console.log(presenceEvent)
+                
+                console.log(users)
+
+                let payload = {
+                    user: users[presenceEvent.uuid],
+                    data: presenceEvent
+                }
+
+                if(presenceEvent.action == "join") {
+                    this.broadcast('join', payload);
+                }
+                if(presenceEvent.action == "leave") {
+                    this.broadcast('leave', payload);
+                }
+                if(presenceEvent.action == "timeout") {
+                    this.broadcast('timeout', payload);  
+                }
+
+            }
+        });
+
+        // get users online now
+        this.rltm.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, (status, response) => {
+
+            if(!status.error) {
+
+                console.log(response)
+
+                console.log(users)
+
+                // get the result of who's online
+                let occupants = response.channels[this.channel].occupants;
+
+                // for every occupant, create a model user
+                for(let i in occupants) {
+
+                    this.broadcast('join', {
+                        user: users[occupants[i].uuid],
+                        chat: this
+                    });
+
+                }
+
+            } else {
+                console.log(status, response);
+            }
+
+        });
 
     }
 }
@@ -293,6 +349,9 @@ class User {
         this.data.state._initialized = true;
 
         this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
+        this.direct = new Chat([globalChat.channel, 'private', uuid].join('.'));
+
+        console.log(this.feed)
         
         // our personal event emitter
         this.emitter = new EventEmitter();
