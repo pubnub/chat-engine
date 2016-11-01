@@ -8,6 +8,8 @@ let plugins = [];
 
 let me = false;
 let globalChat = false;
+let globalChannel = 'ofc-global';
+
 
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
@@ -107,12 +109,6 @@ class Chat {
             withPresence: true
         });
 
-        this.rltm.setState({
-            state: me.data.state,
-            channels: [this.channel]
-        }, (status, response) => {
-        });
-
         loadClassPlugins(this);
 
     }
@@ -167,6 +163,8 @@ class GlobalChat extends Chat {
                 }
 
                 if(presenceEvent.action == "join") {
+
+                    console.log(presenceEvent)
 
                     console.log('join', presenceEvent.uuid, presenceEvent.state);
 
@@ -251,9 +249,18 @@ class GlobalChat extends Chat {
         });
 
     }
+    setState(state) {
+
+        this.rltm.setState({
+            state: state,
+            channels: [this.channel]
+        }, (status, response) => {
+        });
+
+    }
 }
 
-class Person {
+class User {
     constructor(uuid, state) {
 
         // this is public data exposed to the network
@@ -266,6 +273,8 @@ class Person {
         // user can be created before network sync has begun
         // this property lets us know when that has happened
         this.data.state._initialized = true;
+
+        this.feed = new Chat([globalChannel, 'feed', uuid].join('.'));
         
         // our personal event emitter
         this.emitter = new EventEmitter();
@@ -293,24 +302,10 @@ class Person {
     }
 };
 
-class User extends Person {
+class Me extends User {
     constructor(uuid, state) {
         
-        console.log('new User');
-
-        super(uuid, state);
-
-        this.chat = new Chat([uuid, me.data.uuid].sort().join(':'));
-        
-        loadClassPlugins(this);
-
-    }   
-}
-
-class Me extends Person {
-    constructor(uuid, state) {
-        
-        console.log('new me');
+        console.log('new me', uuid, state);
 
         // call the User constructor
         super(uuid, state);
@@ -324,29 +319,23 @@ class Me extends Person {
         // set the property using User method
         super.set(property, value);
 
-        // but we also need to broadcast the state change to all chats
-        for(let i in this.chats) {
+        globalChat.setState(this.data.state);
 
-            console.log(this.chats[i]);
-            console.log('setting statusate in chats');
+    }
+    update(state) {
 
-            this.chats[i].rltm.setState({
-                state: this.data.state,
-                channels: [this.chats[i].channel]
-            }, (status, response) => {
-            });
+        super.update(state);
 
-        }
+        globalChat.setState(this.data.state);
 
     }
 }
 
 module.exports = {
-    init(config, plugs) {
+    config(config, plugs) {
 
-        config.globalChannel = config.globalChannel || 'ofc-global';
-
-        globalChat = new GlobalChat(config.globalChannel);
+        config = config || {};
+        globalChannel = config.globalChannel || globalChannel;
 
         plugins = plugs;
 
