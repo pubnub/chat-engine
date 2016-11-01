@@ -387,7 +387,6 @@ class Me extends User {
         // call the User constructor
 
         super(uuid, state);
-        
         this.update(state)
         
         // load Me plugins

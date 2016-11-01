@@ -1,27 +1,43 @@
 "use strict";
 
 let OCF = require('./src/index.js'); 
+let typingIndicator = require('./plugins/typingIndicator.js'); 
 
-OCF.config();
+OCF.config({
+        globalChannel: 'ofc-tester-9' // global chan or root, namespace? organization
+    }, [
+        typingIndicator({
+            timeout: 2000
+        })
+    ]);
 
-var me = OCF.identify('ian' + new Date().getTime(), {value: true});
+var me = OCF.identify('robot-ian', {username: 'robot-ian'});
 
-var chat = new OCF.Chat('dogsandcats');
+me.direct.emitter.on('private-invite', (payload) => {
 
-chat.emitter.on('join', (payload) => {
-    console.log('got join', payload);
-});
+    var newchat = new OCF.GroupChat(payload.data.channel);
 
-chat.emitter.on('message', (payload) => {
-    console.log('got message', payload.data);
-});
+    newchat.emitter.on('message', (payload) => {
 
-chat.emitter.on('ready', () => {
+        console.log(payload)
 
-    console.log('chat is ready');
+        newchat.typing.startTyping();
 
-    chat.publish('message', {
-        text: 'hello world'
+        setTimeout((argument) => {
+            
+            if(payload.sender.data.uuid !== me.data.uuid) { // add to github issues
+
+                newchat.publish('message', {
+                    text: 'hey there ' + payload.sender.data.state.username 
+                });
+
+            }
+
+            newchat.typing.stopTyping();
+
+        }, 1000);
+
     });
+
 
 });
