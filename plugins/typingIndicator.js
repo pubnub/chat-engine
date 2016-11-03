@@ -16,6 +16,7 @@ var plugin = function(config) {
 
                 isTyping = true;
 
+                console.log('start typing');
                 this.parent.publish('startTyping');
 
                 setTimeout (() => {
@@ -29,6 +30,7 @@ var plugin = function(config) {
 
             if(isTyping) {
                 clearTimeout(stopTypingTimeout);
+                console.log('stop typing');
                 this.parent.publish('stopTyping');   
                 isTyping = false;
             }

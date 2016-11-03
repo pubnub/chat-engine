@@ -141,9 +141,7 @@ class Chat {
 
     }
 
-    addUser(uuid, state, data) {
-
-        console.log(this.users, state)
+    userJoin(uuid, state, data) {
 
         // if the user is not in this list
         if(!this.users[uuid]) {
@@ -171,17 +169,21 @@ class Chat {
                 return this.users[uuid];
                    
             } else {
-                console.log('user does not exist, and no state given, ignoring')
+                console.log('user does not exist, and no state given, ignoring');
             }
 
         } else {
-            console.log('double addUser called');
+            console.log('double userJoin called');
         }
 
     }
-    removeUser(uuid) {
-        this.broadcast('leave', this.users[uuid]);
-        delete this.users[uuid];
+    userLeave(uuid) {
+        if(this.users[uuid]) {
+            this.broadcast('leave', this.users[uuid]);
+            delete this.users[uuid];   
+        } else {
+            console.log('user already left');
+        }
     }
 
 };
@@ -195,10 +197,10 @@ class GlobalChat extends Chat {
             presence: (presenceEvent) => {
 
                 if(presenceEvent.action == "join") {
-                    this.addUser(presenceEvent.uuid, presenceEvent.state, presenceEvent);
+                    this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
                 }
                 if(presenceEvent.action == "leave") {
-                    this.removeUser(presenceEvent.uuid);
+                    this.userLeave(presenceEvent.uuid);
                 }
                 if(presenceEvent.action == "timeout") {
                     // set idle?
@@ -209,7 +211,7 @@ class GlobalChat extends Chat {
                     if(payload.user) {
                         this.users[payload.user.data.uuid].update(presenceEvent.state);
                     } else {
-                        this.addUser(presenceEvent.uuid, presenceEvent.state, presenceEvent);
+                        this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
                     }
 
                 }
@@ -236,7 +238,7 @@ class GlobalChat extends Chat {
                         this.users[occupants[i].uuid].update(occupants[i].state);
                         // this will broadcast every change individually
                     } else {
-                        this.addUser(occupants[i].uuid, occupants[i].state);
+                        this.userJoin(occupants[i].uuid, occupants[i].state);
                     }
 
                 }
@@ -271,10 +273,10 @@ class GroupChat extends Chat {
             presence: (presenceEvent) => {
 
                 if(presenceEvent.action == "join") {
-                    this.addUser(presenceEvent.uuid, presenceEvent.state, presenceEvent);
+                    this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
                 }
                 if(presenceEvent.action == "leave") {
-                    this.removeUser(presenceEvent.uuid);
+                    this.userLeave(presenceEvent.uuid);
                 }
                 if(presenceEvent.action == "timeout") {
                     // this.broadcast('timeout', payload);  
@@ -299,7 +301,7 @@ class GroupChat extends Chat {
 
                 // for every occupant, create a model user
                 for(let i in occupants) {
-                    this.addUser(occupants[i].uuid, occupants[i].state);
+                    this.userJoin(occupants[i].uuid, occupants[i].state);
                 }
 
             } else {
