@@ -16,7 +16,6 @@ var plugin = function(config) {
 
                 isTyping = true;
 
-                console.log('start typing');
                 this.parent.publish('startTyping');
 
                 setTimeout (() => {
@@ -30,7 +29,6 @@ var plugin = function(config) {
 
             if(isTyping) {
                 clearTimeout(stopTypingTimeout);
-                console.log('stop typing');
                 this.parent.publish('stopTyping');   
                 isTyping = false;
             }
@@ -39,8 +37,18 @@ var plugin = function(config) {
 
     }
 
+    var publish = {
+        message: function(payload, next) {
+            payload.chat.typing.stopTyping();
+            next(null, payload);
+        }
+    };
+
     return {
         namespace: 'typing',
+        middleware: {
+            publish
+        },
         extends: {
             Chat: typer,
             GroupChat: typer

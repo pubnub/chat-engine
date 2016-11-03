@@ -21,19 +21,23 @@ me.direct.emitter.on('private-invite', (payload) => {
         
         if(payload.sender.data.uuid !== me.data.uuid) { // add to github issues
 
-            newchat.typing.startTyping();
-
             setTimeout((argument) => {
 
-                    // payload.sender.isMe
+                newchat.typing.startTyping();
 
-                    newchat.publish('message', {
-                        text: 'hey there ' + payload.sender.data.state.username 
-                    });
+                setTimeout((argument) => {
 
-                newchat.typing.stopTyping(); // add this to plugin middleware
+                        // payload.sender.isMe
 
-            }, 1000);
+                        newchat.publish('message', {
+                            text: 'hey there ' + payload.sender.data.state.username 
+                        });
+
+                    newchat.typing.stopTyping(); // add this to plugin middleware
+
+                }, 1000);
+
+            }, 500);
 
         }
 

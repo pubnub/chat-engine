@@ -41,22 +41,6 @@ function loadClassPlugins(obj) {
 
 }
 
-let runPluginQueue = function(location, event, first, last) {
-    
-    let plugin_queue = [];
-
-    plugin_queue.push(first);
-
-    for(let i in plugins) {
-        if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
-            plugin_queue.push(plugins[i].middleware[location][event]);
-        }
-    }
-
-    waterfall(plugin_queue, last);
-
-}
-
 class Chat {
 
     constructor(channel) {
@@ -87,11 +71,13 @@ class Chat {
 
                 let event = m.message[0];
                 let payload = m.message[1];
+
                 payload.chat = this;
 
                 if(payload.sender && globalChat.users[payload.sender]) {
                     payload.sender = globalChat.users[payload.sender];
                 }
+                console.log('got message', payload)
 
                 this.broadcast(event, payload);
 
@@ -110,12 +96,13 @@ class Chat {
     publish(event, data) {
 
         let payload = {
-            data: data
+            data: data,
+            chat: this
         };
 
         payload.sender = me.data.uuid;
 
-        runPluginQueue('publish', event, (next) => {
+        this.runPluginQueue('publish', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
 
@@ -132,7 +119,7 @@ class Chat {
 
     broadcast(event, payload) {
 
-        runPluginQueue(event, payload, (next) => {
+        this.runPluginQueue(event, payload, (next) => {
             next(null, payload);
         }, (err, payload) => {
            this.emitter.emit(event, payload);
@@ -192,6 +179,24 @@ class Chat {
         }
     }
 
+    runPluginQueue(location, event, first, last) {
+    
+    let plugin_queue = [];
+
+    plugin_queue.push(first);
+
+    for(let i in plugins) {
+
+        if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
+            plugin_queue.push(plugins[i].middleware[location][event]);
+        }
+
+    }
+
+    waterfall(plugin_queue, last);
+
+}
+
 };
 
 class GlobalChat extends Chat {
@@ -214,8 +219,8 @@ class GlobalChat extends Chat {
                 }
                 if(presenceEvent.action == "state-change") {
 
-                    if(payload.user) {
-                        this.users[payload.user.data.uuid].update(presenceEvent.state);
+                    if(this.users[presenceEvent.uuid]) {
+                        this.users[presenceEvent.uuid].update(presenceEvent.state);
                     } else {
                         this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
                     }
