@@ -62,15 +62,13 @@ class Chat {
 
     constructor(channel) {
 
-        console.log('new Chat', channel)
-
         this.channel = channel;
-
-        // key/value of user sin channel
-        // users = {};
 
         // our events published over this event emitter
         this.emitter = new EventEmitter();
+
+        // key/value of users in channel
+        this.users = {};
 
         // initialize RLTM with pubnub keys
         this.rltm = new Rltm({
@@ -102,8 +100,6 @@ class Chat {
             }
         });
 
-        console.log('subscribing to', this.channel);
-
         this.rltm.subscribe({ 
             channels: [this.channel],
             withPresence: true
@@ -114,8 +110,6 @@ class Chat {
     }
 
     publish(event, data) {
-
-        console.log(event, data)
 
         let payload = {
             data: data
@@ -156,11 +150,8 @@ class GlobalChat extends Chat {
 
         super(channel);
 
-
         this.rltm.addListener({
             presence: (presenceEvent) => {
-
-                console.log(presenceEvent)
 
                 let payload = {
                     user: users[presenceEvent.uuid],
@@ -168,10 +159,6 @@ class GlobalChat extends Chat {
                 }
 
                 if(presenceEvent.action == "join") {
-
-                    console.log(presenceEvent)
-
-                    console.log('join', presenceEvent.uuid, presenceEvent.state);
 
                     if(!users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
                         users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
@@ -189,8 +176,6 @@ class GlobalChat extends Chat {
                     this.broadcast('timeout', payload);  
                 }
                 if(presenceEvent.action == "state-change") {
-
-                    console.log('state change', presenceEvent.uuid, presenceEvent.state);
 
                     if(users[presenceEvent.uuid]) {
                         users[presenceEvent.uuid].update(presenceEvent.state);
@@ -221,8 +206,6 @@ class GlobalChat extends Chat {
         }, (status, response) => {
 
             if(!status.error) {
-
-                console.log(response)
 
                 // get the result of who's online
                 let occupants = response.channels[this.channel].occupants;
@@ -277,10 +260,6 @@ class GroupChat extends Chat {
         this.rltm.addListener({
             presence: (presenceEvent) => {
 
-                console.log(presenceEvent)
-                
-                console.log(users)
-
                 let payload = {
                     user: users[presenceEvent.uuid],
                     data: presenceEvent
@@ -307,10 +286,6 @@ class GroupChat extends Chat {
         }, (status, response) => {
 
             if(!status.error) {
-
-                console.log(response)
-
-                console.log(users)
 
                 // get the result of who's online
                 let occupants = response.channels[this.channel].occupants;
@@ -350,8 +325,6 @@ class User {
 
         this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
         this.direct = new Chat([globalChat.channel, 'private', uuid].join('.'));
-
-        console.log(this.feed)
         
         // our personal event emitter
         this.emitter = new EventEmitter();
@@ -381,8 +354,6 @@ class User {
 
 class Me extends User {
     constructor(uuid, state) {
-        
-        console.log('new me', uuid, state);
 
         // call the User constructor
 
