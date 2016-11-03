@@ -10,13 +10,12 @@ let uuid = null;
 let me = false;
 let globalChat = false;
 
-
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
    childOb.parent = ob;
 }
 
-var users = {};
+let users = {};
 
 function loadClassPlugins(obj) {
 
@@ -64,11 +63,10 @@ class Chat {
 
         this.channel = channel;
 
+        this.users = {};
+
         // our events published over this event emitter
         this.emitter = new EventEmitter();
-
-        // key/value of users in channel
-        this.users = {};
 
         // initialize RLTM with pubnub keys
         this.rltm = new Rltm({
@@ -91,8 +89,8 @@ class Chat {
                 let payload = m.message[1];
                 payload.chat = this;
 
-                if(payload.sender && users[payload.sender]) {
-                    payload.sender = users[payload.sender];
+                if(payload.sender && globalChat.users[payload.sender]) {
+                    payload.sender = globalChat.users[payload.sender];
                 }
 
                 this.broadcast(event, payload);
@@ -143,6 +141,49 @@ class Chat {
 
     }
 
+    addUser(uuid, state, data) {
+
+        console.log(this.users, state)
+
+        // if the user is not in this list
+        if(!this.users[uuid]) {
+
+            // if the user does not exist at all and we get enough information to build the user
+            if(!globalChat.users[uuid] && state && state._initialized) {
+                globalChat.users[uuid] = new User(uuid, state);
+            }
+
+            // if the user has been built previously, assign it to local list
+            if(globalChat.users[uuid]) {
+                this.users[uuid] = globalChat.users[uuid];
+            }
+
+            // if user has been built using previous steps
+            if(this.users[uuid]) {
+                
+                // broadcast that this is a new user
+                this.broadcast('join', {
+                    user: this.users[uuid],
+                    chat: this,
+                    data: data
+                });
+
+                return this.users[uuid];
+                   
+            } else {
+                console.log('user does not exist, and no state given, ignoring')
+            }
+
+        } else {
+            console.log('double addUser called');
+        }
+
+    }
+    removeUser(uuid) {
+        this.broadcast('leave', this.users[uuid]);
+        delete this.users[uuid];
+    }
+
 };
 
 class GlobalChat extends Chat {
@@ -153,44 +194,22 @@ class GlobalChat extends Chat {
         this.rltm.addListener({
             presence: (presenceEvent) => {
 
-                let payload = {
-                    user: users[presenceEvent.uuid],
-                    data: presenceEvent
-                }
-
                 if(presenceEvent.action == "join") {
-
-                    if(!users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
-                        users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
-                        this.broadcast('join', payload);
-
-                    }
-
+                    this.addUser(presenceEvent.uuid, presenceEvent.state, presenceEvent);
                 }
                 if(presenceEvent.action == "leave") {
-                    delete users[presenceEvent.uuid];
-                    this.broadcast('leave', payload);
+                    this.removeUser(presenceEvent.uuid);
                 }
                 if(presenceEvent.action == "timeout") {
                     // set idle?
-                    this.broadcast('timeout', payload);  
+                    // this.broadcast('timeout', payload);  
                 }
                 if(presenceEvent.action == "state-change") {
 
-                    if(users[presenceEvent.uuid]) {
-                        users[presenceEvent.uuid].update(presenceEvent.state);
-                        // this will broadcast every change individually
-                        // probably doesn't work anymore
+                    if(payload.user) {
+                        this.users[payload.user.data.uuid].update(presenceEvent.state);
                     } else {
-                        
-                        if(!users[presenceEvent.uuid] && presenceEvent.state && presenceEvent.state._initialized) {
-
-                            users[presenceEvent.uuid] = new User(presenceEvent.uuid, presenceEvent.state);
-
-                            payload.user = users[presenceEvent.uuid];
-                            this.broadcast('join', payload);
-                        }
-
+                        this.addUser(presenceEvent.uuid, presenceEvent.state, presenceEvent);
                     }
 
                 }
@@ -213,21 +232,12 @@ class GlobalChat extends Chat {
                 // for every occupant, create a model user
                 for(let i in occupants) {
 
-                    if(users[occupants[i].uuid]) {
-                        users[occupants[i].uuid].update(occupants[i].state);
+                    if(this.users[occupants[i].uuid]) {
+                        this.users[occupants[i].uuid].update(occupants[i].state);
                         // this will broadcast every change individually
                     } else {
-                        
-                        if(!users[occupants[i].uuid] && occupants[i].state && occupants[i].state._initialized) {
-                            users[occupants[i].uuid] = new User(occupants[i].uuid, occupants[i].state);
-                        }
-
+                        this.addUser(occupants[i].uuid, occupants[i].state);
                     }
-
-                    this.broadcast('join', {
-                        user: users[occupants[i].uuid],
-                        chat: this
-                    });
 
                 }
 
@@ -260,19 +270,14 @@ class GroupChat extends Chat {
         this.rltm.addListener({
             presence: (presenceEvent) => {
 
-                let payload = {
-                    user: users[presenceEvent.uuid],
-                    data: presenceEvent
-                }
-
                 if(presenceEvent.action == "join") {
-                    this.broadcast('join', payload);
+                    this.addUser(presenceEvent.uuid, presenceEvent.state, presenceEvent);
                 }
                 if(presenceEvent.action == "leave") {
-                    this.broadcast('leave', payload);
+                    this.removeUser(presenceEvent.uuid);
                 }
                 if(presenceEvent.action == "timeout") {
-                    this.broadcast('timeout', payload);  
+                    // this.broadcast('timeout', payload);  
                 }
 
             }
@@ -285,6 +290,8 @@ class GroupChat extends Chat {
             includeState: true
         }, (status, response) => {
 
+            console.log('here now', status, response)
+
             if(!status.error) {
 
                 // get the result of who's online
@@ -292,12 +299,7 @@ class GroupChat extends Chat {
 
                 // for every occupant, create a model user
                 for(let i in occupants) {
-
-                    this.broadcast('join', {
-                        user: users[occupants[i].uuid],
-                        chat: this
-                    });
-
+                    this.addUser(occupants[i].uuid, occupants[i].state);
                 }
 
             } else {
@@ -345,7 +347,7 @@ class User {
     update(state) {
         
         // shorthand loop for updating multiple properties with set
-        for(var key in state) {
+        for(let key in state) {
             this.set(key, state[key]);
         }
 

@@ -67,6 +67,8 @@
 
         var appendUser = function(user) {
 
+            console.log('append user', user);
+
             var $onlineUser = $('<li class="' + user.data.uuid + ' list-group-item"><a href="#">' + user.data.state.username  + '</a> <span class="show-typing">is typing...</span></li>');
 
             $onlineUser.find('a').click(() => {
@@ -88,6 +90,7 @@
         };
 
         chat.emitter.on('join', (payload) => {
+            console.log('join', payload)
             appendUser(payload.user);
         });
         
@@ -154,7 +157,6 @@
     onlineList($('#online-list'), globalChat);
 
     globalChat.emitter.on('message', (payload) => {
-        console.log('got message', payload.sender, payload.data);
     });
 
     globalChat.emitter.on('ready', () => {
