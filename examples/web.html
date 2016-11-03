@@ -22,6 +22,9 @@
     .log p {
         margin-bottom: 0px;
     }
+    .username {
+        font-size: 11px;
+    }
     </style>
 
 </head>
@@ -135,7 +138,13 @@
         });
 
         privateChat.emitter.on('message', (payload) => {
-            $privateChat.find('.log').append($('<p><strong>' + payload.sender.data.state.username + ':</strong> ' + payload.data.text + '</p>'));
+
+            let classes = '';
+            if(payload.sender.constructor.name !== "Me") {
+                classes = 'text-xs-right'
+            }
+
+            $privateChat.find('.log').append($('<p class="'+classes+'"><span class="text-muted username">' + payload.sender.data.state.username + '</span><br/>' + payload.data.text + '</p>'));
         });
 
         privateChat.emitter.on('startTyping', (payload) => {
@@ -161,7 +170,6 @@
 
     me.direct.emitter.on('private-invite', (payload) => {
         appendChat(new OCF.GroupChat(payload.data.channel));
-
     });
 
     let globalChat = OCF.getGlobalChat();

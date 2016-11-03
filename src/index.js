@@ -148,7 +148,11 @@ class Chat {
 
             // if the user does not exist at all and we get enough information to build the user
             if(!globalChat.users[uuid] && state && state._initialized) {
-                globalChat.users[uuid] = new User(uuid, state);
+                if(uuid == me.data.uuid) {
+                    globalChat.users[uuid] = me;
+                } else {
+                    globalChat.users[uuid] = new User(uuid, state);
+                }
             }
 
             // if the user has been built previously, assign it to local list
@@ -175,6 +179,8 @@ class Chat {
         } else {
             console.log('double userJoin called');
         }
+
+        console.log(this.users)
 
     }
     userLeave(uuid) {
@@ -329,7 +335,7 @@ class User {
 
         this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
         this.direct = new Chat([globalChat.channel, 'private', uuid].join('.'));
-        
+
         // our personal event emitter
         this.emitter = new EventEmitter();
         
@@ -360,9 +366,9 @@ class Me extends User {
     constructor(uuid, state) {
 
         // call the User constructor
-
         super(uuid, state);
-        this.update(state)
+
+        this.update(this.data.state);
         
         // load Me plugins
         loadClassPlugins(this);
