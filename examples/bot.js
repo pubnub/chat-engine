@@ -29,7 +29,7 @@ me.direct.emitter.on('private-invite', (payload) => {
 
                         // payload.sender.isMe
 
-                        newchat.    lish('message', {
+                        newchat.publish('message', {
                             text: 'hey there ' + payload.sender.data.state.username 
                         });
 
