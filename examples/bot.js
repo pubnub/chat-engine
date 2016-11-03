@@ -1,7 +1,7 @@
 "use strict";
 
-let OCF = require('./src/index.js'); 
-let typingIndicator = require('./plugins/typingIndicator.js'); 
+let OCF = require('../src/index.js'); 
+let typingIndicator = require('../plugins/typingIndicator.js'); 
 
 OCF.config({
     globalChannel: 'ofc-tester-9' // global chan or root, namespace? organization
@@ -29,7 +29,7 @@ me.direct.emitter.on('private-invite', (payload) => {
 
                         // payload.sender.isMe
 
-                        newchat.publish('message', {
+                        newchat.    lish('message', {
                             text: 'hey there ' + payload.sender.data.state.username 
                         });
 
