@@ -1,2 +1,1 @@
-window.OCFBuilder = window.OCFBuilder || require('./src/index.js');
-
+window.OCF = window.OCF || require('./src/index.js');

@@ -1,0 +1,150 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Open Chat Framework Dev</title>
+
+</head>
+
+<body>
+
+    <div id="chat">
+    </div>
+    <input type="text" id="message">
+    <input type="submit" id="submit">
+    <div id="typing"></div>
+    <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+    </fb:login-button>
+
+    <div id="status">
+    </div>
+
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="../web/ocf.js" type="text/javascript"></script>
+    <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var OCF = new OCFBuilder({
+            globalConfigs: 'here'
+        }, [
+            new typingIndicator()
+        ]);
+
+        window.fbAsyncInit = function() {
+
+            FB.init({
+                appId: '214943955383451',
+                xfbml: true,
+                version: 'v2.8'
+            });
+
+            function checkLoginState() {
+                FB.getLoginStatus(function(response) {
+                    statusChangeCallback(response);
+                });
+            }
+
+            // This is called with the results from from FB.getLoginStatus().
+            function statusChangeCallback(response) {
+
+                if (response.status === 'connected') {
+                    // Logged into your app and Facebook.
+
+                    FB.api('/me', function(response) {
+
+                        var me = OCF.identify(response.id, response);
+
+                        var chat = new OCF.Chat('facebookchat');
+
+                        FB.api(
+                            "/" + response.id + "/picture",
+                            function(response) {
+                                if (response && !response.error) {
+
+                                    console.log(me)
+                                    me.state.avatar = response.data.url
+                                }
+                            }
+                        );
+
+                        chat.emitter.on('message', (payload) => {
+
+                            console.log(payload.sender)
+
+                            $('#chat').append($('<div><img src="' + payload.sender.state.avatar + '" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/><strong>' + payload.sender.state.name + ':</strong> ' + payload.data.text + '</div>'));
+
+                        });
+
+                        $('#message').on('change keyup paste click blur', () => {
+                            chat.typing.startTyping();
+                        });
+
+                        $('#submit').click(() => {
+
+                            chat.typing.stopTyping();
+
+                            chat.publish('message', {
+                                text: $('#message').val()
+                            });
+
+                            $('#message').val('');
+
+                        });
+
+                        chat.emitter.on('startTyping', (payload) => {
+                            $('#typing').text(payload.sender.state.name + ' is typing...');
+                        });
+
+                        chat.emitter.on('stopTyping', (payload) => {
+                            $('#typing').text('');
+                        });
+
+                        chat.emitter.on('ready', () => {
+
+                        });
+
+                        console.log('Successful login for: ' + response.name);
+                        document.getElementById('status').innerHTML =
+                            'Thanks for logging in, ' + response.name + '!';
+
+                    });
+
+                } else if (response.status === 'not_authorized') {
+                    document.getElementById('status').innerHTML = 'Please log ' +
+                        'into this app.';
+                } else {
+                    document.getElementById('status').innerHTML = 'Please log ' +
+                        'into Facebook.';
+                }
+            }
+
+            function checkLoginState() {
+                FB.getLoginStatus(function(response) {
+                    statusChangeCallback(response);
+                });
+            }
+
+            FB.getLoginStatus(function(response) {
+                statusChangeCallback(response);
+            });
+
+
+        };
+
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) {
+                return;
+            }
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+</body>
+
+</html>

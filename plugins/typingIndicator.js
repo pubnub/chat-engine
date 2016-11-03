@@ -9,7 +9,7 @@ var plugin = function(config) {
     let isTyping = false;
     let stopTypingTimeout = null;
     
-    let Chat = {
+    let typer = {
         startTyping: function() {
 
             if(!isTyping) {
@@ -20,7 +20,6 @@ var plugin = function(config) {
 
                 setTimeout (() => {
                     this.stopTyping();   
-
                 }, config.timeout);
 
             }
@@ -38,10 +37,21 @@ var plugin = function(config) {
 
     }
 
+    var publish = {
+        message: function(payload, next) {
+            payload.chat.typing.stopTyping();
+            next(null, payload);
+        }
+    };
+
     return {
         namespace: 'typing',
+        middleware: {
+            publish
+        },
         extends: {
-            Chat
+            Chat: typer,
+            GroupChat: typer
         }
     }
 
@@ -50,5 +60,5 @@ var plugin = function(config) {
 if(typeof module !== "undefined") {
     module.exports = plugin;
 } else {
-    window.typingIndicator = plugin;
+    window.OCF.plugin.typingIndicator = plugin;
 }

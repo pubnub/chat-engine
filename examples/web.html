@@ -1,0 +1,188 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Open Chat Framework Dev</title>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
+
+    <style type="text/css">
+    body {margin-top: 10px;}
+    .log {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #efefef;
+        min-height: 10px;
+        margin-bottom: 1rem;
+    }
+    .log p {
+        margin-bottom: 0px;
+    }
+    .username {
+        font-size: 11px;
+    }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-3">
+
+            <div class="card">
+
+                <div class="card-block">
+                    <h4 class="card-title">Online</h4>
+                    <p class="card-text">Your are <span id="me"></span></p>
+                </div>
+
+                <ul id="online-list" class="list-group list-group-flush">
+                </ul>
+
+            </div>
+
+        </div>
+        <div class="col-lg-9">
+          
+
+          <div id="chats" class="row">
+          </div>
+
+        </div>
+      </div>
+    </div>
+    
+    <script src="../web/ocf.js" type="text/javascript"></script>
+    <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+    OCF.config({
+        globalChannel: 'ofc-tester-9' // global chan or root, namespace? organization
+    }, [
+        OCF.plugin.typingIndicator({
+            timeout: 5000
+        })
+    ]);
+
+    var username = location.search.split('username=')[1];
+
+    let me = OCF.identify(username, {username: username});
+
+    $('#me').text(me.data.state.username + ' with uuid: ' + me.data.uuid);
+
+    let onlineList = function($el, chat) {
+
+        var appendUser = function(user) {
+
+            console.log('append user', user);
+
+            var $onlineUser = $('<li class="' + user.data.uuid + ' list-group-item"><a href="#">' + user.data.state.username  + '</a> <span class="show-typing">is typing...</span></li>');
+
+            $onlineUser.find('a').click(() => {
+
+                let newChat = new OCF.GroupChat();
+
+                appendChat(newChat);
+                user.direct.publish('private-invite', {channel: newChat.channel});
+
+            });
+
+            user.feed.emitter.on('starttyping', () => { 
+                $onlineUser.find('.show-typing').show();
+            })
+
+            $onlineUser.find('.show-typing').hide();
+            $el.append($onlineUser);
+
+        };
+
+        chat.emitter.on('join', (payload) => {
+            console.log('join', payload)
+            appendUser(payload.user);
+        });
+        
+        chat.emitter.on('leave', (payload) => {
+            $('.' + payload.user.data.uuid).remove();
+        });
+
+    }
+
+    let appendChat = function(privateChat) {
+
+        var $privateChat = $('<div class="chat col-xs-6"><div class="card"><h3 class="title card-header">'+privateChat.channel + '</h3><div class="card-block"><a href="#" class="close">close</a></div><ul class="online-list-sub list-group list-group-flush"></ul><div class="card-block"><div class="log"></div><p class="typing text-muted""></p><form class="send-message"><div class="input-group"><input type="text" class="form-control message" placeholder="Your Message..."><span class="input-group-btn"><button class="btn btn-primary" type="submit">Send</button></span></div></form></div></div></div>');
+
+        onlineList($privateChat.find('.online-list-sub'), privateChat);
+
+        $privateChat.find('.message').on('change keyup paste click blur', () => {
+            privateChat.typing.startTyping();
+        });
+
+        $privateChat.find('.send-message').submit(() => {
+
+            privateChat.typing.stopTyping();
+
+            privateChat.publish('message', {
+                text: $privateChat.find('.message').val()
+            });
+
+            $privateChat.find('.message').val('');
+
+            return false;
+
+        });
+
+        privateChat.emitter.on('message', (payload) => {
+
+            let classes = '';
+            if(payload.sender.constructor.name !== "Me") {
+                classes = 'text-xs-right'
+            }
+
+            $privateChat.find('.log').append($('<p class="'+classes+'"><span class="text-muted username">' + payload.sender.data.state.username + '</span><br/>' + payload.data.text + '</p>'));
+        });
+
+        privateChat.emitter.on('startTyping', (payload) => {
+
+            $privateChat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
+            $('.' + payload.sender.data.uuid).find('.show-typing').show();
+
+        });
+
+        privateChat.emitter.on('stopTyping', (payload) => {
+            $privateChat.find('.typing').text('');
+            $('.' + payload.sender.data.uuid).find('.show-typing').hide();
+        });
+
+        $privateChat.find('.close').click(() => {
+            // disconnect
+            $privateChat.remove();
+        });
+
+        $('#chats').append($privateChat);
+
+    } 
+
+    me.direct.emitter.on('private-invite', (payload) => {
+        appendChat(new OCF.GroupChat(payload.data.channel));
+    });
+
+    let globalChat = OCF.getGlobalChat();
+
+    onlineList($('#online-list'), globalChat);
+
+    globalChat.emitter.on('message', (payload) => {
+    });
+
+    globalChat.emitter.on('ready', () => {
+
+    });
+
+  </script>
+</body>
+</html>

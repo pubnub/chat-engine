@@ -2,16 +2,20 @@
 const EventEmitter = require('events');
 
 let Rltm = require('rltm');
-let me = false;
-
-let plugins = [];
-
 let waterfall = require('async/waterfall');
+
+let plugins = []; 
+
+let uuid = null;
+let me = false;
+let globalChat = false;
 
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
    childOb.parent = ob;
 }
+
+let users = {};
 
 function loadClassPlugins(obj) {
 
@@ -21,54 +25,38 @@ function loadClassPlugins(obj) {
         // do plugin error checking here
 
         if(plugins[i].extends && plugins[i].extends[className]) {
+            
+            // add properties from plugin object to class under plugin namespace
             addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
+
+            // this is a reserved function in plugins that run at start of class            
+            if(obj[plugins[i].namespace].construct) {
+                obj[plugins[i].namespace].construct();
+            }
+
         }
 
+
     }
-
-}
-
-var runPluginQueue = function(location, event, first, last) {
-    
-    var plugin_queue = [];
-
-    plugin_queue.push(first);
-
-    for(let i in plugins) {
-        if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
-            plugin_queue.push(plugins[i].middleware[location][event]);
-        }
-    }
-
-    waterfall(plugin_queue, last);
 
 }
 
 class Chat {
 
-    constructor(me, users) {
+    constructor(channel) {
 
-        loadClassPlugins(this);
+        this.channel = channel;
 
-        this.me = me;
-        this.users = users;
+        this.users = {};
 
-        let userIds = [];
-        for(var i in this.users) {
-            userIds.push(this.users[i].id); 
-        };
-
-        userIds.push(this.me.id);
-        this.users.push(this.me);
-
-        this.channels = [userIds.sort().join(':')];
-
-        // use star channels ian:*
+        // our events published over this event emitter
         this.emitter = new EventEmitter();
 
+        // initialize RLTM with pubnub keys
         this.rltm = new Rltm({
-            publishKey: 'pub-c-72832def-4ca3-4802-971d-68112db1b30a',
-            subscribeKey: 'sub-c-28e05466-8c18-11e6-a68c-0619f8945a4f'
+            publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
+            subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe',
+            uuid: uuid
         });
             
         this.rltm.addListener({
@@ -81,95 +69,364 @@ class Chat {
             },
             message: (m) => {
 
-                var event = m.message[0];
-                var payload = m.message[1];
+                let event = m.message[0];
+                let payload = m.message[1];
+
                 payload.chat = this;
 
-                if(payload.sender) {
-                    for(var i in this.users) {
-                        if(this.users[i].id == payload.sender.id) {
-                            payload.sender = this.users[i];
-                        }
-                    }
+                if(payload.sender && globalChat.users[payload.sender]) {
+                    payload.sender = globalChat.users[payload.sender];
                 }
+                console.log('got message', payload)
 
-                runPluginQueue('subscribe', event, 
-                    (next) => {
-                        next(null, payload);
-                    },
-                    (err, payload) => {
-                       this.emitter.emit(event, payload);
-                    }
-                );
+                this.broadcast(event, payload);
 
-            },
-            presence: (presenceEvent) => {
-                this.emitter.emit('presence', presenceEvent);
             }
-        })
-         
-        this.rltm.subscribe({ 
-            channels: this.channels
         });
+
+        this.rltm.subscribe({ 
+            channels: [this.channel],
+            withPresence: true
+        });
+
+        loadClassPlugins(this);
 
     }
 
     publish(event, data) {
 
-        var payload = {
-            sender: this.me,
-            chat: this,
-            data: data
+        let payload = {
+            data: data,
+            chat: this
         };
 
-        runPluginQueue('publish', event, 
-            (next) => {
-                next(null, payload);
-            },
-            (err, payload) => {
+        payload.sender = me.data.uuid;
 
-                delete payload.chat; // will be rebuilt on subscribe
+        this.runPluginQueue('publish', event, (next) => {
+            next(null, payload);
+        }, (err, payload) => {
 
-                this.rltm.publish({
-                    message: [event, payload],
-                    channel: this.channels[0]
+            delete payload.chat;
+
+            this.rltm.publish({
+                message: [event, payload],
+                channel: this.channel
+            });
+
+        });
+
+    }
+
+    broadcast(event, payload) {
+
+        this.runPluginQueue(event, payload, (next) => {
+            next(null, payload);
+        }, (err, payload) => {
+           this.emitter.emit(event, payload);
+        });
+
+
+    }
+
+    userJoin(uuid, state, data) {
+
+        // if the user is not in this list
+        if(!this.users[uuid]) {
+
+            // if the user does not exist at all and we get enough information to build the user
+            if(!globalChat.users[uuid] && state && state._initialized) {
+                if(uuid == me.data.uuid) {
+                    globalChat.users[uuid] = me;
+                } else {
+                    globalChat.users[uuid] = new User(uuid, state);
+                }
+            }
+
+            // if the user has been built previously, assign it to local list
+            if(globalChat.users[uuid]) {
+                this.users[uuid] = globalChat.users[uuid];
+            }
+
+            // if user has been built using previous steps
+            if(this.users[uuid]) {
+                
+                // broadcast that this is a new user
+                this.broadcast('join', {
+                    user: this.users[uuid],
+                    chat: this,
+                    data: data
                 });
 
+                return this.users[uuid];
+                   
+            } else {
+                console.log('user does not exist, and no state given, ignoring');
             }
-        );
+
+        } else {
+            console.log('double userJoin called');
+        }
+
+        console.log(this.users)
+
+    }
+    userLeave(uuid) {
+        if(this.users[uuid]) {
+            this.broadcast('leave', this.users[uuid]);
+            delete this.users[uuid];   
+        } else {
+            console.log('user already left');
+        }
+    }
+
+    runPluginQueue(location, event, first, last) {
+    
+    let plugin_queue = [];
+
+    plugin_queue.push(first);
+
+    for(let i in plugins) {
+
+        if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
+            plugin_queue.push(plugins[i].middleware[location][event]);
+        }
 
     }
 
+    waterfall(plugin_queue, last);
+
+}
+
 };
+
+class GlobalChat extends Chat {
+    constructor(channel) {
+
+        super(channel);
+
+        this.rltm.addListener({
+            presence: (presenceEvent) => {
+
+                if(presenceEvent.action == "join") {
+                    this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
+                }
+                if(presenceEvent.action == "leave") {
+                    this.userLeave(presenceEvent.uuid);
+                }
+                if(presenceEvent.action == "timeout") {
+                    // set idle?
+                    // this.broadcast('timeout', payload);  
+                }
+                if(presenceEvent.action == "state-change") {
+
+                    if(this.users[presenceEvent.uuid]) {
+                        this.users[presenceEvent.uuid].update(presenceEvent.state);
+                    } else {
+                        this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
+                    }
+
+                }
+
+            }
+        });
+
+        // get users online now
+        this.rltm.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, (status, response) => {
+
+            if(!status.error) {
+
+                // get the result of who's online
+                let occupants = response.channels[this.channel].occupants;
+
+                // for every occupant, create a model user
+                for(let i in occupants) {
+
+                    if(this.users[occupants[i].uuid]) {
+                        this.users[occupants[i].uuid].update(occupants[i].state);
+                        // this will broadcast every change individually
+                    } else {
+                        this.userJoin(occupants[i].uuid, occupants[i].state);
+                    }
+
+                }
+
+            } else {
+                console.log(status, response);
+            }
+
+        });
+    
+
+    }
+    setState(state) {
+
+        this.rltm.setState({
+            state: state,
+            channels: [this.channel]
+        }, (status, response) => {
+        });
+
+    }
+}
+
+class GroupChat extends Chat {
+    constructor(channel) {
+
+        channel = channel || [globalChat.channel, 'group', new Date().getTime()].join('.');
+
+        super(channel);
+
+        this.rltm.addListener({
+            presence: (presenceEvent) => {
+
+                if(presenceEvent.action == "join") {
+                    this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
+                }
+                if(presenceEvent.action == "leave") {
+                    this.userLeave(presenceEvent.uuid);
+                }
+                if(presenceEvent.action == "timeout") {
+                    // this.broadcast('timeout', payload);  
+                }
+
+            }
+        });
+
+        // get users online now
+        this.rltm.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, (status, response) => {
+
+            console.log('here now', status, response)
+
+            if(!status.error) {
+
+                // get the result of who's online
+                let occupants = response.channels[this.channel].occupants;
+
+                // for every occupant, create a model user
+                for(let i in occupants) {
+                    this.userJoin(occupants[i].uuid, occupants[i].state);
+                }
+
+            } else {
+                console.log(status, response);
+            }
+
+        });
+
+    }
+}
 
 class User {
+    constructor(uuid, state) {
 
-    constructor(id, data) {
-    
-        loadClassPlugins(this);
-        
-        this.id = id;
-        this.data = data;
+        // this is public data exposed to the network
+        // we can't JSON stringify the object without circular reference        
+        this.data = {
+            uuid: uuid,
+            state: state || {}
+        }
+
+        // user can be created before network sync has begun
+        // this property lets us know when that has happened
+        this.data.state._initialized = true;
+
+        this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
+        this.direct = new Chat([globalChat.channel, 'private', uuid].join('.'));
+
+        // our personal event emitter
+        this.emitter = new EventEmitter();
         
     }
+    set(property, value) {
 
-    createChat(users) {
-        return new Chat(this, users);
-    };
+        // this is a public setter that sets locally and publishes an event
+        this.data.state[property] = value;
 
+        // publish data to the network
+        this.emitter.emit('state-update', {
+            property: property,
+            value: value
+        });
+
+    }
+    update(state) {
+        
+        // shorthand loop for updating multiple properties with set
+        for(let key in state) {
+            this.set(key, state[key]);
+        }
+
+    }
 };
 
-module.exports = class {
-    constructor(config, plugs) {
+class Me extends User {
+    constructor(uuid, state) {
+
+        // call the User constructor
+        super(uuid, state);
+
+        this.update(this.data.state);
+        
+        // load Me plugins
+        loadClassPlugins(this);
+
+    }
+    set(property, value) {
+
+        // set the property using User method
+        super.set(property, value);
+
+        globalChat.setState(this.data.state);
+
+    }
+    update(state) {
+
+        super.update(state);
+
+        globalChat.setState(this.data.state);
+
+    }
+}
+
+module.exports = {
+    config(config, plugs) {
+
+        this.config = config || {};
+
+        this.config.globalChannel = this.config.globalChannel || 'ofc-global';
 
         plugins = plugs;
 
-        let classes = {Chat, User};
+        this.plugin = {};
 
-        return classes;
+        return this;
 
-    }
-    config(params) {
-        // do some config
-    }
+    },
+    identify(id, state) {
+
+        uuid = id;
+
+        globalChat = new GlobalChat(this.config.globalChannel);
+
+        me = new Me(uuid, state);
+
+        return me;
+    },
+    getGlobalChat() {
+        return globalChat
+    },
+    Chat: Chat,
+    GlobalChat: GlobalChat,
+    GroupChat: GroupChat,
+    User: User,
+    Me: Me,
+    plugin: {}
 };
