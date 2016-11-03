@@ -119,8 +119,14 @@
 
         onlineList($privateChat.find('.online-list-sub'), privateChat);
 
-        $privateChat.find('.message').on('change keyup paste click blur', () => {
-            privateChat.typing.startTyping();
+        let $input = $privateChat.find('.message');
+
+        $input.on('change keyup paste click blur', () => {
+
+            if($input.val()) {
+                privateChat.typing.startTyping();   
+            }
+
         });
 
         $privateChat.find('.send-message').submit(() => {
