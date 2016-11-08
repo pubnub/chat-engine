@@ -37,8 +37,18 @@ var plugin = function(config) {
 
     }
 
+    var publish = {
+        message: function(payload, next) {
+            payload.chat.typing.stopTyping();
+            next(null, payload);
+        }
+    };
+
     return {
         namespace: 'typing',
+        middleware: {
+            publish
+        },
         extends: {
             Chat: typer,
             GroupChat: typer
