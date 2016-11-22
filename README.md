@@ -42,7 +42,6 @@ Compiled using browserify through gulp
 ```sh
 npm install only=dev
 npm install gulp -g
-```
 
 Run build task and watch for browser
 

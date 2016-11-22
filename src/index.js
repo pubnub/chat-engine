@@ -1,7 +1,7 @@
 "use strict";
 const EventEmitter = require('events');
 
-let Rltm = require('rltm');
+let Rltm = require('../../rltm/src/index');
 let waterfall = require('async/waterfall');
 
 let plugins = []; 
@@ -9,6 +9,7 @@ let plugins = [];
 let uuid = null;
 let me = false;
 let globalChat = false;
+let rltm;
 
 function addChild(ob, childName, childOb) {
    ob[childName] = childOb;
@@ -52,41 +53,25 @@ class Chat {
         // our events published over this event emitter
         this.emitter = new EventEmitter();
 
-        // initialize RLTM with pubnub keys
-        this.rltm = new Rltm({
-            publishKey: 'pub-c-f7d7be90-895a-4b24-bf99-5977c22c66c9',
-            subscribeKey: 'sub-c-bd013f24-9a24-11e6-a681-02ee2ddab7fe',
-            uuid: uuid
+        this.room = rltm.join(this.channel);
+
+        this.room.on('ready', (data) => {
+            this.emitter.emit('ready');
         });
-            
-        this.rltm.addListener({
-            status: (statusEvent) => {
-                
-                if (statusEvent.category === "PNConnectedCategory") {
-                    this.emitter.emit('ready');
-                }
 
-            },
-            message: (m) => {
+        this.room.on('message', (uuid, data) => {
 
-                let event = m.message[0];
-                let payload = m.message[1];
+            let event = data.message[0];
+            let payload = data.message[1];
 
-                payload.chat = this;
+            payload.chat = this;
 
-                if(payload.sender && globalChat.users[payload.sender]) {
-                    payload.sender = globalChat.users[payload.sender];
-                }
-                console.log('got message', payload)
-
-                this.broadcast(event, payload);
-
+            if(payload.sender && globalChat.users[payload.sender]) {
+                payload.sender = globalChat.users[payload.sender];
             }
-        });
 
-        this.rltm.subscribe({ 
-            channels: [this.channel],
-            withPresence: true
+            this.broadcast(event, payload);
+
         });
 
         loadClassPlugins(this);
@@ -108,7 +93,7 @@ class Chat {
 
             delete payload.chat;
 
-            this.rltm.publish({
+            this.room.publish({
                 message: [event, payload],
                 channel: this.channel
             });
@@ -160,14 +145,12 @@ class Chat {
                 return this.users[uuid];
                    
             } else {
-                console.log('user does not exist, and no state given, ignoring');
+                // console.log('user does not exist, and no state given, ignoring');
             }
 
         } else {
             console.log('double userJoin called');
         }
-
-        console.log(this.users)
 
     }
     userLeave(uuid) {
@@ -204,58 +187,38 @@ class GlobalChat extends Chat {
 
         super(channel);
 
-        this.rltm.addListener({
-            presence: (presenceEvent) => {
+        this.room.on('join', (uuid, state) => {
+            this.userJoin(uuid, state);
+        });
 
-                if(presenceEvent.action == "join") {
-                    this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
-                }
-                if(presenceEvent.action == "leave") {
-                    this.userLeave(presenceEvent.uuid);
-                }
-                if(presenceEvent.action == "timeout") {
-                    // set idle?
-                    // this.broadcast('timeout', payload);  
-                }
-                if(presenceEvent.action == "state-change") {
+        this.room.on('leave', (uuid) => {
+            this.userLeave(uuid);
+        });
 
-                    if(this.users[presenceEvent.uuid]) {
-                        this.users[presenceEvent.uuid].update(presenceEvent.state);
-                    } else {
-                        this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
-                    }
-
-                }
-
+        this.room.on('state', (uuid, state) => {
+            
+            if(this.users[uuid]) {
+                this.users[uuid].update(state);
+            } else {
+                this.userJoin(uuid, state);
             }
         });
 
         // get users online now
-        this.rltm.hereNow({
-            channels: [this.channel],
-            includeUUIDs: true,
-            includeState: true
-        }, (status, response) => {
+        this.room.hereNow((occupants) => {
 
-            if(!status.error) {
+            console.log('here now called', occupants)
 
-                // get the result of who's online
-                let occupants = response.channels[this.channel].occupants;
+            // for every occupant, create a model user
+            for(let uuid in occupants) {
 
-                // for every occupant, create a model user
-                for(let i in occupants) {
-
-                    if(this.users[occupants[i].uuid]) {
-                        this.users[occupants[i].uuid].update(occupants[i].state);
-                        // this will broadcast every change individually
-                    } else {
-                        this.userJoin(occupants[i].uuid, occupants[i].state);
-                    }
-
+                if(this.users[uuid]) {
+                    this.users[uuid].update(occupants[uuid]);
+                    // this will broadcast every change individually
+                } else {
+                    this.userJoin(uuid, occupants[uuid]);
                 }
 
-            } else {
-                console.log(status, response);
             }
 
         });
@@ -263,13 +226,7 @@ class GlobalChat extends Chat {
 
     }
     setState(state) {
-
-        this.rltm.setState({
-            state: state,
-            channels: [this.channel]
-        }, (status, response) => {
-        });
-
+        this.room.setState(state);
     }
 }
 
@@ -280,43 +237,20 @@ class GroupChat extends Chat {
 
         super(channel);
 
-        this.rltm.addListener({
-            presence: (presenceEvent) => {
+        this.room.on('join', (uuid, state) => {
+            this.userJoin(uuid, state);
+        });
 
-                if(presenceEvent.action == "join") {
-                    this.userJoin(presenceEvent.uuid, presenceEvent.state, presenceEvent);
-                }
-                if(presenceEvent.action == "leave") {
-                    this.userLeave(presenceEvent.uuid);
-                }
-                if(presenceEvent.action == "timeout") {
-                    // this.broadcast('timeout', payload);  
-                }
-
-            }
+        this.room.on('leave', (uuid) => {
+            this.userLeave(uuid);
         });
 
         // get users online now
-        this.rltm.hereNow({
-            channels: [this.channel],
-            includeUUIDs: true,
-            includeState: true
-        }, (status, response) => {
+        this.room.hereNow((occupants) => {
 
-            console.log('here now', status, response)
-
-            if(!status.error) {
-
-                // get the result of who's online
-                let occupants = response.channels[this.channel].occupants;
-
-                // for every occupant, create a model user
-                for(let i in occupants) {
-                    this.userJoin(occupants[i].uuid, occupants[i].state);
-                }
-
-            } else {
-                console.log(status, response);
+            // for every occupant, create a model user
+            for(let uuid in occupants) {
+                this.userJoin(uuid, occupants[uuid]);
             }
 
         });
@@ -410,9 +344,11 @@ module.exports = {
         return this;
 
     },
-    identify(id, state) {
+    identify(uuid, state) {
 
-        uuid = id;
+        this.config.rltm[1].uuid = uuid;
+
+        rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
 
         globalChat = new GlobalChat(this.config.globalChannel);
 

@@ -62,8 +62,16 @@
     <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
     <script type="text/javascript">
 
+        
+        
+        console.log('going')
+
+
     OCF.config({
-        globalChannel: 'ofc-tester-9' // global chan or root, namespace? organization
+        rltm: ['socketio', {
+            endpoint: 'http://localhost:9000'
+        }],
+        globalChannel: 'ofc-tester-11' // global chan or root, namespace? organization
     }, [
         OCF.plugin.typingIndicator({
             timeout: 5000
@@ -119,14 +127,8 @@
 
         onlineList($privateChat.find('.online-list-sub'), privateChat);
 
-        let $input = $privateChat.find('.message');
-
-        $input.on('change keyup paste click blur', () => {
-
-            if($input.val()) {
-                privateChat.typing.startTyping();   
-            }
-
+        $privateChat.find('.message').on('change keyup paste click blur', () => {
+            privateChat.typing.startTyping();
         });
 
         $privateChat.find('.send-message').submit(() => {
