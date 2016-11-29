@@ -4,7 +4,7 @@ const defaults = {timeout: 1000};
 
 module.exports = function(config) {
 
-    var publish = {
+    var send = {
         message: function(payload, next) {
 
             payload.data.text += " pub_append 3";
@@ -23,7 +23,7 @@ module.exports = function(config) {
     };
 
     return {
-        middleware: {publish, subscribe}
+        middleware: {send, subscribe}
     }
 
 }

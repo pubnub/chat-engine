@@ -78,7 +78,7 @@ class Chat {
 
     }
 
-    publish(event, data) {
+    send(event, data) {
 
         let payload = {
             data: data,
@@ -87,7 +87,7 @@ class Chat {
 
         payload.sender = me.data.uuid;
 
-        this.runPluginQueue('publish', event, (next) => {
+        this.runPluginQueue('send', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
 

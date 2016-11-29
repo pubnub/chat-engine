@@ -94,7 +94,7 @@ describe('chat', function() {
 
         });
 
-        chat.publish('message', {
+        chat.send('message', {
             text: 'hello world'
         });
 
