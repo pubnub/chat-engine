@@ -2,7 +2,7 @@
 
 const defaults = {timeout: 1000};
 
-const plugin = function(config) {
+const plugin = (config) => {
 
     config = config || {timeout: 1000};
 
@@ -10,7 +10,7 @@ const plugin = function(config) {
     let stopTypingTimeout = null;
     
     let typer = {
-        startTyping: () => {
+        startTyping: function() {
 
             if(!isTyping) {
 
@@ -25,7 +25,7 @@ const plugin = function(config) {
             }
 
         },
-        stopTyping: () => {
+        stopTyping: function() {
 
             if(isTyping) {
                 clearTimeout(stopTypingTimeout);

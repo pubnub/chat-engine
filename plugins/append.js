@@ -2,7 +2,7 @@
 
 const defaults = {timeout: 1000};
 
-module.exports = function(config) {
+module.exports = (config) => {
 
     config = config || {};
 
@@ -10,7 +10,7 @@ module.exports = function(config) {
     config.subscribe = config.subscribe || " sub_append";
 
     let publish = {
-        message: (payload, next) => {
+        message: function(payload, next) {
 
             payload.data.text += config.publish;
             next(null, payload);
@@ -19,7 +19,7 @@ module.exports = function(config) {
     };
 
     let subscribe = {
-        message: (payload, next) => {
+        message: function(payload, next) {
         
             payload.data.text += config.subscribe;
 

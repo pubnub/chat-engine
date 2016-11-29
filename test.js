@@ -140,7 +140,11 @@ describe('plugins', function() {
 
     it('typing indicator', function(done) {
 
-        me.typing.startTyping();
+        pluginchat.emitter.on('startTyping', () => { 
+            done();
+        });
+
+        pluginchat.typing.startTyping();
 
     });
 
