@@ -35,6 +35,8 @@ describe('import', function() {
 const pub_append = 'pub' + new Date().getTime();
 const sub_append = 'sub' + new Date().getTime();
 
+let me;
+
 describe('conifg', function() {
 
     it('should be configured', function() {
@@ -62,7 +64,7 @@ describe('identify', function() {
 
     it('should be identified as new user', function() {
 
-        let me = OCF.identify('robot-tester', {works: true});
+        me = OCF.identify('robot-tester', {works: true});
         assert.isObject(me);
 
     });
@@ -136,7 +138,10 @@ describe('plugins', function() {
 
     });
 
+    it('typing indicator', function(done) {
+
+        me.typing.startTyping();
+
+    });
+
 });
-
-
-
