@@ -110,7 +110,6 @@ class Chat {
            this.emitter.emit(event, payload);
         });
 
-
     }
 
     userJoin(uuid, state, data) {
@@ -164,25 +163,26 @@ class Chat {
 
     runPluginQueue(location, event, first, last) {
     
-    let plugin_queue = [];
+        let plugin_queue = [];
 
-    plugin_queue.push(first);
+        plugin_queue.push(first);
 
-    for(let i in plugins) {
+        for(let i in plugins) {
 
-        if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
-            plugin_queue.push(plugins[i].middleware[location][event]);
+            if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
+                plugin_queue.push(plugins[i].middleware[location][event]);
+            }
+
         }
 
+        waterfall(plugin_queue, last);
+
     }
-
-    waterfall(plugin_queue, last);
-
-}
 
 };
 
 class GlobalChat extends Chat {
+
     constructor(channel) {
 
         super(channel);
@@ -202,6 +202,7 @@ class GlobalChat extends Chat {
             } else {
                 this.userJoin(uuid, state);
             }
+
         });
 
         // get users online now
@@ -225,12 +226,15 @@ class GlobalChat extends Chat {
     
 
     }
+
     setState(state) {
         this.room.setState(state);
     }
+
 }
 
 class GroupChat extends Chat {
+
     constructor(channel) {
 
         channel = channel || [globalChat.channel, 'group', new Date().getTime()].join('.');
@@ -256,9 +260,11 @@ class GroupChat extends Chat {
         });
 
     }
+
 }
 
 class User {
+
     constructor(uuid, state) {
 
         // this is public data exposed to the network
@@ -279,6 +285,7 @@ class User {
         this.emitter = new EventEmitter();
         
     }
+
     set(property, value) {
 
         // this is a public setter that sets locally and publishes an event
@@ -291,6 +298,7 @@ class User {
         });
 
     }
+
     update(state) {
         
         // shorthand loop for updating multiple properties with set
@@ -299,9 +307,11 @@ class User {
         }
 
     }
-};
+
+}
 
 class Me extends User {
+
     constructor(uuid, state) {
 
         // call the User constructor
@@ -313,6 +323,7 @@ class Me extends User {
         loadClassPlugins(this);
 
     }
+
     set(property, value) {
 
         // set the property using User method
@@ -321,6 +332,7 @@ class Me extends User {
         globalChat.setState(this.data.state);
 
     }
+
     update(state) {
 
         super.update(state);
@@ -328,9 +340,11 @@ class Me extends User {
         globalChat.setState(this.data.state);
 
     }
+
 }
 
 module.exports = {
+
     config(config, plugs) {
 
         this.config = config || {};
@@ -344,6 +358,7 @@ module.exports = {
         return this;
 
     },
+
     identify(uuid, state) {
 
         this.config.rltm[1].uuid = uuid;
@@ -356,13 +371,16 @@ module.exports = {
 
         return me;
     },
+
     getGlobalChat() {
         return globalChat
     },
+
     Chat: Chat,
     GlobalChat: GlobalChat,
     GroupChat: GroupChat,
     User: User,
     Me: Me,
     plugin: {}
+
 };
