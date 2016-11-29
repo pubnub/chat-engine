@@ -87,7 +87,7 @@ class Chat {
 
         payload.sender = me.data.uuid;
 
-        this.runPluginQueue('send', event, (next) => {
+        this.runPluginQueue('publish', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
 
@@ -104,7 +104,7 @@ class Chat {
 
     broadcast(event, payload) {
 
-        this.runPluginQueue(event, payload, (next) => {
+        this.runPluginQueue('subscribe', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
            this.emitter.emit(event, payload);
@@ -207,8 +207,6 @@ class GlobalChat extends Chat {
 
         // get users online now
         this.room.hereNow((occupants) => {
-
-            console.log('here now called', occupants)
 
             // for every occupant, create a model user
             for(let uuid in occupants) {

@@ -2,8 +2,7 @@
 const assert = require('chai').assert;
 
 const typingIndicator = require('./plugins/typingIndicator.js');
-const append1 = require('./plugins/append1.js');
-const append2 = require('./plugins/append2.js');
+const append = require('./plugins/append.js');
 
 const Rltm = require('../rltm/src/index');
 
@@ -33,6 +32,9 @@ describe('import', function() {
 
 });
 
+const pub_append = 'pub' + new Date().getTime();
+const sub_append = 'sub' + new Date().getTime();
+
 describe('conifg', function() {
 
     it('should be configured', function() {
@@ -43,6 +45,10 @@ describe('conifg', function() {
         }, [
             typingIndicator({
                 timeout: 2000
+            }),
+            append({
+                publish: pub_append,
+                subscribe: sub_append
             })
         ]);
 
@@ -69,7 +75,7 @@ describe('chat', function() {
 
     it('should be created', function(done) {
 
-        chat = new OCF.GroupChat(new Date());
+        chat = new OCF.GroupChat(new Date() + 'chat');
         done();
 
     });
@@ -100,3 +106,37 @@ describe('chat', function() {
     });
 
 });
+
+let pluginchat;
+
+describe('plugins', function() {
+
+    it('should be created', function(done) {
+
+        pluginchat = new OCF.GroupChat(new Date() + 'pluginchat');
+        done();
+
+    });
+
+    it('publish and subscribe hooks should be called', function(done) {
+
+        pluginchat.emitter.on('message', (payload) => {
+
+            assert.isObject(payload);
+            assert.isAbove(payload.data.text.indexOf(pub_append), 0, 'publish hook executed');
+            assert.isAbove(payload.data.text.indexOf(sub_append), 0, 'subscribe hook executed');
+            assert.isAbove(payload.data.text.indexOf(sub_append), payload.data.text.indexOf(pub_append), 'subscribe hook was called before publish hook');
+            done();
+
+        });
+
+        pluginchat.send('message', {
+            text: 'hello world'
+        });
+
+    });
+
+});
+
+
+
