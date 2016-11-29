@@ -2,7 +2,7 @@
 
 const defaults = {timeout: 1000};
 
-var plugin = function(config) {
+const plugin = function(config) {
 
     config = config || {timeout: 1000};
 
@@ -37,7 +37,7 @@ var plugin = function(config) {
 
     }
 
-    var publish = {
+    let publish = {
         message: function(payload, next) {
             payload.chat.typing.stopTyping();
             next(null, payload);

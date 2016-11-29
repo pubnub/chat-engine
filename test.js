@@ -1,18 +1,17 @@
 "use strict";
 const assert = require('chai').assert;
 
-var typingIndicator = require('./plugins/typingIndicator.js');
-var append1 = require('./plugins/append1.js');
-var append2 = require('./plugins/append2.js');
-var append3 = require('./plugins/append3.js');
+const typingIndicator = require('./plugins/typingIndicator.js');
+const append1 = require('./plugins/append1.js');
+const append2 = require('./plugins/append2.js');
 
-let Rltm = require('../rltm/src/index');
+const Rltm = require('../rltm/src/index');
 
-var OCF = require('./src/index.js'); 
+const OCF = require('./src/index.js'); 
 
-var agentInput = process.env.AGENT || 'pubnub';
+let agentInput = process.env.AGENT || 'pubnub';
 
-var agents = {
+const agents = {
     pubnub: ['pubnub', {
         publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
         subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
@@ -57,14 +56,14 @@ describe('identify', function() {
 
     it('should be identified as new user', function() {
 
-        var me = OCF.identify('robot-tester', {works: true});
+        let me = OCF.identify('robot-tester', {works: true});
         assert.isObject(me);
 
     });
 
 });
 
-var chat;
+let chat;
 
 describe('chat', function() {
 
