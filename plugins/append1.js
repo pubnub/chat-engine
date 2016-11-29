@@ -5,7 +5,7 @@ const defaults = {timeout: 1000};
 module.exports = function(config) {
 
     let send = {
-        message: function(payload, next) {
+        message: (payload, next) => {
 
             payload.data.text += " pub_append 1";
 
@@ -14,7 +14,7 @@ module.exports = function(config) {
     };
 
     let subscribe = {
-        message: function(payload, next) {
+        message: (payload, next) => {
             
             payload.data.text += " sub_append 1";
 

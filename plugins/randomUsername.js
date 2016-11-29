@@ -9,10 +9,10 @@ const randomName = function() {
 
 }
 
-const plugin = function() {
+const plugin = () => {
     
     let Me = {
-        construct: function() {
+        construct: () => {
             this.parent.set('username', randomName());
         }
     }

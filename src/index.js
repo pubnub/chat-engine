@@ -11,14 +11,14 @@ let me = false;
 let globalChat = false;
 let rltm;
 
-function addChild(ob, childName, childOb) {
+const addChild = (ob, childName, childOb) => {
    ob[childName] = childOb;
    childOb.parent = ob;
 }
 
 let users = {};
 
-function loadClassPlugins(obj) {
+const loadClassPlugins = (obj) => {
 
     let className = obj.constructor.name;
 

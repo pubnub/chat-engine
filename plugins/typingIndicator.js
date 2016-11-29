@@ -10,7 +10,7 @@ const plugin = function(config) {
     let stopTypingTimeout = null;
     
     let typer = {
-        startTyping: function() {
+        startTyping: () => {
 
             if(!isTyping) {
 
@@ -25,7 +25,7 @@ const plugin = function(config) {
             }
 
         },
-        stopTyping: function() {
+        stopTyping: () => {
 
             if(isTyping) {
                 clearTimeout(stopTypingTimeout);
@@ -38,7 +38,7 @@ const plugin = function(config) {
     }
 
     let publish = {
-        message: function(payload, next) {
+        message: (payload, next) => {
             payload.chat.typing.stopTyping();
             next(null, payload);
         }
