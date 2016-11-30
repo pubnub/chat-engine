@@ -42,21 +42,20 @@ const loadClassPlugins = (obj) => {
 
 }
 
-class Chat {
+class Chat extends EventEmitter {
 
     constructor(channel) {
+
+        super();
 
         this.channel = channel;
 
         this.users = {};
 
-        // our events published over this event emitter
-        this.emitter = new EventEmitter();
-
         this.room = rltm.join(this.channel);
 
         this.room.on('ready', (data) => {
-            this.emitter.emit('ready');
+            this.emit('ready');
         });
 
         this.room.on('message', (uuid, data) => {
@@ -107,7 +106,7 @@ class Chat {
         this.runPluginQueue('subscribe', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
-           this.emitter.emit(event, payload);
+           this.emit(event, payload);
         });
 
     }
@@ -261,9 +260,11 @@ class GroupChat extends Chat {
 
 }
 
-class User {
+class User extends EventEmitter {
 
     constructor(uuid, state) {
+
+        super();
 
         // this is public data exposed to the network
         // we can't JSON stringify the object without circular reference        
@@ -278,9 +279,6 @@ class User {
 
         this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
         this.direct = new Chat([globalChat.channel, 'private', uuid].join('.'));
-
-        // our personal event emitter
-        this.emitter = new EventEmitter();
         
     }
 
@@ -290,7 +288,7 @@ class User {
         this.data.state[property] = value;
 
         // publish data to the network
-        this.emitter.emit('state-update', {
+        this.emit('state-update', {
             property: property,
             value: value
         });

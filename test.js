@@ -84,7 +84,7 @@ describe('chat', function() {
 
     it('should get ready callback', function(done) {
         
-        chat.emitter.on('ready', () => {
+        chat.on('ready', () => {
 
             done();
 
@@ -94,7 +94,7 @@ describe('chat', function() {
 
     it('should get message', function(done) {
 
-        chat.emitter.on('message', (payload) => {
+        chat.on('message', (payload) => {
 
             assert.isObject(payload);
             done();
@@ -122,7 +122,7 @@ describe('plugins', function() {
 
     it('publish and subscribe hooks should be called', function(done) {
 
-        pluginchat.emitter.on('message', (payload) => {
+        pluginchat.on('message', (payload) => {
 
             assert.isObject(payload);
             assert.isAbove(payload.data.text.indexOf(pub_append), 0, 'publish hook executed');
@@ -140,7 +140,7 @@ describe('plugins', function() {
 
     it('typing indicator', function(done) {
 
-        pluginchat.emitter.on('startTyping', () => { 
+        pluginchat.on('startTyping', () => { 
             done();
         });
 
