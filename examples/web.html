@@ -62,9 +62,12 @@
     <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
     <script type="text/javascript">
     OCF.config({
-        rltm: ['socketio', {
-            endpoint: 'http://localhost:9000'
-        }],
+        rltm: ['pubnub', {
+        publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
+        subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
+        uuid: new Date(),
+        state: {}
+    }],
         globalChannel: 'ofc-tester-11' // global chan or root, namespace? organization
     }, [
         OCF.plugin.typingIndicator({
@@ -95,7 +98,7 @@
 
             });
 
-            user.feed.emitter.on('startTyping', () => { 
+            user.feed.on('startTyping', () => { 
                 $onlineUser.find('.show-typing').show();
             })
 
@@ -104,12 +107,12 @@
 
         };
 
-        chat.emitter.on('join', (payload) => {
+        chat.on('join', (payload) => {
             console.log('join', payload)
             appendUser(payload.user);
         });
         
-        chat.emitter.on('leave', (payload) => {
+        chat.on('leave', (payload) => {
             $('.' + payload.user.data.uuid).remove();
         });
 
@@ -139,7 +142,7 @@
 
         });
 
-        privateChat.emitter.on('message', (payload) => {
+        privateChat.on('message', (payload) => {
 
             let classes = '';
             if(payload.sender.constructor.name !== "Me") {
@@ -149,14 +152,14 @@
             $privateChat.find('.log').append($('<p class="'+classes+'"><span class="text-muted username">' + payload.sender.data.state.username + '</span><br/>' + payload.data.text + '</p>'));
         });
 
-        privateChat.emitter.on('startTyping', (payload) => {
+        privateChat.on('startTyping', (payload) => {
 
             $privateChat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
             $('.' + payload.sender.data.uuid).find('.show-typing').show();
 
         });
 
-        privateChat.emitter.on('stopTyping', (payload) => {
+        privateChat.on('stopTyping', (payload) => {
             $privateChat.find('.typing').text('');
             $('.' + payload.sender.data.uuid).find('.show-typing').hide();
         });
@@ -170,7 +173,7 @@
 
     } 
 
-    me.direct.emitter.on('private-invite', (payload) => {
+    me.direct.on('private-invite', (payload) => {
         appendChat(new OCF.GroupChat(payload.data.channel));
     });
 
@@ -178,10 +181,10 @@
 
     onlineList($('#online-list'), globalChat);
 
-    globalChat.emitter.on('message', (payload) => {
+    globalChat.on('message', (payload) => {
     });
 
-    globalChat.emitter.on('ready', () => {
+    globalChat.on('ready', () => {
 
     });
 

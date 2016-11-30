@@ -13,11 +13,11 @@ OCF.config({
 
 var me = OCF.identify('robot-stephen', {username: 'robot-stephen'});
 
-me.direct.emitter.on('private-invite', (payload) => {
+me.direct.on('private-invite', (payload) => {
 
     var newchat = new OCF.GroupChat(payload.data.channel);
 
-    newchat.emitter.on('message', (payload) => {
+    newchat.on('message', (payload) => {
         
         if(payload.sender.data.uuid !== me.data.uuid) { // add to github issues
 
