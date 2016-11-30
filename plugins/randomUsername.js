@@ -9,7 +9,7 @@ const randomName = () => {
 
 }
 
-const plugin = () => {
+let plugin = () => {
     
     let Me = {
         construct: function() {

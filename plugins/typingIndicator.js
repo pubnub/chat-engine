@@ -1,6 +1,6 @@
 "use strict";
 
-const plugin = (config) => {
+let plugin = (config) => {
 
     config = config || {timeout: 1000};
 
