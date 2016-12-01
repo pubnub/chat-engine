@@ -4,12 +4,18 @@ let OCF = require('../src/index.js');
 let typingIndicator = require('../plugins/typingIndicator.js'); 
 
 OCF.config({
-    globalChannel: 'ofc-tester-9' // global chan or root, namespace? organization
-}, [
-    typingIndicator({
-        timeout: 2000
-    })
-]);
+        rltm: ['pubnub', {
+        publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
+        subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
+        uuid: new Date(),
+        state: {}
+    }],
+        globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
+    }, [
+        typingIndicator({
+            timeout: 5000
+        })
+    ]);
 
 var me = OCF.identify('robot-stephen', {username: 'robot-stephen'});
 
