@@ -6,11 +6,12 @@ let plugin = (config) => {
 
     let stopTypingTimeout = null;
     
-    let typer = {
+    let extender = {
         startTyping: function() {
 
             this.parent.send('startTyping');
 
+            clearTimeout(stopTypingTimeout);
             stopTypingTimeout = setTimeout (() => {
                 this.stopTyping();   
             }, config.timeout);
@@ -38,8 +39,8 @@ let plugin = (config) => {
             publish
         },
         extends: {
-            Chat: typer,
-            GroupChat: typer
+            Chat: extender,
+            GroupChat: extender
         }
     }
 

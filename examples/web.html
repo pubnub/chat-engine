@@ -25,6 +25,9 @@
     .username {
         font-size: 11px;
     }
+    .hide-username .username {
+        display: none;
+    }
     </style>
 
 </head>
@@ -74,6 +77,7 @@
     <script src="../web/ocf.js" type="text/javascript"></script>
     <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
     <script src="../plugins/onlineUserSearch.js" type="text/javascript"></script>
+    <script src="../plugins/messageHistory.js" type="text/javascript"></script>
     <script type="text/javascript">
 
     let me;
@@ -93,7 +97,8 @@
             OCF.plugin.typingIndicator({
                 timeout: 5000
             }),
-            OCF.plugin.onlineUserSearch()
+            OCF.plugin.onlineUserSearch(),
+            OCF.plugin.messageHistory()
         ]);
 
     }
@@ -185,7 +190,13 @@
                 classes = 'text-xs-right'
             }
 
-            $privateChat.find('.log').append($('<p class="'+classes+'"><span class="text-muted username">' + payload.sender.data.state.username + '</span><br/>' + payload.data.text + '</p>'));
+            let history = payload.chat.history.messages;
+
+            if(history.length > 1 && history[0].sender.data.uuid == history[1].sender.data.uuid) {
+                classes += ' hide-username';
+            }
+
+            $privateChat.find('.log').append($('<div class="'+classes+'"><p class="text-muted username">' + payload.sender.data.state.username + '</p><p>' + payload.data.text + '</p></div>'));
         });
 
         privateChat.on('startTyping', (payload) => {

@@ -44,7 +44,7 @@ class Chat extends EventEmitter {
 
         this.users = {};
 
-        this.room = this.rltm.join(this.channel);
+        this.room = OCF.rltm.join(this.channel);
 
         this.room.on('ready', (data) => {
             this.emit('ready');
@@ -362,6 +362,7 @@ let OCF = {
     me: false,
     rltm: false,
     plugins: [],
+    plugin: {}, // used to bind external plugins
 
     Chat: Chat,
     GroupChat: GroupChat,
