@@ -1,37 +1,30 @@
 "use strict";
+
 const EventEmitter = require('events');
 
 let Rltm = require('../../rltm/src/index');
 let waterfall = require('async/waterfall');
 
-let plugins = []; 
-
-let uuid = null;
-let me = false;
-let rltm;
-
-const addChild = (ob, childName, childOb) => {
-   ob[childName] = childOb;
-   childOb.parent = ob;
-}
-
-let users = {};
-
 const loadClassPlugins = (obj) => {
+
+    const addChild = (ob, childName, childOb) => {
+       ob[childName] = childOb;
+       childOb.parent = ob;
+    }
 
     let className = obj.constructor.name;
 
-    for(let i in plugins) {
+    for(let i in OCF.plugins) {
         // do plugin error checking here
 
-        if(plugins[i].extends && plugins[i].extends[className]) {
+        if(OCF.plugins[i].extends && OCF.plugins[i].extends[className]) {
             
             // add properties from plugin object to class under plugin namespace
-            addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
+            addChild(obj, OCF.plugins[i].namespace, OCF.plugins[i].extends[className]);   
 
-            // this is a reserved function in plugins that run at start of class            
-            if(obj[plugins[i].namespace].construct) {
-                obj[plugins[i].namespace].construct();
+            // this is a reserved function in OCF.plugins that run at start of class            
+            if(obj[OCF.plugins[i].namespace].construct) {
+                obj[OCF.plugins[i].namespace].construct();
             }
 
         }
@@ -51,7 +44,7 @@ class Chat extends EventEmitter {
 
         this.users = {};
 
-        this.room = rltm.join(this.channel);
+        this.room = this.rltm.join(this.channel);
 
         this.room.on('ready', (data) => {
             this.emit('ready');
@@ -83,7 +76,7 @@ class Chat extends EventEmitter {
             chat: this
         };
 
-        payload.sender = me.data.uuid;
+        payload.sender = OCF.me.data.uuid;
 
         this.runPluginQueue('publish', event, (next) => {
             next(null, payload);
@@ -117,7 +110,7 @@ class Chat extends EventEmitter {
 
             // if the user does not exist at all and we get enough information to build the user
             if(!OCF.globalChat.users[uuid] && state && state._initialized) {
-                if(uuid == me.data.uuid) {
+                if(uuid == OCF.me.data.uuid) {
                     OCF.globalChat.users[uuid] = me;
                 } else {
                     OCF.globalChat.users[uuid] = new User(uuid, state);
@@ -165,10 +158,10 @@ class Chat extends EventEmitter {
 
         plugin_queue.push(first);
 
-        for(let i in plugins) {
+        for(let i in OCF.plugins) {
 
-            if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
-                plugin_queue.push(plugins[i].middleware[location][event]);
+            if(OCF.plugins[i].middleware && OCF.plugins[i].middleware[location] && OCF.plugins[i].middleware[location][event]) {
+                plugin_queue.push(OCF.plugins[i].middleware[location][event]);
             }
 
         }
@@ -346,9 +339,7 @@ let OCF = {
 
         this.config.globalChannel = this.config.globalChannel || 'ofc-global';
 
-        plugins = plugs;
-
-        this.plugin = {};
+        this.plugins = plugs;
 
         return this;
 
@@ -358,23 +349,23 @@ let OCF = {
 
         this.config.rltm[1].uuid = uuid;
 
-        rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
+        this.rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
 
         this.globalChat = new GlobalChat(this.config.globalChannel);
+        this.me = new Me(uuid, state);
 
-        console.log(this.globalChat)
+        return this.me;
 
-        me = new Me(uuid, state);
-
-        return me;
     },
 
-    Chat: Chat,
     globalChat: false,
+    me: false,
+    rltm: false,
+    plugins: [],
+
+    Chat: Chat,
     GroupChat: GroupChat,
     User: User,
-    Me: Me,
-    plugin: {}
 
 };
 
