@@ -75,6 +75,9 @@
     <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
     <script src="../plugins/onlineUserSearch.js" type="text/javascript"></script>
     <script type="text/javascript">
+
+    let me;
+    
     const setup = function() {
 
         // OCF Configure
@@ -93,10 +96,6 @@
             OCF.plugin.onlineUserSearch()
         ]);
 
-        let globalChat = OCF.getGlobalChat();
-
-        renderOnlineList($('#online-list'), globalChat);
-
     }
 
     const identifyMe = function() {
@@ -105,7 +104,7 @@
         let username = location.search.split('username=')[1];
 
         // create a user for myself
-        let me = OCF.identify(username, {username: username});
+        me = OCF.identify(username, {username: username});
 
         // when I get a private invite, create a new chat
         me.direct.on('private-invite', (payload) => {
@@ -219,7 +218,7 @@
 
             if(val) {
                 
-                let online = globalChat.onlineUserSearch.search(val);
+                let online = OCF.globalChat.onlineUserSearch.search(val);
 
                 $('#online-list').find('.list-group-item').hide();
 
@@ -239,6 +238,7 @@
 
     setup();
     identifyMe();
+    renderOnlineList($('#online-list'), OCF.globalChat);
     bindUsernamePlugin();
 
   </script>

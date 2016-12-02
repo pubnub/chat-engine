@@ -8,7 +8,6 @@ let plugins = [];
 
 let uuid = null;
 let me = false;
-let globalChat = false;
 let rltm;
 
 const addChild = (ob, childName, childOb) => {
@@ -65,8 +64,8 @@ class Chat extends EventEmitter {
 
             payload.chat = this;
 
-            if(payload.sender && globalChat.users[payload.sender]) {
-                payload.sender = globalChat.users[payload.sender];
+            if(payload.sender && OCF.globalChat.users[payload.sender]) {
+                payload.sender = OCF.globalChat.users[payload.sender];
             }
 
             this.broadcast(event, payload);
@@ -117,17 +116,17 @@ class Chat extends EventEmitter {
         if(!this.users[uuid]) {
 
             // if the user does not exist at all and we get enough information to build the user
-            if(!globalChat.users[uuid] && state && state._initialized) {
+            if(!OCF.globalChat.users[uuid] && state && state._initialized) {
                 if(uuid == me.data.uuid) {
-                    globalChat.users[uuid] = me;
+                    OCF.globalChat.users[uuid] = me;
                 } else {
-                    globalChat.users[uuid] = new User(uuid, state);
+                    OCF.globalChat.users[uuid] = new User(uuid, state);
                 }
             }
 
             // if the user has been built previously, assign it to local list
-            if(globalChat.users[uuid]) {
-                this.users[uuid] = globalChat.users[uuid];
+            if(OCF.globalChat.users[uuid]) {
+                this.users[uuid] = OCF.globalChat.users[uuid];
             }
 
             // if user has been built using previous steps
@@ -234,7 +233,7 @@ class GroupChat extends Chat {
 
     constructor(channel) {
 
-        channel = channel || [globalChat.channel, 'group', new Date().getTime()].join('.');
+        channel = channel || [OCF.globalChat.channel, 'group', new Date().getTime()].join('.');
 
         super(channel);
 
@@ -277,8 +276,8 @@ class User extends EventEmitter {
         // this property lets us know when that has happened
         this.data.state._initialized = true;
 
-        this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
-        this.direct = new Chat([globalChat.channel, 'private', uuid].join('.'));
+        this.feed = new Chat([OCF.globalChat.channel, 'feed', uuid].join('.'));
+        this.direct = new Chat([OCF.globalChat.channel, 'private', uuid].join('.'));
         
     }
 
@@ -325,7 +324,7 @@ class Me extends User {
         // set the property using User method
         super.set(property, value);
 
-        globalChat.setState(this.data.state);
+        OCF.globalChat.setState(this.data.state);
 
     }
 
@@ -333,13 +332,13 @@ class Me extends User {
 
         super.update(state);
 
-        globalChat.setState(this.data.state);
+        OCF.globalChat.setState(this.data.state);
 
     }
 
 }
 
-module.exports = {
+let OCF = {
 
     config(config, plugs) {
 
@@ -361,22 +360,22 @@ module.exports = {
 
         rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
 
-        globalChat = new GlobalChat(this.config.globalChannel);
+        this.globalChat = new GlobalChat(this.config.globalChannel);
+
+        console.log(this.globalChat)
 
         me = new Me(uuid, state);
 
         return me;
     },
 
-    getGlobalChat() {
-        return globalChat
-    },
-
     Chat: Chat,
-    GlobalChat: GlobalChat,
+    globalChat: false,
     GroupChat: GroupChat,
     User: User,
     Me: Me,
     plugin: {}
 
 };
+
+module.exports = OCF;
