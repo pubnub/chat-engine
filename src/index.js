@@ -1,38 +1,30 @@
 "use strict";
+
 const EventEmitter = require('events');
 
 let Rltm = require('../../rltm/src/index');
 let waterfall = require('async/waterfall');
 
-let plugins = []; 
-
-let uuid = null;
-let me = false;
-let globalChat = false;
-let rltm;
-
-const addChild = (ob, childName, childOb) => {
-   ob[childName] = childOb;
-   childOb.parent = ob;
-}
-
-let users = {};
-
 const loadClassPlugins = (obj) => {
+
+    const addChild = (ob, childName, childOb) => {
+       ob[childName] = childOb;
+       childOb.parent = ob;
+    }
 
     let className = obj.constructor.name;
 
-    for(let i in plugins) {
+    for(let i in OCF.plugins) {
         // do plugin error checking here
 
-        if(plugins[i].extends && plugins[i].extends[className]) {
+        if(OCF.plugins[i].extends && OCF.plugins[i].extends[className]) {
             
             // add properties from plugin object to class under plugin namespace
-            addChild(obj, plugins[i].namespace, plugins[i].extends[className]);   
+            addChild(obj, OCF.plugins[i].namespace, OCF.plugins[i].extends[className]);   
 
-            // this is a reserved function in plugins that run at start of class            
-            if(obj[plugins[i].namespace].construct) {
-                obj[plugins[i].namespace].construct();
+            // this is a reserved function in OCF.plugins that run at start of class            
+            if(obj[OCF.plugins[i].namespace].construct) {
+                obj[OCF.plugins[i].namespace].construct();
             }
 
         }
@@ -52,7 +44,7 @@ class Chat extends EventEmitter {
 
         this.users = {};
 
-        this.room = rltm.join(this.channel);
+        this.room = OCF.rltm.join(this.channel);
 
         this.room.on('ready', (data) => {
             this.emit('ready');
@@ -65,8 +57,8 @@ class Chat extends EventEmitter {
 
             payload.chat = this;
 
-            if(payload.sender && globalChat.users[payload.sender]) {
-                payload.sender = globalChat.users[payload.sender];
+            if(payload.sender && OCF.globalChat.users[payload.sender]) {
+                payload.sender = OCF.globalChat.users[payload.sender];
             }
 
             this.broadcast(event, payload);
@@ -84,7 +76,7 @@ class Chat extends EventEmitter {
             chat: this
         };
 
-        payload.sender = me.data.uuid;
+        payload.sender = OCF.me.data.uuid;
 
         this.runPluginQueue('publish', event, (next) => {
             next(null, payload);
@@ -117,17 +109,17 @@ class Chat extends EventEmitter {
         if(!this.users[uuid]) {
 
             // if the user does not exist at all and we get enough information to build the user
-            if(!globalChat.users[uuid] && state && state._initialized) {
-                if(uuid == me.data.uuid) {
-                    globalChat.users[uuid] = me;
+            if(!OCF.globalChat.users[uuid] && state && state._initialized) {
+                if(uuid == OCF.me.data.uuid) {
+                    OCF.globalChat.users[uuid] = me;
                 } else {
-                    globalChat.users[uuid] = new User(uuid, state);
+                    OCF.globalChat.users[uuid] = new User(uuid, state);
                 }
             }
 
             // if the user has been built previously, assign it to local list
-            if(globalChat.users[uuid]) {
-                this.users[uuid] = globalChat.users[uuid];
+            if(OCF.globalChat.users[uuid]) {
+                this.users[uuid] = OCF.globalChat.users[uuid];
             }
 
             // if user has been built using previous steps
@@ -166,10 +158,10 @@ class Chat extends EventEmitter {
 
         plugin_queue.push(first);
 
-        for(let i in plugins) {
+        for(let i in OCF.plugins) {
 
-            if(plugins[i].middleware && plugins[i].middleware[location] && plugins[i].middleware[location][event]) {
-                plugin_queue.push(plugins[i].middleware[location][event]);
+            if(OCF.plugins[i].middleware && OCF.plugins[i].middleware[location] && OCF.plugins[i].middleware[location][event]) {
+                plugin_queue.push(OCF.plugins[i].middleware[location][event]);
             }
 
         }
@@ -234,7 +226,7 @@ class GroupChat extends Chat {
 
     constructor(channel) {
 
-        channel = channel || [globalChat.channel, 'group', new Date().getTime()].join('.');
+        channel = channel || [OCF.globalChat.channel, 'group', new Date().getTime()].join('.');
 
         super(channel);
 
@@ -277,8 +269,8 @@ class User extends EventEmitter {
         // this property lets us know when that has happened
         this.data.state._initialized = true;
 
-        this.feed = new Chat([globalChat.channel, 'feed', uuid].join('.'));
-        this.direct = new Chat([globalChat.channel, 'private', uuid].join('.'));
+        this.feed = new Chat([OCF.globalChat.channel, 'feed', uuid].join('.'));
+        this.direct = new Chat([OCF.globalChat.channel, 'private', uuid].join('.'));
         
     }
 
@@ -325,7 +317,7 @@ class Me extends User {
         // set the property using User method
         super.set(property, value);
 
-        globalChat.setState(this.data.state);
+        OCF.globalChat.setState(this.data.state);
 
     }
 
@@ -333,13 +325,13 @@ class Me extends User {
 
         super.update(state);
 
-        globalChat.setState(this.data.state);
+        OCF.globalChat.setState(this.data.state);
 
     }
 
 }
 
-module.exports = {
+let OCF = {
 
     config(config, plugs) {
 
@@ -347,9 +339,7 @@ module.exports = {
 
         this.config.globalChannel = this.config.globalChannel || 'ofc-global';
 
-        plugins = plugs;
-
-        this.plugin = {};
+        this.plugins = plugs;
 
         return this;
 
@@ -359,24 +349,25 @@ module.exports = {
 
         this.config.rltm[1].uuid = uuid;
 
-        rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
+        this.rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
 
-        globalChat = new GlobalChat(this.config.globalChannel);
+        this.globalChat = new GlobalChat(this.config.globalChannel);
+        this.me = new Me(uuid, state);
 
-        me = new Me(uuid, state);
+        return this.me;
 
-        return me;
     },
 
-    getGlobalChat() {
-        return globalChat
-    },
+    globalChat: false,
+    me: false,
+    rltm: false,
+    plugins: [],
+    plugin: {}, // used to bind external plugins
 
     Chat: Chat,
-    GlobalChat: GlobalChat,
     GroupChat: GroupChat,
     User: User,
-    Me: Me,
-    plugin: {}
 
 };
+
+module.exports = OCF;

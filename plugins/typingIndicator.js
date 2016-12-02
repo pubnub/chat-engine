@@ -4,32 +4,23 @@ let plugin = (config) => {
 
     config = config || {timeout: 1000};
 
-    let isTyping = false;
     let stopTypingTimeout = null;
     
-    let typer = {
+    let extender = {
         startTyping: function() {
 
-            if(!isTyping) {
+            this.parent.send('startTyping');
 
-                isTyping = true;
-
-                this.parent.send('startTyping');
-
-                setTimeout (() => {
-                    this.stopTyping();   
-                }, config.timeout);
-
-            }
+            clearTimeout(stopTypingTimeout);
+            stopTypingTimeout = setTimeout (() => {
+                this.stopTyping();   
+            }, config.timeout);
 
         },
         stopTyping: function() {
 
-            if(isTyping) {
-                clearTimeout(stopTypingTimeout);
-                this.parent.send('stopTyping');   
-                isTyping = false;
-            }
+            clearTimeout(stopTypingTimeout);
+            this.parent.send('stopTyping');   
 
         }
 
@@ -48,8 +39,8 @@ let plugin = (config) => {
             publish
         },
         extends: {
-            Chat: typer,
-            GroupChat: typer
+            Chat: extender,
+            GroupChat: extender
         }
     }
 
