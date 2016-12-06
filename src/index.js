@@ -8,15 +8,23 @@ let waterfall = require('async/waterfall');
 const loadClassPlugins = (obj) => {
 
     const addChild = (ob, childName, childOb) => {
-       ob[childName] = childOb;
-       childOb.parent = ob;
+
+        if(!ob[childName]) {
+            ob[childName] = childOb;   
+        } else {
+            console.error('plugin is trying to add duplicate method to class');
+        }
+
+        childOb.parent = ob;
+        childOb.OCF = OCF;
+        
     }
 
     let className = obj.constructor.name;
 
     for(let i in OCF.plugins) {
-        // do plugin error checking here
 
+        // do plugin error checking here
         if(OCF.plugins[i].extends && OCF.plugins[i].extends[className]) {
             
             // add properties from plugin object to class under plugin namespace
@@ -46,27 +54,18 @@ class Chat extends EventEmitter {
 
         this.room = OCF.rltm.join(this.channel);
 
-        this.room.on('ready', (data) => {
-            this.emit('ready');
-        });
-
         this.room.on('message', (uuid, data) => {
 
-            let event = data.message[0];
-            let payload = data.message[1];
-
-            payload.chat = this;
-
-            if(payload.sender && OCF.globalChat.users[payload.sender]) {
-                payload.sender = OCF.globalChat.users[payload.sender];
-            }
-
-            this.broadcast(event, payload);
+            this.broadcast(data.message[0], data.message[1]);
 
         });
 
         loadClassPlugins(this);
 
+    }
+
+    ready(fn) {
+        this.room.ready(fn);
     }
 
     send(event, data) {
@@ -95,10 +94,20 @@ class Chat extends EventEmitter {
 
     broadcast(event, payload) {
 
+        if(!payload.chat) {
+            payload.chat = this;   
+        }
+
+        if(payload.sender && OCF.globalChat.users[payload.sender]) {
+            payload.sender = OCF.globalChat.users[payload.sender];
+        }
+
         this.runPluginQueue('subscribe', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
+
            this.emit(event, payload);
+
         });
 
     }
@@ -111,7 +120,7 @@ class Chat extends EventEmitter {
             // if the user does not exist at all and we get enough information to build the user
             if(!OCF.globalChat.users[uuid] && state && state._initialized) {
                 if(uuid == OCF.me.data.uuid) {
-                    OCF.globalChat.users[uuid] = me;
+                    OCF.globalChat.users[uuid] = OCF.me;
                 } else {
                     OCF.globalChat.users[uuid] = new User(uuid, state);
                 }
@@ -128,7 +137,6 @@ class Chat extends EventEmitter {
                 // broadcast that this is a new user
                 this.broadcast('join', {
                     user: this.users[uuid],
-                    chat: this,
                     data: data
                 });
 
@@ -139,7 +147,7 @@ class Chat extends EventEmitter {
             }
 
         } else {
-            console.log('double userJoin called');
+            // console.log('double userJoin called');
         }
 
     }
@@ -336,9 +344,7 @@ let OCF = {
     config(config, plugs) {
 
         this.config = config || {};
-
         this.config.globalChannel = this.config.globalChannel || 'ofc-global';
-
         this.plugins = plugs;
 
         return this;
@@ -348,9 +354,7 @@ let OCF = {
     identify(uuid, state) {
 
         this.config.rltm[1].uuid = uuid;
-
         this.rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
-
         this.globalChat = new GlobalChat(this.config.globalChannel);
         this.me = new Me(uuid, state);
 

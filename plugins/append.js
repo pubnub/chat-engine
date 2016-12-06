@@ -1,7 +1,5 @@
 "use strict";
 
-const defaults = {timeout: 1000};
-
 module.exports = (config) => {
 
     config = config || {};
@@ -29,7 +27,10 @@ module.exports = (config) => {
     };
 
     return {
-        middleware: {publish, subscribe}
+        middleware: {
+            publish: publish, 
+            subscribe: subscribe
+        }
     }
 
 }

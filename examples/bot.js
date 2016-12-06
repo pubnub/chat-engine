@@ -4,49 +4,63 @@ let OCF = require('../src/index.js');
 let typingIndicator = require('../plugins/typingIndicator.js'); 
 
 OCF.config({
-        rltm: ['pubnub', {
+    rltm: ['pubnub', {
         publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
         subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
         uuid: new Date(),
         state: {}
     }],
-        globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
-    }, [
-        typingIndicator({
-            timeout: 5000
-        })
-    ]);
+    globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
+}, [
+    typingIndicator({
+        timeout: 5000
+    })
+]);
 
 var me = OCF.identify('robot-stephen', {username: 'robot-stephen'});
 
+var chats = {};
+
 me.direct.on('private-invite', (payload) => {
 
-    var newchat = new OCF.GroupChat(payload.data.channel);
+    console.log('got private invite')
 
-    newchat.on('message', (payload) => {
-        
-        if(payload.sender.data.uuid !== me.data.uuid) { // add to github issues
+    var chat = chats[payload.data.channel];
 
-            setTimeout((argument) => {
+    if(!chat) {
 
-                newchat.typing.startTyping();
+        chats[payload.data.channel] = new OCF.GroupChat(payload.data.channel);
+
+        chat = chats[payload.data.channel];
+
+        chat.on('message', (payload) => {
+            
+            if(payload.sender.data.uuid !== me.data.uuid) { // add to github issues
 
                 setTimeout((argument) => {
 
-                        // payload.sender.isMe
+                    chat.typing.startTyping();
 
-                        newchat.send('message', {
-                            text: 'hey there ' + payload.sender.data.state.username 
-                        });
+                    setTimeout((argument) => {
 
-                    newchat.typing.stopTyping(); // add this to plugin middleware
+                            // payload.sender.isMe
 
-                }, 1000);
+                            console.log('sending message')
 
-            }, 500);
+                            chat.send('message', {
+                                text: 'hey there ' + payload.sender.data.state.username 
+                            });
 
-        }
+                        chat.typing.stopTyping(); // add this to plugin middleware
 
-    });
+                    }, 1000);
+
+                }, 500);
+
+            }
+
+        });
+
+    }
 
 });

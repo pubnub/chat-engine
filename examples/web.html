@@ -87,11 +87,9 @@
         // OCF Configure
         OCF.config({
             rltm: ['pubnub', {
-            publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
-            subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
-            uuid: new Date(),
-            state: {}
-        }],
+                publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
+                subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
+            }],
             globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
         }, [
             OCF.plugin.typingIndicator({
@@ -128,7 +126,9 @@
 
         $onlineUser.find('a').click(() => {
 
-            let newChat = new OCF.GroupChat();
+            let chan = [user.data.uuid, me.data.uuid].sort().join(':');
+
+            let newChat = new OCF.GroupChat(chan);
             renderChat(newChat);
             user.direct.send('private-invite', {channel: newChat.channel});
 
@@ -157,6 +157,8 @@
 
     const renderChat = function(privateChat) {
 
+        console.log(privateChat)
+
         let $privateChat = $('<div class="chat col-xs-6"><div class="card"><h3 class="title card-header">'+privateChat.channel + '</h3><div class="card-block"><a href="#" class="close">close</a></div><ul class="online-list-sub list-group list-group-flush"></ul><div class="card-block"><div class="log"></div><p class="typing text-muted""></p><form class="send-message"><div class="input-group"><input type="text" class="form-control message" placeholder="Your Message..."><span class="input-group-btn"><button class="btn btn-primary" type="submit">Send</button></span></div></form></div></div></div>');
 
         renderOnlineList($privateChat.find('.online-list-sub'), privateChat);
@@ -183,21 +185,28 @@
 
         });
 
-        privateChat.on('message', (payload) => {
+        let lastSender = null
 
+        let renderMessage = (payload) => {
+            
             let classes = '';
+            
             if(payload.sender.constructor.name !== "Me") {
                 classes = 'text-xs-right'
             }
 
-            let history = payload.chat.history.messages;
-
-            if(history.length > 1 && history[0].sender.data.uuid == history[1].sender.data.uuid) {
+            if(lastSender == payload.sender.data.uuid) {
                 classes += ' hide-username';
             }
+            lastSender = payload.sender.data.uuid;
 
             $privateChat.find('.log').append($('<div class="'+classes+'"><p class="text-muted username">' + payload.sender.data.state.username + '</p><p>' + payload.data.text + '</p></div>'));
-        });
+
+        }
+
+        privateChat.on('history:message', renderMessage);
+
+        privateChat.on('message', renderMessage);
 
         privateChat.on('startTyping', (payload) => {
 

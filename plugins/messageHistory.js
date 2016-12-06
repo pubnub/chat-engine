@@ -4,28 +4,29 @@ const defaults = {timeout: 1000};
 
 let messageHistory = (config) => {
 
-    let extender = {
-        shift: function(data) {
-            this.parent.history.messages.unshift(data);
-        },
-        messages: []
-    }
+    let extension = {
+        construct: function(data) {
 
-    let subscribe = {
-        message: function(payload, next) {
+            this.parent.room.history((response) => {
 
-            payload.chat.history.shift(payload);
-            next(null, payload);
+                for(let i in response) {
+
+                    this.parent.broadcast(
+                        ['history', response[i].data.message[0]].join(':'), 
+                        response[i].data.message[1]);
+
+                }
+
+            });
 
         }
     };
 
     return {
         namespace: 'history',
-        middleware: {subscribe},
         extends: {
-            Chat: extender,
-            GroupChat: extender
+            Chat: extension,
+            GroupChat: extension
         }
     }
 

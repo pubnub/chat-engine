@@ -1,8 +1,8 @@
-"use strict";
+ "use strict";
 
 const onlineUserSearch = (config) => {
     
-    let searcher = {
+    let extension = {
         search: function(input) {
 
             var returnList = [];
@@ -23,8 +23,8 @@ const onlineUserSearch = (config) => {
     return {
         namespace: 'onlineUserSearch',
         extends: {
-            GroupChat: searcher,
-            GlobalChat: searcher
+            GroupChat: extension,
+            GlobalChat: extension
         }
     }
 

@@ -11,7 +11,7 @@ const randomName = () => {
 
 let plugin = () => {
     
-    let Me = {
+    let extension = {
         construct: function() {
             this.parent.set('username', randomName());
         }
@@ -20,7 +20,7 @@ let plugin = () => {
     return {
         namespace: 'randomUsername',
         extends: {
-            Me
+            Me: extension
         }
     }
 
