@@ -90,7 +90,7 @@
                 publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
                 subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
             }],
-            globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
+            globalChannel: 'ofc-tester-1' // global chan or root, namespace? organization
         }, [
             OCF.plugin.typingIndicator({
                 timeout: 5000
@@ -111,6 +111,9 @@
 
         // when I get a private invite, create a new chat
         me.direct.on('private-invite', (payload) => {
+
+            console.log("private invite", payload.data.channel)
+
             renderChat(new OCF.GroupChat(payload.data.channel));
         });
 
@@ -126,7 +129,7 @@
 
         $onlineUser.find('a').click(() => {
 
-            let chan = [user.data.uuid, me.data.uuid].sort().join(':');
+            let chan = OCF.globalChat.channel + '.' + [user.data.uuid, me.data.uuid].sort().join(':');
 
             let newChat = new OCF.GroupChat(chan);
             renderChat(newChat);
@@ -187,12 +190,12 @@
 
         let lastSender = null
 
-        let renderMessage = (payload) => {
+        let renderMessage = (payload, classes) => {
             
-            let classes = '';
+            classes = classes || '';
             
             if(payload.sender.constructor.name !== "Me") {
-                classes = 'text-xs-right'
+                classes += ' text-xs-right'
             }
 
             if(lastSender == payload.sender.data.uuid) {
@@ -204,9 +207,12 @@
 
         }
 
-        privateChat.on('history:message', renderMessage);
-
-        privateChat.on('message', renderMessage);
+        privateChat.on('history:message', function(payload) {
+            renderMessage(payload, 'text-muted');
+        });
+        privateChat.on('message', function(payload) {
+            renderMessage(payload, null);
+        });
 
         privateChat.on('startTyping', (payload) => {
 
