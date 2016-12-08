@@ -86,34 +86,38 @@
 
         // OCF Configure
         OCF.config({
+            // configure rltm.js
             rltm: ['pubnub', {
                 publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
                 subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
             }],
             globalChannel: 'ofc-tester-1' // global chan or root, namespace? organization
         }, [
+
+            // include our plugins
+
             OCF.plugin.typingIndicator({
                 timeout: 5000
             }),
             OCF.plugin.onlineUserSearch(),
             OCF.plugin.messageHistory()
+
         ]);
 
     }
 
+    // function to create concept of "me"
     const identifyMe = function() {
 
         // get username from query string
         let username = location.search.split('username=')[1];
 
-        // create a user for myself
+        // create a user for myself and store as ```me```
         me = OCF.identify(username, {username: username});
 
-        // when I get a private invite, create a new chat
+        // when I get a private invite
         me.direct.on('private-invite', (payload) => {
-
-            console.log("private invite", payload.data.channel)
-
+            // create a new chat and render it in DOM
             renderChat(new OCF.GroupChat(payload.data.channel));
         });
 
@@ -123,137 +127,202 @@
     }
 
     // GUI render functions
+
+    // render a OCF.User object in a list
     const renderUser = function($el, user) {
 
+        // create the HTML template for the user
         let $onlineUser = $('<li class="' + user.data.uuid + ' list-group-item"><a href="#">' + user.data.state.username  + '</a> <span class="show-typing">is typing...</span></li>');
 
+        // listen for a click on the user
         $onlineUser.find('a').click(() => {
 
+            // define a channel using the clicked user's username and this client's username
             let chan = OCF.globalChat.channel + '.' + [user.data.uuid, me.data.uuid].sort().join(':');
 
+            // create a new chat with that channel
             let newChat = new OCF.GroupChat(chan);
+
+            // render the new chat on the dom
             renderChat(newChat);
+
+            // send the clicked user a private message telling them we invited them
             user.direct.send('private-invite', {channel: newChat.channel});
 
         });
 
+        // when  this user starts typing
         user.feed.on('startTyping', () => { 
+            // show "is typing..."
             $onlineUser.find('.show-typing').show();
         })
 
+        // hide "is typing..." by defualt
         $onlineUser.find('.show-typing').hide();
+
+        // append the user element to the input element on dom
         $el.append($onlineUser);
 
     };
 
+    // turn OCF.Chat into an online list
     const renderOnlineList = function($el, chat) {
 
+        // when someone joins the chat
         chat.on('join', (payload) => {
+            // render the user in the online list and bind events
             renderUser($el, payload.user);
         });
         
+        // when someone leaves the chat
         chat.on('leave', (payload) => {
+            // remove the user from the online list
             $('.' + payload.user.data.uuid).remove();
         });
 
     }
 
+    // turn OCF.Chat into a chatroom
     const renderChat = function(privateChat) {
 
-        console.log(privateChat)
-
+        // define a HTML template for the new chatroom
         let $privateChat = $('<div class="chat col-xs-6"><div class="card"><h3 class="title card-header">'+privateChat.channel + '</h3><div class="card-block"><a href="#" class="close">close</a></div><ul class="online-list-sub list-group list-group-flush"></ul><div class="card-block"><div class="log"></div><p class="typing text-muted""></p><form class="send-message"><div class="input-group"><input type="text" class="form-control message" placeholder="Your Message..."><span class="input-group-btn"><button class="btn btn-primary" type="submit">Send</button></span></div></form></div></div></div>');
 
+        // render the online list in the chatroom template
         renderOnlineList($privateChat.find('.online-list-sub'), privateChat);
 
+        // when someone types into the input box
         $privateChat.find('.message').keypress((e) => {
             
+            // if that keypress was not "Enter"
             if(e.which != 13) {
+                // then tell OCF this user is typing
                 privateChat.typing.startTyping();
             }
 
         });
 
+        // when someone submits a message
         $privateChat.find('.send-message').submit(() => {
 
+            // tell OCF this user stopped typing
             privateChat.typing.stopTyping();
 
+            // send the mssage over the network
             privateChat.send('message', {
                 text: $privateChat.find('.message').val()
             });
 
+            // and empty the input
             $privateChat.find('.message').val('');
 
             return false;
 
         });
 
+        // store the uuid of the user who sent the last message
         let lastSender = null
 
+        // render a new message in the dom
         let renderMessage = (payload, classes) => {
             
+            // a list of extra classes for the message div
             classes = classes || '';
             
+            // if I didn't send this message
             if(payload.sender.constructor.name !== "Me") {
+                // render it on the right
                 classes += ' text-xs-right'
             }
 
+            // if the uuid of the user who sent this message is the same as the last 
             if(lastSender == payload.sender.data.uuid) {
+                // don't render the username again
                 classes += ' hide-username';
             }
+
+            // set the lastSender as the sender's uuid
             lastSender = payload.sender.data.uuid;
 
+            // append the message to the chatroom log
             $privateChat.find('.log').append($('<div class="'+classes+'"><p class="text-muted username">' + payload.sender.data.state.username + '</p><p>' + payload.data.text + '</p></div>'));
 
         }
 
-        privateChat.on('history:message', function(payload) {
-            renderMessage(payload, 'text-muted');
-        });
+        // when this chat gets a message
         privateChat.on('message', function(payload) {
+            // render it in the DOM
             renderMessage(payload, null);
         });
 
+        // if this chat receives a message that's not from this sessions
+        privateChat.on('history:message', function(payload) {
+            // render it in the DOM with a special class
+            renderMessage(payload, 'text-muted');
+        });
+
+        // when this chat gets the typing event
         privateChat.on('startTyping', (payload) => {
 
+            // write some text saying that user is typing 
             $privateChat.find('.typing').text(payload.sender.data.state.username + ' is typing...');
+
+            // and show their typing indication next to their name in any other location
             $('.' + payload.sender.data.uuid).find('.show-typing').show();
 
         });
 
+        // when this chat gets notified someone stopped typing
         privateChat.on('stopTyping', (payload) => {
+
+            // remove the indication text for this chat
             $privateChat.find('.typing').text('');
+
+            // and remove their indication in any other location on the page
             $('.' + payload.sender.data.uuid).find('.show-typing').hide();
+        
         });
 
+        // when someone closes a private chat
         $privateChat.find('.close').click(() => {
-            // @todo disconnect
+            // remove the element from the DOM
             $privateChat.remove();
+            // @todo disconnect
         });
 
+        // append the chat to the DOM
         $('#chats').append($privateChat);
 
     }
 
+    // bind the input from the search bar to the usernameSearch plugin
     const bindUsernamePlugin = function() {
 
-        // plug in the username search into the plugin
+        // when someone types in the username search
         $('#usernameSearch').on('change keyup paste click blur', () => {
 
+            // get the full value of what they typed
             let val = $('#usernameSearch').val();
 
+            // if the value is set
             if(val) {
                 
+                // call the plugin function to find out if that search query
+                // matches anyone's username
                 let online = OCF.globalChat.onlineUserSearch.search(val);
 
+                // hide all the users
                 $('#online-list').find('.list-group-item').hide();
 
+                // loop through all the matching users
                 online.forEach(function(user) {
+                    // and show them
                     $('#online-list').find('.' + user.data.uuid).show();
                 });
 
             } else {
 
+                // if value is not set, show all users
                 $('#online-list').find('.list-group-item').show();
 
             }
@@ -262,9 +331,17 @@
 
     }
 
+    // setup the OCF framework
     setup();
+
+    // set up the concept of me and globalChat
     identifyMe();
+
+    // render the OCF.globalChat now that it's defined
+    // this onlineList can spawn other chats
     renderOnlineList($('#online-list'), OCF.globalChat);
+
+    // plug the search bar into the username plugin
     bindUsernamePlugin();
 
   </script>
