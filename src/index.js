@@ -450,10 +450,10 @@ let OCF = {
     identify(uuid, state) {
 
         // this creates a user known as Me and connects to the global chatroom
-        this.config.rltm[1].uuid = uuid;
+        this.config.rltm.config.uuid = uuid;
 
         // configure the rltm plugin with the params set in config method
-        this.rltm = new Rltm(this.config.rltm[0], this.config.rltm[1]);
+        this.rltm = new Rltm(this.config.rltm);
 
         // create a new chat to use as globalChat
         this.globalChat = new GlobalChat(this.config.globalChannel);

@@ -12,17 +12,23 @@ const OCF = require('./src/index.js');
 let agentInput = process.env.AGENT || 'pubnub';
 
 const agents = {
-    pubnub: ['pubnub', {
-        publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
-        subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
-        uuid: new Date(),
-        state: {}
-    }],
-    socketio: ['socketio', {
-        endpoint: 'http://localhost:8000',
-        uuid: new Date(),
-        state: {}
-    }]    
+    pubnub: {
+        service: 'pubnub', 
+            config: {
+            publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
+            subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
+            uuid: new Date(),
+            state: {}
+        }
+    },
+    socketio: {
+        service: 'socketio', 
+        config: {
+            endpoint: 'http://localhost:8000',
+            uuid: new Date(),
+            state: {}
+        }
+    }
 };
 
 describe('import', function() {
