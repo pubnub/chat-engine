@@ -8,16 +8,16 @@ module.exports = (config) => {
     config = config || {};
 
     // define defaults if config is empty
-    config.publish = config.publish || " pub_append";
+    config.send = config.send || " pub_append";
     config.subscribe = config.subscribe || " sub_append";
 
     // define middleware to run right before a message leaves the client
     // all OCF functions have run by now
-    let publish = {
+    let send = {
         message: function(payload, next) {
 
-            // append config.publish to the text supplied in the event
-            payload.data.text += config.publish;
+            // append config.send to the text supplied in the event
+            payload.data.text += config.send;
 
             // continue along middleware
             next(null, payload);
@@ -26,11 +26,11 @@ module.exports = (config) => {
     };
 
     // define middleware to run after a message has been received and OCF has processed it
-    let subscribe = {
+    let broadcast = {
         message: function(payload, next) {
         
-            // append config.subscribe text to the payload
-            payload.data.text += config.subscribe;
+            // append config.broadcast text to the payload
+            payload.data.text += config.broadcast;
 
             // continue along middleware
             next(null, payload);
@@ -42,8 +42,8 @@ module.exports = (config) => {
     // messages are sent or received
     return {
         middleware: {
-            publish: publish, 
-            subscribe: subscribe
+            send: send, 
+            broadcast: broadcast
         }
     }
 

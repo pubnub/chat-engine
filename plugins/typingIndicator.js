@@ -53,8 +53,8 @@ let plugin = (config) => {
         }
     }
 
-    // define publish middleware
-    let publish = {
+    // define send middleware
+    let send = {
         message: (payload, next) => {
 
             // it's worth noting here, we can't access ```extension``` here
@@ -76,7 +76,7 @@ let plugin = (config) => {
             GroupChat: extension
         },
         middleware: {
-            publish
+            send
         }
     }
 

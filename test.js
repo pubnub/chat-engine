@@ -56,8 +56,8 @@ describe('conifg', function() {
                 timeout: 2000
             }),
             append({
-                publish: pub_append,
-                subscribe: sub_append
+                send: pub_append,
+                broadcast: sub_append
             }),
             messageHistory()
         ]);

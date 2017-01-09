@@ -93,7 +93,7 @@ class Chat extends EventEmitter {
             chat: this,                 // an instance of this chat 
         };
 
-        this.runPluginQueue('publish', event, (next) => {
+        this.runPluginQueue('send', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
 
@@ -125,7 +125,7 @@ class Chat extends EventEmitter {
             payload.sender = OCF.globalChat.users[payload.sender];
         }
 
-        this.runPluginQueue('subscribe', event, (next) => {
+        this.runPluginQueue('broadcast', event, (next) => {
             next(null, payload);
         }, (err, payload) => {
 
