@@ -149,7 +149,17 @@ describe('plugins', function() {
 
     it('typing indicator', function(done) {
 
-        pluginchat.on('$typingIndicator.startTyping', () => { 
+        pluginchat.once('$typingIndicator.startTyping', () => { 
+            done();
+        });
+
+        pluginchat.$typingIndicator.startTyping();
+
+    });
+
+    it('wildcard event', function(done) {
+
+        pluginchat.once('$typingIndicator.*', () => { 
             done();
         });
 
@@ -195,13 +205,9 @@ describe('history plugin', function() {
 
         let responded = false;
 
-        historychat2.on("$history.message", (message) => {
+        historychat2.once("$history.message", (message) => {
 
-            if(!responded) {
-                done();
-            }
-
-            responded = true;
+            done();
 
         });
 

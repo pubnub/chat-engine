@@ -25,6 +25,7 @@ class Emitter {
         this.emit = emitter.emit.bind(emitter);
         this.on = emitter.on.bind(emitter);
         this.onAny = emitter.onAny.bind(emitter);
+        this.once = emitter.once.bind(emitter);
 
     }
 
