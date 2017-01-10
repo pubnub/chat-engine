@@ -1,14 +1,32 @@
 "use strict";
 
 // allows us to create and bind to events
-const EventEmitter = require('events');
-
+ var EventEmitter2 = require('eventemitter2').EventEmitter2;
 // import the rltm.js library from a sister directory
 // this is not final
 let Rltm = require('../../rltm/src/index');
 
 // allows a synchronous execution flow. if we move to promises we can remove this dependency
 let waterfall = require('async/waterfall');
+
+class Emitter {
+
+    constructor() {
+
+        this.emitter = new EventEmitter2({
+          wildcard: true,
+          newListener: true,
+          maxListeners: 20,
+          verboseMemoryLeak: true
+        });
+
+        this.on = this.emitter.on;
+        this.emit = this.emitter.emit;
+        this.onAny = this.emitter.onAny;
+
+    }
+
+}
 
 // this adds an object to another object under some namespace
 const addChild = (ob, childName, childOb) => {
@@ -55,7 +73,7 @@ const loadClassPlugins = (obj) => {
 }
 
 // this is the root Chat class through which all other chats extend
-class Chat extends EventEmitter {
+class Chat extends Emitter {
 
     constructor(channel) {
 
@@ -337,7 +355,7 @@ class GroupChat extends Chat {
 }
 
 // this is our User class which represents a connected client
-class User extends EventEmitter {
+class User extends Emitter {
 
     constructor(uuid, state) {
 

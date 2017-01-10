@@ -58,7 +58,7 @@ describe('conifg', function() {
             append({
                 send: pub_append,
                 broadcast: sub_append
-            }),
+            }), 
             messageHistory()
         ]);
 
@@ -91,7 +91,7 @@ describe('chat', function() {
     });
 
     it('should get ready callback', function(done) {
-        
+            
         chat.ready(() => {
 
             done();
