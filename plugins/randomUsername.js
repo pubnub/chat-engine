@@ -1,5 +1,6 @@
 "use strict";
 
+const namespace = '$randomUsername';
 // gives users a random username if they are anon
 
 // handy function to generate a color_animal combo at random
@@ -28,7 +29,7 @@ let plugin = () => {
 
     // attach these methods to class Me under a namespace
     return {
-        namespace: 'randomUsername',
+        namespace,
         extends: {
             Me: extension
         }

@@ -1,5 +1,7 @@
  "use strict";
 
+const namespace = '$onlineUserSearch';
+
 // allows you to search the online user list by username
 const onlineUserSearch = (config) => {
     
@@ -29,7 +31,7 @@ const onlineUserSearch = (config) => {
 
     // add this plugin to the Chat classes
     return {
-        namespace: 'onlineUserSearch',
+        namespace,
         extends: {
             GroupChat: extension,
             GlobalChat: extension

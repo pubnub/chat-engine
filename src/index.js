@@ -13,16 +13,18 @@ class Emitter {
 
     constructor() {
 
-        this.emitter = new EventEmitter2({
+        const emitter = new EventEmitter2({
           wildcard: true,
           newListener: true,
           maxListeners: 20,
           verboseMemoryLeak: true
         });
 
-        this.on = this.emitter.on;
-        this.emit = this.emitter.emit;
-        this.onAny = this.emitter.onAny;
+        // we bind to make sure wildcards work 
+        // https://github.com/asyncly/EventEmitter2/issues/186
+        this.emit = emitter.emit.bind(emitter);
+        this.on = emitter.on.bind(emitter);
+        this.onAny = emitter.onAny.bind(emitter);
 
     }
 
@@ -182,7 +184,7 @@ class Chat extends Emitter {
             if(this.users[uuid]) {
                 
                 // broadcast that this is a new user
-                this.broadcast('join', {
+                this.broadcast('$ocf.join', {
                     user: this.users[uuid],
                     data: data
                 });
@@ -213,7 +215,7 @@ class Chat extends Emitter {
         if(this.users[uuid]) {
 
             // if a user leaves, broadcast the event
-            this.broadcast('leave', this.users[uuid]);
+            this.broadcast('$ocf.leave', this.users[uuid]);
 
             // remove the user from the local list of users
             delete this.users[uuid];

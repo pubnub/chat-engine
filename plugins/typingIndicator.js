@@ -1,5 +1,5 @@
 "use strict";
-
+const namespace = '$typingIndicator';
 // adds shortcuts to build "ianjennings is typing..." functionality into your app
 let plugin = (config) => {
 
@@ -25,7 +25,7 @@ let plugin = (config) => {
             this.isTyping = true;
 
             // send an event over the network that this user started typing
-            this.parent.send('startTyping');
+            this.parent.send([namespace, 'startTyping'].join('.'));
 
             // kill any existing timeouts
             clearTimeout(stopTypingTimeout);
@@ -46,7 +46,7 @@ let plugin = (config) => {
                 clearTimeout(stopTypingTimeout);
                 
                 // broadcast a stoptyping event
-                this.parent.send('stopTyping');      
+                this.parent.send([namespace, 'stopTyping'].join('.'));      
 
             }
 
@@ -61,7 +61,7 @@ let plugin = (config) => {
             // because this function runs in a different context
 
             // on every message, tell the chat to stop typing
-            payload.chat.typing.stopTyping();
+            payload.chat.$typingIndicator.stopTyping();
 
             // continue on
             next(null, payload);
@@ -70,7 +70,7 @@ let plugin = (config) => {
 
     // define both the extended methods and the middleware in our plugin
     return {
-        namespace: 'typing',
+        namespace,
         extends: {
             Chat: extension,
             GroupChat: extension
@@ -85,5 +85,5 @@ let plugin = (config) => {
 if(typeof module !== "undefined") {
     module.exports = plugin;
 } else {
-    window.OCF.plugin.typingIndicator = plugin;
+    window.OCF.plugin.$typingIndicator = plugin;
 }

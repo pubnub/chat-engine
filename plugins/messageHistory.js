@@ -6,6 +6,8 @@
 // define our plugin values in root
 const defaults = {timeout: 1000};
 
+const namespace = '$history';
+
 let messageHistory = (config) => {
 
     // define the methods that will exist within our namespace
@@ -24,7 +26,7 @@ let messageHistory = (config) => {
                     // but the event name is now history:name rather than just name
                     // to distinguish it from the original live events
                     this.parent.broadcast(
-                        ['history', response[i].data.message[0]].join(':'), 
+                        [namespace, response[i].data.message[0]].join('.'), 
                         response[i].data.message[1]);
 
                 }
@@ -36,7 +38,7 @@ let messageHistory = (config) => {
 
     // attach methods to Chat and GroupChat
     return {
-        namespace: 'history',
+        namespace,
         extends: {
             Chat: extension,
             GroupChat: extension

@@ -44,7 +44,7 @@ const sub_append = 'sub' + new Date().getTime();
 
 let me;
 
-describe('conifg', function() {
+describe('config', function() {
 
     it('should be configured', function() {
 
@@ -102,14 +102,14 @@ describe('chat', function() {
 
     it('should get message', function(done) {
 
-        chat.on('message', (payload) => {
+        chat.on('something', (payload) => {
 
             assert.isObject(payload);
             done();
 
         });
 
-        chat.send('message', {
+        chat.send('something', {
             text: 'hello world'
         });
 
@@ -149,11 +149,11 @@ describe('plugins', function() {
 
     it('typing indicator', function(done) {
 
-        pluginchat.on('startTyping', () => { 
+        pluginchat.on('$typingIndicator.startTyping', () => { 
             done();
         });
 
-        pluginchat.typing.startTyping();
+        pluginchat.$typingIndicator.startTyping();
 
     });
 
@@ -195,7 +195,7 @@ describe('history plugin', function() {
 
         let responded = false;
 
-        historychat2.on("history:message", (message) => {
+        historychat2.on("$history.message", (message) => {
 
             if(!responded) {
                 done();
