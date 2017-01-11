@@ -163,7 +163,7 @@ class Chat extends Emitter {
         if(!this.users[uuid]) {
 
             // if the user does not exist at all and we get enough information to build the user
-            if(!OCF.globalChat.users[uuid] && state && state._initialized) {
+            if(!OCF.globalChat.users[uuid] && state) {
 
                 if(uuid == OCF.me.data.uuid) {
                     // if this user is me, reference Me class
@@ -371,10 +371,6 @@ class User extends Emitter {
             uuid: uuid,
             state: state || {}
         }
-
-        // user can be created before network sync has begun
-        // this property lets us know when that has happened
-        this.data.state._initialized = true;
 
         // every user has a couple personal rooms we can connect to
         // feed is a list of things a specific user does that many people can subscribe to
