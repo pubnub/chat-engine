@@ -7,7 +7,7 @@ const messageHistory = require('./plugins/messageHistory.js');
 
 const Rltm = require('../rltm/src/index');
 
-const OCF = require('./src/index.js'); 
+const OCFRoot = require('./src/index.js'); 
 
 let agentInput = process.env.AGENT || 'pubnub';
 
@@ -34,7 +34,7 @@ const agents = {
 describe('import', function() {
 
     it('ocf should be imported', function() {
-        assert.isObject(OCF, 'was successfully created');
+        assert.isFunction(OCFRoot, 'was successfully created');
     });
 
 });
@@ -43,12 +43,13 @@ const pub_append = 'pub' + new Date().getTime();
 const sub_append = 'sub' + new Date().getTime();
 
 let me;
+let OCF;
 
 describe('config', function() {
 
     it('should be configured', function() {
 
-        OCF.config({
+        OCF = new OCFRoot({
             globalChannel: new Date(),
             rltm: agents[agentInput]
         }, [
@@ -66,13 +67,24 @@ describe('config', function() {
 
     });
 
+    it('should export new instance', function() {
+
+        let OCF2 = new OCFRoot({
+            globalChannel: new Date() + '2',
+            rltm: agents[agentInput]
+        });
+
+        assert.equal(OCF2.plugins.length, 0, 'zero plugins in second instance');
+
+    });
+
 });
 
-describe('identify', function() {
+describe('connect', function() {
 
     it('should be identified as new user', function() {
 
-        me = OCF.identify('robot-tester', {works: true});
+        me = OCF.connect('robot-tester', {works: true});
         assert.isObject(me);
 
     });
