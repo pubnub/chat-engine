@@ -21,7 +21,14 @@
 
 <body>
 
-    <div id="chat-online"></div>
+    <div id="chat">
+
+        <div id="chat-output">
+        </div>
+        <input id="chat-input" type="text" name="">
+        <input type="button" onclick="sendChat()" value="Send Chat">
+
+    </div>
     
     <script src="../../web/ocf.js" type="text/javascript"></script>
     
@@ -29,8 +36,8 @@
 
     const now = new Date().getTime();
     const username = ['user', now].join('-');
-
-    const onlineOutput = document.getElementById('chat-online');
+    const textInput = document.getElementById('chat-input');
+    const textOutput = document.getElementById('chat-output');
 
     const OCF = OpenChatFramework.create({
         rltm: {
@@ -47,11 +54,21 @@
         signedOnTime: now
     });
 
-    OCF.globalChat.on('$ocf.join', (payload) => {
+    const sendChat = function (e) {
+        
+        OCF.globalChat.send('message', {
+            text: textInput.value
+        });
+
+        textInput.value = '';
+
+    };
+
+    OCF.globalChat.on('message', (payload) => {
 
         let div = document.createElement("p");
-        div.innerHTML = payload.user.data.uuid;
-        onlineOutput.appendChild(div);
+        div.innerHTML = payload.sender.data.uuid + ': ' + payload.data.text;
+        textOutput.appendChild(div);
 
     });
     </script>

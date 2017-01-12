@@ -21,14 +21,7 @@
 
 <body>
 
-    <div id="chat">
-
-        <div id="chat-output">
-        </div>
-        <input id="chat-input" type="text" name="">
-        <input type="button" onclick="sendChat()" value="Send Chat">
-
-    </div>
+    <div id="log"></div>
     
     <script src="../../web/ocf.js" type="text/javascript"></script>
     
@@ -66,12 +59,13 @@
 
     };
 
-    chat.on('message', (payload) => {
+    chat.on('*', (payload) => {
 
         console.log(payload)
 
-        let div = document.createElement("p");
-        div.innerHTML = payload.sender.data.uuid + ': ' + payload.data.text;
+        let div = document.createElement("pre");
+        
+        div.innerHTML = JSON.stringify(payload, null, 4);
         textOutput.appendChild(div);
 
     });
