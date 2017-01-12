@@ -239,7 +239,7 @@ const renderChat = function(privateChat) {
     privateChat.on('$typingIndicator.startTyping', (payload) => {
 
         // write some text saying that user is typing 
-        $tpl.find('.typing').text(payload.sender.data.state.username + ' is typingIndicator...');
+        $tpl.find('.typing').text(payload.sender.data.state.username + ' is typing...');
 
         // and show their typing indication next to their name in any other location
         $('.' + payload.sender.data.uuid).find('.show-typing').show();
