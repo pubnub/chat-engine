@@ -1,7 +1,7 @@
 "use strict";
 
 // allows us to create and bind to events
- var EventEmitter2 = require('eventemitter2').EventEmitter2;
+var EventEmitter2 = require('eventemitter2').EventEmitter2;
 // import the rltm.js library from a sister directory
 // this is not final
 let Rltm = require('../../rltm/src/index');

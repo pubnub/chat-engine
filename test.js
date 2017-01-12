@@ -7,7 +7,7 @@ const messageHistory = require('./plugins/messageHistory.js');
 
 const Rltm = require('../rltm/src/index');
 
-const OCFRoot = require('./src/index.js'); 
+const OpenChatFramework = require('./src/index.js'); 
 
 let agentInput = process.env.AGENT || 'pubnub';
 
@@ -34,7 +34,7 @@ const agents = {
 describe('import', function() {
 
     it('ocf should be imported', function() {
-        assert.isFunction(OCFRoot, 'was successfully created');
+        assert.isFunction(OpenChatFramework, 'was successfully created');
     });
 
 });
@@ -49,7 +49,7 @@ describe('config', function() {
 
     it('should be configured', function() {
 
-        OCF = new OCFRoot({
+        OCF = new OpenChatFramework({
             globalChannel: new Date(),
             rltm: agents[agentInput]
         }, [
@@ -69,7 +69,7 @@ describe('config', function() {
 
     it('should export new instance', function() {
 
-        let OCF2 = new OCFRoot({
+        let OCF2 = new OpenChatFramework({
             globalChannel: new Date() + '2',
             rltm: agents[agentInput]
         });

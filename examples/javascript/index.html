@@ -1,0 +1,79 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Open Chat Framework Dev</title>
+
+    <style type="text/css">
+    * {
+        margin: 0px;
+        padding: 0px;   
+    }
+    body {
+        width: 500px;
+        margin: 30px auto;
+    }
+    </style>
+
+</head>
+
+<body>
+
+    <div id="chat">
+
+        <div id="chat-output">
+        </div>
+        <input id="chat-input" type="text" name="">
+        <input type="button" onclick="sendChat()" value="Send Chat">
+
+    </div>
+    
+    <script src="../../web/ocf.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+
+    const now = new Date().getTime();
+    const username = ['user', now].join('-');
+    const textInput = document.getElementById('chat-input');
+    const textOutput = document.getElementById('chat-output');
+
+    const OCF = new OpenChatFramework({
+        rltm: {
+            service: 'pubnub', 
+            config: {
+                publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
+                subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
+            }
+        },
+        globalChannel: 'ocf-javascript-demo'
+    }, []);
+
+    let me = OCF.connect(username, {
+        signedOnTime: now
+    });
+
+    let chat = new OCF.GroupChat('main-channel');
+
+    const sendChat = function (e) {
+        
+        chat.send('message', {
+            text: textInput.value
+        });
+
+        textInput.value = '';
+
+    };
+
+    chat.on('message', (payload) => {
+
+        let div = document.createElement("p");
+        div.innerHTML = payload.sender.data.uuid + ': ' + payload.data.text;
+        textOutput.appendChild(div);
+
+    });
+    </script>
+
+</body>
+</html>
