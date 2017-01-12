@@ -1,7 +1,7 @@
-"use strict";
-const namespace = '$typingIndicator';
+var namespace = '$typingIndicator';
+
 // adds shortcuts to build "ianjennings is typing..." functionality into your app
-let plugin = (config) => {
+var plugin = (config) => {
 
     // set the default for typing
     // if the client types input, we wont fire "stopTyping" unless the client 
@@ -70,7 +70,7 @@ let plugin = (config) => {
 
     // define both the extended methods and the middleware in our plugin
     return {
-        namespace,
+        namespace: 'typingIndicator',
         extends: {
             Chat: extension,
             GroupChat: extension
@@ -85,5 +85,5 @@ let plugin = (config) => {
 if(typeof module !== "undefined") {
     module.exports = plugin;
 } else {
-    window.OCF.plugin.$typingIndicator = plugin;
+    window.OpenChatFramework.plugin[namespace] = plugin;
 }

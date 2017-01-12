@@ -1,14 +1,12 @@
-"use strict";
-
 // adds support for restoring old events at boot
 // these events occurred before the client was loaded
 
 // define our plugin values in root
 const defaults = {timeout: 1000};
 
-const namespace = '$history';
+var namespace = '$history';
 
-let messageHistory = (config) => {
+var plugin = (config) => {
 
     // define the methods that will exist within our namespace
     let extension = {
@@ -38,7 +36,7 @@ let messageHistory = (config) => {
 
     // attach methods to Chat and GroupChat
     return {
-        namespace,
+        namespace: 'history',
         extends: {
             Chat: extension,
             GroupChat: extension
@@ -49,7 +47,8 @@ let messageHistory = (config) => {
 
 
 if(typeof module !== "undefined") {
-    module.exports = messageHistory;
+    module.exports = plugin;
 } else {
-    window.OCF.plugin.messageHistory = messageHistory;
+    window.OpenChatFramework.plugin[namespace] = plugin;
 }
+

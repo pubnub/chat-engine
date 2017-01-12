@@ -1,9 +1,7 @@
- "use strict";
-
-const namespace = '$onlineUserSearch';
+var namespace = '$onlineUserSearch';
 
 // allows you to search the online user list by username
-const onlineUserSearch = (config) => {
+var plugin = (config) => {
     
     // these are new methods that will be added to the extended class
     let extension = {
@@ -31,7 +29,7 @@ const onlineUserSearch = (config) => {
 
     // add this plugin to the Chat classes
     return {
-        namespace,
+        namespace: 'onlineUserSearch',
         extends: {
             GroupChat: extension,
             GlobalChat: extension
@@ -41,7 +39,7 @@ const onlineUserSearch = (config) => {
 }
 
 if(typeof module !== "undefined") {
-    module.exports = onlineUserSearch;
+    module.exports = plugin;
 } else {
-    window.OCF.plugin.onlineUserSearch = onlineUserSearch;
+    window.OpenChatFramework.plugin[namespace] = plugin;
 }

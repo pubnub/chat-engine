@@ -74,35 +74,34 @@
       </div>
     </div>
     
-    <script src="../web/ocf.js" type="text/javascript"></script>
-    <script src="../plugins/typingIndicator.js" type="text/javascript"></script>
-    <script src="../plugins/onlineUserSearch.js" type="text/javascript"></script>
-    <script src="../plugins/messageHistory.js" type="text/javascript"></script>
+    <script src="../../web/ocf.js" type="text/javascript"></script>
+    <script src="../../plugins/typingIndicator.js" type="text/javascript"></script>
+    <script src="../../plugins/onlineUserSearch.js" type="text/javascript"></script>
+    <script src="../../plugins/messageHistory.js" type="text/javascript"></script>
     <script type="text/javascript">
 
     let me;
-    
+    let OCF;
+
     const setup = function() {
 
         // OCF Configure
-        OCF.config({
-            // configure rltm.js
-            rltm: ['pubnub', {
-                publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
-                subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
-            }],
-            globalChannel: 'ofc-tester-1' // global chan or root, namespace? organization
-        }, [
+        OCF = OpenChatFramework.create({
+            rltm: {
+                service: 'pubnub', 
+                config: {
+                    publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
+                    subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
+                }
+            },
+            globalChannel: 'ocf-javascript-demo'
+        });
 
-            // include our plugins
-
-            OCF.plugin.typingIndicator({
-                timeout: 5000
-            }),
-            OCF.plugin.onlineUserSearch(),
-            OCF.plugin.messageHistory()
-
-        ]);
+        OCF.loadPlugin(OpenChatFramework.plugin.$typingIndicator({
+            timeout: 5000
+        }));
+        OCF.loadPlugin(OpenChatFramework.plugin.$onlineUserSearch());
+        OCF.loadPlugin(OpenChatFramework.plugin.$history());
 
     }
 
@@ -113,7 +112,7 @@
         let username = location.search.split('username=')[1];
 
         // create a user for myself and store as ```me```
-        me = OCF.identify(username, {username: username});
+        me = OCF.connect(username, {username: username});
 
         // when I get a private invite
         me.direct.on('private-invite', (payload) => {

@@ -1,8 +1,6 @@
-"use strict";
-
 // this is an example of middleware used in our test.js
 // adds some text to message before it's sent and when it's received
-module.exports = (config) => {
+var plugin = (config) => {
 
     // create empty config object if not supplied
     config = config || {};
@@ -41,10 +39,17 @@ module.exports = (config) => {
     // middleware tells the framework to use these functions when 
     // messages are sent or received
     return {
+        namespace: 'append',
         middleware: {
             send: send, 
             broadcast: broadcast
         }
     }
 
+}
+
+if(typeof module !== "undefined") {
+    module.exports = plugin;
+} else {
+    window.OpenChatFramework.plugin[namespace] = plugin;
 }

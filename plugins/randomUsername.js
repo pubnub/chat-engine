@@ -1,10 +1,8 @@
-"use strict";
-
-const namespace = '$randomUsername';
+var namespace = '$randomUsername';
 // gives users a random username if they are anon
 
 // handy function to generate a color_animal combo at random
-const randomName = () => {
+var randomName = () => {
 
     // list of friendly animals
     let animals = ['pigeon', 'seagull', 'bat', 'owl', 'sparrows', 'robin', 'bluebird', 'cardinal', 'hawk', 'fish', 'shrimp', 'frog', 'whale', 'shark', 'eel', 'seal', 'lobster', 'octopus', 'mole', 'shrew', 'rabbit', 'chipmunk', 'armadillo', 'dog', 'cat', 'lynx', 'mouse', 'lion', 'moose', 'horse', 'deer', 'raccoon', 'zebra', 'goat', 'cow', 'pig', 'tiger', 'wolf', 'pony', 'antelope', 'buffalo', 'camel', 'donkey', 'elk', 'fox', 'monkey', 'gazelle', 'impala', 'jaguar', 'leopard', 'lemur', 'yak', 'elephant', 'giraffe', 'hippopotamus', 'rhinoceros', 'grizzlybear'];
@@ -17,7 +15,7 @@ const randomName = () => {
 
 }
 
-let plugin = () => {
+var plugin = () => {
     
     // extend the User class
     let extension = {
@@ -29,7 +27,7 @@ let plugin = () => {
 
     // attach these methods to class Me under a namespace
     return {
-        namespace,
+        namespace: 'randomUsername',
         extends: {
             Me: extension
         }
@@ -40,5 +38,5 @@ let plugin = () => {
 if(typeof module !== "undefined") {
     module.exports = plugin;
 } else {
-    window.OCF.plugin.randomUsername = plugin;
+    window.OpenChatFramework.plugin[namespace] = plugin;
 }
