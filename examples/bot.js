@@ -1,23 +1,24 @@
 "use strict";
 
-let OCF = require('../src/index.js'); 
+let OpenChatFramework = require('../src/index.js'); 
 let typingIndicator = require('../plugins/typingIndicator.js'); 
 
-OCF.config({
-    rltm: ['pubnub', {
-        publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
-        subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
-        uuid: new Date(),
-        state: {}
-    }],
+var OCF = OpenChatFramework.create({
+    rltm: {
+        service: 'pubnub', 
+        config: {
+            publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
+            subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
+        }    
+    },
     globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
-}, [
-    typingIndicator({
-        timeout: 5000
-    })
-]);
+});
 
-var me = OCF.identify('robot-stephen', {username: 'robot-stephen'});
+OCF.loadPlugin(typingIndicator({
+    timeout: 5000
+}));
+
+var me = OCF.connect('robot-stephen', {username: 'robot-stephen'});
 
 var chats = {};
 

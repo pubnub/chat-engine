@@ -483,6 +483,8 @@ module.exports = {
                 throw new Error('You must supply a uuid as the first parameter when connecting.');
             }
 
+            console.log(this.config.rltm)
+
             // this creates a user known as Me and connects to the global chatroom
             this.config.rltm.config.uuid = uuid;
 
