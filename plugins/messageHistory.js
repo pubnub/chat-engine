@@ -30,6 +30,8 @@
 
                     }
 
+                }, (error) => {
+                    throw new Error('There was a problem getting message history', error);
                 });
 
             }

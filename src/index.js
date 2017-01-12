@@ -296,14 +296,11 @@ module.exports = {
                 // call the Chat constructor
                 super(channel);
 
-                console.log('global chat constructor')
-
                 // if someone joins the room, call our assigned function
                 // this function is not automatically called from Chat class
                 // because Chat class does not assume presence
                 this.room.on('join', (uuid, state) => {
-                    
-                    console.log('join', uuid, state)
+                
                     this.userJoin(uuid, state);
 
                 });
@@ -344,7 +341,7 @@ module.exports = {
 
                     }
 
-                }, function(err) {
+                }, (err) => {
                     throw new Error('There was a problem fetching hereNow.', err);
                 });
             
@@ -377,14 +374,12 @@ module.exports = {
                 // get users online now
                 this.room.hereNow().then((occupants) => {
 
-                    console.log(occupants)
-
                     // for every occupant, create a model user
                     for(let uuid in occupants) {
                         this.userJoin(uuid, occupants[uuid], true);
                     }
 
-                }, function(err) {
+                }, (err) => {
                     throw new Error('There was a problem fetching hereNow.', err);
                 });
 
