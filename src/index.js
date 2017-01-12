@@ -36,15 +36,9 @@ module.exports = {
         // this adds an object to another object under some namespace
         const addChild = (ob, childName, childOb) => {
 
-            // if(!ob[childName]) {
-                ob[childName] = childOb;
-            // } else {
-
-            //     console.log(ob[childName])
-
-            //     console.error('plugin is trying to add overwrite a class method');
-            //     console.log(ob, childName, childOb)
-            // }
+            // assign the new child object as a property of parent under the
+            // given namespace
+            ob[childName] = childOb;
 
             // the new object can use ```this.parent``` to access the root class
             childOb.parent = ob;
@@ -185,9 +179,7 @@ module.exports = {
 
             }
 
-            userJoin(uuid, state, data) {
-
-                console.log(uuid, state, data)
+            userJoin(uuid, state, isOld) {
 
                 // if the user is not in this list
                 if(!this.users[uuid]) {
@@ -203,7 +195,6 @@ module.exports = {
                             OCF.globalChat.users[uuid] = new User(uuid, state);
                         }
 
-
                     }
 
                     // if the user has been built previously, assign it to local list of users in this chat
@@ -217,7 +208,7 @@ module.exports = {
                         // broadcast that this is a new user
                         this.broadcast('$ocf.join', {
                             user: this.users[uuid],
-                            data: data
+                            new: !isOld
                         });
 
                         return this.users[uuid];
@@ -228,7 +219,7 @@ module.exports = {
                         // we weren't able to find the user in our global list
                         // we weren't able to build the user
 
-                        console.log('user does not exist, and no state given, ignoring');
+                        // console.log('user does not exist, and no state given, ignoring');
 
                     }
 
@@ -238,7 +229,7 @@ module.exports = {
                     // so we incorrectly sent two joins
                     // or user disconnected and reconnected
 
-                    console.log('double userJoin called');
+                    // console.log('double userJoin called');
                 }
 
             }
@@ -305,11 +296,16 @@ module.exports = {
                 // call the Chat constructor
                 super(channel);
 
+                console.log('global chat constructor')
+
                 // if someone joins the room, call our assigned function
                 // this function is not automatically called from Chat class
                 // because Chat class does not assume presence
                 this.room.on('join', (uuid, state) => {
+                    
+                    console.log('join', uuid, state)
                     this.userJoin(uuid, state);
+
                 });
 
                 // if user leaves, then call self assigned leave function
@@ -332,7 +328,7 @@ module.exports = {
                 });
 
                 // get users online now
-                this.room.hereNow((occupants) => {
+                this.room.hereNow().then((occupants) => {
 
                     // for every occupant, create a model user
                     for(let uuid in occupants) {
@@ -343,11 +339,13 @@ module.exports = {
                             this.users[uuid].update(occupants[uuid]);
                         } else {
                             // otherwise broadcast them as join
-                            this.userJoin(uuid, occupants[uuid]);
+                            this.userJoin(uuid, occupants[uuid], true);
                         }
 
                     }
 
+                }, function(err) {
+                    throw new Error('There was a problem fetching hereNow.', err);
                 });
             
 
@@ -377,13 +375,17 @@ module.exports = {
                 });
 
                 // get users online now
-                this.room.hereNow((occupants) => {
+                this.room.hereNow().then((occupants) => {
+
+                    console.log(occupants)
 
                     // for every occupant, create a model user
                     for(let uuid in occupants) {
-                        this.userJoin(uuid, occupants[uuid]);
+                        this.userJoin(uuid, occupants[uuid], true);
                     }
 
+                }, function(err) {
+                    throw new Error('There was a problem fetching hereNow.', err);
                 });
 
             }
@@ -398,7 +400,7 @@ module.exports = {
                 super();
 
                 // this is public data exposed to the network
-                // we can't JSON stringify the object without circular reference
+                // we can't JSON stringify the entire object without circular reference
                 // so we store some properties under the ```data``` property
                 this.data = {
                     uuid: uuid,
@@ -487,6 +489,7 @@ module.exports = {
 
             // this creates a user known as Me and connects to the global chatroom
             this.config.rltm.config.uuid = uuid;
+            this.config.rltm.config.state = state;
 
             // configure the rltm plugin with the params set in config method
             this.rltm = new Rltm(this.config.rltm);
