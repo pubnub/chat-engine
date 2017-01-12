@@ -187,6 +187,8 @@ module.exports = {
 
             userJoin(uuid, state, data) {
 
+                console.log(uuid, state, data)
+
                 // if the user is not in this list
                 if(!this.users[uuid]) {
 
@@ -226,7 +228,7 @@ module.exports = {
                         // we weren't able to find the user in our global list
                         // we weren't able to build the user
 
-                        // console.log('user does not exist, and no state given, ignoring');
+                        console.log('user does not exist, and no state given, ignoring');
 
                     }
 
@@ -236,7 +238,7 @@ module.exports = {
                     // so we incorrectly sent two joins
                     // or user disconnected and reconnected
 
-                    // console.log('double userJoin called');
+                    console.log('double userJoin called');
                 }
 
             }
@@ -482,8 +484,6 @@ module.exports = {
             if(!uuid) {
                 throw new Error('You must supply a uuid as the first parameter when connecting.');
             }
-
-            console.log(this.config.rltm)
 
             // this creates a user known as Me and connects to the global chatroom
             this.config.rltm.config.uuid = uuid;
