@@ -34,7 +34,7 @@ const agents = {
 describe('import', function() {
 
     it('ocf should be imported', function() {
-        assert.isFunction(OpenChatFramework, 'was successfully created');
+        assert.isObject(OpenChatFramework, 'was successfully created');
     });
 
 });
@@ -49,19 +49,21 @@ describe('config', function() {
 
     it('should be configured', function() {
 
-        OCF = new OpenChatFramework({
+        OCF = OpenChatFramework.create({
             globalChannel: new Date(),
             rltm: agents[agentInput]
-        }, [
-            typingIndicator({
-                timeout: 2000
-            }),
-            append({
-                send: pub_append,
-                broadcast: sub_append
-            }), 
-            messageHistory()
-        ]);
+        });
+
+        OCF.loadPlugin(typingIndicator({
+            timeout: 2000
+        }));
+
+        OCF.loadPlugin(append({
+            send: pub_append,
+            broadcast: sub_append
+        }));
+
+        OCF.loadPlugin(messageHistory())
 
         assert.isOk(OCF);
 
@@ -69,7 +71,7 @@ describe('config', function() {
 
     it('should export new instance', function() {
 
-        let OCF2 = new OpenChatFramework({
+        let OCF2 = OpenChatFramework.create({
             globalChannel: new Date() + '2',
             rltm: agents[agentInput]
         });
@@ -165,7 +167,7 @@ describe('plugins', function() {
             done();
         });
 
-        pluginchat.$typingIndicator.startTyping();
+        pluginchat.typingIndicator.startTyping();
 
     });
 
@@ -175,7 +177,7 @@ describe('plugins', function() {
             done();
         });
 
-        pluginchat.$typingIndicator.startTyping();
+        pluginchat.typingIndicator.startTyping();
 
     });
 

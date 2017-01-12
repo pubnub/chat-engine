@@ -61,7 +61,7 @@ var plugin = (config) => {
             // because this function runs in a different context
 
             // on every message, tell the chat to stop typing
-            payload.chat.$typingIndicator.stopTyping();
+            payload.chat.typingIndicator.stopTyping();
 
             // continue on
             next(null, payload);
