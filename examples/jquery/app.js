@@ -1,6 +1,29 @@
 let me;
 let OCF;
 
+const setup = function() {
+
+    // OCF Configure
+    OCF = OpenChatFramework.create({
+        rltm: {
+            service: 'pubnub', 
+            config: {
+                publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
+                subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
+                restore: false
+            }
+        },
+        globalChannel: 'ocf-javascript-demo'
+    });
+
+    OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
+        timeout: 5000
+    }));
+    OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
+    OCF.loadPlugin(OpenChatFramework.plugin.history());
+
+}
+
 const $chatTemplate = function(chat) {
 
     let html = 
@@ -52,28 +75,6 @@ const $userTemplate = function(user) {
         '</li>';
 
     return $(html);
-
-}
-
-const setup = function() {
-
-    // OCF Configure
-    OCF = OpenChatFramework.create({
-        rltm: {
-            service: 'pubnub', 
-            config: {
-                publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
-                subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f'
-            }
-        },
-        globalChannel: 'ocf-javascript-demo'
-    });
-
-    OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
-        timeout: 5000
-    }));
-    OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
-    OCF.loadPlugin(OpenChatFramework.plugin.history());
 
 }
 

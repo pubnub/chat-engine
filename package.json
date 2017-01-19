@@ -33,6 +33,6 @@
   "dependencies": {
     "async": "^2.1.2",
     "eventemitter2": "^2.2.1",
-    "rltm": "0.0.6"
+    "rltm": "^1.0.5"
   }
 }

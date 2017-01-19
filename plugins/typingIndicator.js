@@ -16,12 +16,12 @@
         // define the methods that will be attached to the class Chat
         let extension = {
             construct: function() {
+
                 // will set Chat.typing.isTyping to false immediately
                 this.isTyping = false;
+
             },
             startTyping: function() {
-
-                console.log('start typingIndicator')
 
                 // this is called manually by the client
 
@@ -36,8 +36,10 @@
 
                 // create a new timeout
                 stopTypingTimeout = setTimeout (() => {
+
                     // trigger stop typing after a set amount of time
                     this.stopTyping();   
+
                 }, config.timeout);
 
             },
@@ -51,6 +53,9 @@
                     
                     // broadcast a stoptyping event
                     this.parent.send(['$' + namespace, 'stopTyping'].join('.'));      
+
+                    // stop typing indicator
+                    this.isTyping = false;
 
                 }
 

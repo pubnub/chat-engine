@@ -14,7 +14,52 @@ module.exports = {
     plugin: {},  // leave a spot for plugins to bind to
     create: function(config) {
 
-        const OCF = {};
+        class RootEmitter {
+
+            constructor() {
+
+                this.emitter = new EventEmitter2({
+                  wildcard: true,
+                  newListener: true,
+                  maxListeners: 20,
+                  verboseMemoryLeak: true
+                });
+
+                // we bind to make sure wildcards work 
+                // https://github.com/asyncly/EventEmitter2/issues/186
+                this.emit = this.emitter.emit.bind(this.emitter);
+                this.on = this.emitter.on.bind(this.emitter);
+                this.onAny = this.emitter.onAny.bind(this.emitter);
+                this.once = this.emitter.once.bind(this.emitter);
+
+
+            }
+
+        }
+
+        const OCF = new RootEmitter;
+
+        class Emitter extends RootEmitter {
+
+            constructor() {
+
+                super();
+                
+                this.emit = (event, data) => {
+
+                    // send the event to the OCF object 
+                    OCF.emit(event, data);
+                    
+                    // as well as object that created it
+                    this.emitter.emit(event, data);
+
+                }
+                
+                loadClassPlugins(this);
+
+            }
+
+        }
 
         // supply a default config if none is set
         OCF.config = config || {};
@@ -67,31 +112,10 @@ module.exports = {
                     // if the plugin has a special construct function, run it
                     if(obj[OCF.plugins[i].namespace].construct) {
                         obj[OCF.plugins[i].namespace].construct();
+
                     }
 
                 }
-
-            }
-
-        }
-
-        class Emitter {
-
-            constructor() {
-
-                const emitter = new EventEmitter2({
-                  wildcard: true,
-                  newListener: true,
-                  maxListeners: 20,
-                  verboseMemoryLeak: true
-                });
-
-                // we bind to make sure wildcards work 
-                // https://github.com/asyncly/EventEmitter2/issues/186
-                this.emit = emitter.emit.bind(emitter);
-                this.on = emitter.on.bind(emitter);
-                this.onAny = emitter.onAny.bind(emitter);
-                this.once = emitter.once.bind(emitter);
 
             }
 
@@ -231,6 +255,15 @@ module.exports = {
 
                     // console.log('double userJoin called');
                 }
+
+            }
+
+            leave() {
+
+                // disconnect from the chat
+                this.room.unsubscribe().then(() => {
+                    // should get caught on as network event
+                });
 
             }
 

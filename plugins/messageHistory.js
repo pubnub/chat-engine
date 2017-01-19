@@ -16,7 +16,9 @@
             construct: function(data) {
 
                 // we can access the rltm room connection and call it's history method
-                this.parent.room.history((response) => {
+                this.parent.room.history().then((response) => {
+
+                    response.reverse();
 
                     // for every message we get back
                     for(let i in response) {
@@ -25,7 +27,7 @@
                         // but the event name is now history:name rather than just name
                         // to distinguish it from the original live events
                         this.parent.broadcast(
-                            [namespace, response[i].data.message[0]].join('.'), 
+                            ['$' + namespace, response[i].data.message[0]].join('.'), 
                             response[i].data.message[1]);
 
                     }
