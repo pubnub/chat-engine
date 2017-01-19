@@ -7,8 +7,8 @@ var OCF = OpenChatFramework.create({
     rltm: {
         service: 'pubnub', 
         config: {
-            publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
-            subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe'
+            publishKey: 'pub-c-4d01656a-cdd2-4474-adc3-30692132915c',
+            subscribeKey: 'sub-c-a59afd1c-a85b-11e6-af18-02ee2ddab7fe',
         }    
     },
     globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
@@ -30,7 +30,7 @@ me.direct.on('private-invite', (payload) => {
 
     if(!chat) {
 
-        chats[payload.data.channel] = new OCF.GroupChat(payload.data.channel);
+        chats[payload.data.channel] = new OCF.Chat(payload.data.channel);
 
         chat = chats[payload.data.channel];
 

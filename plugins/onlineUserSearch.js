@@ -33,7 +33,7 @@
         return {
             namespace,
             extends: {
-                GroupChat: extension,
+                Chat: extension,
                 GlobalChat: extension
             }
         }

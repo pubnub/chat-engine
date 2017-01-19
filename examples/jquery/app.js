@@ -8,8 +8,8 @@ const setup = function() {
         rltm: {
             service: 'pubnub', 
             config: {
-                publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
-                subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
+                publishKey: 'pub-c-4d01656a-cdd2-4474-adc3-30692132915c',
+                subscribeKey: 'sub-c-a59afd1c-a85b-11e6-af18-02ee2ddab7fe',
                 restore: false
             }
         },
@@ -90,7 +90,7 @@ const identifyMe = function() {
     // when I get a private invite
     me.direct.on('private-invite', (payload) => {
         // create a new chat and render it in DOM
-        renderChat(new OCF.GroupChat(payload.data.channel));
+        renderChat(new OCF.Chat(payload.data.channel));
     });
 
     // render the value of me in the GUI
@@ -112,7 +112,7 @@ const renderUser = function($el, user) {
         let chan = OCF.globalChat.channel + '.' + [user.data.uuid, me.data.uuid].sort().join(':');
 
         // create a new chat with that channel
-        let newChat = new OCF.GroupChat(chan);
+        let newChat = new OCF.Chat(chan);
 
         // render the new chat on the dom
         renderChat(newChat);

@@ -92,7 +92,7 @@ angular.module('todoApp', [])
             let chan = $scope.OCF.globalChat.channel + '.' + [user.data.uuid, $scope.me.data.uuid].sort().join(':');
 
             // create a new chat with that channel
-            let newChat = new $scope.OCF.GroupChat(chan);
+            let newChat = new $scope.OCF.Chat(chan);
 
             // send the clicked user a private message telling them we invited them
             user.direct.send('private-invite', {channel: newChat.channel});
@@ -112,7 +112,7 @@ angular.module('todoApp', [])
         $scope.me.direct.on('private-invite', (payload) => {
 
             // create a new chat and render it in DOM
-            $scope.chats.push(new $scope.OCF.GroupChat(payload.data.channel));
+            $scope.chats.push(new $scope.OCF.Chat(payload.data.channel));
 
         });
 

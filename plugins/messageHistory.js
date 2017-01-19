@@ -23,12 +23,22 @@
                     // for every message we get back
                     for(let i in response) {
 
-                        // broadcast the same event with the same data
-                        // but the event name is now history:name rather than just name
-                        // to distinguish it from the original live events
-                        this.parent.broadcast(
-                            ['$' + namespace, response[i].data.message[0]].join('.'), 
-                            response[i].data.message[1]);
+
+                        if(response[i].data) {
+                            
+                            // broadcast the same event with the same data
+                            // but the event name is now history:name rather than just name
+                            // to distinguish it from the original live events
+                            this.parent.broadcast(
+                                ['$' + namespace, response[i].data.message[0]].join('.'), 
+                                response[i].data.message[1]);
+
+                        } else {
+
+                            // something went wrong, person probably doesn't have history enabled
+                            throw new Error(response[i]);
+
+                        }
 
                     }
 
@@ -39,12 +49,11 @@
             }
         };
 
-        // attach methods to Chat and GroupChat
+        // attach methods to Chat
         return {
             namespace,
             extends: {
-                Chat: extension,
-                GroupChat: extension
+                Chat: extension
             }
         }
 

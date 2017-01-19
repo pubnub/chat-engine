@@ -82,7 +82,6 @@
             namespace: 'typingIndicator',
             extends: {
                 Chat: extension,
-                GroupChat: extension
             },
             middleware: {
                 send

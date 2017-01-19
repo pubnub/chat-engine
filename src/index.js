@@ -110,7 +110,6 @@ module.exports = {
                     // if the plugin has a special construct function, run it
                     if(obj[OCF.plugins[i].namespace].construct) {
                         obj[OCF.plugins[i].namespace].construct();
-
                     }
 
                 }
@@ -138,6 +137,26 @@ module.exports = {
                     // all messages are in format [event_name, data]
                     this.broadcast(data.message[0], data.message[1]);
 
+                });
+
+                this.room.on('join', (uuid, state) => {
+                    this.userJoin(uuid, state);
+                });
+
+                this.room.on('leave', (uuid) => {
+                    this.userLeave(uuid);
+                });
+
+                // get users online now
+                this.room.hereNow().then((occupants) => {
+
+                    // for every occupant, create a model user
+                    for(let uuid in occupants) {
+                        this.userJoin(uuid, occupants[uuid], true);
+                    }
+
+                }, (err) => {
+                    throw new Error('There was a problem fetching hereNow.', err);
                 });
 
                 // load the plugins and attach methods to them
@@ -327,20 +346,6 @@ module.exports = {
                 // call the Chat constructor
                 super(channel);
 
-                // if someone joins the room, call our assigned function
-                // this function is not automatically called from Chat class
-                // because Chat class does not assume presence
-                this.room.on('join', (uuid, state) => {
-                
-                    this.userJoin(uuid, state);
-
-                });
-
-                // if user leaves, then call self assigned leave function
-                this.room.on('leave', (uuid) => {
-                    this.userLeave(uuid);
-                });
-
                 // if user sets state
                 this.room.on('state', (uuid, state) => {
                     
@@ -382,38 +387,6 @@ module.exports = {
             setState(state) {
                 // handy method to set state of user without touching rltm
                 this.room.setState(state);
-            }
-
-        }
-
-        class GroupChat extends Chat {
-
-            constructor(channel) {
-
-                channel = channel || [OCF.globalChat.channel, 'group', new Date().getTime()].join('.');
-
-                super(channel);
-
-                this.room.on('join', (uuid, state) => {
-                    this.userJoin(uuid, state);
-                });
-
-                this.room.on('leave', (uuid) => {
-                    this.userLeave(uuid);
-                });
-
-                // get users online now
-                this.room.hereNow().then((occupants) => {
-
-                    // for every occupant, create a model user
-                    for(let uuid in occupants) {
-                        this.userJoin(uuid, occupants[uuid], true);
-                    }
-
-                }, (err) => {
-                    throw new Error('There was a problem fetching hereNow.', err);
-                });
-
             }
 
         }
@@ -535,7 +508,6 @@ module.exports = {
 
         // our exported classes
         OCF.Chat = Chat;
-        OCF.GroupChat = GroupChat;
         OCF.User = User;
 
         // return an instance of OCF

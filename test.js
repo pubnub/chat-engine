@@ -99,13 +99,13 @@ describe('chat', function() {
 
     it('should be created', function(done) {
 
-        chat = new OCF.GroupChat(new Date() + 'chat');
+        chat = new OCF.Chat(new Date() + 'chat');
         done();
 
     });
 
     it('should get ready callback', function(done) {
-            
+
         chat.ready(() => {
 
             done();
@@ -136,7 +136,7 @@ let pluginchat;
 describe('plugins', function() {
 
     it('should be created', function() {
-        pluginchat = new OCF.GroupChat('pluginchat' + new Date().getTime());
+        pluginchat = new OCF.Chat('pluginchat' + new Date().getTime());
     });
 
     it('publish and subscribe hooks should be called', function(done) {
@@ -191,7 +191,7 @@ describe('history plugin', function() {
 
         this.timeout(10000);
 
-        let historychat = new OCF.GroupChat(historyChan);
+        let historychat = new OCF.Chat(historyChan);
 
         historychat.ready(() => {
 
@@ -215,7 +215,7 @@ describe('history plugin', function() {
 
     it('history', function(done) {
 
-        let historychat2 = new OCF.GroupChat(historyChan);
+        let historychat2 = new OCF.Chat(historyChan);
 
         let responded = false;
 
