@@ -54,8 +54,6 @@ module.exports = {
                     this.emitter.emit(event, data);
 
                 }
-                
-                loadClassPlugins(this);
 
             }
 
