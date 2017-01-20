@@ -28,6 +28,33 @@ Open Chat Framework is currently under development. The API is subject to change
 
 [Test.js](test.js) includes some usage examples
 
+# Docs
+
+<!-- MarkdownTOC -->
+
+- Quick Setup
+- Using OCF
+- Events
+    - plugin events
+    - Subscribing to wildcard events
+- Classes
+    - Root
+    - Chats
+    - Users
+- Plugins
+    - Event Middleware Plugin
+    - Registering Plugin
+- Server Side Logic
+- Development
+    - Install Rltm
+    - Install dependencies
+    - Run Stephen Bot
+    - Load up example chat page
+- Develop / Build for Web
+
+<!-- /MarkdownTOC -->
+
+
 # Quick Setup
 
 Config OCF to work with socket.io or pubnub and set a root channel name:
@@ -316,11 +343,13 @@ OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
 ```
 The config options supplied here are available as the first parameter in the plugin definition.
 
-## More Examples
+# Server Side Logic
 
-Check out the plugins directory for examples of more plugins.
+If you want to do something like fire a SMS on the server side, you can use PubNub blocks.
 
-# Old Docs
+You can find an example block in [/examples/javascript/pubnub.block.js](/examples/javascript/pubnub.block.js) which sends an sms message using clicksend every time a message is sent to the [raw javascript chat example](/examples/javascript/chat.html).
+
+# Development
 
 ## Install Rltm
 
