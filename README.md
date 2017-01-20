@@ -320,12 +320,7 @@ The config options supplied here are available as the first parameter in the plu
 
 Check out the plugins directory for examples of more plugins.
 
-# Docs
-
-## 
-- rltm.js configuration
-- global channel
-- returns OCF which is important
+# Old Docs
 
 ## Install Rltm
 
