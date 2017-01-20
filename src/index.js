@@ -110,6 +110,7 @@ module.exports = {
                     // if the plugin has a special construct function, run it
                     if(obj[OCF.plugins[i].namespace].construct) {
                         obj[OCF.plugins[i].namespace].construct();
+
                     }
 
                 }
@@ -412,7 +413,7 @@ module.exports = {
 
                 // direct is a private channel that anybody can publish to, but only the user can subscribe to
                 // this permission based system is not implemented yet
-                this.direct = new Chat([OCF.globalChat.channel, 'private', uuid].join('.'));
+                this.direct = new Chat([OCF.globalChat.channel, 'direct', uuid].join('.'));
                 
             }
 

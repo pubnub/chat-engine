@@ -1902,6 +1902,7 @@ module.exports = {
                     // if the plugin has a special construct function, run it
                     if(obj[OCF.plugins[i].namespace].construct) {
                         obj[OCF.plugins[i].namespace].construct();
+
                     }
 
                 }

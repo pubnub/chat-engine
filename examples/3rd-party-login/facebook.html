@@ -65,6 +65,8 @@
 
                         var chat = new OCF.Chat('facebookchat');
 
+                        console.log(chat)
+
                         FB.api(
                             "/" + response.id + "/picture",
                             function(response) {
@@ -76,9 +78,19 @@
                             }
                         );
 
-                        chat.emitter.on('message', (payload) => {
 
-                            console.log(payload.sender)
+                        $('#submit').click(() => {
+                         
+                            chat.send('message', {
+                                text: $('#message').val()
+                            });
+                            $('#message').val('');
+                            
+                        });
+
+                        chat.on('message', (payload) => {
+
+                            console.log(payload)
 
                             $('#chat').append($('<div><img src="' + payload.sender.data.state.avatar + '" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/><strong>' + payload.sender.data.state.name + ':</strong> ' + payload.data.text + '</div>'));
 
