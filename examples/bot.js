@@ -9,18 +9,29 @@ var OCF = OpenChatFramework.create({
         config: {
             publishKey: 'pub-c-4d01656a-cdd2-4474-adc3-30692132915c',
             subscribeKey: 'sub-c-a59afd1c-a85b-11e6-af18-02ee2ddab7fe',
-        }    
+            restore: false
+        }
     },
-    globalChannel: 'ofc-tester-13' // global chan or root, namespace? organization
+    globalChannel: 'ocf-javascript-demo'
 });
 
 OCF.loadPlugin(typingIndicator({
     timeout: 5000
 }));
 
+OCF.onAny((payload) => {
+    console.log('any', payload)
+})
+
 var me = OCF.connect('robot-stephen', {username: 'robot-stephen'});
 
 var chats = {};
+
+console.log(me.direct)
+
+me.direct.onAny((payload) => {
+    console.log(payload)
+})
 
 me.direct.on('private-invite', (payload) => {
 
@@ -40,7 +51,7 @@ me.direct.on('private-invite', (payload) => {
 
                 setTimeout((argument) => {
 
-                    chat.typing.startTyping();
+                    chat.typingIndicator.startTyping();
 
                     setTimeout((argument) => {
 
@@ -52,7 +63,7 @@ me.direct.on('private-invite', (payload) => {
                                 text: 'hey there ' + payload.sender.data.state.username 
                             });
 
-                        chat.typing.stopTyping(); // add this to plugin middleware
+                        chat.typingIndicator.stopTyping(); // add this to plugin middleware
 
                     }, 1000);
 
