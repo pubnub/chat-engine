@@ -381,7 +381,7 @@ You can use file or localhost. Supply a username in the query string param to ma
 Example: 
 
 ```
-file:///Users/ian/Development/open-chat-framework/examples/web.html?username=ian#
+./open-chat-framework/examples/web.html?username=ian#
 ```
 
 # Develop / Build for Web
