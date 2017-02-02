@@ -1,4 +1,4 @@
-angular.module('todoApp', ['open-chat-framework'])
+angular.module('chatApp', ['open-chat-framework'])
     .run(['$rootScope', 'ngOCF', function($rootScope, ngOCF) {
         
         console.log(ngOCF)
@@ -102,7 +102,7 @@ angular.module('todoApp', ['open-chat-framework'])
         };
 
     })
-    .controller('TodoListController', function($scope) {
+    .controller('ChatAppController', function($scope) {
 
         // bind chat to updates
         $scope.chat = $scope.OCF.globalChat;
