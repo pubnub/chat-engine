@@ -1,6 +1,9 @@
-angular.module('todoApp', [])
-    .run(function($rootScope, $timeout) {
+angular.module('todoApp')
+// angular.module('todoApp', ['ngOCF'])
+    .run(['$rootScope', 'ngOCF', function($rootScope, ngOCF) {
         
+        console.log(ngOCF)
+
         // OCF Configure
         $rootScope.OCF = OpenChatFramework.create({
             rltm: {
@@ -20,10 +23,7 @@ angular.module('todoApp', [])
         $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
         $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.history());
 
-        // updates angular when anything changes
-        $rootScope.OCF.onAny(function(event, payload) {
-            $timeout(function() {});
-        });
+        ngOCF.bind($rootScope.OCF);
 
         // get username from query string
         let username = location.search.split('username=')[1];
@@ -33,7 +33,7 @@ angular.module('todoApp', [])
 
         $rootScope.chats = [];
 
-    })
+    }])
     .controller('Chat', function($scope) {
 
         $scope.leave = (index) => {
