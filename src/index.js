@@ -32,7 +32,6 @@ module.exports = {
                 this.onAny = this.emitter.onAny.bind(this.emitter);
                 this.once = this.emitter.once.bind(this.emitter);
 
-
             }
 
         }
@@ -149,7 +148,7 @@ module.exports = {
                 });
 
                 // get users online now
-                this.room.hereNow().then((occupants) => {
+                this.room.here().then((occupants) => {
 
                     // for every occupant, create a model user
                     for(let uuid in occupants) {
@@ -157,7 +156,7 @@ module.exports = {
                     }
 
                 }, (err) => {
-                    throw new Error('There was a problem fetching hereNow.', err);
+                    throw new Error('There was a problem fetching here.', err);
                 });
 
                 // load the plugins and attach methods to them
@@ -362,7 +361,7 @@ module.exports = {
                 });
 
                 // get users online now
-                this.room.hereNow().then((occupants) => {
+                this.room.here().then((occupants) => {
 
                     // for every occupant, create a model user
                     for(let uuid in occupants) {
@@ -379,7 +378,7 @@ module.exports = {
                     }
 
                 }, (err) => {
-                    throw new Error('There was a problem fetching hereNow.', err);
+                    throw new Error('There was a problem fetching here.', err);
                 });
             
 
