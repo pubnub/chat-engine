@@ -1,5 +1,4 @@
-angular.module('todoApp')
-// angular.module('todoApp', ['ngOCF'])
+angular.module('todoApp', ['open-chat-framework'])
     .run(['$rootScope', 'ngOCF', function($rootScope, ngOCF) {
         
         console.log(ngOCF)
