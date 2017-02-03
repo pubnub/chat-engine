@@ -1,7 +1,5 @@
 angular.module('chatApp', ['open-chat-framework'])
     .run(['$rootScope', 'ngOCF', function($rootScope, ngOCF) {
-        
-        console.log(ngOCF)
 
         // OCF Configure
         $rootScope.OCF = OpenChatFramework.create({
@@ -16,12 +14,14 @@ angular.module('chatApp', ['open-chat-framework'])
             globalChannel: 'ocf-javascript-demo'
         });
 
+        // load OCF plugins
         $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
             timeout: 5000
         }));
         $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
         $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.history());
 
+        // bind open chat framework angular plugin
         ngOCF.bind($rootScope.OCF);
 
         // get username from query string
@@ -30,41 +30,53 @@ angular.module('chatApp', ['open-chat-framework'])
         // create a user for myself and store as ```me```
         $rootScope.me = $rootScope.OCF.connect(username, {username: username});
 
+        // set a global array of chatrooms
         $rootScope.chats = [];
 
     }])
     .controller('Chat', function($scope) {
 
+        // every chat has a list of messages
+        $scope.messages = [];
+
+        // we store the id of the lastSender
+        $scope.lastSender = null;
+
+        // leave a chatroom and remove from global chat list
         $scope.leave = (index) => {
-            
             $scope.chat.leave();
             $scope.chats.splice(index, 1);
-
         }
 
+        // send a message using the messageDraft input
         $scope.sendMessage = () => {
             $scope.chat.send('message', $scope.messageDraft);
             $scope.messageDraft = '';
         }
 
+        // when we get notified of a user typing
         $scope.chat.on('$typingIndicator.startTyping', (event) => {
             event.sender.isTyping = true;
         });
+
+        // when we get notified a user stops typing
         $scope.chat.on('$typingIndicator.stopTyping', (event) => {
             event.sender.isTyping = false;
         });
 
-        $scope.messages = [];
-        $scope.lastSender = null;
+        // function to add a message to messages array
+        let addMessage = (payload, isHistory) => {
 
-        addMessage = (payload, isHistory) => {
-
+            // if this message was from a history call
             payload.isHistory = isHistory;
-            payload.sameUser = false;
-            
+
+            // if the last message was sent from the same user
             payload.sameUser = $scope.messages.length > 0 && payload.sender.data.uuid == $scope.messages[$scope.messages.length - 1].sender.data.uuid;
+            
+            // if this message was sent by this client
             payload.isSelf = payload.sender.data.uuid == $scope.me.data.uuid;
 
+            // add the message to the array
             $scope.messages.push(payload);
 
         }
@@ -79,12 +91,12 @@ angular.module('chatApp', ['open-chat-framework'])
         $scope.chat.on('message', function(payload) {
             // render it in the DOM
             addMessage(payload, false);
-
         });
 
     })
     .controller('OnlineUser', function($scope) {
 
+        // create a new chat
         $scope.newChat = function(user) {
 
             // define a channel using the clicked user's username and this client's username
