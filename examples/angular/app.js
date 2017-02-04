@@ -11,7 +11,7 @@ angular.module('chatApp', ['open-chat-framework'])
                     restore: false
                 }
             },
-            globalChannel: 'ocf-javascript-demo'
+            globalChannel: 'ocf-demo-angular'
         });
 
         // load OCF plugins
@@ -83,6 +83,9 @@ angular.module('chatApp', ['open-chat-framework'])
 
         // if this chat receives a message that's not from this sessions
         $scope.chat.on('$history.message', function(payload) {
+
+            console.log('history message', payload)
+
             // render it in the DOM with a special class
             addMessage(payload, true);
         });

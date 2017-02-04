@@ -13,7 +13,7 @@ const setup = function() {
                 restore: false
             }
         },
-        globalChannel: 'ocf-javascript-demo'
+        globalChannel: 'ocf-demo-jquery'
     });
 
     OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
