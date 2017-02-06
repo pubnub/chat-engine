@@ -17,7 +17,7 @@ const OCF = OpenChatFramework.create({
     globalChannel: 'ocf-demo-react'
 });
 
-let me = OCF.connect(username, {
+OCF.connect(username, {
     signedOnTime: now
 });
 
@@ -62,25 +62,33 @@ var Chat = React.createClass({
     
     OCF.globalChat.on('message', (payload) => {
 
-        this.state.messages.push(
-            <Message uuid={payload.sender.data.uuid} text={payload.data.text} />
+        let messages = this.state.messages;
+
+        messages.push(
+            <Message key={this.state.messages.length} uuid={payload.sender.data.uuid} text={payload.data.text} />
         );
 
         this.setState({
-            messages: this.state.messages
-        })
+            messages: messages
+        });
 
     });
 
   },
 
+  _handleKeyPress: function(e) {
+    if (e.key === 'Enter') {
+      this.sendChat();
+    }
+  },
+
   render: function() {
     return (
-    <div>
-        <div id="chat-output">{this.state.messages}</div>
-        <input id="chat-input" type="text" name=""  value={this.state.chatInput} onChange={this.setChatInput} />
-        <input type="button" onClick={this.sendChat} value="Send Chat" />
-    </div>
+        <div>
+            <div id="chat-output">{this.state.messages}</div>
+            <input id="chat-input" type="text" name=""  value={this.state.chatInput} onChange={this.setChatInput}  onKeyPress={this._handleKeyPress} />
+            <input type="button" onClick={this.sendChat} value="Send Chat" />
+        </div>
     );
   },
 });
