@@ -15,8 +15,8 @@ const agents = {
     pubnub: {
         service: 'pubnub', 
             config: {
-            publishKey: 'pub-c-191d5212-dd99-4f2e-a8cf-fb63775232bc',
-            subscribeKey: 'sub-c-aa1d9fe8-a85b-11e6-a397-02ee2ddab7fe',
+            publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
+            subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
             uuid: new Date(),
             state: {}
         }
