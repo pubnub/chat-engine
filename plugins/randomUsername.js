@@ -22,6 +22,9 @@
         // extend the User class
         let extension = {
             construct: function() {
+
+                console.log('running construct')
+
                 // set the parent's username as random name
                 this.parent.set('username', randomName());
             }

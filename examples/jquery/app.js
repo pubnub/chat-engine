@@ -5,12 +5,18 @@ const setup = function() {
 
     // OCF Configure
     OCF = OpenChatFramework.create({
+        // rltm: {
+        //     service: 'pubnub', 
+        //     config: {
+        //         publishKey: 'pub-c-4d01656a-cdd2-4474-adc3-30692132915c',
+        //         subscribeKey: 'sub-c-a59afd1c-a85b-11e6-af18-02ee2ddab7fe',
+        //         restore: false
+        //     }
+        // },
         rltm: {
-            service: 'pubnub', 
+            service: 'socketio',
             config: {
-                publishKey: 'pub-c-4d01656a-cdd2-4474-adc3-30692132915c',
-                subscribeKey: 'sub-c-a59afd1c-a85b-11e6-af18-02ee2ddab7fe',
-                restore: false
+                endpoint: 'localhost:9000'
             }
         },
         globalChannel: 'ocf-demo-jquery'
@@ -21,6 +27,11 @@ const setup = function() {
     }));
     OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
     OCF.loadPlugin(OpenChatFramework.plugin.history());
+    OCF.loadPlugin(OpenChatFramework.plugin.randomUsername());
+
+    OCF.onAny((event, data) => {
+        console.log(event, data);
+    });
 
 }
 
@@ -29,10 +40,15 @@ const $chatTemplate = function(chat) {
     let html = 
         '<div class="chat col-xs-6">' + 
             '<div class="card">' + 
-                '<h3 class="title card-header"> ' + chat.channel + '</h3>' +
-                '<div class="card-block">' + 
-                    '<a href="#" class="close">close</a>' + 
-                '</div>' + 
+                '<div class="card-header">' + 
+                    '<div class="col-sm-6">'  + 
+                         chat.channel +
+                    '</div>' + 
+                    '<div class="col-sm-6 text-right">' +
+                        '<a href="#" class="close">x</a>' +
+                    '</div>' +
+                '</div>' +
+
                 '<ul class="online-list-sub list-group list-group-flush"></ul>' + 
                 '<div class="card-block">' + 
                     '<div class="log"></div>' + 
@@ -81,11 +97,8 @@ const $userTemplate = function(user) {
 // function to create concept of "me"
 const identifyMe = function() {
 
-    // get username from query string
-    let username = location.search.split('username=')[1];
-
     // create a user for myself and store as ```me```
-    me = OCF.connect(username, {username: username});
+    me = OCF.connect(new Date().getTime().toString());
 
     // when I get a private invite
     me.direct.on('private-invite', (payload) => {
@@ -231,10 +244,6 @@ const renderChat = function(privateChat) {
         // render it in the DOM with a special class
         renderMessage(payload, 'text-muted');
     });
-
-    privateChat.on('*', function(event) {
-        console.log(event)
-    })
 
     // when this chat gets the typing event
     privateChat.on('$typingIndicator.startTyping', (payload) => {

@@ -3,12 +3,18 @@ angular.module('chatApp', ['open-chat-framework'])
 
         // OCF Configure
         $rootScope.OCF = OpenChatFramework.create({
+            // rltm: {
+            //     service: 'pubnub', 
+            //     config: {
+            //         publishKey: 'pub-c-4d01656a-cdd2-4474-adc3-30692132915c',
+            //         subscribeKey: 'sub-c-a59afd1c-a85b-11e6-af18-02ee2ddab7fe',
+            //         restore: false
+            //     }
+            // },
             rltm: {
-                service: 'pubnub', 
+                service: 'socketio',
                 config: {
-                    publishKey: 'pub-c-4d01656a-cdd2-4474-adc3-30692132915c',
-                    subscribeKey: 'sub-c-a59afd1c-a85b-11e6-af18-02ee2ddab7fe',
-                    restore: false
+                    endpoint: 'localhost:9000'
                 }
             },
             globalChannel: 'ocf-demo-angular'
@@ -20,15 +26,20 @@ angular.module('chatApp', ['open-chat-framework'])
         }));
         $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
         $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.history());
+        $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.randomUsername());
 
         // bind open chat framework angular plugin
         ngOCF.bind($rootScope.OCF);
+
+        $rootScope.OCF.onAny((event, data) => {
+            console.log(event, data);
+        });
 
         // get username from query string
         let username = location.search.split('username=')[1];
 
         // create a user for myself and store as ```me```
-        $rootScope.me = $rootScope.OCF.connect(username, {username: username});
+        $rootScope.me = $rootScope.OCF.connect(new Date().getTime());
 
         // set a global array of chatrooms
         $rootScope.chats = [];
@@ -83,8 +94,6 @@ angular.module('chatApp', ['open-chat-framework'])
 
         // if this chat receives a message that's not from this sessions
         $scope.chat.on('$history.message', function(payload) {
-
-            console.log('history message', payload)
 
             // render it in the DOM with a special class
             addMessage(payload, true);

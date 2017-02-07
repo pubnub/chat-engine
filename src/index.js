@@ -351,8 +351,10 @@ module.exports = {
                     
                     // if we know about the user
                     if(this.users[uuid]) {
+                        
                         // update them
-                        this.users[uuid].update(state);
+                        this.users[uuid].data.state = state;
+
                     } else {
                         // otherwise broadcast them as a join
                         this.userJoin(uuid, state);
@@ -462,8 +464,6 @@ module.exports = {
 
                 // publish that the user was updated over the global channel
                 OCF.globalChat.setState(this.data.state);
-
-                // these two functions may be redundant
 
             }
 
