@@ -7,18 +7,43 @@
 
     <title>Open Chat Framework Dev</title>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+
+    <style type="text/css">
+    * {
+        margin: 0px;
+        padding: 0px;   
+    }
+    body {
+        margin: 30px auto;
+    }
+    </style>
+
 </head>
 
 <body>
 
-    <div id="chat">
-    </div>
-    <input type="text" id="message">
-    <input type="submit" id="submit">
-    <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-    </fb:login-button>
+    <div class="container">
+        <div class="col-sm-6 offset-sm-3">
+          <div class="card">
+            <div class="card-header">
+              Chat
+            </div>
+            <div class="card-block">
+                
+                <div id="chat" class="log">
+                </div>
 
-    <div id="status">
+                <div class="input-group"><input type="text" class="form-control message" placeholder="Your Message..." id="message">     <span class="input-group-btn"><button class="btn btn-primary" type="submit" id="submit">Send</button></span></div>
+
+                <div id="status">
+                </div>
+
+                <fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+                </fb:login-button>
+
+          </div>
+        </div>
     </div>
 
 
@@ -65,8 +90,6 @@
 
                         var chat = new OCF.Chat('facebookchat');
 
-                        console.log(chat)
-
                         FB.api(
                             "/" + response.id + "/picture",
                             function(response) {
@@ -92,13 +115,13 @@
 
                             console.log(payload)
 
-                            $('#chat').append($('<div><img src="' + payload.sender.data.state.avatar + '" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/><strong>' + payload.sender.data.state.name + ':</strong> ' + payload.data.text + '</div>'));
+                            $('#chat').append($('<p><img src="' + payload.sender.data.state.avatar + '" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/> <strong>' + payload.sender.data.state.name + ':</strong> ' + payload.data.text + '</p>'));
 
                         });
 
                         console.log('Successful login for: ' + response.name);
                         document.getElementById('status').innerHTML =
-                            'Thanks for logging in, ' + response.name + '!';
+                            'Logged in as ' + response.name + '!';
 
                     });
 

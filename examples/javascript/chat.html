@@ -6,13 +6,14 @@
 
   <title>Open Chat Framework Dev</title>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+
     <style type="text/css">
     * {
         margin: 0px;
         padding: 0px;   
     }
     body {
-        width: 500px;
         margin: 30px auto;
     }
     </style>
@@ -21,13 +22,20 @@
 
 <body>
 
-    <div id="chat">
-
-        <div id="chat-output">
+    <div class="container">
+        <div class="col-sm-6 offset-sm-3">
+          <div class="card">
+            <div class="card-header">
+              Chat
+            </div>
+            <div class="card-block">
+                <div class="log" id="chat-output"></div>
+                <div class="input-group">
+                    <input type="text" class="form-control message" placeholder="Your Message..." id="chat-input">     
+                    <span class="input-group-btn"><button class="btn btn-primary" type="submit" onclick="sendChat()">Send</button></span>
+                </div>
+          </div>
         </div>
-        <input id="chat-input" type="text" name="">
-        <input type="button" onclick="sendChat()" value="Send Chat">
-
     </div>
     
     <script src="../../web/ocf.js" type="text/javascript"></script>
@@ -61,6 +69,8 @@
         });
 
         textInput.value = '';
+
+        return false;
 
     };
 
