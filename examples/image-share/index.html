@@ -110,6 +110,7 @@
 
         widget.onUploadComplete(function(info) {
             chat.send('image-upload', info);
+            widget.value(null);
         });
 
     </script>
