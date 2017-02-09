@@ -10,10 +10,10 @@
     const plugin = (config) => {
 
         // define the methods that will exist within our namespace
-        let extension = {
+        class extension {
 
             // construct is run automatically when plugin is added to Class
-            construct: function(data) {
+            construct(data) {
 
                 // we can access the rltm room connection and call it's history method
                 this.parent.room.history().then((response) => {
@@ -53,7 +53,8 @@
         return {
             namespace,
             extends: {
-                Chat: extension
+                Chat: extension,
+                GlobalChat: extension
             }
         }
 

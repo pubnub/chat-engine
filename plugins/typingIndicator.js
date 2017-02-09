@@ -14,14 +14,14 @@
         let stopTypingTimeout = null;
         
         // define the methods that will be attached to the class Chat
-        let extension = {
-            construct: function() {
+        class extension {
+            construct() {
 
                 // will set Chat.typing.isTyping to false immediately
                 this.isTyping = false;
 
-            },
-            startTyping: function() {
+            }
+            startTyping() {
 
                 // this is called manually by the client
 
@@ -42,8 +42,8 @@
 
                 }, config.timeout);
 
-            },
-            stopTyping: function() {
+            }
+            stopTyping() {
 
                 // we must be currently typing to stop typing
                 if(this.isTyping) {
@@ -82,6 +82,7 @@
             namespace: 'typingIndicator',
             extends: {
                 Chat: extension,
+                GlobalChat: extension
             },
             middleware: {
                 send

@@ -23,7 +23,7 @@ module.exports = {
                   newListener: true,
                   maxListeners: 20,
                   verboseMemoryLeak: true
-                });
+                  });
 
                 // we bind to make sure wildcards work 
                 // https://github.com/asyncly/EventEmitter2/issues/186
@@ -102,14 +102,13 @@ module.exports = {
 
                 // see if there are plugins to attach to this class
                 if(OCF.plugins[i].extends && OCF.plugins[i].extends[className]) {
-                    
+
                     // attach the plugins to this class under their namespace
-                    addChild(obj, OCF.plugins[i].namespace, OCF.plugins[i].extends[className]);   
+                    addChild(obj, OCF.plugins[i].namespace, new OCF.plugins[i].extends[className]);
 
                     // if the plugin has a special construct function, run it
                     if(obj[OCF.plugins[i].namespace].construct) {
                         obj[OCF.plugins[i].namespace].construct();
-
                     }
 
                 }
@@ -246,10 +245,10 @@ module.exports = {
                     // if user has been built using previous steps
                     if(this.users[uuid]) {
 
-                        // broadcast that this is a new user
+                        // broadcast that this is not a new user
                         this.broadcast('$ocf.join', {
                             user: this.users[uuid],
-                            new: !isOld
+                            new: false
                         });
 
                         return this.users[uuid];
@@ -382,7 +381,9 @@ module.exports = {
                 }, (err) => {
                     throw new Error('There was a problem fetching here.', err);
                 });
-            
+                
+                // load Me plugins
+                loadClassPlugins(this);
 
             }
 
@@ -415,6 +416,9 @@ module.exports = {
                 // direct is a private channel that anybody can publish to, but only the user can subscribe to
                 // this permission based system is not implemented yet
                 this.direct = new Chat([OCF.globalChat.channel, 'direct', uuid].join('.'));
+
+                // load Me plugins
+                loadClassPlugins(this);
                 
             }
 

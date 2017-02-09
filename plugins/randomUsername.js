@@ -20,8 +20,8 @@
     var plugin = () => {
         
         // extend the User class
-        let extension = {
-            construct: function() {
+        class extension {
+            construct() {
 
                 console.log('running construct')
 

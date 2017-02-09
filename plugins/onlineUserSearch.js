@@ -6,14 +6,18 @@
     const plugin = (config) => {
         
         // these are new methods that will be added to the extended class
-        let extension = {
-            search: function(input) {
+        class extension {
+            search(input) {
+
+                console.log(this.parent)
 
                 // an empty array of users we found
                 var returnList = [];
 
                 // for every user that the parent chat knows about
                 for(var key in this.parent.users) {
+
+                    console.log(this.parent.users[key])
 
                     // see if that user username includes the input text 
                     if(this.parent.users[key].data.state.username.indexOf(input) > -1) {

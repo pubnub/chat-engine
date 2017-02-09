@@ -19,7 +19,7 @@ const setup = function() {
                 endpoint: 'localhost:9000'
             }
         },
-        globalChannel: 'ocf-demo-jquery'
+        globalChannel: 'ocf-demo-jquery-kitchensink'
     });
 
     OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
