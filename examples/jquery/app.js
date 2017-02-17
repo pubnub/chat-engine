@@ -5,32 +5,23 @@ const setup = function() {
 
     // OCF Configure
     OCF = OpenChatFramework.create({
-        // rltm: {
-        //     service: 'pubnub', 
-        //     config: {
-        //         publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
-        //         subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
-        //         restore: false
-        //     }
-        // },
         rltm: {
+            // service: 'pubnub', 
+            // config: {
+            //     publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
+            //     subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
+            //     restore: false
+            // }
             service: 'socketio',
             config: {
                 endpoint: 'localhost:9000'
             }
         },
-        globalChannel: 'ocf-demo-jquery-kitchensink'
+        globalChannel: 'ocf-demo-jquery-kitchensink-17'
     });
 
-    OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
-        timeout: 5000
-    }));
-    OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
-    OCF.loadPlugin(OpenChatFramework.plugin.history());
-    OCF.loadPlugin(OpenChatFramework.plugin.randomUsername());
-
     OCF.onAny((event, data) => {
-        console.log(event, data);
+        // console.log(event, data);
     });
 
 }
@@ -38,7 +29,7 @@ const setup = function() {
 const $chatTemplate = function(chat) {
 
     let html = 
-        '<div class="chat col-xs-6">' + 
+        '<div class="chat col-xs-6" id="' + chat.channel + '">' + 
             '<div class="card">' + 
                 '<div class="card-header">' + 
                     '<div class="col-sm-6">'  + 
@@ -74,19 +65,21 @@ const $messageTemplate = function(payload, classes) {
 
     let html = 
         '<div class="'+classes+'">' + 
-            '<p class="text-muted username">' + payload.sender.data.state.username + '</p>' + 
+            '<p class="text-muted username">' + payload.sender.state().username + '</p>' + 
             '<p>' + payload.data.text + '</p>' + 
         '</div>';
 
     return $(html);
 }
 
-const $userTemplate = function(user) {
+const $userTemplate = function(user, chat) {
+
+    let state = user.state(chat);
 
     // create the HTML template for the user
     let html = 
-        '<li class="' + user.data.uuid + ' list-group-item">' + 
-            '<a href="#">' + user.data.state.username  + '</a> ' +
+        '<li class="' + user.uuid + ' list-group-item">' + 
+            '<a href="#">' + state.username  + '</a> ' +
             '<span class="show-typing">is typing...</span>' + 
         '</li>';
 
@@ -100,6 +93,8 @@ const identifyMe = function() {
     // create a user for myself and store as ```me```
     me = OCF.connect(new Date().getTime().toString());
 
+    me.plugin(OpenChatFramework.plugin.randomUsername(OCF.globalChat));
+
     // when I get a private invite
     me.direct.on('private-invite', (payload) => {
         // create a new chat and render it in DOM
@@ -107,25 +102,28 @@ const identifyMe = function() {
     });
 
     // render the value of me in the GUI
-    $('#me').text(me.data.state.username + ' with uuid: ' + me.data.uuid);
+    $('#me').text(me.state().username + ' with uuid: ' + me.uuid);
 
 }
 
 // GUI render functions
 
 // render a OCF.User object in a list
-const renderUser = function($el, user) {
+const renderUser = function($el, user, chat) {
 
-    let $tpl = $userTemplate(user);
+    // render user in this chat with their state from globalChat
+    let $tpl = $userTemplate(user, OCF.globalChat);
 
     // listen for a click on the user
     $tpl.find('a').click(() => {
 
         // define a channel using the clicked user's username and this client's username
-        let chan = OCF.globalChat.channel + '.' + [user.data.uuid, me.data.uuid].sort().join(':');
+        let chan = OCF.globalChat.channel + '.' + [user.uuid, me.uuid].sort().join(':');
 
         // create a new chat with that channel
         let newChat = new OCF.Chat(chan);
+
+        console.log(newChat, chan)
 
         // render the new chat on the dom
         renderChat(newChat);
@@ -135,34 +133,48 @@ const renderUser = function($el, user) {
 
     });
 
-    // when  this user starts typing
-    user.feed.on('startTyping', () => { 
-        // show "is typing..."
-        $tpl.find('.show-typing').show();
-    })
-
     // hide "is typingIndicator..." by defualt
     $tpl.find('.show-typing').hide();
 
-    // append the user element to the input element on dom
-    $el.append($tpl);
+    let $existingEl = $el.find('.' + user.uuid);
+
+    if($existingEl.length) {
+        $existingEl.replaceWith($tpl);
+    } else {
+
+        // append the user element to the input element on dom
+        $el.append($tpl);
+           
+    }
 
 };
 
 // turn OCF.Chat into an online list
 const renderOnlineList = function($el, chat) {
 
+    for(var key in chat.users) {
+        renderUser($el, chat.users[key], chat);
+    }
+
     // when someone joins the chat
     chat.on('$ocf.join', (payload) => {
         // render the user in the online list and bind events
-        renderUser($el, payload.user);
+        renderUser($el, payload.user, chat);
+    });
+
+    chat.on('$ocf.state', (payload) => {
+        renderUser($el, payload.user, chat);
     });
     
     // when someone leaves the chat
     chat.on('$ocf.leave', (payload) => {
         // remove the user from the online list
-        $('.' + payload.user.data.uuid).remove();
+        $('.' + payload.user.uuid).remove();
     });
+
+    chat.plugin(OpenChatFramework.plugin.typingIndicator({
+        timeout: 5000
+    }));
 
 }
 
@@ -220,13 +232,13 @@ const renderChat = function(privateChat) {
         }
 
         // if the uuid of the user who sent this message is the same as the last 
-        if(lastSender == payload.sender.data.uuid) {
+        if(lastSender == payload.sender.uuid) {
             // don't render the username again
             classes += ' hide-username';
         }
 
         // set the lastSender as the sender's uuid
-        lastSender = payload.sender.data.uuid;
+        lastSender = payload.sender.uuid;
 
         // append the message to the chatroom log
         $tpl.find('.log').append($messageTemplate(payload, classes));
@@ -239,6 +251,9 @@ const renderChat = function(privateChat) {
         renderMessage(payload, null);
     });
 
+
+    privateChat.plugin(OpenChatFramework.plugin.history());
+
     // if this chat receives a message that's not from this sessions
     privateChat.on('$history.message', function(payload) {
         // render it in the DOM with a special class
@@ -249,10 +264,10 @@ const renderChat = function(privateChat) {
     privateChat.on('$typingIndicator.startTyping', (payload) => {
 
         // write some text saying that user is typing 
-        $tpl.find('.typing').text(payload.sender.data.state.username + ' is typing...');
+        $tpl.find('.typing').text(payload.sender.state().username + ' is typing...');
 
         // and show their typing indication next to their name in any other location
-        $('.' + payload.sender.data.uuid).find('.show-typing').show();
+        $tpl.find('.' + payload.sender.uuid).find('.show-typing').show();
 
     });
 
@@ -263,7 +278,7 @@ const renderChat = function(privateChat) {
         $tpl.find('.typing').text('');
 
         // and remove their indication in any other location on the page
-        $('.' + payload.sender.data.uuid).find('.show-typing').hide();
+        $('.' + payload.sender.uuid).find('.show-typing').hide();
     
     });
 
@@ -281,6 +296,8 @@ const renderChat = function(privateChat) {
 
 // bind the input from the search bar to the usernameSearch plugin
 const bindUsernamePlugin = function() {
+
+    OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
 
     // when someone types in the username search
     $('#usernameSearch').on('change keyup paste click blur', () => {
@@ -301,7 +318,7 @@ const bindUsernamePlugin = function() {
             // loop through all the matching users
             online.forEach(function(user) {
                 // and show them
-                $('#online-list').find('.' + user.data.uuid).show();
+                $('#online-list').find('.' + user.uuid).show();
             });
 
         } else {

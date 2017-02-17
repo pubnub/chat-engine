@@ -65,7 +65,7 @@ var Chat = React.createClass({
         let messages = this.state.messages;
 
         messages.push(
-            <Message key={this.state.messages.length} uuid={payload.sender.data.uuid} text={payload.data.text} />
+            <Message key={this.state.messages.length} uuid={payload.sender.uuid} text={payload.data.text} />
         );
 
         this.setState({

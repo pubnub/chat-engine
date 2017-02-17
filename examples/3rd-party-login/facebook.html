@@ -88,15 +88,20 @@
 
                         var me = OCF.connect(response.id, response);
 
-                        var chat = new OCF.Chat('facebookchat');
-
                         FB.api(
                             "/" + response.id + "/picture",
                             function(response) {
+
+                                console.log(response.data.url)
+
                                 if (response && !response.error) {
 
-                                    console.log(me)
-                                    me.data.state.avatar = response.data.url
+                                    me.update({
+                                        avatar: response.data.url
+                                    });
+
+                                    console.log('updated', me)
+
                                 }
                             }
                         );
@@ -104,18 +109,17 @@
 
                         $('#submit').click(() => {
                          
-                            chat.send('message', {
+                            OCF.globalChat.send('message', {
                                 text: $('#message').val()
                             });
+
                             $('#message').val('');
                             
                         });
 
-                        chat.on('message', (payload) => {
+                        OCF.globalChat.on('message', (payload) => {
 
-                            console.log(payload)
-
-                            $('#chat').append($('<p><img src="' + payload.sender.data.state.avatar + '" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/> <strong>' + payload.sender.data.state.name + ':</strong> ' + payload.data.text + '</p>'));
+                            $('#chat').append($('<p><img src="' + payload.sender.state().avatar + '" style="border-radius: 50%; width: 20px; height: 20px; display: inline-block;"/> <strong>' + payload.sender.state().name + ':</strong> ' + payload.data.text + '</p>'));
 
                         });
 

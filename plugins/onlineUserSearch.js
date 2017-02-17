@@ -9,18 +9,16 @@
         class extension {
             search(input) {
 
-                console.log(this.parent)
-
                 // an empty array of users we found
                 var returnList = [];
 
                 // for every user that the parent chat knows about
                 for(var key in this.parent.users) {
 
-                    console.log(this.parent.users[key])
+                    let state  = this.parent.users[key].state(this.parent);
 
                     // see if that user username includes the input text 
-                    if(this.parent.users[key].data.state.username.indexOf(input) > -1) {
+                    if(state && state.username && state.username.indexOf(input) > -1) {
                         // if it does, add it to the list of returned users
                         returnList.push(this.parent.users[key]);
                     }

@@ -48,13 +48,13 @@
 
                 <div class="card-block">
                     <h4 class="card-title">Open Chat Framework</h4>
-                    <p class="card-text">Your are {{me.data.state.username}} with uuid {{me.data.uuid}}</p>
+                    <p class="card-text">Your are {{me.state().username}} with uuid {{me.uuid}}</p>
                 </div>
 
                 <ul id="online-list" class="list-group list-group-flush">
 
                   <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
-                      <a href="#" ng-click="newChat(user)"> {{user.data.state.username}}</a> 
+                      <a href="#" ng-click="newChat(user)"> {{user.state().username}}</a> 
                       <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
                   </li>
 
@@ -95,7 +95,7 @@
                     <ul class="list-group list-group-flush online-list-sub">
 
                       <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
-                          <a href="#" ng-click="newChat(user)"> {{user.data.state.username}}</a> 
+                          <a href="#" ng-click="newChat(user)"> {{user.state().username}}</a> 
                           <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
                       </li>
 
@@ -104,7 +104,7 @@
                     <div class="card-block"> 
                         <div class="log">
                             <div ng-repeat="message in messages" ng-class="{'hide-username': message.sameUser, 'text-muted': message.isHistory, 'text-xs-right': !message.isSelf}">
-                                <p class="text-muted username">{{message.sender.data.state.username}}</p>
+                                <p class="text-muted username">{{message.sender.state().username}}</p>
                                 <p>{{message.data}}</p>
                             </div>
                         </div> 

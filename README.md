@@ -10,10 +10,11 @@ Open Chat Framework is currently under development. The API is subject to change
 
 ## Client Examples
 
-* [Facebook Login](/examples/3rd-party-login/facebook.html)
-* [Angular](/examples/angular/)
 * [Javascript](/examples/javascript/)
 * [jQuery](/examples/jquery/)
+* [Angular](/examples/angular/)
+* [React](/examples/react/)
+* [Facebook Login](/examples/3rd-party-login/facebook.html)
 * [NodeJS ChatBot](/examples/bot.js)
 
 ## Plugins
@@ -242,7 +243,7 @@ Users represent connected clients. Every user has their own public chatroom call
 
 ### User
 
-A generic user. ```user.data``` includes all custom set data.
+A generic user. ```user.states``` includes all custom set data.
 
 ### Me
 
@@ -262,10 +263,12 @@ return {
         Me: {
             construct: function() {
                 // set the parent's username as random integer
-                this.parent.set('float', new Math.random());
+                this.parent.update({
+                    float: new Math.random()
+                });
             },
             getName: function() {
-                return this.parent.data.state.float;
+                return this.parent.state().float;
             }
         }
     }
@@ -280,7 +283,7 @@ The object supplied as the value for the key ```Me``` configures new methods for
 
 The method ```construct``` is a unique method that will be run whenever a new ```Me``` is created. The ```construct``` functions and all functions supplied in the plugin run in the context of the object in which they are extending. We can call ```this.parent``` to get access to the instance of ```Me```.
 
-In the example above we use ```this.parent.set()``` to set a value of the user. This state is set
+In the example above we use ```this.parent.update()``` to set a value of the user. This state is set
 across the network and all other clients will get notified that this client has a new value.
 
 The method ```getName()``` is a generic method that gets added to all instances of ```Me``` under the namespace ```$yourPluginNamespace```. From outside the plugin, you could call ```Me.$yourPluginNamespace.getName()``` to return the value.

@@ -22,11 +22,20 @@
 
 <body>
 
+
     <div class="container">
         <div class="col-sm-6 offset-sm-3">
           <div class="card">
+
             <div class="card-header">
-              Online Now
+              Friends
+            </div>
+
+
+            <div class="card-block">
+                <div class="card-text text-muted">
+                    Given a list of users, mark those who are online.
+                </div>
             </div>
                 
             <ul id="online-list" class="list-group list-group-flush">
@@ -41,8 +50,16 @@
     
     <script type="text/javascript">
 
-    const now = new Date().getTime();
-    const username = ['user', now].join('-');
+    // ian loads webpage
+    // ian subscribes to channel ian-feed
+    // ------
+    // joe loads webpage
+    // joe want to know if ian is online
+    // joe subscribes to channel ian-feed
+    // ian is online in ian-feed
+    // ------
+    // repeat for every user to find out if their online
+    // 15:49
 
     const onlineOutput = document.getElementById('online-list');
 
@@ -54,27 +71,35 @@
                 subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
             }
         },
-        globalChannel: 'ocf-javascript-demo-online-list'
+        globalChannel: 'ocf-javascript-friends-list'
     });
 
-    let me = OCF.connect(username, {
-        signedOnTime: now
+    let users = {};
+    let uuids = ['ian', 'emily', 'joe'];
+    let user;
+
+    let me = OCF.connect(uuids[0], {
+        signedOnTime: new Date().getTime()
     });
 
-    console.log('you are', username)
-
-    OCF.globalChat.onAny((event, payload) => {
-        console.log(event)
-    })
-
-    OCF.globalChat.on('$ocf.join', (payload) => {
-
-        console.log(payload)
+    uuids.forEach(function(uuid) {
+        
+        users[uuid] = new OCF.User(uuid);
 
         let div = document.createElement("li");
-        div.innerHTML = payload.user.uuid;
-        div.className += " list-group-item";
+        div.innerHTML = uuid;
+        div.className += "list-group-item";
+
         onlineOutput.appendChild(div);
+
+        users[uuid].feed.on('$ocf.join', (payload) => {
+
+            // if user is subscribed to their own feed
+            if(uuid == payload.user.uuid) {
+                div.innerHTML = div.innerHTML + ' (online)';                 
+            }
+
+        });
 
     });
     </script>

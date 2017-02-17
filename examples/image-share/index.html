@@ -79,11 +79,12 @@
         });
 
         var widget = uploadcare.Widget('[role=uploadcare-uploader]');
-        OCF.loadPlugin(OpenChatFramework.plugin.uploadcare());
 
         var me = OCF.connect(username);
 
         var chat = OCF.globalChat;
+        
+        chat.plugin(OpenChatFramework.plugin.uploadcare());
 
         $('form').submit(() => {
          
@@ -96,12 +97,12 @@
         });
 
         chat.on('message', (payload) => {
-            $('#chat').append($('<p><strong>' + payload.sender.data.uuid + ':</strong> ' + payload.data.text + '</p>'));
+            $('#chat').append($('<p><strong>' + payload.sender.uuid + ':</strong> ' + payload.data.text + '</p>'));
         });
 
         chat.uploadcare.bind(widget);
         chat.on('$uploadcare.upload', (payload) => {
-            $('#chat').append($('<p><strong>' + payload.sender.data.uuid + ':</strong><img src="'+ payload.data.cdnUrl+'"/></p>'));
+            $('#chat').append($('<p><strong>' + payload.sender.uuid + ':</strong><img src="'+ payload.data.cdnUrl+'"/></p>'));
         });
 
     </script>

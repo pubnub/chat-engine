@@ -17,22 +17,25 @@
 
     }
 
-    var plugin = () => {
-        
-        // extend the User class
+    var plugin = (chat) => {
+
+        // define send middleware
         class extension {
-            construct() {
+            construct () {
 
-                console.log('running construct')
+                let state = this.parent.state(chat);
 
-                // set the parent's username as random name
-                this.parent.set('username', randomName());
+                state.username = randomName();
+
+                console.log('assign random name')
+                this.parent.update(state, chat);
             }
-        }
 
-        // attach these methods to class Me under a namespace
+        };
+
+        // define both the extended methods and the middleware in our plugin
         return {
-            namespace,
+            namespace: 'randomName',
             extends: {
                 Me: extension
             }

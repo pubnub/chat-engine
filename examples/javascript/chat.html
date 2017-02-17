@@ -51,11 +51,11 @@
         rltm: {
             service: 'pubnub', 
             config: {
-                publishKey: 'pub-c-ea1b85f7-8895-4514-b0e0-b505eaaa1b62',
-                subscribeKey: 'sub-c-7397fa12-43a3-11e6-bfbb-02ee2ddab7fe',
+                publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
+                subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
             }
         },
-        globalChannel: 'ocf-javascript-demo'
+        globalChannel: 'ocf-javascript-demo-not-block'
     });
 
     let me = OCF.connect(username, {
@@ -77,10 +77,14 @@
     OCF.globalChat.on('message', (payload) => {
 
         let div = document.createElement("p");
-        div.innerHTML = payload.sender.data.uuid + ': ' + payload.data.text;
+        div.innerHTML = payload.sender.uuid + ': ' + payload.data.text;
         textOutput.appendChild(div);
 
     });
+
+    OCF.globalChat.onAny((event, data) => {
+        console.info(event, data)
+    })
     </script>
 
 </body>

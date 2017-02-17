@@ -3,30 +3,16 @@ angular.module('chatApp', ['open-chat-framework'])
 
         // OCF Configure
         $rootScope.OCF = OpenChatFramework.create({
-            // rltm: {
-            //     service: 'pubnub', 
-            //     config: {
-            //         publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
-            //         subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
-            //         restore: false
-            //     }
-            // },
             rltm: {
-                service: 'socketio',
+                service: 'pubnub', 
                 config: {
-                    endpoint: 'localhost:9000'
+                    publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
+                    subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
+                    restore: false
                 }
             },
-            globalChannel: 'ocf-demo-angular'
+            globalChannel: 'ocf-demo-angular-2'
         });
-
-        // load OCF plugins
-        $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.typingIndicator({
-            timeout: 5000
-        }));
-        $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.onlineUserSearch());
-        $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.history());
-        $rootScope.OCF.loadPlugin(OpenChatFramework.plugin.randomUsername());
 
         // bind open chat framework angular plugin
         ngOCF.bind($rootScope.OCF);
@@ -35,17 +21,23 @@ angular.module('chatApp', ['open-chat-framework'])
             console.log(event, data);
         });
 
-        // get username from query string
-        let username = location.search.split('username=')[1];
-
         // create a user for myself and store as ```me```
         $rootScope.me = $rootScope.OCF.connect(new Date().getTime());
+    
+        $rootScope.me.plugin(OpenChatFramework.plugin.randomUsername($rootScope.OCF.globalChat));
 
         // set a global array of chatrooms
         $rootScope.chats = [];
 
     }])
     .controller('Chat', function($scope) {
+
+        $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
+            timeout: 5000
+        }));
+
+
+        $scope.chat.plugin(OpenChatFramework.plugin.history());
 
         // every chat has a list of messages
         $scope.messages = [];
@@ -82,10 +74,10 @@ angular.module('chatApp', ['open-chat-framework'])
             payload.isHistory = isHistory;
 
             // if the last message was sent from the same user
-            payload.sameUser = $scope.messages.length > 0 && payload.sender.data.uuid == $scope.messages[$scope.messages.length - 1].sender.data.uuid;
+            payload.sameUser = $scope.messages.length > 0 && payload.sender.uuid == $scope.messages[$scope.messages.length - 1].sender.uuid;
             
             // if this message was sent by this client
-            payload.isSelf = payload.sender.data.uuid == $scope.me.data.uuid;
+            payload.isSelf = payload.sender.uuid == $scope.me.uuid;
 
             // add the message to the array
             $scope.messages.push(payload);
@@ -112,7 +104,7 @@ angular.module('chatApp', ['open-chat-framework'])
         $scope.newChat = function(user) {
 
             // define a channel using the clicked user's username and this client's username
-            let chan = $scope.OCF.globalChat.channel + '.' + [user.data.uuid, $scope.me.data.uuid].sort().join(':');
+            let chan = $scope.OCF.globalChat.channel + '.' + [user.uuid, $scope.me.uuid].sort().join(':');
 
             // create a new chat with that channel
             let newChat = new $scope.OCF.Chat(chan);
@@ -139,6 +131,8 @@ angular.module('chatApp', ['open-chat-framework'])
 
         });
 
+        $scope.OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
+
         // hide / show usernames based on input
         $scope.userSearch = {
             input: '',
@@ -154,7 +148,7 @@ angular.module('chatApp', ['open-chat-framework'])
 
                 // show all found users
                 for(let i in found) {
-                    $scope.chat.users[found[i].data.uuid].hideWhileSearch = false;
+                    $scope.chat.users[found[i].uuid].hideWhileSearch = false;
                 }
 
             }
