@@ -183,7 +183,6 @@ const create = function(config) {
         }
 
         // convenience method to set the rltm ready callback
-        // @todo see if this can be removed
         ready(fn) {
             this.room.ready(fn);
         }
@@ -220,7 +219,6 @@ const create = function(config) {
 
         // broadcasts an event locally
         broadcast(event, payload) {
-
 
             // restore chat in payload
             if(!payload.chat) {
