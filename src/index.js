@@ -154,7 +154,14 @@ const create = function(config) {
 
             // forward user join events
             this.room.on('join', (uuid, state) => {
-                this.userJoin(uuid, state);
+                
+                let user = this.createUser(uuid, state);
+
+                // broadcast that this is a user
+                this.broadcast('$ocf.join', {
+                    user: user
+                });
+
             });
 
             // forward user state change events
@@ -173,7 +180,7 @@ const create = function(config) {
                 // for every occupant, create a model user
                 for(let uuid in occupants) {
                     // and run the join functions
-                    this.userJoin(uuid, occupants[uuid], true);
+                    this.createUser(uuid, occupants[uuid], true);
                 }
 
             }, (err) => {
@@ -244,7 +251,7 @@ const create = function(config) {
         }
 
         // when OCF learns about a user in the channel
-        userJoin(uuid, state, broadcast = false) {
+        createUser(uuid, state, broadcast = false) {
 
             // Ensure that this user exists in the global list
             // so we can reference it from here out
@@ -257,7 +264,7 @@ const create = function(config) {
             if(!this.users[uuid] || broadcast) {
 
                 // broadcast that this is not a new user                    
-                this.broadcast('$ocf.join', {
+                this.broadcast('$ocf.user', {
                     user: OCF.users[uuid]
                 });
 
@@ -280,7 +287,7 @@ const create = function(config) {
             // if we don't know about this user
             if(!this.users[uuid]) {
                 // do the whole join thing
-                this.userJoin(uuid, state);
+                this.createUser(uuid, state);
             }
 
             // update this user's state in this chatroom
@@ -489,7 +496,7 @@ const create = function(config) {
         this.me = new Me(uuid);
 
         // create a new instance of Me using input parameters
-        this.globalChat.userJoin(uuid, state);
+        this.globalChat.createUser(uuid, state);
 
         // return me
         return this.me;
