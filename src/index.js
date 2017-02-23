@@ -6,10 +6,9 @@ const EventEmitter2 = require('eventemitter2').EventEmitter2;
 
 // import the rltm.js library from a sister directory
 // @todo include this as module
-const Rltm = require('../../rltm/src/index');
+const Rltm = require('rltm');
 
 // allows a synchronous execution flow. 
-// @todo move to promises we can remove this dependency
 const waterfall = require('async/waterfall');
 
 const create = function(config) {
@@ -65,6 +64,8 @@ const create = function(config) {
             
             // bind a plugin to this object
             this.plugin = function(module) {
+
+                this.plugins.push(module);
 
                 // returns the name of the class
                 let className = this.constructor.name;
@@ -370,13 +371,6 @@ const create = function(config) {
 
         constructor(uuid, state = {}, chat = OCF.globalChat) {
 
-            // you can set a default state, but it will be overwritten 
-            // by whatever the feed says
-
-            // so what you put into a user state should match 
-            // what me is during init
-            // @todo make a note of this in the docs
-
             super();
 
             // this is public id exposed to the network
@@ -443,7 +437,6 @@ const create = function(config) {
     // Same as User, but has permission to update state on network
     class Me extends User {
 
-        // @todo is this even necessary? 
         constructor(uuid) {
 
             // call the User constructor

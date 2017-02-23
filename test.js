@@ -50,33 +50,11 @@ describe('config', function() {
     it('should be configured', function() {
 
         OCF = OpenChatFramework.create({
-            globalChannel: new Date(),
+            globalChannel: 'test-channel',
             rltm: agents[agentInput]
         });
-
-        OCF.loadPlugin(typingIndicator({
-            timeout: 2000
-        }));
-
-        OCF.loadPlugin(append({
-            send: pub_append,
-            broadcast: sub_append
-        }));
-
-        OCF.loadPlugin(messageHistory())
 
         assert.isOk(OCF);
-
-    });
-
-    it('should export new instance', function() {
-
-        let OCF2 = OpenChatFramework.create({
-            globalChannel: new Date() + '2',
-            rltm: agents[agentInput]
-        });
-
-        assert.equal(OCF2.plugins.length, 0, 'zero plugins in second instance');
 
     });
 
@@ -136,7 +114,18 @@ let pluginchat;
 describe('plugins', function() {
 
     it('should be created', function() {
+        
         pluginchat = new OCF.Chat('pluginchat' + new Date().getTime());
+
+        pluginchat.plugin(typingIndicator({
+            timeout: 5000
+        }));
+
+        pluginchat.plugin(append({
+            send: pub_append,
+            broadcast: sub_append
+        }));
+
     });
 
     it('publish and subscribe hooks should be called', function(done) {
@@ -189,7 +178,6 @@ describe('history plugin', function() {
 
     it('should be created', function(done) {
 
-        this.timeout(10000);
 
         let historychat = new OCF.Chat(historyChan);
 
@@ -215,7 +203,10 @@ describe('history plugin', function() {
 
     it('history', function(done) {
 
+        this.timeout(10000); 
+
         let historychat2 = new OCF.Chat(historyChan);
+        historychat2.plugin(messageHistory())
 
         let responded = false;
 
