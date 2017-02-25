@@ -174,6 +174,11 @@ const create = function(config) {
                 this.userLeave(uuid);
             });
 
+            // forward user leaving events
+            this.room.on('disconnect', (uuid) => {
+                this.userDisconnect(uuid);
+            });
+
             // get a list of users online now
             this.room.here().then((occupants) => {
 
@@ -331,6 +336,18 @@ const create = function(config) {
 
                 // console.log('user already left');
             }
+        }
+
+        userDisconnect(uuid) {
+
+            // make sure this event is real, user may have already left
+            if(this.users[uuid]) {
+
+                // if a user leaves, broadcast the event
+                this.broadcast('$ocf.disconnect', this.users[uuid]);
+
+            }
+
         }
 
         runPluginQueue(location, event, first, last) {
