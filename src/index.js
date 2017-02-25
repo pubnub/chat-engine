@@ -264,7 +264,7 @@ const create = function(config) {
             if(!this.users[uuid] || broadcast) {
 
                 // broadcast that this is not a new user                    
-                this.broadcast('$ocf.user', {
+                this.broadcast('$ocf.online', {
                     user: OCF.users[uuid]
                 });
 

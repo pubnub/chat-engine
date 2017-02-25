@@ -229,7 +229,7 @@ global online list.
 
 ### Chat Events
 
-#### $ocf.user
+#### $ocf.online
 
 Emitted when a user joins the chat
 

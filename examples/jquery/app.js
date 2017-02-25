@@ -157,7 +157,7 @@ const renderOnlineList = function($el, chat) {
     }
 
     // when someone joins the chat
-    chat.on('$ocf.user', (payload) => {
+    chat.on('$ocf.online', (payload) => {
         // render the user in the online list and bind events
         renderUser($el, payload.user, chat);
     });
