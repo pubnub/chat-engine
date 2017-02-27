@@ -21,7 +21,7 @@ const setup = function() {
     });
 
     OCF.onAny((event, data) => {
-        // console.log(event, data);
+        console.log(event, data);
     });
 
 }
@@ -162,7 +162,13 @@ const renderOnlineList = function($el, chat) {
         renderUser($el, payload.user, chat);
     });
 
-    chat.on('$ocf.state', (payload) => {
+    // when someone joins the chat
+    chat.on('$ocf.online', (payload) => {
+        // render the user in the online list and bind events
+        renderUser($el, payload.user, chat);
+    });
+
+    chat.on('$ocf.disconnect', (payload) => {
         renderUser($el, payload.user, chat);
     });
     
