@@ -99,18 +99,26 @@ angular.module('chatApp', ['open-chat-framework'])
 
     })
     .controller('OnlineUser', function($scope) {
+  
+        $scope.invite = function(user, channel) {
+
+            console.log('sending invite to ', user, channel)
+
+            // send the clicked user a private message telling them we invited them
+            user.direct.send('private-invite', {channel: channel});
+
+        }
 
         // create a new chat
         $scope.newChat = function(user) {
 
             // define a channel using the clicked user's username and this client's username
-            let chan = $scope.OCF.globalChat.channel + '.' + [user.uuid, $scope.me.uuid].sort().join(':');
+            let chan = $scope.OCF.globalChat.channel + '.' + new Date().getTime();
 
             // create a new chat with that channel
             let newChat = new $scope.OCF.Chat(chan);
 
-            // send the clicked user a private message telling them we invited them
-            user.direct.send('private-invite', {channel: newChat.channel});
+            $scope.invite(user, chan);
 
             // add the chat to the list
             $scope.chats.push(newChat);
@@ -151,6 +159,18 @@ angular.module('chatApp', ['open-chat-framework'])
                     $scope.chat.users[found[i].uuid].hideWhileSearch = false;
                 }
 
+            }
+        };
+
+        $scope.userAdd = {
+            input: '',
+            users: $scope.userAdd,
+            fire: () => {  
+                if($scope.userAdd.input.length) {
+                    $scope.userAdd.users = $scope.OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);   
+                } else {
+                    $scope.userAdd.users = [];
+                }
             }
         };
 

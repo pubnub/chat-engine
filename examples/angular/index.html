@@ -95,8 +95,8 @@
                     <ul class="list-group list-group-flush online-list-sub">
 
                       <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
-                          <a href="#" ng-click="newChat(user)"> {{user.state().username}}</a> 
-                          <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
+                        {{user.state().username}}
+                        <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
                       </li>
 
                     </ul>
@@ -118,6 +118,28 @@
                             </div> 
                         </form> 
                     </div> 
+
+                    <hr />
+
+                    <div class="card-block">
+
+                        <h6>Add a user to this chat</h6>
+ 
+                        <fom ng-submit="userAdd.fire()">
+                            <div class="input-group">
+                                <input id="usernameSearch" type="text" class="form-control message" placeholder="Add User" ng-change="userAdd.fire()" ng-model="userAdd.input">
+                            </div>
+                        </form>
+
+                        <ul class="list-group list-group-flush online-list-sub">
+
+                          <li class="list-group-item" ng-repeat="(uuid, user) in userAdd.users" ng-controller="OnlineUser">
+                              <a href="#" ng-click="invite(user, chat.channel)"> {{user.state().username}}</a> 
+                          </li>
+
+                        </ul>
+
+                    </div>
                     
                 </div> 
             </div>
