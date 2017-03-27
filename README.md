@@ -1,6 +1,9 @@
 # OCF - Open Chat Framework
 
-With OCF you can build Slack/Flowdock/Discord and also Skype/Snapchat/WhatsApp. The serverless component runs Socket.IO and optional PubNub microservices. Advanced capabilities with modular Add-ons system. Using PubNub BLOCKS and Socket.IO/Node.JS add-ons for user-mention notifications and data privacy with encryption.
+OCF is an object oriented event emitter based framework for building chat applications in Javascript. OCF makes it easy to 
+build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease. 
+
+The real time server component is provided by Socket.io or PubNub. OCF is extensible and includes a plugin framework to make dropping in features simple.
 
 # Notes
 
@@ -34,7 +37,14 @@ Open Chat Framework is currently under development. The API is subject to change
 <!-- MarkdownTOC -->
 
 - Quick Setup
+    - Create Instance
+    - Connect to OCF Network
 - Using OCF
+    - Create a Chat
+    - Send a message to Chat
+    - Receive a message from Chat
+    - Create a bot that automatically replies to a message
+- All Methods
 - Events
     - plugin events
     - Subscribing to wildcard events
@@ -55,10 +65,16 @@ Open Chat Framework is currently under development. The API is subject to change
 
 <!-- /MarkdownTOC -->
 
-
 # Quick Setup
 
-Config OCF to work with socket.io or pubnub and set a root channel name:
+## Create Instance
+
+There are two require fields for initializing OCF.
+
+* ```rltm``` - OCF is based off PubNub [rltm.js](https://github.com/pubnub/rltm.js) which lets you switch between PubNub and Socket.io just by changing your configuration. Check out [the rltm.js docs](https://github.com/pubnub/rltm.js) for more information.
+* ```globalChannel``` - This is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
+
+### Socket.io
 
 ```js
 let OCF = OpenChatFramework.create({
@@ -72,7 +88,7 @@ let OCF = OpenChatFramework.create({
 });
 ```
 
-Or use PubNub:
+### PubNub
 
 ```js
 const OCF = OpenChatFramework.create({
@@ -83,17 +99,27 @@ const OCF = OpenChatFramework.create({
             subscribeKey: 'YOUR_SUB_KEY'
         }
     },
-    globalChannel: 'ocf-javascript-demo'
+    globalChannel: 'ocf-root-channel'
 });
 ```
 
-Connect to the server as some user.
+## Connect to OCF Network
+
+Now we're going to connect to the network (defined in ```rltm``` config). In order to connect, we need to identify ourselves to the network.
 
 ```
 me = OCF.connect(uuid, {username: username});
 ```
 
+The parameter ```uuid``` is a unique identifier for this client. It can be a user name, user id, email, etc.
+
+The second parameter is a JSON object containing information about this client. This JSON object is sent to all other clients on the network, so no passwords!
+
+This instance of OCF will make all further requests on behalf of the ```uuid``` you supplied. This is commonly called ```me```.
+
 # Using OCF
+
+## Create a Chat
 
 Once OCF is set up, creating and connecting to a chatroom is as simple as:
 
@@ -101,21 +127,31 @@ Once OCF is set up, creating and connecting to a chatroom is as simple as:
 let chat = new Chat('channel');
 ```
 
-You can send a message to the new chat by defining a new message event.
+This will automatically connect to the chat room.
+
+## Send a message to Chat
+
+You can send a message to the chat by using the ```send()``` method to broadcast an event over the network.
 
 ```js
 chat.send('message', 'my message');
 ```
 
-And you can listen for message from the chat with:
+The first parameter is the event to send, and the second parameter is the message payload.
+
+## Receive a message from Chat
+
+You can listen for messages from the chat by subscribing to the ```message``` event using the ```on()``` method. This works over the network, so it'll catch events sent from other clients. That's the whole point right ;)
 
 ```js
-chat.on('message', (payload) {
+chat.on('message', (payload) => {
     alert('message: ', payload.data.text);
 });
 ```
 
-The ```payload``` in the event callback includes some handy properties:
+The first parameter is the ```event``` you're listening for. Some event names are reserved (more on that later), but for the most part they can be anything.
+
+The ```payload``` in the event callback is not the raw data you supplied while using ```send```. The payload is augmented with the ```Chat``` that the message was sent from, and the ```User``` that sent it (as defined in ```OCF.connect()```).
 
 ```js
 {
@@ -127,10 +163,18 @@ The ```payload``` in the event callback includes some handy properties:
 }
 ```
 
-To create a bot that automatically replies to messages:
+## Create a bot that automatically replies to a message
+
+Creating a bot is super easy and we can do it using everything we learned previously.
+
+First, the bot will subscribe to the ```message``` network event. 
+
+When a message comes it, it checks the payload to see if the message was sent by itself (to prevent infinite loops). 
+
+If it was not sent by itself, it sends a message back to the chatroom repeating the original message that was sent to it.
 
 ```js
-chat.on('message', (payload) {
+chat.on('message', (payload) => {
     
     // make sure this is not a message this client sent myself
     if(payload.user.data.uuid !== me.data.uuid) {
@@ -144,6 +188,8 @@ chat.on('message', (payload) {
 
 });
 ```
+
+# All Methods
 
 Get a list of all users in a chat.
 
