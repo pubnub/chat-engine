@@ -1,5 +1,12 @@
 "use strict";
 
+
+/**
+ * Provides the base Widget class...
+ *
+ * @class OCF
+ */
+
 // Allows us to create and bind to events. Everything in OCF is an event
 // emitter
 const EventEmitter2 = require('eventemitter2').EventEmitter2;
@@ -11,9 +18,23 @@ const Rltm = require('rltm');
 // allows a synchronous execution flow. 
 const waterfall = require('async/waterfall');
 
+/**
+* Create an instance of Open Chat Framework.
+*
+* @class create
+* @for OpenChatFramework
+* @param {Object} foo Argument 1
+* @param config.rltm {Object} OCF is based off PubNub [rltm.js](https://github.com/pubnub/rltm.js) which lets you switch between PubNub and Socket.io just by changing your configuration. Check out [the rltm.js docs](https://github.com/pubnub/rltm.js) for more information.
+* @param config.globalChannel {String} his is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
+* @return {Object} Returns an instance of OCF
+*/
 const create = function(config) {
 
-    // creat an EventEmitter2 that all other emitters can inherit
+    /**
+    * create an EventEmitter2 that all other emitters can inherit
+    *
+    * @class RootEmitter
+    */
     class RootEmitter {
 
         constructor() {
@@ -40,7 +61,12 @@ const create = function(config) {
     // Create the root OCF object
     const OCF = new RootEmitter;
 
-    // Extend emitter and add OCF specific behaviors
+    /**
+    * Extend emitter and add OCF specific behaviors
+    *
+    * @class Emitter
+    * @extend RootEmitter
+    */
     class Emitter extends RootEmitter {
 
         constructor() {
@@ -93,7 +119,13 @@ const create = function(config) {
 
     }
 
-    // supply a default config if none is set
+    /**
+     * OCF config
+     *
+     * @property config
+     * @type Object
+     * @default "{}"
+     */
     OCF.config = config || {};
 
     // set a default global channel if none is set
@@ -532,6 +564,12 @@ const create = function(config) {
     return OCF;
 
 }
+
+/**
+ * Provides the base Widget class...
+ *
+ * @class OpenChatFramework
+ */
 
 // export the OCF api
 module.exports = {
