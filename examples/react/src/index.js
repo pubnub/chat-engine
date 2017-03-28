@@ -6,7 +6,7 @@ import OpenChatFramework from '../../../src/index.js'
 const now = new Date().getTime();
 const username = ['user', now].join('-');
 
-const OCF = OpenChatFramework.create({
+const OCF = OpenChatFramework.config({
     rltm: {
         service: 'pubnub', 
         config: {

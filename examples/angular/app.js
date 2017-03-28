@@ -2,7 +2,7 @@ angular.module('chatApp', ['open-chat-framework'])
     .run(['$rootScope', 'ngOCF', function($rootScope, ngOCF) {
 
         // OCF Configure
-        $rootScope.OCF = OpenChatFramework.create({
+        $rootScope.OCF = OpenChatFramework.config({
             rltm: {
                 service: 'pubnub', 
                 config: {

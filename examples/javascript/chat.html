@@ -47,7 +47,7 @@
     const textInput = document.getElementById('chat-input');
     const textOutput = document.getElementById('chat-output');
 
-    const OCF = OpenChatFramework.create({
+    const OCF = OpenChatFramework.config({
         rltm: {
             service: 'pubnub', 
             config: {

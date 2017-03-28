@@ -1,0 +1,7 @@
+{
+  "name": "OpenChatFramework",
+  "version": "1.0.0",
+  "options": {
+    "exclude": "web"
+  }
+}
