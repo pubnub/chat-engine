@@ -9,6 +9,7 @@ const waterfall = require('async/waterfall');
 *
 * @class Chat
 * @constructor
+* @param {String} channel The channel name for the chatroom
 * @extend Emitter
 */
 module.exports = class Chat extends Emitter {
@@ -17,11 +18,24 @@ module.exports = class Chat extends Emitter {
 
         super();
 
-        // the channel name for this chatroom
-        this.channel = channel;
+        /**
+        * the channel name for this chatroom
+        *
+        * @property channel
+        * @type String
+        */
+        this.channel = channel; 
 
-        // a list of users in this chatroom
+        /**
+        * a list of users in this chatroom
+        *
+        * @property users
+        * @type Object
+        */
         this.users = {};
+
+        // this.room is our rltm.js connection 
+        this.room = OCF.rltm.join(this.channel);
 
         // get a list of users online now
         this.room.here().then((occupants) => {
@@ -36,9 +50,6 @@ module.exports = class Chat extends Emitter {
             throw new Error(
                 'There was a problem fetching here.', err);
         });
-
-        // this.room is our rltm.js connection 
-        this.room = OCF.rltm.join(this.channel);
 
         // whenever we get a message from the network 
         this.room.on('message', (uuid, data) => {

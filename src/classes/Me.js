@@ -7,7 +7,6 @@ const User = require('./User');
 * @constructor
 * @extend User
 */
-
 module.exports = class Me extends User {
 
     constructor(uuid) {
@@ -25,7 +24,13 @@ module.exports = class Me extends User {
         super.update(state, chat);
     }
 
-    // update this user state over the network
+    /**
+    * Update this user state over the network
+    *
+    * @method update
+    * @param {Object} state The new state for {{#crossLink "Me"}}{{/crossLink}}
+    * @param {Object} chat
+    */
     update(state, chat = OCF.globalChat) {
 
         // run the root update function

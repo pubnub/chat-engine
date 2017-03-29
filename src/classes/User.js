@@ -9,7 +9,6 @@ const Chat = require('./Chat');
 * @constructor
 * @extend Emitter
 */
-
 module.exports = class User extends Emitter {
 
     constructor(uuid, state = {}, chat = OCF.globalChat) {
@@ -17,23 +16,50 @@ module.exports = class User extends Emitter {
         super();
 
         // this is public id exposed to the network
+
+        /**
+        * the User's uuid
+        *
+        * @property uuid
+        * @type String
+        */
         this.uuid = uuid;
 
-        // keeps account of user state in each channel
+        /**
+        * keeps account of user state in each channel
+        *
+        * @property states
+        * @type Object
+        */
         this.states = {};
 
-        // keep a list of chatrooms this user is in
+        /**
+        * keep a list of chatrooms this user is in
+        *
+        * @property chats
+        * @type Object
+        */
         this.chats = {};
 
-        // every user has a couple personal rooms we can connect to
-        // feed is a list of things a specific user does that 
-        // many people can subscribe to
+        /**
+        * every user has a couple personal rooms we can connect to
+        * feed is a list of things a specific user does that 
+        * many people can subscribe to
+        *
+        * @property feed
+        * @type Chat
+        */
         this.feed = new Chat(
             [OCF.globalChat.channel, 'feed', uuid].join('.'));
 
-        // direct is a private channel that anybody can publish to
-        // but only the user can subscribe to
-        // this permission based system is not implemented yet
+        /**
+        * direct is a private channel that anybody can publish to
+        * but only the user can subscribe to
+        * this permission based system is not implemented yet
+        *
+        * @property direct
+        * @type Chat
+        */
         this.direct = new Chat(
             [OCF.globalChat.channel, 'direct', uuid].join('.'));
 
@@ -48,24 +74,44 @@ module.exports = class User extends Emitter {
         
     }
 
-    // get the user's state in a chatroom
+    /**
+    * get the user's state in a chatroom
+    *
+    * @method state
+    * @param {Chat} chat Chatroom to retrieve state from
+    */
     state(chat = OCF.globalChat) {
         return this.states[chat.channel] || {};
     }
 
-    // update the user's state in a specific chatroom
-    // this is called from the client
+    /**
+    * update the user's state in a specific chatroom
+    *
+    * @method update
+    * @param {Object} state The new state for the user
+    * @param {Chat} chat Chatroom to retrieve state from
+    */
     update(state, chat = OCF.globalChat) {
         let chatState = this.state(chat) || {};
         this.states[chat.channel] = Object.assign(chatState, state);
     }
 
-    // this is only called from network updates
+    /**
+    * @private
+    * this is only called from network updates
+    *
+    * @method assign
+    */
     assign(state, chat) {
         this.update(state, chat);
     }
 
-    // adds a chat to this user
+    /**
+    * @private
+    * adds a chat to this user
+    *
+    * @method addChat
+    */
     addChat(chat, state) {
 
         // store the chat in this user object
