@@ -54,10 +54,10 @@ module.exports = class Chat extends Emitter {
             let user = this.createUser(uuid, state);
 
             /**
-            * Broadcast that a user has joined the room
+            * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has joined the room
             *
             * @event $ocf.join
-            * @param {Object} payload.user The ```User``` that came online
+            * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
             */     
             this.broadcast('$ocf.join', {
                 user: user
@@ -93,7 +93,7 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-    * send events over the network on behalf of ```Me```
+    * send events over the network on behalf of {{#crossLink "Me"}}{{/crossLink}}
     *
     * @method send
     * @param {String} event The event name
@@ -182,10 +182,10 @@ module.exports = class Chat extends Emitter {
         if(!this.users[uuid] || broadcast) {
 
             /**
-            * Broadcast that a user has come online
+            * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has come online
             *
             * @event $ocf.online
-            * @param {Object} payload.user The ```User``` that came online
+            * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
             */     
             this.broadcast('$ocf.online', {
                 user: OCF.users[uuid]
@@ -206,7 +206,7 @@ module.exports = class Chat extends Emitter {
     * get notified when a user's state changes
     *
     * @method userUpdate
-    * @param {String} uuid The ```User``` uuid
+    * @param {String} uuid The {{#crossLink "User"}}{{/crossLink}} uuid
     * @param {Object} state State to update for the user
     */
     userUpdate(uuid, state) {
@@ -224,10 +224,10 @@ module.exports = class Chat extends Emitter {
         this.users[uuid].assign(state, this);
 
         /**
-        * Broadcast that a user has changed state
+        * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has changed state
         *
         * @event $ocf.state
-        * @param {Object} payload.user The ```User``` that changed state
+        * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that changed state
         * @param {Object} payload.state The new user state for this ```Chat```
         */     
         this.broadcast('$ocf.state', {
@@ -238,7 +238,7 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * Have Me leave the chatroom
+     * Have {{#crossLink "Me"}}{{/crossLink}} leave the chatroom
      *
      * @method leave
      */
@@ -251,31 +251,24 @@ module.exports = class Chat extends Emitter {
 
     }
 
-    /**
-    * @private
-    * Fired when a user leaves the chatroom
-    *
-    * @method userLeave
-    * @param {String} uuid The ```User``` uuid
-    */
     userLeave(uuid) {
 
         // make sure this event is real, user may have already left
         if(this.users[uuid]) {
 
             /**
-            * A ```User``` has left the ```Chat```
+            * A {{#crossLink "User"}}{{/crossLink}} has left the ```Chat```
             *
             * @event $ocf.leave
-            * @param {Object} payload.user The ```User``` that changed state
+            * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that left
             */     
             this.broadcast('$ocf.leave', this.users[uuid]);
 
             /**
-            * A ```User``` has gone offline
+            * A {{#crossLink "User"}}{{/crossLink}} has gone offline
             *
             * @event $ocf.offline
-            * @param {Object} payload.user The ```User``` that changed state
+            * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} came offline
             */     
             this.broadcast('$ocf.offline', this.users[uuid]);
 
@@ -299,7 +292,7 @@ module.exports = class Chat extends Emitter {
     * Fired when a user disconnects from the chatroom
     *
     * @method userDisconnect
-    * @param {String} uuid The ```User``` uuid
+    * @param {String} uuid The uuid of the {{#crossLink "User"}}{{/crossLink}} that left
     */
     userDisconnect(uuid) {
 
@@ -307,18 +300,18 @@ module.exports = class Chat extends Emitter {
         if(this.users[uuid]) {
 
             /**
-            * A ```User``` has been disconnected from the ```Chat```
+            * A {{#crossLink "User"}}{{/crossLink}} has been disconnected from the ```Chat```
             *
             * @event $ocf.disconnect
-            * @param {Object} User The ```User``` that disconnected
+            * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that disconnected
             */     
             this.broadcast('$ocf.disconnect', this.users[uuid]);
 
             /**
-            * A ```User``` has gone offline
+            * A {{#crossLink "User"}}{{/crossLink}} has gone offline
             *
             * @event $ocf.offline
-            * @param {Object} User The ```User``` that has gone offline
+            * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that has gone offline
             */     
             this.broadcast('$ocf.offline', this.users[uuid]);
 
