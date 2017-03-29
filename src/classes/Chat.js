@@ -40,14 +40,7 @@ module.exports = class Chat extends Emitter {
         // this.room is our rltm.js connection 
         this.room = OCF.rltm.join(this.channel);
 
-        /**
-         * whenever we get a message from the network 
-         * run local broadcast message
-         *
-         * @event message
-         * @param {String} uuid The User UUID
-         * @param {Object} data The data contained in the message payload
-         */
+        // whenever we get a message from the network 
         this.room.on('message', (uuid, data) => {
 
             // all messages are in format [event_name, data]
@@ -55,13 +48,7 @@ module.exports = class Chat extends Emitter {
 
         });
 
-        /**
-         * forward user join events
-         *
-         * @event join
-         * @param {String} uuid The User UUID
-         * @param {Object} state The User's state
-         */
+        // forward user join events
         this.room.on('join', (uuid, state) => {
             
             let user = this.createUser(uuid, state);
@@ -73,45 +60,40 @@ module.exports = class Chat extends Emitter {
 
         });
 
-        /**
-         * forward user state change events
-         *
-         * @event state
-         * @param {String} uuid The User UUID
-         * @param {Object} state The User's state
-         */
+        // forward user state change events
         this.room.on('state', (uuid, state) => {
-            this.userUpdate(uuid, state)
+            this.userUpdate(uuid, state);
         });
 
-        /**
-         * forward user leaving events
-         *
-         * @event leave
-         * @param {String} uuid The User UUID
-         */
+        // forward user leaving events
         this.room.on('leave', (uuid) => {
             this.userLeave(uuid);
         });
 
-        /**
-         * forward user disconnect events
-         *
-         * @event disconnect
-         * @param {String} uuid The User UUID
-         */
+        // When a user disconnects
         this.room.on('disconnect', (uuid) => {
             this.userDisconnect(uuid);
         });
 
     }
 
-    // convenience method to set the rltm ready callback
+    /**
+     * convenience method to set the rltm ready callback
+     *
+     * @method ready
+     */
     ready(fn) {
         this.room.ready(fn);
+        return false;
     }
 
-    // send events over the network
+    /**
+     * send events over the network
+     *
+     * @method send
+     * @param {String} event The event name
+     * @param {Object} data The event payload object
+     */
     send(event, data) {
 
         // create a standardized payload object 
@@ -141,7 +123,13 @@ module.exports = class Chat extends Emitter {
 
     }
 
-    // broadcasts an event locally
+    /**
+     * broadcasts an event locally
+     *
+     * @method broadcast
+     * @param {String} event The event name
+     * @param {Object} payload The event payload object
+     */
     broadcast(event, payload) {
 
         // restore chat in payload
@@ -166,7 +154,14 @@ module.exports = class Chat extends Emitter {
 
     }
 
-    // when OCF learns about a user in the channel
+    /**
+     * when OCF learns about a user in the channel
+     *
+     * @method createUser
+     * @param {String} uuid The user uuid
+     * @param {Object} state The user initial state
+     * @param {Boolean} broadcast Force a broadcast that this user is online
+     */
     createUser(uuid, state, broadcast = false) {
 
         // Ensure that this user exists in the global list
@@ -194,7 +189,13 @@ module.exports = class Chat extends Emitter {
 
     }
 
-    // get notified when a user's state changes
+    /**
+     * get notified when a user's state changes
+     *
+     * @method userUpdate
+     * @param {String} uuid The ```User``` uuid
+     * @param {Object} state State to update for the user
+     */
     userUpdate(uuid, state) {
 
         // ensure the user exists within the global space
@@ -217,6 +218,11 @@ module.exports = class Chat extends Emitter {
 
     }
 
+    /**
+     * Have Me leave the chatroom
+     *
+     * @method leave
+     */
     leave() {
 
         // disconnect from the chat
@@ -226,6 +232,12 @@ module.exports = class Chat extends Emitter {
 
     }
 
+    /**
+     * Fired when a user leaves the chatroom
+     *
+     * @method userLeave
+     * @param {String} uuid The ```User``` uuid
+     */
     userLeave(uuid) {
 
         // make sure this event is real, user may have already left
@@ -250,6 +262,12 @@ module.exports = class Chat extends Emitter {
         }
     }
 
+    /**
+     * Fired when a user disconnects from the chatroom
+     *
+     * @method userDisconnect
+     * @param {String} uuid The ```User``` uuid
+     */
     userDisconnect(uuid) {
 
         // make sure this event is real, user may have already left
@@ -263,9 +281,17 @@ module.exports = class Chat extends Emitter {
 
     }
 
+    /**
+     * this assembles a queue of functions to run as middleware
+     *
+     * @method runPluginQueue
+     * @param {String} location Where in the middleeware the event should run (send, broadcast)
+     * @param {String} event The event name
+     * @param {String} first The first function to run before the plugins have run
+     * @param {String} last The last function to run after the plugins have run
+     */
     runPluginQueue(location, event, first, last) {
 
-        // this assembles a queue of functions to run as middleware
         // event is a broadcasted event key
         let plugin_queue = [];
 
@@ -295,6 +321,11 @@ module.exports = class Chat extends Emitter {
 
     }
 
+    /**
+     * set Me state in the room
+     *
+     * @method setState
+     */
     setState(state) {
 
         // handy method to set state of user without touching rltm
