@@ -78,22 +78,22 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * convenience method to set the rltm ready callback
-     *
-     * @method ready
-     */
+    * convenience method to set the rltm ready callback
+    *
+    * @method ready
+    */
     ready(fn) {
         this.room.ready(fn);
         return false;
     }
 
     /**
-     * send events over the network
-     *
-     * @method send
-     * @param {String} event The event name
-     * @param {Object} data The event payload object
-     */
+    * send events over the network on behalf of ```Me```
+    *
+    * @method send
+    * @param {String} event The event name
+    * @param {Object} data The event payload object
+    */
     send(event, data) {
 
         // create a standardized payload object 
@@ -124,12 +124,13 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * broadcasts an event locally
-     *
-     * @method broadcast
-     * @param {String} event The event name
-     * @param {Object} payload The event payload object
-     */
+    * @private
+    * broadcasts an event locally
+    *
+    * @method broadcast
+    * @param {String} event The event name
+    * @param {Object} payload The event payload object
+    */
     broadcast(event, payload) {
 
         // restore chat in payload
@@ -155,13 +156,14 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * when OCF learns about a user in the channel
-     *
-     * @method createUser
-     * @param {String} uuid The user uuid
-     * @param {Object} state The user initial state
-     * @param {Boolean} broadcast Force a broadcast that this user is online
-     */
+    * @private
+    * when OCF learns about a user in the channel
+    *
+    * @method createUser
+    * @param {String} uuid The user uuid
+    * @param {Object} state The user initial state
+    * @param {Boolean} broadcast Force a broadcast that this user is online
+    */
     createUser(uuid, state, broadcast = false) {
 
         // Ensure that this user exists in the global list
@@ -174,7 +176,12 @@ module.exports = class Chat extends Emitter {
         // broadcast the join event over this chatroom
         if(!this.users[uuid] || broadcast) {
 
-            // broadcast that this is not a new user                    
+            /**
+            * Broadcast that a user has come online
+            *
+            * @event $ocf.online
+            * @param {Object} payload.user The ```User``` that came online
+            */     
             this.broadcast('$ocf.online', {
                 user: OCF.users[uuid]
             });
@@ -190,12 +197,13 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * get notified when a user's state changes
-     *
-     * @method userUpdate
-     * @param {String} uuid The ```User``` uuid
-     * @param {Object} state State to update for the user
-     */
+    * @private
+    * get notified when a user's state changes
+    *
+    * @method userUpdate
+    * @param {String} uuid The ```User``` uuid
+    * @param {Object} state State to update for the user
+    */
     userUpdate(uuid, state) {
 
         // ensure the user exists within the global space
@@ -210,7 +218,13 @@ module.exports = class Chat extends Emitter {
         // update this user's state in this chatroom
         this.users[uuid].assign(state, this);
 
-        // broadcast the user's state update                
+        /**
+        * Broadcast that a user has changed state
+        *
+        * @event $ocf.state
+        * @param {Object} payload.user The ```User``` that changed state
+        * @param {Object} payload.state The new user state for this ```Chat```
+        */     
         this.broadcast('$ocf.state', {
             user: this.users[uuid],
             state: this.users[uuid].state(this)
@@ -233,18 +247,31 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * Fired when a user leaves the chatroom
-     *
-     * @method userLeave
-     * @param {String} uuid The ```User``` uuid
-     */
+    * @private
+    * Fired when a user leaves the chatroom
+    *
+    * @method userLeave
+    * @param {String} uuid The ```User``` uuid
+    */
     userLeave(uuid) {
 
         // make sure this event is real, user may have already left
         if(this.users[uuid]) {
 
-            // if a user leaves, broadcast the event
+            /**
+            * A ```User``` has left the ```Chat```
+            *
+            * @event $ocf.leave
+            * @param {Object} payload.user The ```User``` that changed state
+            */     
             this.broadcast('$ocf.leave', this.users[uuid]);
+
+            /**
+            * A ```User``` has gone offline
+            *
+            * @event $ocf.offline
+            * @param {Object} payload.user The ```User``` that changed state
+            */     
             this.broadcast('$ocf.offline', this.users[uuid]);
 
             // remove the user from the local list of users
@@ -263,18 +290,31 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * Fired when a user disconnects from the chatroom
-     *
-     * @method userDisconnect
-     * @param {String} uuid The ```User``` uuid
-     */
+    * @private
+    * Fired when a user disconnects from the chatroom
+    *
+    * @method userDisconnect
+    * @param {String} uuid The ```User``` uuid
+    */
     userDisconnect(uuid) {
 
         // make sure this event is real, user may have already left
         if(this.users[uuid]) {
 
-            // if a user leaves, broadcast the event
+            /**
+            * A ```User``` has been disconnected from the ```Chat```
+            *
+            * @event $ocf.disconnect
+            * @param {Object} User The ```User``` that disconnected
+            */     
             this.broadcast('$ocf.disconnect', this.users[uuid]);
+
+            /**
+            * A ```User``` has gone offline
+            *
+            * @event $ocf.offline
+            * @param {Object} User The ```User``` that has gone offline
+            */     
             this.broadcast('$ocf.offline', this.users[uuid]);
 
         }
@@ -282,14 +322,15 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * this assembles a queue of functions to run as middleware
-     *
-     * @method runPluginQueue
-     * @param {String} location Where in the middleeware the event should run (send, broadcast)
-     * @param {String} event The event name
-     * @param {String} first The first function to run before the plugins have run
-     * @param {String} last The last function to run after the plugins have run
-     */
+    * @private
+    * this assembles a queue of functions to run as middleware
+    *
+    * @method runPluginQueue
+    * @param {String} location Where in the middleeware the event should run (send, broadcast)
+    * @param {String} event The event name
+    * @param {String} first The first function to run before the plugins have run
+    * @param {String} last The last function to run after the plugins have run
+    */
     runPluginQueue(location, event, first, last) {
 
         // event is a broadcasted event key
@@ -322,10 +363,11 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * set Me state in the room
-     *
-     * @method setState
-     */
+    * @private
+    * set Me state in the room
+    *
+    * @method setState
+    */
     setState(state) {
 
         // handy method to set state of user without touching rltm
