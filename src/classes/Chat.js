@@ -53,7 +53,12 @@ module.exports = class Chat extends Emitter {
             
             let user = this.createUser(uuid, state);
 
-            // broadcast that this is a user
+            /**
+            * Broadcast that a user has joined the room
+            *
+            * @event $ocf.join
+            * @param {Object} payload.user The ```User``` that came online
+            */     
             this.broadcast('$ocf.join', {
                 user: user
             });
