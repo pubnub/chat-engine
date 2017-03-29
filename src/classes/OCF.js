@@ -2,6 +2,7 @@
 * Shared Emitter object 
 *
 * @class OCF
+* @constructor
 * @extend RootEmitter
 */
 

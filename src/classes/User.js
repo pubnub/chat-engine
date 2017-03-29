@@ -6,6 +6,7 @@ const Chat = require('./Chat');
 * This is our User class which represents a connected client
 *
 * @class User
+* @constructor
 * @extend Emitter
 */
 

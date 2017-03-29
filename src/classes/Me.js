@@ -4,6 +4,7 @@ const User = require('./User');
 * Same as User, but has permission to update state on network
 *
 * @class Me
+* @constructor
 * @extend User
 */
 

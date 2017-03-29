@@ -7,7 +7,8 @@ const waterfall = require('async/waterfall');
 /**
 * This is the root Chat class that represents a chatroom
 *
-* @class User
+* @class Chat
+* @constructor
 * @extend Emitter
 */
 module.exports = class Chat extends Emitter {
@@ -22,45 +23,6 @@ module.exports = class Chat extends Emitter {
         // a list of users in this chatroom
         this.users = {};
 
-        // this.room is our rltm.js connection 
-        this.room = OCF.rltm.join(this.channel);
-
-        // whenever we get a message from the network 
-        // run local broadcast message
-        this.room.on('message', (uuid, data) => {
-
-            // all messages are in format [event_name, data]
-            this.broadcast(data.message[0], data.message[1]);
-
-        });
-
-        // forward user join events
-        this.room.on('join', (uuid, state) => {
-            
-            let user = this.createUser(uuid, state);
-
-            // broadcast that this is a user
-            this.broadcast('$ocf.join', {
-                user: user
-            });
-
-        });
-
-        // forward user state change events
-        this.room.on('state', (uuid, state) => {
-            this.userUpdate(uuid, state)
-        });
-
-        // forward user leaving events
-        this.room.on('leave', (uuid) => {
-            this.userLeave(uuid);
-        });
-
-        // forward user leaving events
-        this.room.on('disconnect', (uuid) => {
-            this.userDisconnect(uuid);
-        });
-
         // get a list of users online now
         this.room.here().then((occupants) => {
 
@@ -73,6 +35,73 @@ module.exports = class Chat extends Emitter {
         }, (err) => {
             throw new Error(
                 'There was a problem fetching here.', err);
+        });
+
+        // this.room is our rltm.js connection 
+        this.room = OCF.rltm.join(this.channel);
+
+        /**
+         * whenever we get a message from the network 
+         * run local broadcast message
+         *
+         * @event message
+         * @param {String} uuid The User UUID
+         * @param {Object} data The data contained in the message payload
+         */
+        this.room.on('message', (uuid, data) => {
+
+            // all messages are in format [event_name, data]
+            this.broadcast(data.message[0], data.message[1]);
+
+        });
+
+        /**
+         * forward user join events
+         *
+         * @event join
+         * @param {String} uuid The User UUID
+         * @param {Object} state The User's state
+         */
+        this.room.on('join', (uuid, state) => {
+            
+            let user = this.createUser(uuid, state);
+
+            // broadcast that this is a user
+            this.broadcast('$ocf.join', {
+                user: user
+            });
+
+        });
+
+        /**
+         * forward user state change events
+         *
+         * @event state
+         * @param {String} uuid The User UUID
+         * @param {Object} state The User's state
+         */
+        this.room.on('state', (uuid, state) => {
+            this.userUpdate(uuid, state)
+        });
+
+        /**
+         * forward user leaving events
+         *
+         * @event leave
+         * @param {String} uuid The User UUID
+         */
+        this.room.on('leave', (uuid) => {
+            this.userLeave(uuid);
+        });
+
+        /**
+         * forward user disconnect events
+         *
+         * @event disconnect
+         * @param {String} uuid The User UUID
+         */
+        this.room.on('disconnect', (uuid) => {
+            this.userDisconnect(uuid);
         });
 
     }

@@ -2,6 +2,7 @@
 * Extend emitter and add OCF specific behaviors
 *
 * @class Emitter
+* @constructor
 * @extend RootEmitter
 */
 

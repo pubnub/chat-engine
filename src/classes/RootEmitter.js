@@ -2,6 +2,7 @@
 * create an EventEmitter2 that all other emitters can inherit
 *
 * @class RootEmitter
+* @constructor
 */
 
 const EventEmitter2 = require('eventemitter2').EventEmitter2;
