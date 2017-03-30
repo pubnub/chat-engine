@@ -20,24 +20,65 @@ module.exports = class OCF extends Emitter {
 
         super();
 
+        /**
+        * The configured options for this instance of OCF
+        *
+        * @property config
+        * @type Object
+        */
         this.config = config || {};
 
-        // set a default global channel if none is set
+        /**
+        * set a default global channel if none is set
+        *
+        * @property config.globalChannel
+        * @type String
+        */
         this.config.globalChannel = this.config.globalChannel || 'ocf-global';
 
-        // create a global list of known users
+        /**
+        * create a global list of known users
+        *
+        * @property users
+        * @type Object
+        */
         this.users = {};
 
-        // define our global chatroom all users join by default
+        /**
+        * define our global chatroom all users join by default
+        *
+        * @property globalChat
+        * @type Chat
+        */
         this.globalChat = false;
 
-        // define the user that this client represents
+        /**
+        * define the user that this client represents
+        *
+        * @property me
+        * @type Me
+        */
         this.me = false;
 
-        // store a reference to the rltm.js networking library
+        /**
+        * store a reference to the rltm.js networking library
+        *
+        * @property rltm
+        * @type Object
+        */
         this.rltm = false;
 
         // connect to realtime service and identify
+
+        /**
+        *
+        * Initiate a connection to rltm
+        *
+        * @method connect
+        * @param {String} uuid The uuid of this client
+        * @param {String} state The starting state for this client
+        * @return {Me} An instance of the current user
+        */
         this.connect = (uuid, state) => {
 
             // make sure the uuid is set for this client 
@@ -66,14 +107,23 @@ module.exports = class OCF extends Emitter {
             // return me
             return this.me;
 
-            // client can access globalChat through this.globalChat
-
         };
 
-        // our exported classes
+        /**
+        * Export the Chat class to be used on the client
+        *
+        * @property Chat
+        * @type Chat
+        */
         this.Chat = Chat;
-        this.User = User;
 
+        /**
+        * Export the User class to be used on the client
+        *
+        * @property User
+        * @type User
+        */
+        this.User = User;
 
     }
 
