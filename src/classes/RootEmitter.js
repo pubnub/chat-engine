@@ -1,5 +1,6 @@
 /**
-* create an EventEmitter2 that all other emitters can inherit
+* Configures an event emitter that other OCF objects inherit. Adds shortcut methods for 
+* ```this.on()```, ```this.emit()```, etc. 
 *
 * @class RootEmitter
 * @constructor
@@ -44,6 +45,7 @@ module.exports = class RootEmitter {
         * Listen for an event and only fire the callback a single time
         *
         * @method once
+        * @param {String} event The event name
         * @param {Function} callback The function to run once 
         */
         this.once = this.emitter.once.bind(this.emitter);

@@ -5,11 +5,11 @@ const OCF = require('./OCF');
 const waterfall = require('async/waterfall');
 
 /**
-* This is the root Chat class that represents a chatroom
+* This is the root {{#crossLink "User"}}{{/crossLink}} class that represents a chat room
 *
 * @class Chat
 * @constructor
-* @param {String} channel The channel name for the chatroom
+* @param {String} channel The channel name for the Chat
 * @extend Emitter
 */
 module.exports = class Chat extends Emitter {
@@ -19,7 +19,7 @@ module.exports = class Chat extends Emitter {
         super();
 
         /**
-        * the channel name for this chatroom
+        * The channel name for this {{#crossLink "User"}}{{/crossLink}}
         *
         * @property channel
         * @type String
@@ -27,7 +27,8 @@ module.exports = class Chat extends Emitter {
         this.channel = channel; 
 
         /**
-        * a list of users in this chatroom
+        * A list of users in this {{#crossLink "User"}}{{/crossLink}}. Automatically kept in sync,
+        * Use ```Chat.on('$ocf.join')``` and related events to get notified when this changes
         *
         * @property users
         * @type Object
@@ -94,17 +95,20 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-    * convenience method to set the rltm ready callback
+    * Execute a function when network connection has been made and {{#crossLink "Chat"}}{{/crossLink}} is ready
     *
     * @method ready
+    * @param {Function} callback Function to execute when connection is ready
     */
-    ready(fn) {
-        this.room.ready(fn);
+    ready(callback) {
+        this.room.ready(callback);
         return false;
     }
 
     /**
-    * send events over the network on behalf of {{#crossLink "Me"}}{{/crossLink}}
+    * Send events to other clients in this {{#crossLink "User"}}{{/crossLink}}. 
+    * Events are broadcast over the network  and all events are made 
+    * on behalf of {{#crossLink "Me"}}{{/crossLink}}
     *
     * @method send
     * @param {String} event The event name
@@ -137,11 +141,13 @@ module.exports = class Chat extends Emitter {
 
         });
 
+        return this;
+
     }
 
     /**
     * @private
-    * broadcasts an event locally
+    * Broadcasts an event locally to all listeners.
     *
     * @method broadcast
     * @param {String} event The event name
@@ -173,7 +179,7 @@ module.exports = class Chat extends Emitter {
 
     /**
     * @private
-    * when OCF learns about a user in the channel
+    * Add a user to the {{#crossLink "User"}}{{/crossLink}}, creating it if it doesn't already exist.
     *
     * @method createUser
     * @param {String} uuid The user uuid
@@ -186,10 +192,10 @@ module.exports = class Chat extends Emitter {
         // so we can reference it from here out
         OCF.users[uuid] = OCF.users[uuid] || new User(uuid);
 
-        // Add this chatroom to the user's list of chats
+        // Add this Chat to the user's list of chats
         OCF.users[uuid].addChat(this, state);
 
-        // broadcast the join event over this chatroom
+        // broadcast the join event over this Chat
         if(!this.users[uuid] || broadcast) {
 
             /**
@@ -204,7 +210,7 @@ module.exports = class Chat extends Emitter {
 
         }
 
-        // store this user in the chatroom
+        // store this user in the Chat
         this.users[uuid] = OCF.users[uuid];
 
         // return the instance of this user
@@ -214,7 +220,7 @@ module.exports = class Chat extends Emitter {
 
     /**
     * @private
-    * get notified when a user's state changes
+    * Update a user's state within this {{#crossLink "User"}}{{/crossLink}}.
     *
     * @method userUpdate
     * @param {String} uuid The {{#crossLink "User"}}{{/crossLink}} uuid
@@ -231,7 +237,7 @@ module.exports = class Chat extends Emitter {
             this.createUser(uuid, state);
         }
 
-        // update this user's state in this chatroom
+        // update this user's state in this Chat
         this.users[uuid].assign(state, this);
 
         /**
@@ -249,7 +255,7 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * Have {{#crossLink "Me"}}{{/crossLink}} leave the chatroom
+     * Leave from the {{#crossLink "User"}}{{/crossLink}} on behalf of {{#crossLink "Me"}}{{/crossLink}}
      *
      * @method leave
      */
@@ -260,8 +266,16 @@ module.exports = class Chat extends Emitter {
             // should get caught on as network event
         });
 
+        return this;
+
     }
 
+    /**
+     * @private
+     * Perform updates when a user has left the {{#crossLink "User"}}{{/crossLink}}.
+     *
+     * @method leave
+     */
     userLeave(uuid) {
 
         // make sure this event is real, user may have already left
@@ -300,7 +314,7 @@ module.exports = class Chat extends Emitter {
 
     /**
     * @private
-    * Fired when a user disconnects from the chatroom
+    * Fired when a user disconnects from the {{#crossLink "User"}}{{/crossLink}}
     *
     * @method userDisconnect
     * @param {String} uuid The uuid of the {{#crossLink "User"}}{{/crossLink}} that left
@@ -332,7 +346,8 @@ module.exports = class Chat extends Emitter {
 
     /**
     * @private
-    * this assembles a queue of functions to run as middleware
+    * Load plugins and attach a queue of functions to execute before and
+    * after events are broadcast or received.
     *
     * @method runPluginQueue
     * @param {String} location Where in the middleeware the event should run (send, broadcast)
@@ -373,9 +388,11 @@ module.exports = class Chat extends Emitter {
 
     /**
     * @private
-    * set Me state in the room
+    * Set the state for {{#crossLink "Me"}}{{/crossLink}} within this {{#crossLink "User"}}{{/crossLink}}. 
+    * Broadcasts the ```$ocf.state``` event on other clients
     *
     * @method setState
+    * @param {Object} state The new state {{#crossLink "Me"}}{{/crossLink}} will have within this {{#crossLink "User"}}{{/crossLink}}
     */
     setState(state) {
 

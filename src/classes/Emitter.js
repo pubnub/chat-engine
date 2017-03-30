@@ -1,5 +1,6 @@
 /**
-* Extend emitter and add OCF specific behaviors
+* An OCF generic emitter that supports plugins and forwards
+* events to a global emitter.
 *
 * @class Emitter
 * @constructor

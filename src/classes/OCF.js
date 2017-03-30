@@ -1,4 +1,4 @@
-const Emitter = require('./RootEmitter'); 
+const RootEmitter = require('./RootEmitter'); 
 
 const Me = require('./Me');
 const User = require('./User');
@@ -12,9 +12,14 @@ const Rltm = require('rltm');
 *
 * @class OCF
 * @constructor
+* @param {Object} config
+* @param {String} config.globalChannel A channel name for the global {{#crossLink "Chat"}}{{/crossLink}}
+* @param {Object} config.rltm Rltm.js configuration. See [rltmjs docs](http://rltmjs.com).
+* @param {Object} config.rltm.service PubNub or Socket.io
+* @param {Object} config.rltm.config Rltm.js service configuration.
 * @extend RootEmitter
 */
-module.exports = class OCF extends Emitter {
+module.exports = class OCF extends RootEmitter {
 
     constructor(config) {
 
@@ -61,6 +66,7 @@ module.exports = class OCF extends Emitter {
         this.me = false;
 
         /**
+        * @private
         * store a reference to the rltm.js networking library
         *
         * @property rltm

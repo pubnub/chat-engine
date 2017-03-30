@@ -1,7 +1,10 @@
 const User = require('./User');
 
 /**
-* Same as User, but has permission to update state on network
+* Represents the client connection as a {{#crossLink "User"}}{{/crossLink}}. 
+* Has the ability to update it's state on the network. An instance of 
+* {{#crossLink "Me"}}{{/crossLink}} is returned by the ```OCF.connect()```
+* method. 
 *
 * @class Me
 * @constructor
@@ -29,7 +32,8 @@ module.exports = class Me extends User {
     *
     * @method update
     * @param {Object} state The new state for {{#crossLink "Me"}}{{/crossLink}}
-    * @param {Object} chat
+    * @param {Chat} chat An instance of the {{#crossLink "Chat"}}{{/crossLink}} where state will be updated.
+    * Defaults to ```OCF.globalChat```.
     */
     update(state, chat = OCF.globalChat) {
 
