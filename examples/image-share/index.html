@@ -70,9 +70,11 @@
         const username = ['user', new Date().getTime()].join('-');
         const OCF = OpenChatFramework.create({
             rltm: {
-                service: 'socketio',
+                service: 'pubnub', 
                 config: {
-                    endpoint: 'localhost:9000'
+                    publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
+                    subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
+                    restore: false
                 }
             },
             globalChannel: 'ocf-uploadcare-demo-' + new Date().getTime()
@@ -86,6 +88,13 @@
         
         chat.plugin(OpenChatFramework.plugin.uploadcare());
 
+        chat.uploadcare.bind(widget);
+        chat.on('$uploadcare.upload', (payload) => {
+            $('#chat').append($('<p><strong>' 
+                + payload.sender.uuid + ':</strong><img src="'
+                + payload.data.cdnUrl+'"/></p>'));
+        });
+
         $('form').submit(() => {
          
             chat.send('message', {
@@ -98,11 +107,6 @@
 
         chat.on('message', (payload) => {
             $('#chat').append($('<p><strong>' + payload.sender.uuid + ':</strong> ' + payload.data.text + '</p>'));
-        });
-
-        chat.uploadcare.bind(widget);
-        chat.on('$uploadcare.upload', (payload) => {
-            $('#chat').append($('<p><strong>' + payload.sender.uuid + ':</strong><img src="'+ payload.data.cdnUrl+'"/></p>'));
         });
 
     </script>

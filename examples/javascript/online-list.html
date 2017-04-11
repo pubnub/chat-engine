@@ -61,12 +61,6 @@
         signedOnTime: now
     });
 
-    console.log('you are', username)
-
-    OCF.globalChat.onAny((event, payload) => {
-        console.log(event)
-    })
-
     OCF.globalChat.on('$ocf.online', (payload) => {
 
         console.log(payload)

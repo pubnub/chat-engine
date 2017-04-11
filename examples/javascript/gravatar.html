@@ -84,6 +84,7 @@
     for(let uuid in generate) {
         
         user = new OCF.User(uuid, generate[uuid]);
+        
         user.plugin(OpenChatFramework.plugin.gravatar());
 
         let div = document.createElement("li");
