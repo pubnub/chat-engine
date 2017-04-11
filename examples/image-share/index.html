@@ -68,7 +68,7 @@
     
     <script type="text/javascript">        
         const username = ['user', new Date().getTime()].join('-');
-        const OCF = OpenChatFramework.config({
+        const OCF = OpenChatFramework.create({
             rltm: {
                 service: 'socketio',
                 config: {

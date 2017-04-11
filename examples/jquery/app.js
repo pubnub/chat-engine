@@ -4,7 +4,7 @@ let OCF;
 const setup = function() {
 
     // OCF Configure
-    OCF = OpenChatFramework.config({
+    OCF = OpenChatFramework.create({
         rltm: {
             // service: 'pubnub', 
             // config: {

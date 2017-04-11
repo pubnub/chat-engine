@@ -49,7 +49,7 @@ describe('config', function() {
 
     it('should be configured', function() {
 
-        OCF = OpenChatFramework.config({
+        OCF = OpenChatFramework.create({
             globalChannel: 'test-channel',
             rltm: agents[agentInput]
         });

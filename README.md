@@ -77,7 +77,7 @@ There are two require fields for initializing OCF.
 ### Socket.io
 
 ```js
-let OCF = OpenChatFramework.config({
+let OCF = OpenChatFramework.create({
     rltm: {
         service: 'socketio', 
         config: {
@@ -91,7 +91,7 @@ let OCF = OpenChatFramework.config({
 ### PubNub
 
 ```js
-const OCF = OpenChatFramework.config({
+const OCF = OpenChatFramework.create({
     rltm: {
         service: 'pubnub', 
         config: {

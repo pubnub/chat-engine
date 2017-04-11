@@ -3,7 +3,7 @@
 let OpenChatFramework = require('../src/index.js'); 
 let typingIndicator = require('../plugins/typingIndicator.js'); 
 
-var OCF = OpenChatFramework.config({
+var OCF = OpenChatFramework.create({
     rltm: {
         service: 'pubnub', 
         config: {
