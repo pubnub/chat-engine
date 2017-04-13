@@ -1,12 +1,6 @@
 "use strict";
 
 
-/**
- * Provides the base Widget class...
- *
- * @class OCF
- */
-
 // Allows us to create and bind to events. Everything in OCF is an event
 // emitter
 const EventEmitter2 = require('eventemitter2').EventEmitter2;
@@ -19,21 +13,26 @@ const Rltm = require('rltm');
 const waterfall = require('async/waterfall');
 
 /**
-* Create an instance of Open Chat Framework.
+* Global object used to create an instance of OCF.
 *
-* @class create
-* @for OpenChatFramework
+* @class OpenChatFramework
+* @constructor
 * @param {Object} foo Argument 1
 * @param config.rltm {Object} OCF is based off PubNub [rltm.js](https://github.com/pubnub/rltm.js) which lets you switch between PubNub and Socket.io just by changing your configuration. Check out [the rltm.js docs](https://github.com/pubnub/rltm.js) for more information.
 * @param config.globalChannel {String} his is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
 * @return {Object} Returns an instance of OCF
 */
+
 const create = function(config) {
 
+    let OCF = false;
+
     /**
-    * create an EventEmitter2 that all other emitters can inherit
+    * Configures an event emitter that other OCF objects inherit. Adds shortcut methods for 
+    * ```this.on()```, ```this.emit()```, etc. 
     *
     * @class RootEmitter
+    * @constructor
     */
     class RootEmitter {
 
@@ -49,22 +48,44 @@ const create = function(config) {
 
             // we bind to make sure wildcards work 
             // https://github.com/asyncly/EventEmitter2/issues/186
-            this.emit = this.emitter.emit.bind(this.emitter);
+            this.emit = this.emitter.emit.bind(this.emitter);            
+
+            /**
+            * Listen for a specific event and fire a callback when it's emitted
+            *
+            * @method on
+            * @param {String} event The event name
+            * @param {Function} callback The function to run when the event is emitted 
+            */    
             this.on = this.emitter.on.bind(this.emitter);
+     
+            /**
+            * Listen for any event on this object and fire a callback when it's emitted
+            *
+            * @method onAny
+            * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
+            */
             this.onAny = this.emitter.onAny.bind(this.emitter);
+
+            /**
+            * Listen for an event and only fire the callback a single time
+            *
+            * @method once
+            * @param {String} event The event name
+            * @param {Function} callback The function to run once 
+            */
             this.once = this.emitter.once.bind(this.emitter);
 
         }
 
     }
 
-    // Create the root OCF object
-    const OCF = new RootEmitter;
-
     /**
-    * Extend emitter and add OCF specific behaviors
+    * An OCF generic emitter that supports plugins and forwards
+    * events to a global emitter.
     *
     * @class Emitter
+    * @constructor
     * @extend RootEmitter
     */
     class Emitter extends RootEmitter {
@@ -101,7 +122,7 @@ const create = function(config) {
 
                     // attach the plugins to this class 
                     // under their namespace
-                    addChild(this, module.namespace, 
+                    OCF.addChild(this, module.namespace, 
                         new module.extends[className]);
 
                     // if the plugin has a special construct function
@@ -120,56 +141,34 @@ const create = function(config) {
     }
 
     /**
-     * OCF config
-     *
-     * @property config
-     * @type Object
-     * @default "{}"
-     */
-    OCF.config = config || {};
-
-    // set a default global channel if none is set
-    OCF.config.globalChannel = OCF.config.globalChannel || 'ocf-global';
-
-    // create a global list of known users
-    OCF.users = {};
-
-    // define our global chatroom all users join by default
-    OCF.globalChat = false;
-
-    // define the user that this client represents
-    OCF.me = false;
-
-    // store a reference to the rltm.js networking library
-    OCF.rltm = false;
-
-    // add an object as a subobject under a namespoace
-    const addChild = (ob, childName, childOb) => {
-
-        // assign the new child object as a property of parent under the
-        // given namespace
-        ob[childName] = childOb;
-
-        // the new object can use ```this.parent``` to access 
-        // the root class
-        childOb.parent = ob;
-
-        // the new object can use ```this.OCF``` to get the global config
-        childOb.OCF = OCF;
-        
-    }
-
-    // this is the root Chat class that represents a chatroom
+    * This is the root {{#crossLink "Chat"}}{{/crossLink}} class that represents a chat room
+    *
+    * @class Chat
+    * @constructor
+    * @param {String} channel The channel name for the Chat
+    * @extend Emitter
+    */
     class Chat extends Emitter {
 
         constructor(channel) {
 
             super();
 
-            // the channel name for this chatroom
+            /**
+            * The channel name for this {{#crossLink "Chat"}}{{/crossLink}}
+            *
+            * @property channel
+            * @type String
+            */
             this.channel = channel;
 
-            // a list of users in this chatroom
+            /**
+            * A list of users in this {{#crossLink "Chat"}}{{/crossLink}}. Automatically kept in sync,
+            * Use ```Chat.on('$ocf.join')``` and related events to get notified when this changes
+            *
+            * @property users
+            * @type Object
+            */
             this.users = {};
 
             // this.room is our rltm.js connection 
@@ -189,7 +188,12 @@ const create = function(config) {
                 
                 let user = this.createUser(uuid, state);
 
-                // broadcast that this is a user
+                /**
+                * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has joined the room
+                *
+                * @event $ocf.join
+                * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
+                */     
                 this.broadcast('$ocf.join', {
                     user: user
                 });
@@ -227,12 +231,25 @@ const create = function(config) {
 
         }
 
-        // convenience method to set the rltm ready callback
+        /**
+        * Execute a function when network connection has been made and {{#crossLink "Chat"}}{{/crossLink}} is ready
+        *
+        * @method ready
+        * @param {Function} callback Function to execute when connection is ready
+        */
         ready(fn) {
             this.room.ready(fn);
         }
 
-        // send events over the network
+        /**
+        * Send events to other clients in this {{#crossLink "User"}}{{/crossLink}}. 
+        * Events are broadcast over the network  and all events are made 
+        * on behalf of {{#crossLink "Me"}}{{/crossLink}}
+        *
+        * @method send
+        * @param {String} event The event name
+        * @param {Object} data The event payload object
+        */
         send(event, data) {
 
             // create a standardized payload object 
@@ -262,7 +279,14 @@ const create = function(config) {
 
         }
 
-        // broadcasts an event locally
+        /**
+        * @private
+        * Broadcasts an event locally to all listeners.
+        *
+        * @method broadcast
+        * @param {String} event The event name
+        * @param {Object} payload The event payload object
+        */
         broadcast(event, payload) {
 
             // restore chat in payload
@@ -287,7 +311,15 @@ const create = function(config) {
 
         }
 
-        // when OCF learns about a user in the channel
+        /**
+        * @private
+        * Add a user to the {{#crossLink "Chat"}}{{/crossLink}}, creating it if it doesn't already exist.
+        *
+        * @method createUser
+        * @param {String} uuid The user uuid
+        * @param {Object} state The user initial state
+        * @param {Boolean} broadcast Force a broadcast that this user is online
+        */
         createUser(uuid, state, broadcast = false) {
 
             // Ensure that this user exists in the global list
@@ -300,7 +332,12 @@ const create = function(config) {
             // broadcast the join event over this chatroom
             if(!this.users[uuid] || broadcast) {
 
-                // broadcast that this is not a new user                    
+                /**
+                * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has come online
+                *
+                * @event $ocf.online
+                * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
+                */     
                 this.broadcast('$ocf.online', {
                     user: OCF.users[uuid]
                 });
@@ -315,7 +352,14 @@ const create = function(config) {
 
         }
 
-        // get notified when a user's state changes
+        /**
+        * @private
+        * Update a user's state within this {{#crossLink "Chat"}}{{/crossLink}}.
+        *
+        * @method userUpdate
+        * @param {String} uuid The {{#crossLink "User"}}{{/crossLink}} uuid
+        * @param {Object} state State to update for the user
+        */
         userUpdate(uuid, state) {
 
             // ensure the user exists within the global space
@@ -330,7 +374,13 @@ const create = function(config) {
             // update this user's state in this chatroom
             this.users[uuid].assign(state, this);
 
-            // broadcast the user's state update                
+            /**
+            * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has changed state
+            *
+            * @event $ocf.state
+            * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that changed state
+            * @param {Object} payload.state The new user state for this ```Chat```
+            */           
             this.broadcast('$ocf.state', {
                 user: this.users[uuid],
                 state: this.users[uuid].state(this)
@@ -338,6 +388,11 @@ const create = function(config) {
 
         }
 
+        /**
+         * Leave from the {{#crossLink "Chat"}}{{/crossLink}} on behalf of {{#crossLink "Me"}}{{/crossLink}}
+         *
+         * @method leave
+         */
         leave() {
 
             // disconnect from the chat
@@ -347,6 +402,12 @@ const create = function(config) {
 
         }
 
+        /**
+         * @private
+         * Perform updates when a user has left the {{#crossLink "Chat"}}{{/crossLink}}.
+         *
+         * @method leave
+         */
         userLeave(uuid) {
 
             // make sure this event is real, user may have already left
@@ -371,19 +432,49 @@ const create = function(config) {
             }
         }
 
+        /**
+        * @private
+        * Fired when a user disconnects from the {{#crossLink "Chat"}}{{/crossLink}}
+        *
+        * @method userDisconnect
+        * @param {String} uuid The uuid of the {{#crossLink "Chat"}}{{/crossLink}} that left
+        */
         userDisconnect(uuid) {
 
             // make sure this event is real, user may have already left
             if(this.users[uuid]) {
 
-                // if a user leaves, broadcast the event
+                /**
+                * A {{#crossLink "User"}}{{/crossLink}} has been disconnected from the ```Chat```
+                *
+                * @event $ocf.disconnect
+                * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that disconnected
+                */     
                 this.broadcast('$ocf.disconnect', this.users[uuid]);
+
+                /**
+                * A {{#crossLink "User"}}{{/crossLink}} has gone offline
+                *
+                * @event $ocf.offline
+                * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that has gone offline
+                */  
                 this.broadcast('$ocf.offline', this.users[uuid]);
 
             }
 
         }
 
+        /**
+        * @private
+        * Load plugins and attach a queue of functions to execute before and
+        * after events are broadcast or received.
+        *
+        * @method runPluginQueue
+        * @param {String} location Where in the middleeware the event should run (send, broadcast)
+        * @param {String} event The event name
+        * @param {String} first The first function to run before the plugins have run
+        * @param {String} last The last function to run after the plugins have run
+        */
         runPluginQueue(location, event, first, last) {
 
             // this assembles a queue of functions to run as middleware
@@ -416,6 +507,14 @@ const create = function(config) {
 
         }
 
+        /**
+        * @private
+        * Set the state for {{#crossLink "Me"}}{{/crossLink}} within this {{#crossLink "User"}}{{/crossLink}}. 
+        * Broadcasts the ```$ocf.state``` event on other clients
+        *
+        * @method setState
+        * @param {Object} state The new state {{#crossLink "Me"}}{{/crossLink}} will have within this {{#crossLink "User"}}{{/crossLink}}
+        */
         setState(state) {
 
             // handy method to set state of user without touching rltm
@@ -424,31 +523,62 @@ const create = function(config) {
 
     };
 
-    // this is our User class which represents a connected client
+    /**
+    * This is our User class which represents a connected client
+    *
+    * @class User
+    * @constructor
+    * @extend Emitter
+    */
     class User extends Emitter {
 
         constructor(uuid, state = {}, chat = OCF.globalChat) {
 
             super();
 
-            // this is public id exposed to the network
+            /**
+            * the User's uuid. This is public id exposed to the network.
+            *
+            * @property uuid
+            * @type String
+            */
             this.uuid = uuid;
 
-            // keeps account of user state in each channel
+            /**
+            * keeps account of user state in each channel
+            *
+            * @property states
+            * @type Object
+            */
             this.states = {};
 
-            // keep a list of chatrooms this user is in
+            /**
+            * keep a list of chatrooms this user is in
+            *
+            * @property chats
+            * @type Object
+            */
             this.chats = {};
 
-            // every user has a couple personal rooms we can connect to
-            // feed is a list of things a specific user does that 
-            // many people can subscribe to
+            /**
+            * every user has a couple personal rooms we can connect to
+            * feed is a list of things a specific user does that 
+            * many people can subscribe to
+            *
+            * @property feed
+            * @type Chat
+            */
             this.feed = new Chat(
                 [OCF.globalChat.channel, 'feed', uuid].join('.'));
 
-            // direct is a private channel that anybody can publish to
-            // but only the user can subscribe to
-            // this permission based system is not implemented yet
+            /**
+            * direct is a private channel that anybody can publish to
+            * but only the user can subscribe to
+            * this permission based system is not implemented yet
+            *
+            * @property direct
+            * @type Chat
+            */
             this.direct = new Chat(
                 [OCF.globalChat.channel, 'direct', uuid].join('.'));
 
@@ -463,24 +593,44 @@ const create = function(config) {
             
         }
 
-        // get the user's state in a chatroom
+        /**
+        * get the user's state in a chatroom
+        *
+        * @method state
+        * @param {Chat} chat Chatroom to retrieve state from
+        */
         state(chat = OCF.globalChat) {
             return this.states[chat.channel] || {};
         }
 
-        // update the user's state in a specific chatroom
-        // this is called from the client
+        /**
+        * update the user's state in a specific chatroom
+        *
+        * @method update
+        * @param {Object} state The new state for the user
+        * @param {Chat} chat Chatroom to retrieve state from
+        */
         update(state, chat = OCF.globalChat) {
             let chatState = this.state(chat) || {};
             this.states[chat.channel] = Object.assign(chatState, state);
         }
 
-        // this is only called from network updates
+        /**
+        * @private
+        * this is only called from network updates
+        *
+        * @method assign
+        */
         assign(state, chat) {
             this.update(state, chat);
         }
 
-        // adds a chat to this user
+        /**
+        * @private
+        * adds a chat to this user
+        *
+        * @method addChat
+        */
         addChat(chat, state) {
 
             // store the chat in this user object
@@ -492,7 +642,17 @@ const create = function(config) {
 
     }
 
-    // Same as User, but has permission to update state on network
+    /**
+    * Represents the client connection as a {{#crossLink "User"}}{{/crossLink}}. 
+    * Has the ability to update it's state on the network. An instance of 
+    * {{#crossLink "Me"}}{{/crossLink}} is returned by the ```OCF.connect()```
+    * method. 
+    *
+    * @class Me
+    * @constructor
+    * @param {String} uuid The uuid of this user
+    * @extend User
+    */
     class Me extends User {
 
         constructor(uuid) {
@@ -510,7 +670,14 @@ const create = function(config) {
             super.update(state, chat);
         }
 
-        // update this user state over the network
+        /**
+        * Update this user state over the network
+        *
+        * @method update
+        * @param {Object} state The new state for {{#crossLink "Me"}}{{/crossLink}}
+        * @param {Chat} chat An instance of the {{#crossLink "Chat"}}{{/crossLink}} where state will be updated.
+        * Defaults to ```OCF.globalChat```.
+        */
         update(state, chat = OCF.globalChat) {
 
             // run the root update function
@@ -523,53 +690,102 @@ const create = function(config) {
 
     }
 
-    // connect to realtime service and identify
-    OCF.connect = function(uuid, state) {
+    /**
+     * Provides the base Widget class...
+     *
+     * @class OCF
+     */
+    const init = function() {
 
-        // make sure the uuid is set for this client 
-        if(!uuid) {
-            throw new Error('You must supply a uuid as the ' + 
-                'first parameter when connecting.');
+        // Create the root OCF object
+        OCF = new RootEmitter;
+
+        // stores config vars
+        OCF.config = config || {};
+
+        // set a default global channel if none is set
+        OCF.config.globalChannel = OCF.config.globalChannel || 'ocf-global';
+
+        // create a global list of known users
+        OCF.users = {};
+
+        // define our global chatroom all users join by default
+        OCF.globalChat = false;
+
+        // define the user that this client represents
+        OCF.me = false;
+
+        // store a reference to the rltm.js networking library
+        OCF.rltm = false;
+
+        /**
+        * connect to realtime service and create instance of {{#crossLink "Me"}}{{/crossLink}} 
+        *
+        * @method connect
+        * @param {String} uuid The uuid for {{#crossLink "Me"}}{{/crossLink}}
+        * @param {Object} state The initial state for {{#crossLink "Me"}}{{/crossLink}}
+        * @returns {Me} me an instance of me
+        */
+        OCF.connect = function(uuid, state) {
+
+            // make sure the uuid is set for this client 
+            if(!uuid) {
+                throw new Error('You must supply a uuid as the ' + 
+                    'first parameter when connecting.');
+            }
+
+            // this creates a user known as Me and 
+            // connects to the global chatroom
+            this.config.rltm.config.uuid = uuid;
+            this.config.rltm.config.state = state;
+
+            // configure the rltm plugin with the params set in config method
+            this.rltm = new Rltm(config.rltm);
+
+            // create a new chat to use as globalChat
+            this.globalChat = new Chat(config.globalChannel);
+
+            // create a new user that represents this client
+            this.me = new Me(uuid);
+
+            // create a new instance of Me using input parameters
+            this.globalChat.createUser(uuid, state);
+
+            // return me
+            return this.me;
+
+            // client can access globalChat through OCF.globalChat
+
+        };
+
+        // our exported classes
+        OCF.Chat = Chat;
+        OCF.User = User;
+
+        // add an object as a subobject under a namespoace
+        OCF.addChild = (ob, childName, childOb) => {
+
+            // assign the new child object as a property of parent under the
+            // given namespace
+            ob[childName] = childOb;
+
+            // the new object can use ```this.parent``` to access 
+            // the root class
+            childOb.parent = ob;
+
+            // the new object can use ```this.OCF``` to get the global config
+            childOb.OCF = this;
+            
         }
 
-        // this creates a user known as Me and 
-        // connects to the global chatroom
-        this.config.rltm.config.uuid = uuid;
-        this.config.rltm.config.state = state;
+        return OCF;
 
-        // configure the rltm plugin with the params set in config method
-        this.rltm = new Rltm(this.config.rltm);
-
-        // create a new chat to use as globalChat
-        this.globalChat = new Chat(this.config.globalChannel);
-
-        // create a new user that represents this client
-        this.me = new Me(uuid);
-
-        // create a new instance of Me using input parameters
-        this.globalChat.createUser(uuid, state);
-
-        // return me
-        return this.me;
-
-        // client can access globalChat through OCF.globalChat
-
-    };
-
-    // our exported classes
-    OCF.Chat = Chat;
-    OCF.User = User;
+    }
 
     // return an instance of OCF
-    return OCF;
+    return init();
 
 }
-
-/**
- * Provides the base Widget class...
- *
- * @class OpenChatFramework
- */
 
 // export the OCF api
 module.exports = {
