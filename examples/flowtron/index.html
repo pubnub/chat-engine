@@ -31,8 +31,9 @@
     <script src="../../plugins/onlineUserSearch.js" type="text/javascript"></script>
     <script src="../../plugins/messageHistory.js" type="text/javascript"></script>
     <script src="../../plugins/randomUsername.js" type="text/javascript"></script>
-
-    <script src="./bower_components/angular-directive.g-signin/google-plus-signin.js" type="text/javascript"></script>
+    
+    <script type="text/javascript" src="//cdn.auth0.com/js/lock-9.0.js"></script>
+    <script type="text/javascript" src="//cdn.auth0.com/w2/auth0-angular-4.2.6.js"></script>
     
     <script src="plugin.js"></script>
     <script src="app.js"></script>
@@ -41,6 +42,10 @@
 
   </head>
   <body>
+
+  <div ng-controller="LoginCtrl">
+    <a href="" ng-click="signin()" />sign in </a>
+  </div>
 
     <div class="container-fluid" ng-controller="ChatAppController">
       <div class="row">

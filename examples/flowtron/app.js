@@ -1,4 +1,19 @@
-angular.module('chatApp', ['open-chat-framework', 'directive.g+signin'])
+angular.module('chatApp', ['open-chat-framework', 'auth0'])
+    .config(function(authProvider) {
+
+        // routing configuration and other stuff
+        // ...
+
+        authProvider.init({
+          domain: 'pubnub-ocf.auth0.com',
+          clientID: 'BiY_C0X0jFeVZ8KlxFqMKwT1xrn96xTM',
+          loginUrl: '/login'
+        });
+
+    })
+    .run(function(auth) {
+        auth.hookEvents();
+    })
     .run(['$rootScope', 'ngOCF', function($rootScope, ngOCF) {
 
         // OCF Configure
@@ -30,12 +45,31 @@ angular.module('chatApp', ['open-chat-framework', 'directive.g+signin'])
         $rootScope.chats = [];
 
     }])
+    .controller('LoginCtrl', function($scope, auth) {
+
+      $scope.signin = function() {
+        
+        auth.signin({
+          authParams: {
+            scope: 'openid name email' // Specify the scopes you want to retrieve
+          }
+        }, function(profile, idToken, accessToken, state, refreshToken) {
+          
+            console.log(profile)
+
+          // $location.path('/user-info')
+
+        }, function(err) {
+          console.log("Error :(", err);
+        });
+      }
+
+    })
     .controller('Chat', function($scope) {
 
         $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
             timeout: 5000
         }));
-
 
         $scope.chat.plugin(OpenChatFramework.plugin.history());
 
@@ -127,14 +161,6 @@ angular.module('chatApp', ['open-chat-framework', 'directive.g+signin'])
 
     })
     .controller('ChatAppController', function($scope) {
-
-        $scope.$on('event:google-plus-signin-success', function (event,authResult) {
-          
-            console.log(event, authResult)
-
-        });
-        $scope.$on('event:google-plus-signin-failure', function (event,authResult) {
-        });
 
         // bind chat to updates
         $scope.chat = $scope.OCF.globalChat;
