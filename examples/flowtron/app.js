@@ -103,27 +103,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
         $scope.lock = lock;
         $scope.Me = Me;
-        
-        if(localStorage.getItem('id_token')) {
-            // $state.go('dash')                
+
+        if(Me.profile) {
+            return $state.go('dash');
         }
-
-      // $scope.signin = function() {
-        
-      //   auth.signin({
-      //     authParams: {
-      //       scope: 'openid name email' // Specify the scopes you want to retrieve
-      //     }
-      //   }, function(profile, idToken, accessToken, state, refreshToken) {
-
-      //       Me.profile = OCF.connect(profile.user_id, profile);
-      //       console.log(Me.profile)
-      //       $state.go('dash')
-
-      //   }, function(err) {
-      //     console.log("Error :(", err);
-      //   });
-      // }
 
     })
     .controller('Chat', function($scope, OCF, Me) {
@@ -226,7 +209,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         console.log(Me.profile)
 
         if(!Me.profile) {
-            return  ;
+            return  $state.go('login');
         }
 
         console.log('chat app controlelr loadd')

@@ -5,13 +5,13 @@
         <div class="card">
 
             <div class="card-block">
-                <p class="card-text">Your are {{Me.profile.state().name}} with uuid {{Me.profile.uuid}}</p>
+                <p class="card-text">{{Me.profile.state().name}}</p>
             </div>
 
             <ul id="online-list" class="list-group list-group-flush">
 
               <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
-                  <a href="#" ng-click="newChat(user)"> {{user.state().username}}</a> 
+                  <a href="" ng-click="newChat(user)"> <img ng-src="{{user.state().picture}}" height="35px"> {{user.state().name}}</a> 
                   <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
               </li>
 
@@ -45,7 +45,7 @@
                         {{chat.channel}}
                     </div>
                     <div class="col-sm-6 text-right">
-                        <a href="#" ng-click="leave($index)" class="close">x</a>
+                        <a href="" ng-click="leave($index)" class="close">x</a>
                     </div>
                 </div>
 
@@ -91,7 +91,7 @@
                     <ul class="list-group list-group-flush online-list-sub">
 
                       <li class="list-group-item" ng-repeat="(uuid, user) in userAdd.users" ng-controller="OnlineUser">
-                          <a href="#" ng-click="invite(user, chat.channel)"> {{user.state().username}}</a> 
+                          <a href="" ng-click="invite(user, chat.channel)"> {{user.state().username}}</a> 
                       </li>
 
                     </ul>
