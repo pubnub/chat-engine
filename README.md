@@ -11,13 +11,25 @@ Open Chat Framework is currently under development. The API is subject to change
 
 # Examples
 
-## Client Examples
+## Javascript Examples
 
-* [Javascript](https://pubnub.github.io/open-chat-framework/examples/javascript/)
-* [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/)
-* [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/)
-* [React](https://pubnub.github.io/open-chat-framework/examples/react/)
+* [Chat](https://pubnub.github.io/open-chat-framework/examples/javascript/chat.html)
+* [Online List](https://pubnub.github.io/open-chat-framework/examples/javascript/online-list.html)
+* [Friends List](https://pubnub.github.io/open-chat-framework/examples/javascript/friends-list.html)
+* [Gravatar](https://pubnub.github.io/open-chat-framework/examples/javascript/gravatar.html)
+
+## SDK Integrations
+
+* [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/index.html)
+* [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/index.html)
+* [React](https://pubnub.github.io/open-chat-framework/examples/react/public/index.html)
+
+## Authentication
+
 * [Facebook Login](https://pubnub.github.io/open-chat-framework/examples/3rd-party-login/facebook.html)
+
+## Chatbot
+
 * [NodeJS ChatBot](https://pubnub.github.io/open-chat-framework/examples/bot.js)
 
 ## Plugins
