@@ -4,6 +4,8 @@
   "options": {
     "paths": "src",
     "exclude": "web",
-    "outdir": "doc"
+    "outdir": "doc",
+    "themedir" : "node_modules/yuidoc-bootstrap-theme",
+    "helpers" : [ "node_modules/yuidoc-bootstrap-theme/helpers/helpers.js" ]
   }
 }

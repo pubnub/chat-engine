@@ -33,6 +33,7 @@
   "dependencies": {
     "async": "^2.1.2",
     "eventemitter2": "^2.2.1",
-    "rltm": "^1.1.0"
+    "rltm": "^1.1.0",
+    "yuidoc-bootstrap-theme": "^1.0.6"
   }
 }
