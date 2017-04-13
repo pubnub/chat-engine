@@ -13,11 +13,11 @@ Open Chat Framework is currently under development. The API is subject to change
 
 ## Client Examples
 
-* [Javascript](https://pubnub.github.io/open-chat-framework/examples/javascript/index.html)
-* [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/index.html)
-* [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/index.html)
-* [React](https://pubnub.github.io/open-chat-framework/examples/react/index.html)
-* [Facebook Login](https://pubnub.github.io/open-chat-framework/examples/facebook/index.html)
+* [Javascript](/examples/javascript/index.html)
+* [jQuery](/examples/jquery/index.html)
+* [Angular](/examples/angular/index.html)
+* [React](/examples/react/index.html)
+* [Facebook Login](/examples/3rd-party-login/facebook.html)
 * [NodeJS ChatBot](/examples/bot.js)
 
 ## Plugins
