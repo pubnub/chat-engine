@@ -34,7 +34,7 @@ Open Chat Framework is currently under development. The API is subject to change
 
 # Full Docs
 
-You can find the full docs in the [/doc](https://github.com/pubnub/open-chat-framework/tree/master/doc) directory.
+You can find the full docs on [the full documentation website](https://pubnub.github.io/open-chat-framework/docs/).
 
 <!-- MarkdownTOC -->
 
