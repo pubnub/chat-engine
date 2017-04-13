@@ -11,6 +11,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
     .run(function(auth) {
         auth.hookEvents();
     })
+    .factory('Me', function() {
+
+        return {
+            profile: false
+        }
+
+    })
     .factory('OCF', function(ngOCF) {
         
         // OCF Configure
@@ -38,14 +45,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
     })
     .run(['$rootScope', 'OCF', function($rootScope, OCF) {
 
-        // // create a user for myself and store as ```me```
-        $rootScope.me = OCF.connect(new Date().getTime());
-
         // // set a global array of chatrooms
         $rootScope.chats = [];
 
     }])
-    .controller('LoginCtrl', function($scope, auth) {
+    .controller('LoginCtrl', function($scope, auth, OCF, Me) {
+
+        $scope.Me = Me;
 
       $scope.signin = function() {
         
@@ -54,10 +60,9 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
             scope: 'openid name email' // Specify the scopes you want to retrieve
           }
         }, function(profile, idToken, accessToken, state, refreshToken) {
-          
-            console.log(profile)
 
-          // $location.path('/user-info')
+            Me.profile = OCF.connect(new Date().getTime());
+            console.log('set me as ', Me)
 
         }, function(err) {
           console.log("Error :(", err);
@@ -65,7 +70,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
       }
 
     })
-    .controller('Chat', function($scope, OCF) {
+    .controller('Chat', function($scope, OCF, Me) {
 
         $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
             timeout: 5000
@@ -111,7 +116,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
             payload.sameUser = $scope.messages.length > 0 && payload.sender.uuid == $scope.messages[$scope.messages.length - 1].sender.uuid;
             
             // if this message was sent by this client
-            payload.isSelf = payload.sender.uuid == $scope.me.uuid;
+            payload.isSelf = payload.sender.uuid == Me.profile.uuid;
 
             // add the message to the array
             $scope.messages.push(payload);
@@ -160,13 +165,17 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
         };
 
     })
-    .controller('ChatAppController', function($scope, OCF) {
+    .controller('ChatAppController', function($scope, OCF, Me) {
+
+        console.log('chat app controlelr loadd')
+
+        $scope.Me = Me;
 
         // bind chat to updates
         $scope.chat = OCF.globalChat;
 
         // when I get a private invite
-        $scope.me.direct.on('private-invite', (payload) => {
+        Me.profile.direct.on('private-invite', (payload) => {
 
             // create a new chat and render it in DOM
             $scope.chats.push(new OCF.Chat(payload.data.channel));

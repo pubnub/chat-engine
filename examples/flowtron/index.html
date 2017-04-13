@@ -45,9 +45,11 @@
 
   <div ng-controller="LoginCtrl">
     <a href="" ng-click="signin()" />sign in </a>
+
+    {{Me.profile.uuid}}
   </div>
 
-    <div class="container-fluid" ng-controller="ChatAppController">
+    <div class="container-fluid" ng-controller="ChatAppController" ng-if="Me.profile.uuid">
       <div class="row">
         <div class="col-lg-3">
 
