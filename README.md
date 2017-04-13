@@ -32,7 +32,9 @@ Open Chat Framework is currently under development. The API is subject to change
 
 [Test.js](test.js) includes some usage examples
 
-# Docs
+# Full Docs
+
+You can find the full docs in the [/doc](https://github.com/pubnub/open-chat-framework/tree/master/doc) directory.
 
 <!-- MarkdownTOC -->
 
@@ -44,14 +46,11 @@ Open Chat Framework is currently under development. The API is subject to change
     - Send a message to Chat
     - Receive a message from Chat
     - Create a bot that automatically replies to a message
-- All Methods
-- Events
-    - plugin events
     - Subscribing to wildcard events
 - Classes
-    - Root
     - Chats
     - Users
+    - Me
 - Plugins
     - Event Middleware Plugin
     - Registering Plugin
@@ -189,41 +188,6 @@ chat.on('message', (payload) => {
 });
 ```
 
-# All Methods
-
-Get a list of all users in a chat.
-
-```js
-console.log(chat.users);
-```
-
-Directly message another user.
-
-```js
-chat.users[0].direct.send('private-invite', {
-    meetingPlace: 'our-secret-channel'
-});
-
-let privateChat = new OCF.Chat(payload.data.meetingPlace);
-```
-
-Create a new chat when invited.
-
-```js
-me.direct.on('private-invite', (payload) => {
-    let privateChat = new OCF.Chat(payload.data.meetingPlace);
-});
-```
-# Events
-
-## plugin events
-
-All plugins use the ```$``` character followed by their namespace.
-
-```
-$pluginName.eventName
-```
-
 ## Subscribing to wildcard events
 
 You can subscribe to all events a namespace emits by using the ```*``` operator.
@@ -243,55 +207,17 @@ chat.onAny(() => {
 
 # Classes
 
-
-## Root
-
-### OCF
-
-An event emitter that emits all events emitted from any new classes.
-
-```js
-// log every event ever
-OCF.onAny((event) => {
-    console.log(event);
-});
-```
-
 ## Chats
 
 Chats are objects that emit events. You can subscribe to a chat event with ```chat.on('eventName', () => {})``` or fire a new event with ```chat.emit('eventName', {data})```.
 
 You can get a list of users with ```chat.users```.
 
-### Chat
-
-An instance of a chat room. Any event published to this chat will reach all other
-users in the chat.
-
-### GlobalChat
-
-The global chat channel that all users join. Stores the user's state properties and provides a
-global online list.
-
-### Chat Events
-
-#### $ocf.online
-
-Emitted when a user joins the chat
-
-#### $ocf.leave
-
-Emitted when a user leaves the chat
-
 ## Users
 
 Users represent connected clients. Every user has their own public chatroom called ```feed``` which only that user can publish to as well as a room called ```direct``` which only this user can subscribe to.
 
-### User
-
-A generic user. ```user.states``` includes all custom set data.
-
-### Me
+## Me
 
 A subclass of ```User```. ```Me``` is returned when you run ```OCF.connect```. Me is the only user that allows the client to set it's own state with ```me.update()```.
 
