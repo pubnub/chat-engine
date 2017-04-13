@@ -22,7 +22,7 @@ Open Chat Framework is currently under development. The API is subject to change
 
 * [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/index.html)
 * [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/index.html)
-* [React](https://pubnub.github.io/open-chat-framework/examples/react/public/index.html)
+* [React](./examples/react/public/index.html)
 
 ## Authentication
 
@@ -34,11 +34,11 @@ Open Chat Framework is currently under development. The API is subject to change
 
 ## Plugins
 
-* [Middleware](/plugins/append.js)
-* [Message History](/plugins/messageHistory.js)
-* [Search Online Users](/plugins/onlineUserSearch.js)
-* [Set a Random Username](/plugins/randomUsername.js)
-* [Ian Is Typing... Indicator](/plugins/typingIndicator.js)
+* [Middleware](./plugins/append.js)
+* [Message History](./plugins/messageHistory.js)
+* [Search Online Users](./plugins/onlineUserSearch.js)
+* [Set a Random Username](./plugins/randomUsername.js)
+* [Ian Is Typing... Indicator](./plugins/typingIndicator.js)
 
 ## Other usage examples
 
