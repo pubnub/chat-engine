@@ -50,6 +50,7 @@ Check out the [jQuery](https://pubnub.github.io/open-chat-framework/examples/jqu
 
 You can find the full docs on [the full documentation website](https://pubnub.github.io/open-chat-framework/docs/).
 
+# Table of Contents
 <!-- MarkdownTOC -->
 
 - Quick Setup
