@@ -1,4 +1,4 @@
-angular.module('chatApp', ['open-chat-framework', 'auth0'])
+angular.module('chatApp', ['open-chat-framework', 'auth0', 'ui.router'])
     .config(function(authProvider) {
 
         authProvider.init({
@@ -49,7 +49,25 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
         $rootScope.chats = [];
 
     }])
-    .controller('LoginCtrl', function($scope, auth, OCF, Me) {
+    .config(function($stateProvider, $urlRouterProvider) {
+        
+        $urlRouterProvider.otherwise('/login');
+        
+        $stateProvider
+            .state('login', {
+                url: '/login',
+                templateUrl: 'views/login.html',
+                controller: 'LoginCtrl'
+            })
+            .state('dash', {
+                url: '/dash',
+                templateUrl: 'views/dash.html',
+                controller: 'ChatAppController'
+            })
+    })
+    .controller('MainCtrl', function($scope, auth, OCF, Me) {
+    })
+    .controller('LoginCtrl', function($scope, auth, OCF, Me, $state) {
 
         $scope.Me = Me;
 
@@ -60,9 +78,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
             scope: 'openid name email' // Specify the scopes you want to retrieve
           }
         }, function(profile, idToken, accessToken, state, refreshToken) {
-
-            Me.profile = OCF.connect(new Date().getTime());
-            console.log('set me as ', Me)
+            
+            Me.profile = OCF.connect(profile.user_id, profile);
+            console.log(Me.profile)
+            $state.go('dash')
 
         }, function(err) {
           console.log("Error :(", err);
