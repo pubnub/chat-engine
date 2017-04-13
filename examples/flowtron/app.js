@@ -1,15 +1,53 @@
-angular.module('chatApp', ['open-chat-framework', 'auth0', 'ui.router'])
-    .config(function(authProvider) {
+angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
+    .config(function(lockProvider) {
 
-        authProvider.init({
-          domain: 'pubnub-ocf.auth0.com',
+        lockProvider.init({
           clientID: 'BiY_C0X0jFeVZ8KlxFqMKwT1xrn96xTM',
-          loginUrl: '/login'
+          domain: 'pubnub-ocf.auth0.com',
+            options: {
+              _idTokenVerification: false
+            }
         });
 
     })
-    .run(function(auth) {
-        auth.hookEvents();
+    .run(function($rootScope, lock, Me, OCF, $state) {
+        
+        console.log('thirs running')
+
+        $rootScope.chats = [];
+
+        // For use with UI Router
+        lock.interceptHash();
+
+        let profile = localStorage.getItem('profile');
+
+        if(profile && profile.length) {
+            
+            profile = JSON.parse(profile);
+            Me.profile = OCF.connect(profile.user_id, profile);
+
+        }
+
+        lock.on('authenticated', function(authResult) {
+        
+            localStorage.setItem('id_token', authResult.idToken);
+
+            lock.getProfile(authResult.idToken, function(error, profile) {
+                
+                if (error) {
+                    console.log(error);
+                }
+
+                localStorage.setItem('profile', JSON.stringify(profile));
+            
+                // connect to OCF
+                Me.profile = OCF.connect(profile.user_id, profile);
+
+                $state.go('dash')
+
+            });
+        });
+
     })
     .factory('Me', function() {
 
@@ -43,12 +81,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0', 'ui.router'])
         return OCF;
 
     })
-    .run(['$rootScope', 'OCF', function($rootScope, OCF) {
-
-        // // set a global array of chatrooms
-        $rootScope.chats = [];
-
-    }])
     .config(function($stateProvider, $urlRouterProvider) {
         
         $urlRouterProvider.otherwise('/login');
@@ -65,28 +97,33 @@ angular.module('chatApp', ['open-chat-framework', 'auth0', 'ui.router'])
                 controller: 'ChatAppController'
             })
     })
-    .controller('MainCtrl', function($scope, auth, OCF, Me) {
+    .controller('MainCtrl', function($scope, OCF, Me) {
     })
-    .controller('LoginCtrl', function($scope, auth, OCF, Me, $state) {
+    .controller('LoginCtrl', function($scope, lock, OCF, Me, $state) {
 
+        $scope.lock = lock;
         $scope.Me = Me;
-
-      $scope.signin = function() {
         
-        auth.signin({
-          authParams: {
-            scope: 'openid name email' // Specify the scopes you want to retrieve
-          }
-        }, function(profile, idToken, accessToken, state, refreshToken) {
-            
-            Me.profile = OCF.connect(profile.user_id, profile);
-            console.log(Me.profile)
-            $state.go('dash')
+        if(localStorage.getItem('id_token')) {
+            // $state.go('dash')                
+        }
 
-        }, function(err) {
-          console.log("Error :(", err);
-        });
-      }
+      // $scope.signin = function() {
+        
+      //   auth.signin({
+      //     authParams: {
+      //       scope: 'openid name email' // Specify the scopes you want to retrieve
+      //     }
+      //   }, function(profile, idToken, accessToken, state, refreshToken) {
+
+      //       Me.profile = OCF.connect(profile.user_id, profile);
+      //       console.log(Me.profile)
+      //       $state.go('dash')
+
+      //   }, function(err) {
+      //     console.log("Error :(", err);
+      //   });
+      // }
 
     })
     .controller('Chat', function($scope, OCF, Me) {
@@ -184,7 +221,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0', 'ui.router'])
         };
 
     })
-    .controller('ChatAppController', function($scope, OCF, Me) {
+    .controller('ChatAppController', function($scope, $state, OCF, Me) {
+
+        console.log(Me.profile)
+
+        if(!Me.profile) {
+            return  ;
+        }
 
         console.log('chat app controlelr loadd')
 
