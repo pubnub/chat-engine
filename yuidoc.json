@@ -1,11 +1,11 @@
 {
   "name": "OpenChatFramework",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "options": {
     "paths": "src",
     "exclude": "web",
     "outdir": "docs",
-    "themedir" : "node_modules/yuidoc-bootstrap-theme",
-    "helpers" : [ "node_modules/yuidoc-bootstrap-theme/helpers/helpers.js" ]
+    "themedir" : "assets/doc_theme/",
+    "helpers" : [ "assets/doc_theme/helpers/helpers.js" ]
   }
 }
