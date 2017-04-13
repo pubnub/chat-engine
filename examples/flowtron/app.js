@@ -1,9 +1,6 @@
 angular.module('chatApp', ['open-chat-framework', 'auth0'])
     .config(function(authProvider) {
 
-        // routing configuration and other stuff
-        // ...
-
         authProvider.init({
           domain: 'pubnub-ocf.auth0.com',
           clientID: 'BiY_C0X0jFeVZ8KlxFqMKwT1xrn96xTM',
@@ -14,10 +11,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
     .run(function(auth) {
         auth.hookEvents();
     })
-    .run(['$rootScope', 'ngOCF', function($rootScope, ngOCF) {
-
+    .factory('OCF', function(ngOCF) {
+        
         // OCF Configure
-        $rootScope.OCF = OpenChatFramework.create({
+        let OCF = OpenChatFramework.create({
             rltm: {
                 service: 'pubnub', 
                 config: {
@@ -30,18 +27,21 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
         });
 
         // bind open chat framework angular plugin
-        ngOCF.bind($rootScope.OCF);
+        ngOCF.bind(OCF);
 
-        $rootScope.OCF.onAny((event, data) => {
+        OCF.onAny((event, data) => {
             console.log(event, data);
         });
 
-        // create a user for myself and store as ```me```
-        $rootScope.me = $rootScope.OCF.connect(new Date().getTime());
-    
-        $rootScope.me.plugin(OpenChatFramework.plugin.randomUsername($rootScope.OCF.globalChat));
+        return OCF;
 
-        // set a global array of chatrooms
+    })
+    .run(['$rootScope', 'OCF', function($rootScope, OCF) {
+
+        // // create a user for myself and store as ```me```
+        $rootScope.me = OCF.connect(new Date().getTime());
+
+        // // set a global array of chatrooms
         $rootScope.chats = [];
 
     }])
@@ -65,7 +65,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
       }
 
     })
-    .controller('Chat', function($scope) {
+    .controller('Chat', function($scope, OCF) {
 
         $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
             timeout: 5000
@@ -132,7 +132,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
         });
 
     })
-    .controller('OnlineUser', function($scope) {
+    .controller('OnlineUser', function($scope, OCF) {
   
         $scope.invite = function(user, channel) {
 
@@ -147,10 +147,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
         $scope.newChat = function(user) {
 
             // define a channel using the clicked user's username and this client's username
-            let chan = $scope.OCF.globalChat.channel + '.' + new Date().getTime();
+            let chan = OCF.globalChat.channel + '.' + new Date().getTime();
 
             // create a new chat with that channel
-            let newChat = new $scope.OCF.Chat(chan);
+            let newChat = new OCF.Chat(chan);
 
             $scope.invite(user, chan);
 
@@ -160,20 +160,20 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
         };
 
     })
-    .controller('ChatAppController', function($scope) {
+    .controller('ChatAppController', function($scope, OCF) {
 
         // bind chat to updates
-        $scope.chat = $scope.OCF.globalChat;
+        $scope.chat = OCF.globalChat;
 
         // when I get a private invite
         $scope.me.direct.on('private-invite', (payload) => {
 
             // create a new chat and render it in DOM
-            $scope.chats.push(new $scope.OCF.Chat(payload.data.channel));
+            $scope.chats.push(new OCF.Chat(payload.data.channel));
 
         });
 
-        $scope.OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
+        OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
 
         // hide / show usernames based on input
         $scope.userSearch = {
@@ -181,7 +181,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
             fire: () => { 
 
                 // get a list of our matching users
-                let found = $scope.OCF.globalChat.onlineUserSearch.search($scope.userSearch.input);
+                let found = OCF.globalChat.onlineUserSearch.search($scope.userSearch.input);
                 
                 // hide every user
                 for(let uuid in $scope.chat.users) {
@@ -201,7 +201,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0'])
             users: $scope.userAdd,
             fire: () => {  
                 if($scope.userAdd.input.length) {
-                    $scope.userAdd.users = $scope.OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);   
+                    $scope.userAdd.users = OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);   
                 } else {
                     $scope.userAdd.users = [];
                 }
