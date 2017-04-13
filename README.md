@@ -34,6 +34,8 @@ Open Chat Framework is currently under development. The API is subject to change
 
 ## Plugins
 
+Check out the [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/index.html) and [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/index.html) examples to see plugins in action.
+
 * [Middleware](./plugins/append.js)
 * [Message History](./plugins/messageHistory.js)
 * [Search Online Users](./plugins/onlineUserSearch.js)
