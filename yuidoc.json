@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "options": {
     "paths": "src",
-    "exclude": "web"
+    "exclude": "web",
+    "outdir": "doc"
   }
 }
