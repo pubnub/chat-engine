@@ -1,1 +1,1 @@
-window.OCF = window.OCF || require('./src/index.js');
+window.OpenChatFramework = window.OpenChatFramework || require('./src/index.js');

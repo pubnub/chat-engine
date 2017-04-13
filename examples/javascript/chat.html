@@ -1,0 +1,91 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Open Chat Framework Dev</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+
+    <style type="text/css">
+    * {
+        margin: 0px;
+        padding: 0px;   
+    }
+    body {
+        margin: 30px auto;
+    }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="col-sm-6 offset-sm-3">
+          <div class="card">
+            <div class="card-header">
+              Chat
+            </div>
+            <div class="card-block">
+                <div class="log" id="chat-output"></div>
+                <div class="input-group">
+                    <input type="text" class="form-control message" placeholder="Your Message..." id="chat-input">     
+                    <span class="input-group-btn"><button class="btn btn-primary" type="submit" onclick="sendChat()">Send</button></span>
+                </div>
+          </div>
+        </div>
+    </div>
+    
+    <script src="../../web/ocf.js" type="text/javascript"></script>
+    
+    <script type="text/javascript">
+
+    const now = new Date().getTime();
+    const username = ['user', now].join('-');
+    const textInput = document.getElementById('chat-input');
+    const textOutput = document.getElementById('chat-output');
+
+    const OCF = OpenChatFramework.create({
+        rltm: {
+            service: 'pubnub', 
+            config: {
+                publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
+                subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
+            }
+        },
+        globalChannel: 'ocf-javascript-demo-not-block'
+    });
+
+    let me = OCF.connect(username, {
+        signedOnTime: now
+    });
+
+    const sendChat = function (e) {
+        
+        OCF.globalChat.send('message', {
+            text: textInput.value
+        });
+
+        textInput.value = '';
+
+        return false;
+
+    };
+
+    OCF.globalChat.on('message', (payload) => {
+
+        let div = document.createElement("p");
+        div.innerHTML = payload.sender.uuid + ': ' + payload.data.text;
+        textOutput.appendChild(div);
+
+    });
+
+    OCF.globalChat.onAny((event, data) => {
+        console.info(event, data)
+    })
+    </script>
+
+</body>
+</html>

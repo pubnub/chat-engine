@@ -1,0 +1,154 @@
+<!doctype html>
+<html ng-app="chatApp">
+  <head>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
+
+    <style type="text/css">
+    body {margin-top: 10px;}
+    .log {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #efefef;
+        min-height: 10px;
+        margin-bottom: 1rem;
+    }
+    .log p {
+        margin-bottom: 0px;
+    }
+    .username {
+        font-size: 11px;
+    }
+    .hide-username .username {
+        display: none;
+    }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+
+    <script src="../../web/ocf.js" type="text/javascript"></script>
+    <script src="../../plugins/typingIndicator.js" type="text/javascript"></script>
+    <script src="../../plugins/onlineUserSearch.js" type="text/javascript"></script>
+    <script src="../../plugins/messageHistory.js" type="text/javascript"></script>
+    <script src="../../plugins/randomUsername.js" type="text/javascript"></script>
+    
+    <script src="plugin.js"></script>
+    <script src="app.js"></script>
+
+    <!-- <link rel="stylesheet" href="app.css"> -->
+
+  </head>
+  <body>
+
+    <div class="container-fluid" ng-controller="ChatAppController">
+      <div class="row">
+        <div class="col-lg-3">
+
+            <div class="card">
+
+                <div class="card-block">
+                    <h4 class="card-title">Open Chat Framework</h4>
+                    <p class="card-text">Your are {{me.state().username}} with uuid {{me.uuid}}</p>
+                </div>
+
+                <ul id="online-list" class="list-group list-group-flush">
+
+                  <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
+                      <a href="#" ng-click="newChat(user)"> {{user.state().username}}</a> 
+                      <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
+                  </li>
+
+                </ul>
+
+                <div class="card-block">
+                    
+                    <form class="send-message" ng-submit="userSearch.fire()">
+                        <div class="input-group">
+                            <input id="usernameSearch" type="text" class="form-control message" placeholder="Search for Username" ng-change="userSearch.fire()" ng-model="userSearch.input">
+                            <span class="input-group-btn">
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </span>
+                        </div>
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-lg-9">
+
+          <div id="chats" class="row" ng-repeat="chat in chats" ng-controller="Chat">
+
+             <div class="chat col-xs-6"> 
+                <div class="card"> 
+                    
+                    <div class="card-header">
+                        <div class="col-sm-6">
+                            {{chat.channel}}
+                        </div>
+                        <div class="col-sm-6 text-right">
+                            <a href="#" ng-click="leave($index)" class="close">x</a>
+                        </div>
+                    </div>
+
+                    <ul class="list-group list-group-flush online-list-sub">
+
+                      <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
+                        {{user.state().username}}
+                        <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
+                      </li>
+
+                    </ul>
+                    
+                    <div class="card-block"> 
+                        <div class="log">
+                            <div ng-repeat="message in messages" ng-class="{'hide-username': message.sameUser, 'text-muted': message.isHistory, 'text-xs-right': !message.isSelf}">
+                                <p class="text-muted username">{{message.sender.state().username}}</p>
+                                <p>{{message.data}}</p>
+                            </div>
+                        </div> 
+                        <p class="typing text-muted"></p> 
+                        <form class="send-message" ng-submit="sendMessage(chat)"> 
+                            <div class="input-group"> 
+                                <input ng-model="messageDraft" ng-change="chat.typingIndicator.startTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
+                                <span class="input-group-btn"> 
+                                    <button class="btn btn-primary" type="submit">Send</button> 
+                                </span> 
+                            </div> 
+                        </form> 
+                    </div> 
+
+                    <hr />
+
+                    <div class="card-block">
+
+                        <h6>Add a user to this chat</h6>
+ 
+                        <fom ng-submit="userAdd.fire()">
+                            <div class="input-group">
+                                <input id="usernameSearch" type="text" class="form-control message" placeholder="Add User" ng-change="userAdd.fire()" ng-model="userAdd.input">
+                            </div>
+                        </form>
+
+                        <ul class="list-group list-group-flush online-list-sub">
+
+                          <li class="list-group-item" ng-repeat="(uuid, user) in userAdd.users" ng-controller="OnlineUser">
+                              <a href="#" ng-click="invite(user, chat.channel)"> {{user.state().username}}</a> 
+                          </li>
+
+                        </ul>
+
+                    </div>
+                    
+                </div> 
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

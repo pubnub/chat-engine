@@ -1,16 +1,104 @@
-"use strict";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/index.js - OpenChatFramework</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="icon" href="../assets/favicon.ico">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+                <h1><img src="../assets/css/logo.png" title="OpenChatFramework" width="117" height="52"></h1>
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.0.0</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+                    <h2 class="off-left">APIs</h2>
+                    <div id="api-tabview" class="tabview">
+                        <ul class="tabs">
+                            <li><a href="#api-classes">Classes</a></li>
+                            <li><a href="#api-modules">Modules</a></li>
+                        </ul>
+                
+                        <div id="api-tabview-filter">
+                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                        </div>
+                
+                        <div id="api-tabview-panel">
+                            <ul id="api-classes" class="apis classes">
+                                <li><a href="../classes/Chat.html">Chat</a></li>
+                                <li><a href="../classes/Emitter.html">Emitter</a></li>
+                                <li><a href="../classes/Me.html">Me</a></li>
+                                <li><a href="../classes/OCF.html">OCF</a></li>
+                                <li><a href="../classes/OpenChatFramework.html">OpenChatFramework</a></li>
+                                <li><a href="../classes/RootEmitter.html">RootEmitter</a></li>
+                                <li><a href="../classes/User.html">User</a></li>
+                            </ul>
+                
+                
+                            <ul id="api-modules" class="apis modules">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+                    Show:
+                    <label for="api-show-inherited">
+                        <input type="checkbox" id="api-show-inherited" checked>
+                        Inherited
+                    </label>
+            
+                    <label for="api-show-protected">
+                        <input type="checkbox" id="api-show-protected">
+                        Protected
+                    </label>
+            
+                    <label for="api-show-private">
+                        <input type="checkbox" id="api-show-private">
+                        Private
+                    </label>
+                    <label for="api-show-deprecated">
+                        <input type="checkbox" id="api-show-deprecated">
+                        Deprecated
+                    </label>
+            
+                </div>
+            
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+<h1 class="file-heading">File: src/index.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+&quot;use strict&quot;;
 
 
 // Allows us to create and bind to events. Everything in OCF is an event
 // emitter
-const EventEmitter2 = require('eventemitter2').EventEmitter2;
+const EventEmitter2 = require(&#x27;eventemitter2&#x27;).EventEmitter2;
 
 // import the rltm.js library from a sister directory
 // @todo include this as module
-const Rltm = require('rltm');
+const Rltm = require(&#x27;rltm&#x27;);
 
 // allows a synchronous execution flow. 
-const waterfall = require('async/waterfall');
+const waterfall = require(&#x27;async/waterfall&#x27;);
 
 /**
 * Global object used to create an instance of OCF.
@@ -19,7 +107,7 @@ const waterfall = require('async/waterfall');
 * @constructor
 * @param {Object} foo Argument 1
 * @param config.rltm {Object} OCF is based off PubNub [rltm.js](https://github.com/pubnub/rltm.js) which lets you switch between PubNub and Socket.io just by changing your configuration. Check out [the rltm.js docs](https://github.com/pubnub/rltm.js) for more information.
-* @param config.globalChannel {String} his is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
+* @param config.globalChannel {String} his is the global channel that all clients are connected to automatically. It&#x27;s used for global announcements, global presence, etc.
 * @return {Object} Returns an instance of OCF
 */
 
@@ -29,7 +117,7 @@ const create = function(config) {
 
     /**
     * Configures an event emitter that other OCF objects inherit. Adds shortcut methods for 
-    * ```this.on()```, ```this.emit()```, etc. 
+    * &#x60;&#x60;&#x60;this.on()&#x60;&#x60;&#x60;, &#x60;&#x60;&#x60;this.emit()&#x60;&#x60;&#x60;, etc. 
     *
     * @class RootEmitter
     * @constructor
@@ -51,7 +139,7 @@ const create = function(config) {
             this.emit = this.emitter.emit.bind(this.emitter);            
 
             /**
-            * Listen for a specific event and fire a callback when it's emitted
+            * Listen for a specific event and fire a callback when it&#x27;s emitted
             *
             * @method on
             * @param {String} event The event name
@@ -60,7 +148,7 @@ const create = function(config) {
             this.on = this.emitter.on.bind(this.emitter);
      
             /**
-            * Listen for any event on this object and fire a callback when it's emitted
+            * Listen for any event on this object and fire a callback when it&#x27;s emitted
             *
             * @method onAny
             * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
@@ -95,7 +183,7 @@ const create = function(config) {
             super();
             
             // emit an event from this object
-            this.emit = (event, data) => {
+            this.emit = (event, data) =&gt; {
 
                 // all events are forwarded to OCF object
                 // so you can globally bind to events with OCF.on()
@@ -118,7 +206,7 @@ const create = function(config) {
                 let className = this.constructor.name;
 
                 // see if there are plugins to attach to this class
-                if(module.extends && module.extends[className]) {
+                if(module.extends &amp;&amp; module.extends[className]) {
 
                     // attach the plugins to this class 
                     // under their namespace
@@ -141,7 +229,7 @@ const create = function(config) {
     }
 
     /**
-    * This is the root {{#crossLink "Chat"}}{{/crossLink}} class that represents a chat room
+    * This is the root {{#crossLink &quot;Chat&quot;}}{{/crossLink}} class that represents a chat room
     *
     * @class Chat
     * @constructor
@@ -155,7 +243,7 @@ const create = function(config) {
             super();
 
             /**
-            * The channel name for this {{#crossLink "Chat"}}{{/crossLink}}
+            * The channel name for this {{#crossLink &quot;Chat&quot;}}{{/crossLink}}
             *
             * @property channel
             * @type String
@@ -163,8 +251,8 @@ const create = function(config) {
             this.channel = channel;
 
             /**
-            * A list of users in this {{#crossLink "Chat"}}{{/crossLink}}. Automatically kept in sync,
-            * Use ```Chat.on('$ocf.join')``` and related events to get notified when this changes
+            * A list of users in this {{#crossLink &quot;Chat&quot;}}{{/crossLink}}. Automatically kept in sync,
+            * Use &#x60;&#x60;&#x60;Chat.on(&#x27;$ocf.join&#x27;)&#x60;&#x60;&#x60; and related events to get notified when this changes
             *
             * @property users
             * @type Object
@@ -176,7 +264,7 @@ const create = function(config) {
 
             // whenever we get a message from the network 
             // run local broadcast message
-            this.room.on('message', (uuid, data) => {
+            this.room.on(&#x27;message&#x27;, (uuid, data) =&gt; {
 
                 // all messages are in format [event_name, data]
                 this.broadcast(data.message[0], data.message[1]);
@@ -184,39 +272,39 @@ const create = function(config) {
             });
 
             // forward user join events
-            this.room.on('join', (uuid, state) => {
+            this.room.on(&#x27;join&#x27;, (uuid, state) =&gt; {
                 
                 let user = this.createUser(uuid, state);
 
                 /**
-                * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has joined the room
+                * Broadcast that a {{#crossLink &quot;User&quot;}}{{/crossLink}} has joined the room
                 *
                 * @event $ocf.join
-                * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
+                * @param {Object} payload.user The {{#crossLink &quot;User&quot;}}{{/crossLink}} that came online
                 */     
-                this.broadcast('$ocf.join', {
+                this.broadcast(&#x27;$ocf.join&#x27;, {
                     user: user
                 });
 
             });
 
             // forward user state change events
-            this.room.on('state', (uuid, state) => {
+            this.room.on(&#x27;state&#x27;, (uuid, state) =&gt; {
                 this.userUpdate(uuid, state)
             });
 
             // forward user leaving events
-            this.room.on('leave', (uuid) => {
+            this.room.on(&#x27;leave&#x27;, (uuid) =&gt; {
                 this.userLeave(uuid);
             });
 
             // forward user leaving events
-            this.room.on('disconnect', (uuid) => {
+            this.room.on(&#x27;disconnect&#x27;, (uuid) =&gt; {
                 this.userDisconnect(uuid);
             });
 
             // get a list of users online now
-            this.room.here().then((occupants) => {
+            this.room.here().then((occupants) =&gt; {
 
                 // for every occupant, create a model user
                 for(let uuid in occupants) {
@@ -224,15 +312,15 @@ const create = function(config) {
                     this.createUser(uuid, occupants[uuid], true);
                 }
 
-            }, (err) => {
+            }, (err) =&gt; {
                 throw new Error(
-                    'There was a problem fetching here.', err);
+                    &#x27;There was a problem fetching here.&#x27;, err);
             });
 
         }
 
         /**
-        * Execute a function when network connection has been made and {{#crossLink "Chat"}}{{/crossLink}} is ready
+        * Execute a function when network connection has been made and {{#crossLink &quot;Chat&quot;}}{{/crossLink}} is ready
         *
         * @method ready
         * @param {Function} callback Function to execute when connection is ready
@@ -242,9 +330,9 @@ const create = function(config) {
         }
 
         /**
-        * Send events to other clients in this {{#crossLink "User"}}{{/crossLink}}. 
+        * Send events to other clients in this {{#crossLink &quot;User&quot;}}{{/crossLink}}. 
         * Events are broadcast over the network  and all events are made 
-        * on behalf of {{#crossLink "Me"}}{{/crossLink}}
+        * on behalf of {{#crossLink &quot;Me&quot;}}{{/crossLink}}
         *
         * @method send
         * @param {String} event The event name
@@ -260,12 +348,12 @@ const create = function(config) {
             };
 
             // run the plugin queue to modify the event
-            this.runPluginQueue('send', event, (next) => {
+            this.runPluginQueue(&#x27;send&#x27;, event, (next) =&gt; {
                 next(null, payload);
-            }, (err, payload) => {
+            }, (err, payload) =&gt; {
 
                 // remove chat otherwise it would be serialized
-                // instead, it's rebuilt on the other end. 
+                // instead, it&#x27;s rebuilt on the other end. 
                 // see this.broadcast
                 delete payload.chat; 
 
@@ -295,14 +383,14 @@ const create = function(config) {
             }
 
             // turn a uuid found in payload.sender to a real user
-            if(payload.sender && OCF.users[payload.sender]) {
+            if(payload.sender &amp;&amp; OCF.users[payload.sender]) {
                 payload.sender = OCF.users[payload.sender];
             }
 
             // let plugins modify the event
-            this.runPluginQueue('broadcast', event, (next) => {
+            this.runPluginQueue(&#x27;broadcast&#x27;, event, (next) =&gt; {
                 next(null, payload);
-            }, (err, payload) => {
+            }, (err, payload) =&gt; {
 
                 // emit this event to any listener
                 this.emit(event, payload);
@@ -313,7 +401,7 @@ const create = function(config) {
 
         /**
         * @private
-        * Add a user to the {{#crossLink "Chat"}}{{/crossLink}}, creating it if it doesn't already exist.
+        * Add a user to the {{#crossLink &quot;Chat&quot;}}{{/crossLink}}, creating it if it doesn&#x27;t already exist.
         *
         * @method createUser
         * @param {String} uuid The user uuid
@@ -326,19 +414,19 @@ const create = function(config) {
             // so we can reference it from here out
             OCF.users[uuid] = OCF.users[uuid] || new User(uuid);
 
-            // Add this chatroom to the user's list of chats
+            // Add this chatroom to the user&#x27;s list of chats
             OCF.users[uuid].addChat(this, state);
 
             // broadcast the join event over this chatroom
             if(!this.users[uuid] || broadcast) {
 
                 /**
-                * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has come online
+                * Broadcast that a {{#crossLink &quot;User&quot;}}{{/crossLink}} has come online
                 *
                 * @event $ocf.online
-                * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
+                * @param {Object} payload.user The {{#crossLink &quot;User&quot;}}{{/crossLink}} that came online
                 */     
-                this.broadcast('$ocf.online', {
+                this.broadcast(&#x27;$ocf.online&#x27;, {
                     user: OCF.users[uuid]
                 });
 
@@ -354,10 +442,10 @@ const create = function(config) {
 
         /**
         * @private
-        * Update a user's state within this {{#crossLink "Chat"}}{{/crossLink}}.
+        * Update a user&#x27;s state within this {{#crossLink &quot;Chat&quot;}}{{/crossLink}}.
         *
         * @method userUpdate
-        * @param {String} uuid The {{#crossLink "User"}}{{/crossLink}} uuid
+        * @param {String} uuid The {{#crossLink &quot;User&quot;}}{{/crossLink}} uuid
         * @param {Object} state State to update for the user
         */
         userUpdate(uuid, state) {
@@ -365,23 +453,23 @@ const create = function(config) {
             // ensure the user exists within the global space
             OCF.users[uuid] = OCF.users[uuid] || new User(uuid);
 
-            // if we don't know about this user
+            // if we don&#x27;t know about this user
             if(!this.users[uuid]) {
                 // do the whole join thing
                 this.createUser(uuid, state);
             }
 
-            // update this user's state in this chatroom
+            // update this user&#x27;s state in this chatroom
             this.users[uuid].assign(state, this);
 
             /**
-            * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has changed state
+            * Broadcast that a {{#crossLink &quot;User&quot;}}{{/crossLink}} has changed state
             *
             * @event $ocf.state
-            * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that changed state
-            * @param {Object} payload.state The new user state for this ```Chat```
+            * @param {Object} payload.user The {{#crossLink &quot;User&quot;}}{{/crossLink}} that changed state
+            * @param {Object} payload.state The new user state for this &#x60;&#x60;&#x60;Chat&#x60;&#x60;&#x60;
             */           
-            this.broadcast('$ocf.state', {
+            this.broadcast(&#x27;$ocf.state&#x27;, {
                 user: this.users[uuid],
                 state: this.users[uuid].state(this)
             });
@@ -389,14 +477,14 @@ const create = function(config) {
         }
 
         /**
-         * Leave from the {{#crossLink "Chat"}}{{/crossLink}} on behalf of {{#crossLink "Me"}}{{/crossLink}}
+         * Leave from the {{#crossLink &quot;Chat&quot;}}{{/crossLink}} on behalf of {{#crossLink &quot;Me&quot;}}{{/crossLink}}
          *
          * @method leave
          */
         leave() {
 
             // disconnect from the chat
-            this.room.unsubscribe().then(() => {
+            this.room.unsubscribe().then(() =&gt; {
                 // should get caught on as network event
             });
 
@@ -404,7 +492,7 @@ const create = function(config) {
 
         /**
          * @private
-         * Perform updates when a user has left the {{#crossLink "Chat"}}{{/crossLink}}.
+         * Perform updates when a user has left the {{#crossLink &quot;Chat&quot;}}{{/crossLink}}.
          *
          * @method leave
          */
@@ -414,30 +502,30 @@ const create = function(config) {
             if(this.users[uuid]) {
 
                 // if a user leaves, broadcast the event
-                this.broadcast('$ocf.leave', this.users[uuid]);
-                this.broadcast('$ocf.offline', this.users[uuid]);
+                this.broadcast(&#x27;$ocf.leave&#x27;, this.users[uuid]);
+                this.broadcast(&#x27;$ocf.offline&#x27;, this.users[uuid]);
 
                 // remove the user from the local list of users
                 delete this.users[uuid];
 
-                // we don't remove the user from the global list, 
+                // we don&#x27;t remove the user from the global list, 
                 // because they may be online in other channels
 
             } else {
 
-                // that user isn't in the user list
+                // that user isn&#x27;t in the user list
                 // we never knew about this user or they already left
 
-                // console.log('user already left');
+                // console.log(&#x27;user already left&#x27;);
             }
         }
 
         /**
         * @private
-        * Fired when a user disconnects from the {{#crossLink "Chat"}}{{/crossLink}}
+        * Fired when a user disconnects from the {{#crossLink &quot;Chat&quot;}}{{/crossLink}}
         *
         * @method userDisconnect
-        * @param {String} uuid The uuid of the {{#crossLink "Chat"}}{{/crossLink}} that left
+        * @param {String} uuid The uuid of the {{#crossLink &quot;Chat&quot;}}{{/crossLink}} that left
         */
         userDisconnect(uuid) {
 
@@ -445,20 +533,20 @@ const create = function(config) {
             if(this.users[uuid]) {
 
                 /**
-                * A {{#crossLink "User"}}{{/crossLink}} has been disconnected from the ```Chat```
+                * A {{#crossLink &quot;User&quot;}}{{/crossLink}} has been disconnected from the &#x60;&#x60;&#x60;Chat&#x60;&#x60;&#x60;
                 *
                 * @event $ocf.disconnect
-                * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that disconnected
+                * @param {Object} User The {{#crossLink &quot;User&quot;}}{{/crossLink}} that disconnected
                 */     
-                this.broadcast('$ocf.disconnect', this.users[uuid]);
+                this.broadcast(&#x27;$ocf.disconnect&#x27;, this.users[uuid]);
 
                 /**
-                * A {{#crossLink "User"}}{{/crossLink}} has gone offline
+                * A {{#crossLink &quot;User&quot;}}{{/crossLink}} has gone offline
                 *
                 * @event $ocf.offline
-                * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that has gone offline
+                * @param {Object} User The {{#crossLink &quot;User&quot;}}{{/crossLink}} that has gone offline
                 */  
-                this.broadcast('$ocf.offline', this.users[uuid]);
+                this.broadcast(&#x27;$ocf.offline&#x27;, this.users[uuid]);
 
             }
 
@@ -490,8 +578,8 @@ const create = function(config) {
                 // if they have defined a function to run specifically 
                 // for this event
                 if(this.plugins[i].middleware 
-                    && this.plugins[i].middleware[location] 
-                    && this.plugins[i].middleware[location][event]) {
+                    &amp;&amp; this.plugins[i].middleware[location] 
+                    &amp;&amp; this.plugins[i].middleware[location][event]) {
 
                     // add the function to the queue
                     plugin_queue.push(
@@ -502,18 +590,18 @@ const create = function(config) {
 
             // waterfall runs the functions in assigned order
             // waiting for one to complete before moving to the next
-            // when it's done, the ```last``` parameter is called
+            // when it&#x27;s done, the &#x60;&#x60;&#x60;last&#x60;&#x60;&#x60; parameter is called
             waterfall(plugin_queue, last);
 
         }
 
         /**
         * @private
-        * Set the state for {{#crossLink "Me"}}{{/crossLink}} within this {{#crossLink "User"}}{{/crossLink}}. 
-        * Broadcasts the ```$ocf.state``` event on other clients
+        * Set the state for {{#crossLink &quot;Me&quot;}}{{/crossLink}} within this {{#crossLink &quot;User&quot;}}{{/crossLink}}. 
+        * Broadcasts the &#x60;&#x60;&#x60;$ocf.state&#x60;&#x60;&#x60; event on other clients
         *
         * @method setState
-        * @param {Object} state The new state {{#crossLink "Me"}}{{/crossLink}} will have within this {{#crossLink "User"}}{{/crossLink}}
+        * @param {Object} state The new state {{#crossLink &quot;Me&quot;}}{{/crossLink}} will have within this {{#crossLink &quot;User&quot;}}{{/crossLink}}
         */
         setState(state) {
 
@@ -537,7 +625,7 @@ const create = function(config) {
             super();
 
             /**
-            * the User's uuid. This is public id exposed to the network.
+            * the User&#x27;s uuid. This is public id exposed to the network.
             *
             * @property uuid
             * @type String
@@ -569,7 +657,7 @@ const create = function(config) {
             * @type Chat
             */
             this.feed = new Chat(
-                [OCF.globalChat.channel, 'feed', uuid].join('.'));
+                [OCF.globalChat.channel, &#x27;feed&#x27;, uuid].join(&#x27;.&#x27;));
 
             /**
             * direct is a private channel that anybody can publish to
@@ -580,7 +668,7 @@ const create = function(config) {
             * @type Chat
             */
             this.direct = new Chat(
-                [OCF.globalChat.channel, 'direct', uuid].join('.'));
+                [OCF.globalChat.channel, &#x27;direct&#x27;, uuid].join(&#x27;.&#x27;));
 
             // if the user does not exist at all and we get enough 
             // information to build the user
@@ -588,13 +676,13 @@ const create = function(config) {
                 OCF.users[uuid] = this;
             }
 
-            // update this user's state in it's created context
+            // update this user&#x27;s state in it&#x27;s created context
             this.assign(state, chat)
             
         }
 
         /**
-        * get the user's state in a chatroom
+        * get the user&#x27;s state in a chatroom
         *
         * @method state
         * @param {Chat} chat Chatroom to retrieve state from
@@ -604,7 +692,7 @@ const create = function(config) {
         }
 
         /**
-        * update the user's state in a specific chatroom
+        * update the user&#x27;s state in a specific chatroom
         *
         * @method update
         * @param {Object} state The new state for the user
@@ -636,16 +724,16 @@ const create = function(config) {
             // store the chat in this user object
             this.chats[chat.channel] = chat;
         
-            // updates the user's state in that chatroom
+            // updates the user&#x27;s state in that chatroom
             this.assign(state, chat);
         }
 
     }
 
     /**
-    * Represents the client connection as a {{#crossLink "User"}}{{/crossLink}}. 
-    * Has the ability to update it's state on the network. An instance of 
-    * {{#crossLink "Me"}}{{/crossLink}} is returned by the ```OCF.connect()```
+    * Represents the client connection as a {{#crossLink &quot;User&quot;}}{{/crossLink}}. 
+    * Has the ability to update it&#x27;s state on the network. An instance of 
+    * {{#crossLink &quot;Me&quot;}}{{/crossLink}} is returned by the &#x60;&#x60;&#x60;OCF.connect()&#x60;&#x60;&#x60;
     * method. 
     *
     * @class Me
@@ -664,8 +752,8 @@ const create = function(config) {
 
         // assign updates from network
         assign(state, chat) {
-            // we call "update" because calling "super.assign"
-            // will direct back to "this.update" which creates
+            // we call &quot;update&quot; because calling &quot;super.assign&quot;
+            // will direct back to &quot;this.update&quot; which creates
             // a loop of network updates
             super.update(state, chat);
         }
@@ -674,9 +762,9 @@ const create = function(config) {
         * Update this user state over the network
         *
         * @method update
-        * @param {Object} state The new state for {{#crossLink "Me"}}{{/crossLink}}
-        * @param {Chat} chat An instance of the {{#crossLink "Chat"}}{{/crossLink}} where state will be updated.
-        * Defaults to ```OCF.globalChat```.
+        * @param {Object} state The new state for {{#crossLink &quot;Me&quot;}}{{/crossLink}}
+        * @param {Chat} chat An instance of the {{#crossLink &quot;Chat&quot;}}{{/crossLink}} where state will be updated.
+        * Defaults to &#x60;&#x60;&#x60;OCF.globalChat&#x60;&#x60;&#x60;.
         */
         update(state, chat = OCF.globalChat) {
 
@@ -704,7 +792,7 @@ const create = function(config) {
         OCF.config = config || {};
 
         // set a default global channel if none is set
-        OCF.config.globalChannel = OCF.config.globalChannel || 'ocf-global';
+        OCF.config.globalChannel = OCF.config.globalChannel || &#x27;ocf-global&#x27;;
 
         // create a global list of known users
         OCF.users = {};
@@ -719,19 +807,19 @@ const create = function(config) {
         OCF.rltm = false;
 
         /**
-        * connect to realtime service and create instance of {{#crossLink "Me"}}{{/crossLink}} 
+        * connect to realtime service and create instance of {{#crossLink &quot;Me&quot;}}{{/crossLink}} 
         *
         * @method connect
-        * @param {String} uuid The uuid for {{#crossLink "Me"}}{{/crossLink}}
-        * @param {Object} state The initial state for {{#crossLink "Me"}}{{/crossLink}}
+        * @param {String} uuid The uuid for {{#crossLink &quot;Me&quot;}}{{/crossLink}}
+        * @param {Object} state The initial state for {{#crossLink &quot;Me&quot;}}{{/crossLink}}
         * @return {Me} me an instance of me
         */
         OCF.connect = function(uuid, state) {
 
             // make sure the uuid is set for this client 
             if(!uuid) {
-                throw new Error('You must supply a uuid as the ' + 
-                    'first parameter when connecting.');
+                throw new Error(&#x27;You must supply a uuid as the &#x27; + 
+                    &#x27;first parameter when connecting.&#x27;);
             }
 
             // this creates a user known as Me and 
@@ -763,17 +851,17 @@ const create = function(config) {
         OCF.User = User;
 
         // add an object as a subobject under a namespoace
-        OCF.addChild = (ob, childName, childOb) => {
+        OCF.addChild = (ob, childName, childOb) =&gt; {
 
             // assign the new child object as a property of parent under the
             // given namespace
             ob[childName] = childOb;
 
-            // the new object can use ```this.parent``` to access 
+            // the new object can use &#x60;&#x60;&#x60;this.parent&#x60;&#x60;&#x60; to access 
             // the root class
             childOb.parent = ob;
 
-            // the new object can use ```this.OCF``` to get the global config
+            // the new object can use &#x60;&#x60;&#x60;this.OCF&#x60;&#x60;&#x60; to get the global config
             childOb.OCF = this;
             
         }
@@ -792,3 +880,22 @@ module.exports = {
     plugin: {},  // leave a spot for plugins to exist
     create: create
 };
+
+    </pre>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>
