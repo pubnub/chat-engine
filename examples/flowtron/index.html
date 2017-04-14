@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
 
     <style type="text/css">
-    body {margin-top: 10px;}
     .log {
         padding: 10px;
         border-radius: 5px;
@@ -22,6 +21,42 @@
     .hide-username .username {
         display: none;
     }
+    .row-no-padding [class*="col-"] {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    .container-fluid {
+    }
+    .card {
+        border-radius: 0px;
+        background-color: transparent;
+    }
+    .list-group-item {
+        background-color: transparent;
+    }
+    #sidebar {
+        width: 300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        background-color: #21001b;
+        color: #a0889c;
+    }
+    #chats {
+        position: absolute;
+        left: 300px;
+        top: 0;
+        right: 0;
+        bottom: 0;
+    }
+    #sidebar a {
+        color: #a0889c;
+    }
+    #sidebar * {
+        border-color: #422a3e;
+    }
+    /*http://www.colourlovers.com/palette/894224/Finalized*/
     </style>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>

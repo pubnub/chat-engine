@@ -96,6 +96,11 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
                 templateUrl: 'views/dash.html',
                 controller: 'ChatAppController'
             })
+            .state('dash.chat', {
+                url: '/dash/:channel',
+                templateUrl: 'views/chat.html',
+                controller: 'Chat'
+            })
     })
     .controller('MainCtrl', function($scope, OCF, Me) {
     })
@@ -109,7 +114,95 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         }
 
     })
-    .controller('Chat', function($scope, OCF, Me) {
+    .controller('OnlineUser', function($scope, OCF, $state) {
+  
+        $scope.invite = function(user, channel) {
+
+            console.log('sending invite to ', user, channel)
+
+            // send the clicked user a private message telling them we invited them
+            user.direct.send('private-invite', {channel: channel});
+
+        }
+
+        // create a new chat
+        $scope.newChat = function(user) {
+
+            // define a channel using the clicked user's username and this client's username
+            let chan = OCF.globalChat.channel + '.' + new Date().getTime();
+
+            // create a new chat with that channel
+            let newChat = new OCF.Chat(chan);
+
+            $scope.invite(user, chan);
+
+            $state.go('dash.chat', {channel: chan})
+
+        };
+
+    })
+    .controller('ChatAppController', function($scope, $state, $stateParams, OCF, Me) {
+
+        console.log(Me.profile)
+
+        if(!Me.profile) {
+            return  $state.go('login');
+        }
+
+        console.log('chat app controlelr loadd')
+
+        $scope.Me = Me;
+
+        // bind chat to updates
+        $scope.chat = OCF.globalChat;
+
+        // when I get a private invite
+        Me.profile.direct.on('private-invite', (payload) => {
+
+            // create a new chat and render it in DOM
+            $scope.chats.push(new OCF.Chat(payload.data.channel));
+
+        });
+
+        OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
+
+        // hide / show usernames based on input
+        $scope.userSearch = {
+            input: '',
+            fire: () => { 
+
+                // get a list of our matching users
+                let found = OCF.globalChat.onlineUserSearch.search($scope.userSearch.input);
+                
+                // hide every user
+                for(let uuid in $scope.chat.users) {
+                    $scope.chat.users[uuid].hideWhileSearch = true;
+                }
+
+                // show all found users
+                for(let i in found) {
+                    $scope.chat.users[found[i].uuid].hideWhileSearch = false;
+                }
+
+            }
+        };
+
+        $scope.userAdd = {
+            input: '',
+            users: $scope.userAdd,
+            fire: () => {  
+                if($scope.userAdd.input.length) {
+                    $scope.userAdd.users = OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);   
+                } else {
+                    $scope.userAdd.users = [];
+                }
+            }
+        };
+
+    })
+    .controller('Chat', function($scope, $stateParams, OCF, Me) {
+
+        $scope.chat = new OCF.Chat($stateParams.channel)
 
         $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
             timeout: 5000
@@ -174,92 +267,5 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
             // render it in the DOM
             addMessage(payload, false);
         });
-
-    })
-    .controller('OnlineUser', function($scope, OCF) {
-  
-        $scope.invite = function(user, channel) {
-
-            console.log('sending invite to ', user, channel)
-
-            // send the clicked user a private message telling them we invited them
-            user.direct.send('private-invite', {channel: channel});
-
-        }
-
-        // create a new chat
-        $scope.newChat = function(user) {
-
-            // define a channel using the clicked user's username and this client's username
-            let chan = OCF.globalChat.channel + '.' + new Date().getTime();
-
-            // create a new chat with that channel
-            let newChat = new OCF.Chat(chan);
-
-            $scope.invite(user, chan);
-
-            // add the chat to the list
-            $scope.chats.push(newChat);
-
-        };
-
-    })
-    .controller('ChatAppController', function($scope, $state, OCF, Me) {
-
-        console.log(Me.profile)
-
-        if(!Me.profile) {
-            return  $state.go('login');
-        }
-
-        console.log('chat app controlelr loadd')
-
-        $scope.Me = Me;
-
-        // bind chat to updates
-        $scope.chat = OCF.globalChat;
-
-        // when I get a private invite
-        Me.profile.direct.on('private-invite', (payload) => {
-
-            // create a new chat and render it in DOM
-            $scope.chats.push(new OCF.Chat(payload.data.channel));
-
-        });
-
-        OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
-
-        // hide / show usernames based on input
-        $scope.userSearch = {
-            input: '',
-            fire: () => { 
-
-                // get a list of our matching users
-                let found = OCF.globalChat.onlineUserSearch.search($scope.userSearch.input);
-                
-                // hide every user
-                for(let uuid in $scope.chat.users) {
-                    $scope.chat.users[uuid].hideWhileSearch = true;
-                }
-
-                // show all found users
-                for(let i in found) {
-                    $scope.chat.users[found[i].uuid].hideWhileSearch = false;
-                }
-
-            }
-        };
-
-        $scope.userAdd = {
-            input: '',
-            users: $scope.userAdd,
-            fire: () => {  
-                if($scope.userAdd.input.length) {
-                    $scope.userAdd.users = OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);   
-                } else {
-                    $scope.userAdd.users = [];
-                }
-            }
-        };
 
     });
