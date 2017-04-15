@@ -1,60 +1,41 @@
-<div ng-controller="Chat">
-
-    <div class="card"> 
+<div ng-controller="Chat" id="chat">
         
-        <div class="card-header">
-            {{chat.channel}}
-        </div>
+    <div class="card-header">
+        {{chat.channel}}
+    </div>
 
-        <ul class="list-group list-group-flush online-list-sub">
+    <ul class="list-group list-group-flush online-list-sub">
 
-          <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
-            <img ng-src="{{user.state().picture}}" class="avatar"> {{user.state().name}}
-            <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
-          </li>
+      <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
+        <img ng-src="{{user.state().picture}}" class="avatar"> {{user.state().name}}
+        <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
+      </li>
 
-        </ul>
-        
-        <div class="card-block"> 
-            <div class="log">
-                <div ng-repeat="message in messages" ng-class="{'hide-username': message.sameUser, 'text-muted': message.isHistory, 'text-xs-right': !message.isSelf}">
-                    <p class="text-muted username">{{message.sender.state().name}}</p>
+    </ul>
+    
+    <div class="chat-log card-block"> 
+        <div class="log">
+            <div class="row message" ng-repeat="message in messages" ng-class="{'same-user': message.sameUser, 'text-muted': message.isHistory, 'is-self': !message.isSelf}">
+                <div class="col-xs-2 text-xs-right">
+                    <strong class="username">{{message.sender.state().name}}</strong>
+                </div>
+                <div class="col-xs-10">
                     <p>{{message.data}}</p>
                 </div>
-            </div> 
-            <p class="typing text-muted"></p> 
-            <form class="send-message" ng-submit="sendMessage(chat)"> 
-                <div class="input-group"> 
-                    <input ng-model="messageDraft" ng-change="chat.typingIndicator.startTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
-                    <span class="input-group-btn"> 
-                        <button class="btn btn-primary" type="submit">Send</button> 
-                    </span> 
-                </div> 
-            </form> 
+            </div>
         </div> 
-
-        <hr />
-
-        <div class="card-block">
-
-            <h6>Add a user to this chat</h6>
-
-            <fom ng-submit="userAdd.fire()">
-                <div class="input-group">
-                    <input id="usernameSearch" type="text" class="form-control message" placeholder="Add User" ng-change="userAdd.fire()" ng-model="userAdd.input">
-                </div>
-            </form>
-
-            <ul class="list-group list-group-flush online-list-sub">
-
-              <li class="list-group-item" ng-repeat="(uuid, user) in userAdd.users" ng-controller="OnlineUser">
-                  <a href="" ng-click="invite(user, chat.channel)"> {{user.state().username}}</a> 
-              </li>
-
-            </ul>
-
-        </div>
-        
+        <p class="typing text-muted"></p> 
     </div> 
+
+    <div class="send-message card-block">
+        <form ng-submit="sendMessage(chat)"> 
+            <div class="input-group"> 
+                <input ng-model="messageDraft" ng-change="chat.typingIndicator.startTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
+                <span class="input-group-btn"> 
+                    <button class="btn btn-primary" type="submit">Send</button> 
+                </span> 
+            </div> 
+        </form> 
+    </div>
 
 </div>

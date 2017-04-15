@@ -187,18 +187,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
             }
         };
 
-        $scope.userAdd = {
-            input: '',
-            users: $scope.userAdd,
-            fire: () => {  
-                if($scope.userAdd.input.length) {
-                    $scope.userAdd.users = OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);   
-                } else {
-                    $scope.userAdd.users = [];
-                }
-            }
-        };
-
     })
     .controller('Chat', function($scope, $stateParams, OCF, Me) {
 

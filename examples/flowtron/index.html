@@ -5,20 +5,22 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
 
     <style type="text/css">
-    .log {
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #efefef;
-        min-height: 10px;
-        margin-bottom: 1rem;
-    }
     .log p {
-        margin-bottom: 0px;
+    }
+    .log .message {
+        padding-top: 1rem;
+        border-top: 1px solid #efefef;
+    }
+    .log .message.same-user {
+        border-top: none;
+    }
+    .log .message p {
+        margin: 0px;
     }
     .username {
-        font-size: 11px;
+        text-align: right;
     }
-    .hide-username .username {
+    .same-user .username {
         display: none;
     }
     .row-no-padding [class*="col-"] {
@@ -63,6 +65,20 @@
         position: relative;
         bottom: 3px;
         margin-right: 5px;
+    }
+    #chat {
+
+    }
+    #chat .send-message {
+        position: absolute;
+        bottom: 0;
+    }
+    #chat .chat-log {
+        position: absolute;
+        bottom: 78px;
+        top: 105px;
+        right: 0px;
+        left: 0px;
     }
     /*http://www.colourlovers.com/palette/894224/Finalized*/
     </style>
