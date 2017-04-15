@@ -13,7 +13,7 @@
 
     </ul>
     
-    <div class="chat-log card-block"> 
+    <div id="log" class="card-block"> 
         <div class="log">
             <div class="row message" ng-repeat="message in messages" ng-class="{'same-user': message.sameUser, 'text-muted': message.isHistory, 'is-self': !message.isSelf}">
                 <div class="col-xs-2 text-xs-right">

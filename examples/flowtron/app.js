@@ -153,6 +153,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
         $scope.Me = Me;
 
+        $scope.channels = ['Main', 'Portal', 'Blocks', 'Content', 'Support', 'Open Source', 'Client Eng', 'Docs', 'Marketing', 'Ops', 'Foolery'];
+
         // bind chat to updates
         $scope.chat = OCF.globalChat;
 
@@ -188,7 +190,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         };
 
     })
-    .controller('Chat', function($scope, $stateParams, OCF, Me) {
+    .controller('Chat', function($scope, $stateParams, OCF, Me, $timeout) {
 
         $scope.chat = new OCF.Chat($stateParams.channel)
 
@@ -240,6 +242,11 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
             // add the message to the array
             $scope.messages.push(payload);
+
+            $timeout(function() {
+              var scroller = document.getElementById("log");
+              scroller.scrollTop = scroller.scrollHeight;
+            }, 0, false);
 
         }
 

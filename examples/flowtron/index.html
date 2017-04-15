@@ -5,24 +5,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" integrity="sha384-AysaV+vQoT3kOAXZkl02PThvDr8HYKPZhNT5h/CXfBThSRXQ6jW5DO2ekP5ViFdi" crossorigin="anonymous">
 
     <style type="text/css">
-    .log p {
-    }
-    .log .message {
-        padding-top: 1rem;
-        border-top: 1px solid #efefef;
-    }
-    .log .message.same-user {
-        border-top: none;
-    }
-    .log .message p {
-        margin: 0px;
-    }
-    .username {
-        text-align: right;
-    }
-    .same-user .username {
-        display: none;
-    }
     .row-no-padding [class*="col-"] {
         padding-left: 0 !important;
         padding-right: 0 !important;
@@ -37,6 +19,7 @@
         background-color: transparent;
     }
     #sidebar {
+        overflow-y: auto;
         width: 300px;
         position: absolute;
         top: 0;
@@ -70,15 +53,37 @@
 
     }
     #chat .send-message {
+        border-top: 1px solid #efefef;
         position: absolute;
         bottom: 0;
     }
-    #chat .chat-log {
+    #chat #log {
+        font-size: 14px;
         position: absolute;
         bottom: 78px;
         top: 105px;
         right: 0px;
         left: 0px;
+        overflow-y: auto;
+    }
+    .log p {
+        margin: 0px;
+    }
+    .log .message {
+        padding-top: .5rem;
+        border-top: 1px solid #efefef;
+    }
+    .log .message.same-user {
+        border-top: none;
+    }
+    .log .message p {
+        margin: 0px;
+    }
+    .username {
+        text-align: right;
+    }
+    .same-user .username {
+        display: none;
     }
     /*http://www.colourlovers.com/palette/894224/Finalized*/
     </style>
