@@ -4,14 +4,14 @@
         {{chat.channel}}
     </div>
 
-    <ul class="list-group list-group-flush online-list-sub">
+    <div class="card-block">
 
-      <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
+      <span ng-repeat="user in chat.users" ng-controller="OnlineUser">
         <img ng-src="{{user.state().picture}}" class="avatar"> {{user.state().name}}
-        <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
-      </li>
+        <span class="show-typing" ng-show="user.isTyping">...</span> 
+      </span>
 
-    </ul>
+    </div>
     
     <div id="log" class="card-block"> 
         <div class="log">

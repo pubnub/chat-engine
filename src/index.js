@@ -751,6 +751,8 @@ const create = function(config) {
             // create a new instance of Me using input parameters
             this.globalChat.createUser(uuid, state);
 
+            this.me.update(state);
+
             // return me
             return this.me;
 

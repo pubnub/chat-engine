@@ -64,14 +64,14 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
                     restore: false
                 }
             },
-            globalChannel: 'ocf-demo-angular-2'
+            globalChannel: 'ocf-demo-angular-3'
         });
 
         // bind open chat framework angular plugin
         ngOCF.bind(OCF);
 
         OCF.onAny((event, data) => {
-            console.log(event, data);
+            // console.log(event, data);
         });
 
         return OCF;
@@ -153,7 +153,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
         $scope.rooms = [];
         for(let i in $scope.channels) {
-            $scope.rooms.push(new OCF.Chat($scope.channels[i]));
+            $scope.rooms.push({
+                name: $scope.channels[i],
+                chat: new OCF.Chat([OCF.globalChat.channel, $scope.channels[i]].join(':'))
+            });
         }
 
         console.log($scope.rooms)
@@ -196,6 +199,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
     .controller('Chat', function($scope, $stateParams, OCF, Me, $timeout) {
 
         $scope.chat = new OCF.Chat($stateParams.channel)
+
+        console.log($scope.chat)
 
         $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
             timeout: 5000
