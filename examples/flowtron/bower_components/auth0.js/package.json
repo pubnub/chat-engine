@@ -1,0 +1,84 @@
+{
+  "name": "auth0-js",
+  "version": "8.5.0",
+  "description": "Auth0 headless browser sdk",
+  "main": "src/index.js",
+  "keywords": [
+    "auth0",
+    "auth",
+    "openid",
+    "authentication",
+    "jwt",
+    "browser"
+  ],
+  "engine": {
+    "node": ">=6.9.0"
+  },
+  "scripts": {
+    "start": "gulp dev",
+    "build": "gulp build",
+    "test": "mocha test/**/*.test.js",
+    "test:integration": "mocha-parallel-tests --max-parallel 2 integration/**/*.test.js",
+    "test:watch": "mocha --watch -R min test/**/*.test.js",
+    "ci:test": "istanbul cover _mocha --report lcovonly -R test/**/* -- -R mocha-multi --reporter-options spec=-,mocha-junit-reporter=-",
+    "ci:coverage": "codecov",
+    "lint": "eslint ./src",
+    "publish:cdn": "ccu",
+    "release": "scripts/release.sh",
+    "jsdocs": "jsdoc --configure .jsdoc.json --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/auth0/auth0.js"
+  },
+  "author": "Auth0",
+  "license": "MIT",
+  "dependencies": {
+    "base64-js": "^1.2.0",
+    "idtoken-verifier": "^1.0.1",
+    "superagent": "^3.3.1",
+    "url-join": "^1.1.0",
+    "winchan": "^0.2.0"
+  },
+  "devDependencies": {
+    "codecov": "^1.0.1",
+    "component-cdn-uploader": "auth0/component-cdn-uploader#1.1.0",
+    "eslint": "3.12.2",
+    "eslint-config-auth0-base": "6.0.0",
+    "eslint-plugin-compat": "^1.0.0",
+    "eslint-plugin-import": "1.16.0",
+    "expect.js": "^0.2.0",
+    "gulp": "^3.9.1",
+    "gulp-util": "^3.0.7",
+    "istanbul": "^0.4.5",
+    "jsdoc": "^3.4.3",
+    "jsdoc-to-markdown": "^2.0.1",
+    "minami": "^1.1.1",
+    "mocha": "^3.2.0",
+    "mocha-junit-reporter": "^1.13.0",
+    "mocha-multi": "^0.10.0",
+    "mocha-parallel-tests": "^1.2.5",
+    "selenium-webdriver": "^3.0.1",
+    "semver": "^5.3.0",
+    "sinon": "^1.17.6",
+    "smart-banner-webpack-plugin": "^2.0.0",
+    "unminified-webpack-plugin": "^1.1.1",
+    "webpack": "^1.13.2",
+    "webpack-core": "^0.6.8",
+    "webpack-custom-var-library-name-plugin": "^1.0.2",
+    "webpack-dev-server": "^1.16.2",
+    "webpack-hot-middleware": "^2.13.2",
+    "webpack-stream": "^3.2.0"
+  },
+  "cdn-component": {
+    "name": "auth0",
+    "cdn": "https://cdn.auth0.com",
+    "mainBundleFile": "auth0.min.js",
+    "bucket": "assets.us.auth0.com",
+    "localPath": "build"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "ie >= 9"
+  ]
+}

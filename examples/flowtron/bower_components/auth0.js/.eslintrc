@@ -1,0 +1,17 @@
+{
+  "extends": "auth0-base/legacy",
+  "plugins": ["compat"],
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "func-names": "off",
+    "no-underscore-dangle": "off",
+    "no-prototype-builtins": "off",
+    "no-param-reassign": "off",
+    "max-len": "off",
+    "consistent-return": "off",
+    "vars-on-top": "off",
+    "compat/compat": "error"
+  }
+}

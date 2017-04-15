@@ -1,0 +1,26 @@
+{
+  "name": "angular-lock",
+  "version": "2.0.2",
+  "description": "Angular wrapper for Lock",
+  "main": "angular-lock.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/auth0/angular-lock.git"
+  },
+  "author": "Auth0",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/auth0/angular-lock/issues"
+  },
+  "homepage": "https://github.com/auth0/angular-lock#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-ng-annotate": "^2.0.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.1.0"
+  },
+  "dependencies": {
+    "auth0-js": "^8.4.0"
+  }
+}
