@@ -165,7 +165,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         Me.profile.direct.on('private-invite', (payload) => {
 
             // create a new chat and render it in DOM
-            $scope.chats.push(new OCF.Chat(payload.data.channel));
+            $state.go('dash.chat', {channel: payload.data.channel});
 
         });
 
