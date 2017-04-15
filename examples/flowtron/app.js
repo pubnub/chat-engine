@@ -11,10 +11,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
     })
     .run(function($rootScope, lock, Me, OCF, $state) {
-        
-        console.log('thirs running')
-
-        $rootScope.chats = [];
 
         // For use with UI Router
         lock.interceptHash();
@@ -154,6 +150,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         $scope.Me = Me;
 
         $scope.channels = ['Main', 'Portal', 'Blocks', 'Content', 'Support', 'Open Source', 'Client Eng', 'Docs', 'Marketing', 'Ops', 'Foolery'];
+
+        $scope.rooms = [];
+        for(let i in $scope.channels) {
+            $scope.rooms.push(new OCF.Chat($scope.channels[i]));
+        }
+
+        console.log($scope.rooms)
 
         // bind chat to updates
         $scope.chat = OCF.globalChat;
