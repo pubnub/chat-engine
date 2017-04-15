@@ -9,7 +9,7 @@
         <ul class="list-group list-group-flush online-list-sub">
 
           <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
-            {{user.state().username}}
+            <img ng-src="{{user.state().picture}}" class="avatar"> {{user.state().name}}
             <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
           </li>
 
@@ -18,7 +18,7 @@
         <div class="card-block"> 
             <div class="log">
                 <div ng-repeat="message in messages" ng-class="{'hide-username': message.sameUser, 'text-muted': message.isHistory, 'text-xs-right': !message.isSelf}">
-                    <p class="text-muted username">{{message.sender.state().username}}</p>
+                    <p class="text-muted username">{{message.sender.state().name}}</p>
                     <p>{{message.data}}</p>
                 </div>
             </div> 

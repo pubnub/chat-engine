@@ -114,7 +114,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         }
 
     })
-    .controller('OnlineUser', function($scope, OCF, $state) {
+    .controller('OnlineUser', function($scope, OCF, Me, $state) {
   
         $scope.invite = function(user, channel) {
 
@@ -129,7 +129,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         $scope.newChat = function(user) {
 
             // define a channel using the clicked user's username and this client's username
-            let chan = OCF.globalChat.channel + '.' + new Date().getTime();
+            let chan = [OCF.globalChat.channel, Me.profile.state().user_id, user.state().user_id].join(':')
 
             // create a new chat with that channel
             let newChat = new OCF.Chat(chan);

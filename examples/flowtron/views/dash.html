@@ -11,7 +11,7 @@
         <ul id="online-list" class="list-group list-group-flush">
 
           <li class="list-group-item" ng-repeat="(uuid, user) in chat.users" ng-hide="user.hideWhileSearch" ng-controller="OnlineUser">
-              <a href="" ng-click="newChat(user)"> <img ng-src="{{user.state().picture}}" height="35px"> {{user.state().name}}</a> 
+              <a href="" ng-click="newChat(user)"><img ng-src="{{user.state().picture}}" class="avatar">{{user.state().name}}</a> 
               <span class="show-typing" ng-show="user.isTyping">is typing...</span> 
           </li>
 
