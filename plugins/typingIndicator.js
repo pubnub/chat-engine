@@ -14,8 +14,20 @@
         let stopTypingTimeout = null;
         
         // define the methods that will be attached to the class Chat
-        class extension {
+        class extension  {
             construct() {
+
+                // keep comms on a new channel so we don't flood chat channel
+                this.chat = new this.OCF.Chat('$' + namespace + new Date());
+
+                // forward events via broadcast
+                this.chat.on('$typingIndicator.startTyping', (event) => {
+                    this.parent.broadcast('$typingIndicator.startTyping', event);
+                });
+
+                this.chat.on('$typingIndicator.stopTyping', (event) => {
+                    this.parent.broadcast('$typingIndicator.stopTyping', event);
+                });
 
                 // will set Chat.typing.isTyping to false immediately
                 this.isTyping = false;
@@ -29,7 +41,7 @@
                 this.isTyping = true;
 
                 // send an event over the network that this user started typing
-                this.parent.send(['$' + namespace, 'startTyping'].join('.'));
+                this.chat.send(['$' + namespace, 'startTyping'].join('.'));
 
                 // kill any existing timeouts
                 clearTimeout(stopTypingTimeout);
@@ -52,7 +64,7 @@
                     clearTimeout(stopTypingTimeout);
                     
                     // broadcast a stoptyping event
-                    this.parent.send(['$' + namespace, 'stopTyping'].join('.'));      
+                    this.chat.send(['$' + namespace, 'stopTyping'].join('.'));      
 
                     // stop typing indicator
                     this.isTyping = false;

@@ -125,6 +125,8 @@ const create = function(config) {
                     OCF.addChild(this, module.namespace, 
                         new module.extends[className]);
 
+                    this[module.namespace].OCF = OCF;
+
                     // if the plugin has a special construct function
                     // run it
                     if(this[module.namespace].construct) {
@@ -774,9 +776,6 @@ const create = function(config) {
             // the new object can use ```this.parent``` to access 
             // the root class
             childOb.parent = ob;
-
-            // the new object can use ```this.OCF``` to get the global config
-            childOb.OCF = this;
             
         }
 
