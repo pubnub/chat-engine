@@ -89,12 +89,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         obj.connect = () => {
 
             for(let i in channels) {
-                
-                obj.list.push({
-                    name: channels[i],
-                    chat: new OCF.Chat([OCF.globalChat.channel, channels[i]].join(':'))
-                });
-
+                obj.findOrCreate(channels[i])
             }
 
         }
@@ -121,7 +116,24 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
             if(foundRoom) {
                 return foundRoom.chat;
             } else {
-                return new OCF.Chat(channel)
+
+                let chat = new OCF.Chat(channel);
+
+                chat.plugin(OpenChatFramework.plugin.typingIndicator({
+                    timeout: 5000
+                }));
+
+                chat.plugin(OpenChatFramework.plugin.history());
+
+                chat.plugin(OpenChatFramework.plugin.unread());
+                
+                obj.list.push({
+                    name: channel,
+                    chat: chat
+                });
+
+                return chat;
+
             }
 
         }
@@ -246,14 +258,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
         console.log($scope.chat)
 
-        $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
-            timeout: 5000
-        }));
-
-        $scope.chat.plugin(OpenChatFramework.plugin.history());
-
-        $scope.chat.plugin(OpenChatFramework.plugin.unread());
-
         // every chat has a list of messages
         $scope.messages = [];
 
@@ -276,6 +280,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
         // when we get notified of a user typing
         $scope.chat.on('$typingIndicator.startTyping', (event) => {
+            console.log(event.sender)
             event.sender.isTyping = true;
         });
 
