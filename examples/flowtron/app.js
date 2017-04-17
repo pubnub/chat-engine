@@ -198,7 +198,19 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
     })
     .controller('Chat', function($scope, $stateParams, OCF, Me, $timeout) {
 
-        $scope.chat = new OCF.Chat($stateParams.channel)
+        $scope.chat = false;
+
+        // if the chatroom is already in memory, use that one
+        for(let i in $scope.rooms) {
+            if($scope.rooms[i].chat.channel == $stateParams.channel) {
+                $scope.chat = $scope.rooms[i].chat;
+            }
+        }
+
+        // if chatroom is new, create it
+        if(!$scope.chat) {
+            $scope.chat = new OCF.Chat($stateParams.channel)
+        }
 
         console.log($scope.chat)
 
@@ -207,6 +219,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         }));
 
         $scope.chat.plugin(OpenChatFramework.plugin.history());
+
+        $scope.chat.plugin(OpenChatFramework.plugin.unread());
 
         // every chat has a list of messages
         $scope.messages = [];
@@ -217,11 +231,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         // leave a chatroom and remove from global chat list
         $scope.leave = (index) => {
             $scope.chat.leave();
-            $scope.chats.splice(index, 1);
         }
 
         // send a message using the messageDraft input
         $scope.sendMessage = () => {
+
+            console.info('sending message')
+
             $scope.chat.send('message', $scope.messageDraft);
             $scope.messageDraft = '';
         }
