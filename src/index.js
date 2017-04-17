@@ -291,8 +291,6 @@ const create = function(config) {
         */
         broadcast(event, payload) {
 
-            console.log(typeof payload)
-
             if(typeof payload == "object") {
                 
                 // restore chat in payload

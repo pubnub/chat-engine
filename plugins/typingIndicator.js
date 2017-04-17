@@ -89,6 +89,15 @@
             }
         };
 
+        let broadcast = {
+            "$typingIndicator.startTyping": (payload, next) => {
+                payload.sender.isTyping = true;
+            },
+            "$typingIndicator.stopTyping": (payload, next) => {
+                payload.sender.isTyping = false;
+            }
+        }
+
         // define both the extended methods and the middleware in our plugin
         return {
             namespace: 'typingIndicator',
@@ -97,7 +106,7 @@
                 GlobalChat: extension
             },
             middleware: {
-                send
+                send, broadcast
             }
         }
 
