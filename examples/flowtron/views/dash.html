@@ -15,7 +15,7 @@
         <ul id="room-list" class="list-group list-group-flush">
 
           <li class="list-group-item" ng-repeat="room in rooms">
-              <a ui-sref="dash.chat({channel: room.chat.channel})">{{room.name}}</a> <i>unread: {{room.unread}}</i>
+              <a ui-sref="dash.chat({channel: room.chat.channel})">{{room.name}}</a> <i>unread: {{room.chat.unread}}</i>
           </li>
 
         </ul>

@@ -209,6 +209,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
         $scope.rooms = Rooms.list;
 
+        setInterval(function(argument) {
+            console.log($scope.rooms)
+        }, 10000)
+
         if(!Me.profile) {
             return  $state.go('login');
         }
@@ -277,17 +281,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
             $scope.chat.send('message', $scope.messageDraft);
             $scope.messageDraft = '';
         }
-
-        // // when we get notified of a user typing
-        // $scope.chat.on('$typingIndicator.startTyping', (event) => {
-        //     console.log(event.sender)
-        //     event.sender.isTyping = true;
-        // });
-
-        // // when we get notified a user stops typing
-        // $scope.chat.on('$typingIndicator.stopTyping', (event) => {
-        //     event.sender.isTyping = false;
-        // });
 
         // function to add a message to messages array
         let addMessage = (payload, isHistory) => {

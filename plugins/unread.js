@@ -8,14 +8,16 @@
 
             construct(data) {
 
-                this.isActive = false;
-
+                this.parent.isFocused = false;
                 this.parent.unread = 0;
 
                 this.parent.on('message', (event) => {
 
+                    console.log('message cb')
+                    console.log(this.parent)
+
                     if(!this.isActive) {
-                        
+
                         this.parent.unread++;
                         this.parent.broadcast('$unread', this.parent.unread);
 
@@ -39,11 +41,24 @@
 
         };
 
+        let broadcast = {
+            message: (payload, next) => {
+
+                console.log(payload);
+
+                next(null, payload)
+
+            }
+        };
+
         // attach methods to Chat
         return {
             namespace,
             extends: {
                 Chat: extension
+            },
+            middleware: {
+                broadcast
             }
         }
 
