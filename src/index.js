@@ -291,14 +291,18 @@ const create = function(config) {
         */
         broadcast(event, payload) {
 
-            // restore chat in payload
-            if(!payload.chat) {
-                payload.chat = this;   
-            }
+            if(typeof payload == "Object") {
+                
+                // restore chat in payload
+                if(!payload.chat) {
+                    payload.chat = this;   
+                }
 
-            // turn a uuid found in payload.sender to a real user
-            if(payload.sender && OCF.users[payload.sender]) {
-                payload.sender = OCF.users[payload.sender];
+                // turn a uuid found in payload.sender to a real user
+                if(payload.sender && OCF.users[payload.sender]) {
+                    payload.sender = OCF.users[payload.sender];
+                }
+
             }
 
             // let plugins modify the event

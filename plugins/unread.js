@@ -8,21 +8,35 @@
 
             construct(data) {
 
+                this.isActive = false;
+
+                this.parent.unread = 0;
+
+                this.parent.on('message', (event) => {
+
+                    if(!this.isActive) {
+                        
+                        this.parent.unread++;
+                        this.parent.broadcast('$unread', this.parent.unread);
+
+                        console.log('unread', this.parent.unread)
+
+                        console.log(this.parent, this)
+
+                    }
+
+                });
+
             }
 
-        };
-
-        // define broadcast middleware
-        let broadcast = {
-            message: (payload, next) => {
-
-                // console.log(this)
-
-                console.log('test')
-
-                // continue on
-                next(null, payload);
+            active() {
+                this.isActive = true;
             }
+
+            inactive() {
+                this.isActive = false;
+            }
+
         };
 
         // attach methods to Chat
@@ -30,9 +44,6 @@
             namespace,
             extends: {
                 Chat: extension
-            },
-            middleware: {
-                broadcast
             }
         }
 

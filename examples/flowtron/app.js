@@ -77,6 +77,58 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         return OCF;
 
     })
+    .factory('Rooms', function(OCF) {
+
+        let channels = ['Main', 'Portal', 'Blocks', 'Content', 'Support', 'Open Source', 'Client Eng', 'Docs', 'Marketing', 'Ops', 'Foolery'];
+
+        let obj = {
+            list: [],
+            connect: false
+        }
+
+        obj.connect = () => {
+
+            for(let i in channels) {
+                
+                obj.list.push({
+                    name: channels[i],
+                    chat: new OCF.Chat([OCF.globalChat.channel, channels[i]].join(':'))
+                });
+
+            }
+
+        }
+
+        obj.find = (channel) => {
+
+            let found = false;
+
+            // if the chatroom is already in memory, use that one
+            for(let i in obj.list) {
+                if(obj.list[i].chat.channel == channel) {
+                    found = obj.list[i];
+                }
+            }
+
+            return found;
+
+        }
+
+        obj.findOrCreate = (channel) => {
+
+            let foundRoom = obj.find(channel);
+
+            if(foundRoom) {
+                return foundRoom.chat;
+            } else {
+                return new OCF.Chat(channel)
+            }
+
+        }
+
+        return obj;
+
+    })
     .config(function($stateProvider, $urlRouterProvider) {
         
         $urlRouterProvider.otherwise('/login');
@@ -137,9 +189,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         };
 
     })
-    .controller('ChatAppController', function($scope, $state, $stateParams, OCF, Me) {
+    .controller('ChatAppController', function($scope, $state, $stateParams, OCF, Me, Rooms) {
 
         console.log(Me.profile)
+
+        Rooms.connect();
+
+        $scope.rooms = Rooms.list;
 
         if(!Me.profile) {
             return  $state.go('login');
@@ -148,18 +204,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         console.log('chat app controlelr loadd')
 
         $scope.Me = Me;
-
-        $scope.channels = ['Main', 'Portal', 'Blocks', 'Content', 'Support', 'Open Source', 'Client Eng', 'Docs', 'Marketing', 'Ops', 'Foolery'];
-
-        $scope.rooms = [];
-        for(let i in $scope.channels) {
-            $scope.rooms.push({
-                name: $scope.channels[i],
-                chat: new OCF.Chat([OCF.globalChat.channel, $scope.channels[i]].join(':'))
-            });
-        }
-
-        console.log($scope.rooms)
 
         // bind chat to updates
         $scope.chat = OCF.globalChat;
@@ -196,21 +240,9 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         };
 
     })
-    .controller('Chat', function($scope, $stateParams, OCF, Me, $timeout) {
+    .controller('Chat', function($scope, $stateParams, OCF, Me, $timeout, Rooms) {
 
-        $scope.chat = false;
-
-        // if the chatroom is already in memory, use that one
-        for(let i in $scope.rooms) {
-            if($scope.rooms[i].chat.channel == $stateParams.channel) {
-                $scope.chat = $scope.rooms[i].chat;
-            }
-        }
-
-        // if chatroom is new, create it
-        if(!$scope.chat) {
-            $scope.chat = new OCF.Chat($stateParams.channel)
-        }
+        $scope.chat = Rooms.findOrCreate($stateParams.channel)
 
         console.log($scope.chat)
 
