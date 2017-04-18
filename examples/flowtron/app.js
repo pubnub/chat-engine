@@ -219,7 +219,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.newChat = function(user) {
 
             // define a channel using the clicked user's username and this client's username
-            let chan = [OCF.globalChat.channel, Me.profile.state().user_id, user.state().user_id].join(':')
+            let chan = [OCF.globalChat.channel, Me.profile.state().user_id, user.state().user_id].sort().join(':')
 
             // create a new chat with that channel
             let newChat = new OCF.Chat(chan);
@@ -287,7 +287,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.chat.unread.active();
 
         $scope.chat.on('message', () => {
-
             $scope.scrollToBottom();
         });
 
