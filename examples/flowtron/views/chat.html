@@ -1,14 +1,13 @@
 <div id="chat">
         
     <div class="card-header">
-        {{chat.channel}} {{chat.unreadCount}}
+        {{chat.channel}}
     </div>
 
-    <div class="card-block">
+    <div class="card-block online-users">
 
       <span ng-repeat="user in chat.users" ng-controller="OnlineUser">
-        <img ng-src="{{user.state().picture}}" class="avatar"> {{user.state().name}}
-        <span class="show-typing" ng-show="user.isTyping">...</span> 
+        <img ng-src="{{user.state().picture}}" class="avatar">
       </span>
 
     </div>

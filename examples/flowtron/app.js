@@ -147,6 +147,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
                 chat.plugin(OpenChatFramework.plugin.history());
 
                 chat.plugin(OpenChatFramework.plugin.unread());
+
+                chat.plugin(OpenChatFramework.plugin.emoji());
                 
                 obj.list.push({
                     name: channel,

@@ -40,20 +40,11 @@
 
         };
 
-        let broadcast = {
-            message: (payload, next) => {
-                next(null, payload)
-            }
-        };
-
         // attach methods to Chat
         return {
             namespace,
             extends: {
                 Chat: extension
-            },
-            middleware: {
-                broadcast
             }
         }
 
