@@ -74,9 +74,14 @@
     .log .message {
         padding-top: .5rem;
         border-top: 1px solid #efefef;
+        margin-top: .5rem;
+    }
+    .log .message:last-child {
+        padding-bottom: .5rem;
     }
     .log .message.same-user {
         border-top: none;
+        margin-top: none;
     }
     .log .message p {
         margin: 0px;
@@ -100,7 +105,8 @@
     #emoji-suggest {
         bottom: 57px;
         max-height: 241px;
-        overflow-y: scroll;
+        width: 300px;
+        overflow-y: auto;
         background-color: white;
         z-index: 99;
         position: absolute;

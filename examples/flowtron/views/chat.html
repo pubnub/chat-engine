@@ -26,11 +26,11 @@
         <p class="typing text-muted"></p> 
     </div> 
 
-    <div class="card" id="emoji-suggest">
+    <div class="card" id="emoji-suggest" ng-show="messageDraft.suggestedEmoji.length">
         
         <ul class="list-group list-group-flush">
 
-          <li class="list-group-item" ng-repeat="emoji in messageDraft.suggestedEmoji track by $index">
+          <li class="list-group-item" ng-repeat="emoji in messageDraft.suggestedEmoji track by $index" ng-click="completeEmoji(emoji)">
             {{emoji}}
           </li>
 

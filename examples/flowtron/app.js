@@ -289,6 +289,9 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.chat.on('message', () => {
             $scope.scrollToBottom();
         });
+        $scope.chat.on('$history:message', () => {
+            $scope.scrollToBottom();
+        });
 
         // we store the id of the lastSender
         $scope.lastSender = null;
@@ -305,14 +308,21 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         $scope.$watch('messageDraft.text', (newv, oldv) => {
 
-            if(newv.indexOf(':') > -1) {
+            let words = newv.split(' ');
+            let lastWord = words[words.length -1];
 
-                $scope.messageDraft.suggestedEmoji = $scope.chat.emoji.search(newv);
-                console.log($scope.messageDraft.suggestedEmoji)
+            if(lastWord[0] == ':' && lastWord[lastWord.length -1] !== ':') {
+                $scope.messageDraft.suggestedEmoji = $scope.chat.emoji.search(lastWord);
+            } else {
+                $scope.messageDraft.suggestedEmoji = [];
             }
 
-
         });
+
+        $scope.completeEmoji = (emoji) => {
+            $scope.messageDraft.text = $scope.messageDraft.text.substring(0, $scope.messageDraft.text.lastIndexOf(" "));
+            $scope.messageDraft.text = [$scope.messageDraft.text, emoji].join(' ');
+        }
 
         // send a message using the messageDraft input
         $scope.sendMessage = () => {
