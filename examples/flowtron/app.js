@@ -98,7 +98,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 controller: 'Chat'
             })
     })
-    .factory('Rooms', function(OCF) {
+    .factory('Rooms', function(OCF, Me) {
 
         let channels = ['Main', 'Portal', 'Blocks', 'Content', 'Support', 'Open Source', 'Client Eng', 'Docs', 'Marketing', 'Ops', 'Foolery'];
 
@@ -138,23 +138,52 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 return foundRoom;
             } else {
 
-                let chat = new OCF.Chat(channel);
+                let room = {
+                    name: channel,
+                    chat: new OCF.Chat(channel),
+                    messages: []
+                }
 
-                chat.plugin(OpenChatFramework.plugin.typingIndicator({
+                room.chat.plugin(OpenChatFramework.plugin.typingIndicator({
                     timeout: 5000
                 }));
 
-                chat.plugin(OpenChatFramework.plugin.history());
+                room.chat.plugin(OpenChatFramework.plugin.history());
 
-                chat.plugin(OpenChatFramework.plugin.unread());
+                room.chat.plugin(OpenChatFramework.plugin.unread());
 
-                chat.plugin(OpenChatFramework.plugin.emoji());
-                
-                obj.list.push({
-                    name: channel,
-                    chat: chat,
-                    messages: []
+                room.chat.plugin(OpenChatFramework.plugin.emoji());
+
+                // function to add a message to messages array
+                let addMessage = (payload, isHistory) => {
+
+                    // if this message was from a history call
+                    payload.isHistory = isHistory;
+
+                    // if the last message was sent from the same user
+                    payload.sameUser = room.messages.length > 0 && payload.sender.uuid == room.messages[room.messages.length - 1].sender.uuid;
+                    
+                    // if this message was sent by this client
+                    payload.isSelf = payload.sender.uuid == Me.profile.uuid;
+
+                    // add the message to the array
+                    room.messages.push(payload);
+
+                }
+
+                room.chat.on('$history.message', function(payload) {
+
+                    // render it in the DOM with a special class
+                    addMessage(payload, true);
+
                 });
+
+                room.chat.on('message', function(payload) {
+                    // render it in the DOM
+                    addMessage(payload, false);
+                });
+
+                obj.list.push(room);
 
                 return obj.list[obj.list.length - 1];
 
@@ -253,11 +282,14 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         $scope.room = Rooms.findOrCreate($stateParams.channel);
 
-        console.log($scope.room)
-
         $scope.chat = $scope.room.chat;
 
         $scope.chat.unread.active();
+
+        $scope.chat.on('message', () => {
+
+            $scope.scrollToBottom();
+        });
 
         // we store the id of the lastSender
         $scope.lastSender = null;
@@ -299,47 +331,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         }
         $scope.scrollToBottom();
 
-        // function to add a message to messages array
-        let addMessage = (payload, isHistory) => {
-
-            // if this message was from a history call
-            payload.isHistory = isHistory;
-
-            // if the last message was sent from the same user
-            payload.sameUser = $scope.room.messages.length > 0 && payload.sender.uuid == $scope.room.messages[$scope.room.messages.length - 1].sender.uuid;
-            
-            // if this message was sent by this client
-            payload.isSelf = payload.sender.uuid == Me.profile.uuid;
-
-            // add the message to the array
-            $scope.room.messages.push(payload);
-
-            $scope.scrollToBottom();
-
-        }
-
-        // if this chat receives a message that's not from this sessions
-        let historyListener = function(payload) {
-
-            // render it in the DOM with a special class
-            addMessage(payload, true);
-        };
-
-        $scope.chat.on('$history.message', historyListener);
-
-        // when this chat gets a message
-        let messageListener = function(payload) {
-            // render it in the DOM
-            addMessage(payload, false);
-        };
-
-        $scope.chat.on('message', messageListener);
-
         $scope.$on('$destroy', function() {
             $scope.chat.unread.inactive();
-            $scope.chat.off('$history.message', historyListener);
-            $scope.chat.off('message', messageListener);
-
         });
 
     });
