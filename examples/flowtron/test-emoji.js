@@ -197,10 +197,10 @@ let emojis = [':blush:', ':scream:', ':smirk:', ':smiley:',
     ':small_orange_diamond:', ':small_red_triangle:',
     ':small_red_triangle_down:', ':shipit:'];
 
-var query = "cl";
+var query = ":cl";
 var results = [];
 for(var i in emojis) {
-    if(emojis[i].substring(1, query.length + 1) == query) {
+    if(emojis[i].substring(0, query.length) == query) {
         results.push(emojis[i]);
     }
 }

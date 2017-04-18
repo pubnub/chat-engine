@@ -26,10 +26,22 @@
         <p class="typing text-muted"></p> 
     </div> 
 
+    <div class="card" id="emoji-suggest">
+        
+        <ul class="list-group list-group-flush">
+
+          <li class="list-group-item" ng-repeat="emoji in messageDraft.suggestedEmoji track by $index">
+            {{emoji}}
+          </li>
+
+        </ul>
+
+    </div>
+
     <div class="send-message card-block">
         <form ng-submit="sendMessage(chat)"> 
             <div class="input-group"> 
-                <input ng-model="messageDraft" ng-change="chat.typingIndicator.startTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
+                <input ng-model="messageDraft.text" ng-change="chat.typingIndicator.startTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
                 <span class="input-group-btn"> 
                     <button class="btn btn-primary" type="submit">Send</button> 
                 </span> 

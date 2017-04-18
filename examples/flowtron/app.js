@@ -71,7 +71,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         ngOCF.bind(OCF);
 
         OCF.onAny((event, data) => {
-            console.log(event, data);
+            // console.log(event, data);
         });
 
         return OCF;
@@ -267,11 +267,26 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
             $scope.chat.leave();
         }
 
+        $scope.messageDraft = {
+            text: '',
+            suggestedEmoji: []
+        }
+
+        $scope.$watch('messageDraft.text', (newv, oldv) => {
+
+            if(newv.indexOf(':') > -1) {
+
+                $scope.messageDraft.suggestedEmoji = $scope.chat.emoji.search(newv);
+                console.log($scope.messageDraft.suggestedEmoji)
+            }
+
+
+        });
+
         // send a message using the messageDraft input
         $scope.sendMessage = () => {
-
-            $scope.chat.send('message', $scope.messageDraft);
-            $scope.messageDraft = '';
+            $scope.chat.send('message', $scope.messageDraft.text);
+            $scope.messageDraft.text = '';
         }
 
         $scope.scrollToBottom = () => {
