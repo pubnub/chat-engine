@@ -77,6 +77,27 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         return OCF;
 
     })
+    .config(function($stateProvider, $urlRouterProvider) {
+        
+        $urlRouterProvider.otherwise('/login');
+        
+        $stateProvider
+            .state('login', {
+                url: '/login',
+                templateUrl: 'views/login.html',
+                controller: 'LoginCtrl'
+            })
+            .state('dash', {
+                url: '/dash',
+                templateUrl: 'views/dash.html',
+                controller: 'ChatAppController'
+            })
+            .state('dash.chat', {
+                url: '/dash/:channel',
+                templateUrl: 'views/chat.html',
+                controller: 'Chat'
+            })
+    })
     .factory('Rooms', function(OCF) {
 
         let channels = ['Main', 'Portal', 'Blocks', 'Content', 'Support', 'Open Source', 'Client Eng', 'Docs', 'Marketing', 'Ops', 'Foolery'];
@@ -114,7 +135,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
             let foundRoom = obj.find(channel);
 
             if(foundRoom) {
-                return foundRoom.chat;
+                return foundRoom;
             } else {
 
                 let chat = new OCF.Chat(channel);
@@ -129,10 +150,11 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
                 
                 obj.list.push({
                     name: channel,
-                    chat: chat
+                    chat: chat,
+                    messages: []
                 });
 
-                return chat;
+                return obj.list[obj.list.length - 1];
 
             }
 
@@ -140,27 +162,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
 
         return obj;
 
-    })
-    .config(function($stateProvider, $urlRouterProvider) {
-        
-        $urlRouterProvider.otherwise('/login');
-        
-        $stateProvider
-            .state('login', {
-                url: '/login',
-                templateUrl: 'views/login.html',
-                controller: 'LoginCtrl'
-            })
-            .state('dash', {
-                url: '/dash',
-                templateUrl: 'views/dash.html',
-                controller: 'ChatAppController'
-            })
-            .state('dash.chat', {
-                url: '/dash/:channel',
-                templateUrl: 'views/chat.html',
-                controller: 'Chat'
-            })
     })
     .controller('MainCtrl', function($scope, OCF, Me) {
     })
@@ -177,8 +178,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
     .controller('OnlineUser', function($scope, OCF, Me, $state) {
   
         $scope.invite = function(user, channel) {
-
-            console.log('sending invite to ', user, channel)
 
             // send the clicked user a private message telling them we invited them
             user.direct.send('private-invite', {channel: channel});
@@ -203,21 +202,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
     })
     .controller('ChatAppController', function($scope, $state, $stateParams, OCF, Me, Rooms) {
 
-        console.log(Me.profile)
-
         Rooms.connect();
 
         $scope.rooms = Rooms.list;
 
-        setInterval(function(argument) {
-            console.log($scope.rooms)
-        }, 10000)
-
         if(!Me.profile) {
             return  $state.go('login');
         }
-
-        console.log('chat app controlelr loadd')
 
         $scope.Me = Me;
 
@@ -258,12 +249,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
     })
     .controller('Chat', function($scope, $stateParams, OCF, Me, $timeout, Rooms) {
 
-        $scope.chat = Rooms.findOrCreate($stateParams.channel)
+        $scope.room = Rooms.findOrCreate($stateParams.channel);
 
-        console.log($scope.chat)
+        console.log($scope.room)
 
-        // every chat has a list of messages
-        $scope.messages = [];
+        $scope.chat = $scope.room.chat;
+
+        $scope.chat.unread.active();
 
         // we store the id of the lastSender
         $scope.lastSender = null;
@@ -276,11 +268,19 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         // send a message using the messageDraft input
         $scope.sendMessage = () => {
 
-            console.info('sending message')
-
             $scope.chat.send('message', $scope.messageDraft);
             $scope.messageDraft = '';
         }
+
+        $scope.scrollToBottom = () => {
+
+            $timeout(function() {
+              var scroller = document.getElementById("log");
+              scroller.scrollTop = scroller.scrollHeight;
+            }, 0, false);
+
+        }
+        $scope.scrollToBottom();
 
         // function to add a message to messages array
         let addMessage = (payload, isHistory) => {
@@ -289,32 +289,40 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
             payload.isHistory = isHistory;
 
             // if the last message was sent from the same user
-            payload.sameUser = $scope.messages.length > 0 && payload.sender.uuid == $scope.messages[$scope.messages.length - 1].sender.uuid;
+            payload.sameUser = $scope.room.messages.length > 0 && payload.sender.uuid == $scope.room.messages[$scope.room.messages.length - 1].sender.uuid;
             
             // if this message was sent by this client
             payload.isSelf = payload.sender.uuid == Me.profile.uuid;
 
             // add the message to the array
-            $scope.messages.push(payload);
+            $scope.room.messages.push(payload);
 
-            $timeout(function() {
-              var scroller = document.getElementById("log");
-              scroller.scrollTop = scroller.scrollHeight;
-            }, 0, false);
+            $scope.scrollToBottom();
 
         }
 
         // if this chat receives a message that's not from this sessions
-        $scope.chat.on('$history.message', function(payload) {
+        let historyListener = function(payload) {
 
             // render it in the DOM with a special class
             addMessage(payload, true);
-        });
+        };
+
+        $scope.chat.on('$history.message', historyListener);
 
         // when this chat gets a message
-        $scope.chat.on('message', function(payload) {
+        let messageListener = function(payload) {
             // render it in the DOM
             addMessage(payload, false);
+        };
+
+        $scope.chat.on('message', messageListener);
+
+        $scope.$on('$destroy', function() {
+            $scope.chat.unread.inactive();
+            $scope.chat.off('$history.message', historyListener);
+            $scope.chat.off('message', messageListener);
+
         });
 
     });

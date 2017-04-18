@@ -58,6 +58,8 @@ const create = function(config) {
             * @param {Function} callback The function to run when the event is emitted 
             */    
             this.on = this.emitter.on.bind(this.emitter);
+
+            this.off = this.emitter.off.bind(this.emitter);
      
             /**
             * Listen for any event on this object and fire a callback when it's emitted

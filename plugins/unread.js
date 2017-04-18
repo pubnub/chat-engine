@@ -9,21 +9,18 @@
             construct(data) {
 
                 this.parent.isFocused = false;
-                this.parent.unread = 0;
+                this.parent.unreadCount = 0;
 
                 this.parent.on('message', (event) => {
 
-                    console.log('message cb')
-                    console.log(this.parent)
-
                     if(!this.isActive) {
 
-                        this.parent.unread++;
-                        this.parent.broadcast('$unread', this.parent.unread);
-
-                        console.log('unread', this.parent.unread)
-
-                        console.log(this.parent, this)
+                        this.parent.unreadCount++;
+                        this.parent.broadcast('$unread', {
+                            chat: this.parent,
+                            sender: event.sender,
+                            event: event
+                        });
 
                     }
 
@@ -32,7 +29,9 @@
             }
 
             active() {
+
                 this.isActive = true;
+                this.parent.unreadCount = 0;
             }
 
             inactive() {
@@ -43,11 +42,7 @@
 
         let broadcast = {
             message: (payload, next) => {
-
-                console.log(payload);
-
                 next(null, payload)
-
             }
         };
 

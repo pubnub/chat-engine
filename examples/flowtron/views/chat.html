@@ -1,7 +1,7 @@
 <div id="chat">
         
     <div class="card-header">
-        {{chat.channel}} {{chat.unread}}
+        {{chat.channel}} {{chat.unreadCount}}
     </div>
 
     <div class="card-block">
@@ -15,11 +15,11 @@
     
     <div id="log" class="card-block"> 
         <div class="log">
-            <div class="row message" ng-repeat="message in messages" ng-class="{'same-user': message.sameUser, 'text-muted': message.isHistory, 'is-self': !message.isSelf}">
-                <div class="col-xs-2 text-xs-right">
+            <div class="row message" ng-repeat="message in room.messages" ng-class="{'same-user': message.sameUser, 'text-muted': message.isHistory, 'is-self': !message.isSelf}">
+                <div class="col col-2 text-right">
                     <strong class="username">{{message.sender.state().name}}</strong>
                 </div>
-                <div class="col-xs-10">
+                <div class="col col-10">
                     <p>{{message.data}}</p>
                 </div>
             </div>
