@@ -271,8 +271,6 @@
         class extension {
             search(query) {
 
-                console.log('searching with query', query)
-
                 var results = [];
                 for(var i in emojis) {
                     if(emojis[i].substring(0, query.length) == query) {
