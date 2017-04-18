@@ -1,4 +1,4 @@
-(function() {
+    (function() {
 
     const namespace = 'emoji';
 
@@ -249,17 +249,22 @@
         // where emoji images are hosted. filename (ex: /smile.png) will be added
         config.url = config.url || 'http://www.webpagefx.com/tools/emoji-cheat-sheet/graphics/emojis';
 
-        // define middleware to run after a message has been received and OCF has processed it
-        let broadcast = {
-            message: function(payload, next) {
+        let parseEmoji = function(payload, next) {
             
+            if(payload.data) {
                 // parse emoji
                 payload.data = emoji(payload.data, config.url, config.height);
-
-                // continue along middleware
-                next(null, payload);
-
             }
+
+            // continue along middleware
+            next(null, payload);
+
+        };
+
+        // define middleware to run after a message has been received and OCF has processed it
+        let broadcast = {
+            'message': parseEmoji,
+            '$history.message': parseEmoji
         };
 
         // middleware tells the framework to use these functions when 

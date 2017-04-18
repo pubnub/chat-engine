@@ -1,4 +1,4 @@
-angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
+angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ngSanitize'])
     .config(function(lockProvider) {
 
         lockProvider.init({
@@ -71,7 +71,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router'])
         ngOCF.bind(OCF);
 
         OCF.onAny((event, data) => {
-            // console.log(event, data);
+            console.log(event, data);
         });
 
         return OCF;

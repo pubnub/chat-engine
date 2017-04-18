@@ -19,7 +19,7 @@
                     <strong class="username">{{message.sender.state().name}}</strong>
                 </div>
                 <div class="col col-10">
-                    <p>{{message.data}}</p>
+                    <p ng-bind-html="message.data"></p>
                 </div>
             </div>
         </div> 
