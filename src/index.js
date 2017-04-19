@@ -274,7 +274,7 @@ const create = function(config) {
                 delete payload.chat; 
 
                 // publish the event and data over the configured channel
-                this.room.publish({
+                this.room.message({
                     message: [event, payload],
                     channel: this.channel
                 });
@@ -404,7 +404,7 @@ const create = function(config) {
         leave() {
 
             // disconnect from the chat
-            this.room.unsubscribe().then(() => {
+            this.room.leave().then(() => {
                 // should get caught on as network event
             });
 
@@ -526,7 +526,7 @@ const create = function(config) {
         setState(state) {
 
             // handy method to set state of user without touching rltm
-            this.room.setState(state);
+            this.room.state(state);
         }
 
     };

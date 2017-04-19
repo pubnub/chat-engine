@@ -5,8 +5,6 @@ const typingIndicator = require('./plugins/typingIndicator.js');
 const append = require('./plugins/append.js');
 const messageHistory = require('./plugins/messageHistory.js');
 
-const Rltm = require('../rltm/src/index');
-
 const OpenChatFramework = require('./src/index.js'); 
 
 let agentInput = process.env.AGENT || 'pubnub';
