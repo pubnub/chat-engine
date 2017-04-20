@@ -12,12 +12,8 @@ var OCF = OpenChatFramework.create({
             restore: false
         }
     },
-    globalChannel: 'ocf-javascript-demo'
+    globalChannel: 'ocf-demo-angular-2'
 });
-
-OCF.loadPlugin(typingIndicator({
-    timeout: 5000
-}));
 
 OCF.onAny((payload) => {
     console.log('any', payload)
@@ -27,15 +23,7 @@ var me = OCF.connect('robot-stephen', {username: 'robot-stephen'});
 
 var chats = {};
 
-console.log(me.direct)
-
-me.direct.onAny((payload) => {
-    console.log(payload)
-})
-
 me.direct.on('private-invite', (payload) => {
-
-    console.log('got private invite')
 
     var chat = chats[payload.data.channel];
 
@@ -45,9 +33,15 @@ me.direct.on('private-invite', (payload) => {
 
         chat = chats[payload.data.channel];
 
+        chat.plugin(typingIndicator({
+            timeout: 5000
+        }));
+
+        chat.send('message', 'hey, how can I help you?');
+
         chat.on('message', (payload) => {
-            
-            if(payload.sender.data.uuid !== me.data.uuid) { // add to github issues
+
+            if(payload.sender.uuid !== me.uuid) { // add to github issues
 
                 setTimeout((argument) => {
 
@@ -55,13 +49,7 @@ me.direct.on('private-invite', (payload) => {
 
                     setTimeout((argument) => {
 
-                            // payload.sender.isMe
-
-                            console.log('sending message')
-
-                            chat.send('message', {
-                                text: 'hey there ' + payload.sender.data.state.username 
-                            });
+                        chat.send('message', 'hey there ' + payload.sender.state().username);
 
                         chat.typingIndicator.stopTyping(); // add this to plugin middleware
 
