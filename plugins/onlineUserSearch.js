@@ -4,6 +4,9 @@
 
     // allows you to search the online user list by username
     const plugin = (config) => {
+
+        config = config || {};
+        config.field = config.field || 'username';
         
         // these are new methods that will be added to the extended class
         class extension {
@@ -18,7 +21,7 @@
                     let state  = this.parent.users[key].state(this.parent);
 
                     // see if that user username includes the input text 
-                    if(state && state.username && state.username.indexOf(input) > -1) {
+                    if(state && state[config.field] && state[config.field].indexOf(input) > -1) {
                         // if it does, add it to the list of returned users
                         returnList.push(this.parent.users[key]);
                     }
