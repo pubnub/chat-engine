@@ -22,12 +22,12 @@
 
                 // forward events via broadcast
                 this.chat.on('$typingIndicator.startTyping', (event) => {
-                    console.log(event.sender.update({isTyping: true}, this.parent));
+                    event.sender.update({isTyping: true}, this.parent);
                     this.parent.broadcast('$typingIndicator.startTyping', event);
                 });
 
                 this.chat.on('$typingIndicator.stopTyping', (event) => {
-                    console.log(event.sender.update({isTyping: false}, this.parent));
+                    event.sender.update({isTyping: false}, this.parent);
                     this.parent.broadcast('$typingIndicator.stopTyping', event);
                 });
 

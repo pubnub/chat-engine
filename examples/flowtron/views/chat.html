@@ -33,13 +33,13 @@
 
     <div class="card" id="emoji-suggest" ng-show="messageDraft.suggestedEmoji.length">
         
-        <ul class="list-group list-group-flush">
+        <div class="list-group list-group-flush">
 
-          <li class="list-group-item" ng-repeat="emoji in messageDraft.suggestedEmoji track by $index" ng-click="completeEmoji(emoji)">
-            {{emoji}}
-          </li>
+          <a class="list-group-item list-group-item-action" ng-repeat="emoji in messageDraft.suggestedEmoji track by $index" ng-click="completeEmoji(emoji)" href="">
+            <span ng-bind-html="chat.emoji.render(emoji)"></span> {{emoji}}
+          </a>
 
-        </ul>
+        </div>
 
     </div>
 
