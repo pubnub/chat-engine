@@ -141,6 +141,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 let room = {
                     name: channel,
                     chat: new OCF.Chat(channel),
+                    isGroup: channels.indexOf(channel) > -1,
                     messages: []
                 }
 

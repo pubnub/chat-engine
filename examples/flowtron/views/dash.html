@@ -14,7 +14,7 @@
 
         <ul id="room-list" class="list-group list-group-flush">
 
-          <li class="list-group-item" ng-repeat="room in rooms">
+          <li class="list-group-item" ng-repeat="room in rooms" ng-if="room.isGroup">
               <a ui-sref="dash.chat({channel: room.chat.channel})">{{room.name}}</a> <span class="badge badge-pill badge-warning" ng-if="room.chat.unreadCount" ng-bind="room.chat.unreadCount"></span>
           </li>
 

@@ -1,7 +1,14 @@
 <div id="chat">
         
     <div class="card-header">
-        {{chat.channel}}
+        <span ng-if="room.isGroup">{{chat.channel}}</span>
+        <span ng-if="!room.isGroup">
+
+            <span ng-repeat="user in chat.users">
+              {{user.state().name}}
+            </span>
+
+        </span>
     </div>
 
     <div class="card-block online-users">
