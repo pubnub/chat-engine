@@ -18,7 +18,7 @@
             construct() {
 
                 // keep comms on a new channel so we don't flood chat channel
-                this.chat = new this.OCF.Chat('$' + namespace + new Date());
+                this.chat = new this.OCF.Chat(this.parent.channel + '.$' + namespace);
 
                 // forward events via broadcast
                 this.chat.on('$typingIndicator.startTyping', (event) => {
