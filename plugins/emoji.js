@@ -209,14 +209,19 @@
     // adds some text to message before it's sent and when it's received
     const plugin = (config) => {
 
-        // html <img> source will use this width and height
-        const size = 32;
-
         // regular expression to find emoji strings
         const test = /:[a-z0-9_\-\+]+:/g;
 
+        // create empty config object if not supplied
+        config = config || {};
+
+        config.height = config.height || 16;
+
+        // where emoji images are hosted. filename (ex: /smile.png) will be added
+        config.url = config.url || 'http://www.webpagefx.com/tools/emoji-cheat-sheet/graphics/emojis';
+
         // function to parse string for :smile: and other emoji
-        const emoji = (someString, url, height) => someString.replace(test, (match) => {
+        const emoji = (someString, url = config.url, height = config.height) => someString.replace(test, (match) => {
 
             // use regex to find emoji and replace with html
             let result = match;
@@ -241,14 +246,6 @@
 
         });
 
-        // create empty config object if not supplied
-        config = config || {};
-
-        config.height = config.height || 16;
-
-        // where emoji images are hosted. filename (ex: /smile.png) will be added
-        config.url = config.url || 'http://www.webpagefx.com/tools/emoji-cheat-sheet/graphics/emojis';
-
         let parseEmoji = function(payload, next) {
             
             if(payload.data) {
@@ -269,14 +266,19 @@
 
         // these are new methods that will be added to the extended class
         class extension {
+            render(string, url, height) {
+                return emoji(string, url, height);
+            }
             search(query) {
 
                 var results = [];
+                
                 for(var i in emojis) {
                     if(emojis[i].substring(0, query.length) == query) {
                         results.push(emojis[i]);
                     }
                 }
+
                 return results;
 
             }
