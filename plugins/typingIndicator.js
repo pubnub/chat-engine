@@ -22,10 +22,12 @@
 
                 // forward events via broadcast
                 this.chat.on('$typingIndicator.startTyping', (event) => {
+                    console.log(event.sender.update({isTyping: true}, this.parent));
                     this.parent.broadcast('$typingIndicator.startTyping', event);
                 });
 
                 this.chat.on('$typingIndicator.stopTyping', (event) => {
+                    console.log(event.sender.update({isTyping: false}, this.parent));
                     this.parent.broadcast('$typingIndicator.stopTyping', event);
                 });
 
@@ -89,17 +91,6 @@
             }
         };
 
-        let broadcast = {
-            "$typingIndicator.startTyping": (payload, next) => {
-                payload.sender.isTyping = true;
-                next(null, payload);
-            },
-            "$typingIndicator.stopTyping": (payload, next) => {
-                payload.sender.isTyping = false;
-                next(null, payload);
-            }
-        }
-
         // define both the extended methods and the middleware in our plugin
         return {
             namespace: 'typingIndicator',
@@ -108,7 +99,7 @@
                 GlobalChat: extension
             },
             middleware: {
-                send, broadcast
+                send
             }
         }
 

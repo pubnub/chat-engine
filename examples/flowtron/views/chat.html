@@ -22,8 +22,13 @@
                     <p ng-bind-html="message.data"></p>
                 </div>
             </div>
+            <div class="row message">
+                <div class="col col-2"></div>
+                <div class="col col-10">
+                    <p ng-repeat="user in chat.users" ng-if="user.state(chat).isTyping">{{user.state().name}} is typing...</p>
+                </div>
+            </div>
         </div> 
-        <p class="typing text-muted"></p> 
     </div> 
 
     <div class="card" id="emoji-suggest" ng-show="messageDraft.suggestedEmoji.length">
