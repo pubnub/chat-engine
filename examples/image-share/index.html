@@ -82,7 +82,8 @@
 
         var widget = uploadcare.Widget('[role=uploadcare-uploader]');
 
-        var me = OCF.connect(username);
+        // @todo shouldn't need the {} to connect
+        var me = OCF.connect(username, {});
 
         var chat = OCF.globalChat;
         
