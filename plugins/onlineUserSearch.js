@@ -7,23 +7,39 @@
 
         config = config || {};
         config.field = config.field || 'username';
+        config.caseSensitive = config.caseSensitive || false;
         
         // these are new methods that will be added to the extended class
         class extension {
-            search(input) {
+            search(needle) {
 
                 // an empty array of users we found
                 var returnList = [];
 
+                if(config.caseSensitive) {
+                    needle = needle.toLowerCase();
+                }
+
                 // for every user that the parent chat knows about
                 for(var key in this.parent.users) {
 
-                    let state  = this.parent.users[key].state(this.parent);
+                    let haystack  = this.parent.users[key].state(this.parent);
 
                     // see if that user username includes the input text 
-                    if(state && state[config.field] && state[config.field].indexOf(input) > -1) {
-                        // if it does, add it to the list of returned users
-                        returnList.push(this.parent.users[key]);
+                    if(haystack && haystack[config.field]) {
+
+                        haystack = haystack[config.field];
+
+                        if(!config.caseSensitive) {
+                            haystack = haystack.toLowerCase();
+                        }
+
+                        if(haystack.indexOf(needle) > -1) {
+
+                            // if it does, add it to the list of returned users
+                            returnList.push(this.parent.users[key]);
+
+                        }
                     }
 
                 }

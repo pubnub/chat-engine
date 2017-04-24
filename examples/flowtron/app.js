@@ -255,7 +255,9 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         });
 
-        OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
+        OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch({
+            field: 'name'
+        }));
 
         // hide / show usernames based on input
         $scope.userSearch = {
