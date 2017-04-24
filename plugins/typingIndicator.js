@@ -92,9 +92,11 @@
         let broadcast = {
             "$typingIndicator.startTyping": (payload, next) => {
                 payload.sender.isTyping = true;
+                next(null, payload);
             },
             "$typingIndicator.stopTyping": (payload, next) => {
                 payload.sender.isTyping = false;
+                next(null, payload);
             }
         }
 
