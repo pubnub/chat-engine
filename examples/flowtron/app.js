@@ -93,7 +93,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 controller: 'ChatAppController'
             })
             .state('dash.chat', {
-                url: '/dash/:channel',
+                url: '/:channel',
                 templateUrl: 'views/chat.html',
                 controller: 'Chat'
             })
