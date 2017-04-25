@@ -153,6 +153,15 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
                 room.chat.plugin(OpenChatFramework.plugin.unread());
 
+                room.chat.plugin(OpenChatFramework.plugin.notifications({
+                    title: (event) => {
+                        return 'New FlowTron Message In ' + room.name
+                    },
+                    message: (event) => {
+                        return event.data;
+                    } 
+                }));
+
                 room.chat.plugin(OpenChatFramework.plugin.emoji());
 
                 // function to add a message to messages array
