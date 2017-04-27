@@ -145,6 +145,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     messages: []
                 }
 
+                console.log('it works?')
+
                 room.chat.plugin(OpenChatFramework.plugin.typingIndicator({
                     timeout: 5000
                 }));

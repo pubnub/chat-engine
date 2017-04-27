@@ -22,13 +22,11 @@ function createWindow () {
     width: 800, 
     height: 600,
     webPreferences: {
-        nodeIntegration: false,
-        allowRunningInsecureContent: true
     }
   });
 
   // and load the index.html of the app.
-  win.loadURL('http://localhost:8000/examples/flowtron/')
+  win.loadURL('http://localhost:8000/examples/flowtron/', {"extraHeaders" : "pragma: no-cache\n"})
   // win.loadURL('http://google.com')
 
   // Open the DevTools.

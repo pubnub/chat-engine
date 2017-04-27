@@ -1,0 +1,108 @@
+.row-no-padding [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+.container-fluid {
+}
+.card {
+    border-radius: 0px;
+    background-color: transparent;
+}
+.list-group-item {
+    background-color: transparent;
+}
+#sidebar {
+    overflow-y: auto;
+    width: 300px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background-color: #21001b;
+    color: #a0889c;
+}
+#chats {
+    position: absolute;
+    left: 300px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+#sidebar a {
+    color: #a0889c;
+}
+#sidebar * {
+    border-color: #422a3e;
+}
+.avatar {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    position: relative;
+    bottom: 3px;
+    margin-right: 5px;
+}
+#chat {
+
+}
+#chat .send-message {
+    border-top: 1px solid #efefef;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+#chat #log {
+    font-size: 14px;
+    position: absolute;
+    bottom: 78px;
+    top: 96px;
+    right: 0px;
+    left: 0px;
+    overflow-y: auto;
+}
+.log p {
+    margin: 0px;
+}
+.log .message {
+    padding-top: .5rem;
+    border-top: 1px solid #efefef;
+    margin-top: .5rem;
+}
+.log .message:last-child {
+    padding-bottom: .5rem;
+}
+.log .message.same-user {
+    border-top: none;
+    margin-top: none;
+}
+.log .message p {
+    margin: 0px;
+}
+.username {
+    text-align: right;
+}
+.same-user .username {
+    display: none;
+}
+.online-users { 
+    background-color: #fff;
+    border-bottom: 1px solid #efefef;
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+.online-users img {
+    position: relative;
+    top: 0px;
+}
+#emoji-suggest {
+    bottom: 57px;
+    max-height: 241px;
+    width: 300px;
+    overflow-y: auto;
+    background-color: white;
+    z-index: 99;
+    position: absolute;
+    left: 21px; 
+}
+/*http://www.colourlovers.com/palette/894224/Finalized*/
