@@ -3,6 +3,5 @@
   "version": "0.1.0",
   "main": "main.js",
   "dependencies": {
-    "node-notifier": "^5.1.2"
   }
 }
