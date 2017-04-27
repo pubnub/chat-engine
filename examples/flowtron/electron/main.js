@@ -1,16 +1,15 @@
-const {app, BrowserWindow} = require('electron')
-const path = require('path')
-const url = require('url')
+const {app, BrowserWindow, ipcMain} = require('electron');
+const path = require('path');
+const url = require('url');
 
-const notifier = require('node-notifier');
-// String 
-notifier.notify('Message');
- 
-// Object 
-notifier.notify({
-  'title': 'My notification',
-  'message': 'Hello, there!'
-});
+// // desktop notification icon
+// const notifier = require('node-notifier');
+// ipcMain.on('notify', (event, arg) => {
+   
+//   // Object 
+//   notifier.notify(arg);
+
+// });
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
