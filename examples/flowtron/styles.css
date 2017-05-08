@@ -60,6 +60,7 @@
     right: 0px;
     left: 0px;
     overflow-y: auto;
+    padding-bottom: 0px;
 }
 .log p {
     margin: 0px;

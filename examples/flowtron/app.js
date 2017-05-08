@@ -353,6 +353,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         }
 
+        $scope.chat.on('$typingIndicator.*', (event) => {
+            $scope.scrollToBottom();
+        });
+
         $scope.messageDraft = {
             text: '',
             suggestedEmoji: []

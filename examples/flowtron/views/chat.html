@@ -29,7 +29,7 @@
                     <p ng-bind-html="message.data"></p>
                 </div>
             </div>
-            <div class="row message">
+            <div class="row message" ng-if="room.typingUsers.length">
                 <div class="col col-2"></div>
                 <div class="col col-10">
                     <p ng-repeat="user in room.typingUsers track by $index">{{user.state().name}} is typing...</p>
