@@ -142,14 +142,12 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     name: channel,
                     chat: new OCF.Chat(channel),
                     isGroup: channels.indexOf(channel) > -1,
-                    messages: []
+                    messages: [],
+                    typingUsers: [],
+                    something: false
                 }
 
-                console.log('it works?')
-
-                room.chat.plugin(OpenChatFramework.plugin.typingIndicator({
-                    timeout: 5000
-                }));
+                room.chat.plugin(OpenChatFramework.plugin.typingIndicator());
 
                 room.chat.plugin(OpenChatFramework.plugin.history());
 
@@ -193,6 +191,35 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 room.chat.on('message', function(payload) {
                     // render it in the DOM
                     addMessage(payload, false);
+                });
+
+                let updateTyping = (user, isTyping) => {
+
+                    let found = false;
+                    for(let i in room.typingUsers) {
+
+                        if(room.typingUsers[i].uuid == user.uuid) {
+                            
+                            found = true;
+                            if(!isTyping) {
+                                room.typingUsers.splice(i, 1);
+                            }
+
+                        }
+
+                    }
+
+                    if(!found && isTyping) {
+                        room.typingUsers.push(user);
+                    }
+
+                }
+
+                room.chat.on('$typingIndicator.startTyping', (event) => {
+                    updateTyping(event.sender, true);
+                });
+                room.chat.on('$typingIndicator.stopTyping', (event) => {
+                    updateTyping(event.sender, false);
                 });
 
                 obj.list.push(room);
@@ -303,7 +330,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.chat.on('message', () => {
             $scope.scrollToBottom();
         });
-        $scope.chat.on('$history:message', () => {
+
+        $scope.chat.on('$history.message', () => {
             $scope.scrollToBottom();
         });
 
@@ -313,6 +341,16 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         // leave a chatroom and remove from global chat list
         $scope.leave = (index) => {
             $scope.chat.leave();
+        }
+
+        $scope.isTyping = () => {
+
+            if($scope.messageDraft.text) {
+                $scope.chat.typingIndicator.startTyping();
+            } else {
+                $scope.chat.typingIndicator.stopTyping();
+            }
+
         }
 
         $scope.messageDraft = {
@@ -340,8 +378,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         // send a message using the messageDraft input
         $scope.sendMessage = () => {
-            $scope.chat.send('message', $scope.messageDraft.text);
-            $scope.messageDraft.text = '';
+            if($scope.messageDraft.text) {
+                $scope.chat.send('message', $scope.messageDraft.text);
+                $scope.messageDraft.text = '';   
+            }
         }
 
         $scope.scrollToBottom = () => {

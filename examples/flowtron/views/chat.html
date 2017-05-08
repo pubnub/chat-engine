@@ -32,7 +32,7 @@
             <div class="row message">
                 <div class="col col-2"></div>
                 <div class="col col-10">
-                    <p ng-repeat="user in chat.users" ng-if="user.state(chat).isTyping">{{user.state().name}} is typing...</p>
+                    <p ng-repeat="user in room.typingUsers track by $index">{{user.state().name}} is typing...</p>
                 </div>
             </div>
         </div> 
@@ -53,7 +53,7 @@
     <div class="send-message card-block">
         <form ng-submit="sendMessage(chat)"> 
             <div class="input-group"> 
-                <input ng-model="messageDraft.text" ng-change="chat.typingIndicator.startTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
+                <input ng-model="messageDraft.text" ng-change="isTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
                 <span class="input-group-btn"> 
                     <button class="btn btn-primary" type="submit">Send</button> 
                 </span> 

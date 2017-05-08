@@ -22,13 +22,15 @@
 
                 // forward events via broadcast
                 this.chat.on('$typingIndicator.startTyping', (event) => {
-                    event.sender.update({isTyping: true}, this.parent);
+
                     this.parent.broadcast('$typingIndicator.startTyping', event);
+
                 });
 
                 this.chat.on('$typingIndicator.stopTyping', (event) => {
-                    event.sender.update({isTyping: false}, this.parent);
+
                     this.parent.broadcast('$typingIndicator.stopTyping', event);
+
                 });
 
                 // will set Chat.typing.isTyping to false immediately
@@ -60,7 +62,7 @@
             stopTyping() {
 
                 // we must be currently typing to stop typing
-                if(this.isTyping) {
+                // if(this.isTyping) {
                     
                     // remove the timeout
                     clearTimeout(stopTypingTimeout);
@@ -71,7 +73,7 @@
                     // stop typing indicator
                     this.isTyping = false;
 
-                }
+                // }
 
             }
         }
