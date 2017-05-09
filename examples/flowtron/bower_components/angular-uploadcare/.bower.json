@@ -1,0 +1,44 @@
+{
+  "name": "angular-uploadcare",
+  "version": "0.2.0",
+  "authors": [
+    "Eric C. Brown <djheir@gmail.com>",
+    "Kevin Sproles @kevinsproles",
+    "Alexander Karpinsky @homm",
+    "Eugene Rodionov @theaqua",
+    "Matthias Scholz @Morpho",
+    "Dmitry Mukhin @dmitry-mukhin"
+  ],
+  "description": "Provides a directive for the Uploadcare widget",
+  "main": "angular-uploadcare.js",
+  "keywords": [
+    "angular",
+    "uploadcare",
+    "directive",
+    "upload",
+    "file",
+    "image",
+    "cdn",
+    "media"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/uploadcare/angular-uploadcare",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "0.2.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.2.0",
+    "commit": "57c63bf7726a4a5a808036a16b8cb97b65ef947e"
+  },
+  "_source": "https://github.com/uploadcare/angular-uploadcare.git",
+  "_target": "^0.2.0",
+  "_originalSource": "angular-uploadcare",
+  "_direct": true
+}

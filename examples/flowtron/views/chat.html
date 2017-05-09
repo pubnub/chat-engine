@@ -21,12 +21,15 @@
     
     <div id="log" class="card-block"> 
         <div class="log">
-            <div class="row message" ng-repeat="message in room.messages" ng-class="{'same-user': message.sameUser, 'text-muted': message.isHistory, 'is-self': !message.isSelf}">
+            <div class="row message" ng-repeat="message in room.messages" ng-class="{'same-user': message.sameUser, 'text-muted': message.type == '$history.message', 'is-self': !message.isSelf}">
                 <div class="col col-2 text-right">
                     <strong class="username">{{message.sender.state().name}}</strong>
                 </div>
-                <div class="col col-10">
+                <div class="col col-10" ng-if="message.type == '$history.message' || message.type == 'message'">
                     <p ng-bind-html="message.data"></p>
+                </div>
+                <div class="col col-10" ng-if="message.type == 'upload'">
+                    <img ng-src="{{message.data.cdnUrl}}" />
                 </div>
             </div>
             <div class="row message" ng-if="room.typingUsers.length">
@@ -57,6 +60,13 @@
                 <span class="input-group-btn"> 
                     <button class="btn btn-primary" type="submit">Send</button> 
                 </span> 
+                <input
+                  uploadcare-widget
+                  ng-model="upload"
+                  data-public-key="19126fa911640117d6d6"
+                  on-upload-complete="uploadcare(info)"
+                  value="uploadcareVal"
+                 />
             </div> 
         </form> 
     </div>

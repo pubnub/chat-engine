@@ -1,4 +1,4 @@
-angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ngSanitize'])
+angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ngSanitize', 'ng-uploadcare'])
     .config(function(lockProvider) {
 
         lockProvider.init({
@@ -165,16 +165,17 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 room.chat.plugin(OpenChatFramework.plugin.emoji());
 
                 // function to add a message to messages array
-                let addMessage = (payload, isHistory) => {
+                let addMessage = (payload, type) => {
 
-                    // if this message was from a history call
-                    payload.isHistory = isHistory;
+                    payload.type = type;
 
                     // if the last message was sent from the same user
                     payload.sameUser = room.messages.length > 0 && payload.sender.uuid == room.messages[room.messages.length - 1].sender.uuid;
                     
                     // if this message was sent by this client
                     payload.isSelf = payload.sender.uuid == Me.profile.uuid;
+
+                    console.log('added as ', payload)
 
                     // add the message to the array
                     room.messages.push(payload);
@@ -184,14 +185,19 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 room.chat.on('$history.message', function(payload) {
 
                     // render it in the DOM with a special class
-                    addMessage(payload, true);
+                    addMessage(payload, '$history.message');
 
                 });
 
                 room.chat.on('message', function(payload) {
                     // render it in the DOM
-                    addMessage(payload, false);
+                    addMessage(payload, 'message');
                 });
+
+                room.chat.on('upload', (payload) => {
+                    console.log(payload)
+                    addMessage(payload, 'upload');
+                })
 
                 let updateTyping = (user, isTyping) => {
 
@@ -221,6 +227,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 room.chat.on('$typingIndicator.stopTyping', (event) => {
                     updateTyping(event.sender, false);
                 });
+
+
 
                 obj.list.push(room);
 
@@ -334,6 +342,11 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.chat.on('$history.message', () => {
             $scope.scrollToBottom();
         });
+
+        $scope.uploadcare = (data) => {
+            $scope.chat.send('upload', data);
+            $scope.uploadcareVal = '';
+        }
 
         // we store the id of the lastSender
         $scope.lastSender = null;
