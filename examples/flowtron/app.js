@@ -194,6 +194,13 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     addMessage(payload, 'message');
                 });
 
+                room.chat.on('$history.upload', function(payload) {
+
+                    // render it in the DOM with a special class
+                    addMessage(payload, 'upload');
+
+                });
+
                 room.chat.on('upload', (payload) => {
                     console.log(payload)
                     addMessage(payload, 'upload');
