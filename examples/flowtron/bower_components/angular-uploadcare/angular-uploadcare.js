@@ -26,6 +26,7 @@ angular.module('ng-uploadcare', [])
         $scope.onWidgetReady({widget: $scope.widget});
         $scope.widget.onUploadComplete(function(info) {
           $scope.onUploadComplete({info: info});
+          $scope.widget.value('');
         });
         $scope.widget.onChange(function(file) {
           // add data binding for hidden inputs

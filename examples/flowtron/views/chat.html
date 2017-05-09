@@ -62,10 +62,10 @@
                 </span> 
                 <input
                   uploadcare-widget
-                  ng-model="upload"
+                  ng-model="uploadcare.value"
                   data-public-key="19126fa911640117d6d6"
-                  on-upload-complete="uploadcare(info)"
-                  value="uploadcareVal"
+                  on-upload-complete="uploadcare.callback(info)"
+                  data-multiple="false"
                  />
             </div> 
         </form> 

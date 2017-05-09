@@ -346,14 +346,16 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
             $scope.scrollToBottom();
         });
 
-        $scope.chat.on('$history.message', () => {
+        $scope.chat.on('$history.*', () => {
             $scope.scrollToBottom();
         });
 
-        $scope.uploadcare = (data) => {
-            $scope.chat.send('upload', data);
-            $scope.uploadcareVal = '';
-        }
+        $scope.uploadcare = {
+            value: '',
+            callback: (data) => {
+                $scope.chat.send('upload', data);
+            }
+        };
 
         // we store the id of the lastSender
         $scope.lastSender = null;
