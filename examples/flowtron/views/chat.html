@@ -65,7 +65,7 @@
     <div class="send-message card-block">
         <form ng-submit="sendMessage(chat)"> 
             <div class="input-group"> 
-                <input ng-model="messageDraft.text" ng-change="isTyping()" type="text" class="form-control message" placeholder="Your Message..."> 
+                <textarea ng-model="messageDraft.text" ng-change="isTyping()" type="text" class="form-control message message-input" placeholder="Your Message..." ng-keyup="$event.keyCode == 13 && !$event.shiftKey && sendMessage(chat)"> </textarea>
                 <span class="input-group-btn"> 
                     <button class="btn btn-primary" type="submit">Send</button> 
                 </span> 

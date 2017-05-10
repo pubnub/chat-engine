@@ -120,6 +120,10 @@
     position: relative;
     top: 3px;
 }
+
+.message-input {
+    height: 38px;
+}
 /*
 http://www.colourlovers.com/palette/894224/Finalized
 */
