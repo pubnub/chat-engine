@@ -13,18 +13,17 @@
         Notification.requestPermission();
     });
 
-    function notifyMe(title, icon, body) {
+    function notifyMe(title, icon, body, callback) {
       if (Notification.permission !== "granted")
         Notification.requestPermission();
       else {
+
         var notification = new Notification(title || 'Notification title', {
           icon: icon || 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
           body: body || "Hey there! You've been notified!",
         });
 
-        notification.onclick = function () {
-          window.open("http://stackoverflow.com/a/13328397/1269037");      
-        };
+        notification.onclick = callback;
 
       }
 
@@ -55,11 +54,17 @@
         return JSON.stringify(event.data);
     };
 
+    let defaultCallback = (event) => {
+      window.focus();
+      return false;
+    };
+
     const plugin = (config) => {
 
         config.title = config.title || defaultTitle;
         config.icon = config.icon || defaultIcon;
         config.message = config.message || defaultMessage;
+        config.callback = config.callback || defaultCallback;
 
         let isVisible = true;
 
@@ -86,7 +91,7 @@
                 this.parent.on('message', (event) => {
 
                     if(!isVisible) {
-                        notifyMe(config.title(event), config.icon(event), config.message(event));   
+                        notifyMe(config.title(event), config.icon(event), config.message(event), config.callback);   
                     }
 
                 });

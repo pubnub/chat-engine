@@ -98,7 +98,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 controller: 'Chat'
             })
     })
-    .factory('Rooms', function(OCF, Me) {
+    .factory('Rooms', function(OCF, Me, $state) {
 
         let channels = ['Main', 'Portal', 'Blocks', 'Content', 'Support', 'Open Source', 'Client Eng', 'Docs', 'Marketing', 'Ops', 'Foolery'];
 
@@ -158,7 +158,14 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     },
                     message: (event) => {
                         return event.data;
-                    } 
+                    },
+                    icon: (event) => {
+                        return '/examples/flowtron/logo@2x.png';
+                    },
+                    callback: (event) => {
+                        $state.go('dash.chat', {channel: channel})
+                        window.focus();
+                    }
                 }));
 
                 room.chat.plugin(OpenChatFramework.plugin.emoji());
