@@ -25,11 +25,14 @@
                 <div class="col col-2 text-right">
                     <strong class="username">{{message.sender.state().name}}</strong>
                 </div>
-                <div class="col col-10" ng-if="message.type == '$history.message' || message.type == 'message'">
-                    <p ng-bind-html="message.data"></p>
+                <div class="col col-6" ng-if="message.type == '$history.message' || message.type == 'message'">
+                    <p ng-bind-html="message.data.text"></p>
                 </div>
-                <div class="col col-10" ng-if="message.type == 'upload'">
+                <div class="col col-6" ng-if="message.type == 'upload'">
                     <img ng-src="{{message.data.cdnUrl}}" class="img-fluid" />
+                </div>
+                <div class="col col-4 text-right">
+                    <span class="messageDate">{{message.data.date | date:'medium'}}</span>
                 </div>
             </div>
             <div class="row message" ng-if="room.typingUsers.length">

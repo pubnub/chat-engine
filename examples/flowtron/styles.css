@@ -80,6 +80,12 @@
 .log .message p {
     margin: 0px;
 }
+.log .message .messageDate {
+    display: none;
+}
+.log .message:hover .messageDate {
+    display: inline-block;
+}
 .username {
     text-align: right;
 }

@@ -157,7 +157,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                         return 'New FlowTron Message In ' + room.name
                     },
                     message: (event) => {
-                        return event.data;
+                        return event.data.text;
                     },
                     icon: (event) => {
                         return '/examples/flowtron/logo@2x.png';
@@ -410,10 +410,15 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         // send a message using the messageDraft input
         $scope.sendMessage = () => {
+
             if($scope.messageDraft.text) {
-                $scope.chat.send('message', $scope.messageDraft.text);
+                $scope.chat.send('message', {
+                    text: $scope.messageDraft.text,
+                    date: new Date()
+                });
                 $scope.messageDraft.text = '';   
             }
+
         }
 
         $scope.scrollToBottom = () => {

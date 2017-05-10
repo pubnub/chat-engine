@@ -248,9 +248,9 @@
 
         let parseEmoji = function(payload, next) {
             
-            if(payload.data) {
+            if(payload.data.text) {
                 // parse emoji
-                payload.data = emoji(payload.data, config.url, config.height);
+                payload.data.text = emoji(payload.data.text, config.url, config.height);
             }
 
             // continue along middleware
