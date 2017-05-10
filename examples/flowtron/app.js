@@ -1,3 +1,8 @@
+let sounds = {
+    send: new Audio("send.wav"),
+    broadcast: new Audio("broadcast.wav")
+};
+
 angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ngSanitize', 'ng-uploadcare'])
     .config(function(lockProvider) {
 
@@ -185,6 +190,10 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
                     console.log('added as ', payload)
 
+                    if(!payload.isSelf && payload.type == 'message' || payload.type == 'history') {
+                        sounds.broadcast.play();
+                    } 
+
                     // add the message to the array
                     room.messages.push(payload);
 
@@ -198,6 +207,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 });
 
                 room.chat.on('message', function(payload) {
+
                     // render it in the DOM
                     addMessage(payload, 'message');
                 });
@@ -210,7 +220,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                 });
 
                 room.chat.on('upload', (payload) => {
-                    console.log(payload)
+
                     addMessage(payload, 'upload');
                 })
 
@@ -416,11 +426,16 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.sendMessage = () => {
 
             if($scope.messageDraft.text) {
+                
+                sounds.send.play();
+
                 $scope.chat.send('message', {
                     text: $scope.messageDraft.text,
                     date: new Date()
                 });
+
                 $scope.messageDraft.text = '';   
+
             }
 
         }
