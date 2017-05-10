@@ -13,17 +13,27 @@
         Notification.requestPermission();
     });
 
-    function notifyMe(title, icon, body, callback) {
-      if (Notification.permission !== "granted")
-        Notification.requestPermission();
-      else {
+    let lastNotification = false;
 
-        var notification = new Notification(title || 'Notification title', {
+    function notifyMe(title, icon, body, callback) {
+
+      if(lastNotification) {
+        
+        lastNotification.close();
+        lastNotification = false;
+
+      } 
+
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+      } else {
+
+        lastNotification = new Notification(title || 'Notification title', {
           icon: icon || 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
           body: body || "Hey there! You've been notified!",
         });
 
-        notification.onclick = callback;
+        lastNotification.onclick = callback;
 
       }
 
