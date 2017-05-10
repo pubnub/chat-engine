@@ -170,6 +170,8 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
                 room.chat.plugin(OpenChatFramework.plugin.emoji());
 
+                room.chat.plugin(OpenChatFramework.plugin.markdown());
+
                 // function to add a message to messages array
                 let addMessage = (payload, type) => {
 
