@@ -65,6 +65,9 @@
 .log p {
     margin: 0px;
 }
+.log img {
+    max-height: 300px;
+}
 .log .message {
     padding-top: .5rem;
     border-top: 1px solid #efefef;
