@@ -357,9 +357,11 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         });
 
         $scope.uploadcare = {
+            show: false,
             value: '',
             callback: (data) => {
                 $scope.chat.send('upload', data);
+                $scope.uploadcare.show = false;
             }
         };
 

@@ -69,14 +69,20 @@
                 <span class="input-group-btn"> 
                     <button class="btn btn-primary" type="submit">Send</button> 
                 </span> 
-                <input
-                  uploadcare-widget
-                  ng-model="uploadcare.value"
-                  data-public-key="19126fa911640117d6d6"
-                  on-upload-complete="uploadcare.callback(info)"
-                  data-multiple="false"
-                 />
+                <span class="input-group-btn" ng-show="!uploadcare.show"> 
+                    <a class="btn btn-secondary" ng-click="uploadcare.show = true">Attach</a> 
+                </span> 
+                <span class="uploadWidget" ng-show="uploadcare.show">
+                    <input
+                      uploadcare-widget
+                      ng-model="uploadcare.value"
+                      data-public-key="19126fa911640117d6d6"
+                      on-upload-complete="uploadcare.callback(info)"
+                      data-multiple="false"
+                     />
+                </span>
             </div> 
+
         </form> 
     </div>
 

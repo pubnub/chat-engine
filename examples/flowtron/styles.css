@@ -112,6 +112,11 @@
     position: absolute;
     left: 21px; 
 }
+.uploadWidget {
+    margin-left: 12px;
+    position: relative;
+    top: 3px;
+}
 /*
 http://www.colourlovers.com/palette/894224/Finalized
 */
