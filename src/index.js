@@ -9,7 +9,7 @@ const EventEmitter2 = require('eventemitter2').EventEmitter2;
 // @todo include this as module
 const Rltm = require('rltm');
 
-// allows a synchronous execution flow. 
+// allows a synchronous execution flow.
 const waterfall = require('async/waterfall');
 
 /**
@@ -28,8 +28,8 @@ const create = function(config) {
     let OCF = false;
 
     /**
-    * Configures an event emitter that other OCF objects inherit. Adds shortcut methods for 
-    * ```this.on()```, ```this.emit()```, etc. 
+    * Configures an event emitter that other OCF objects inherit. Adds shortcut methods for
+    * ```this.on()```, ```this.emit()```, etc.
     *
     * @class RootEmitter
     * @constructor
@@ -38,7 +38,7 @@ const create = function(config) {
 
         constructor() {
 
-            // create an ee2 
+            // create an ee2
             this.emitter = new EventEmitter2({
               wildcard: true,
               newListener: true,
@@ -46,21 +46,21 @@ const create = function(config) {
               verboseMemoryLeak: true
             });
 
-            // we bind to make sure wildcards work 
+            // we bind to make sure wildcards work
             // https://github.com/asyncly/EventEmitter2/issues/186
-            this.emit = this.emitter.emit.bind(this.emitter);            
+            this.emit = this.emitter.emit.bind(this.emitter);
 
             /**
             * Listen for a specific event and fire a callback when it's emitted
             *
             * @method on
             * @param {String} event The event name
-            * @param {Function} callback The function to run when the event is emitted 
-            */    
+            * @param {Function} callback The function to run when the event is emitted
+            */
             this.on = this.emitter.on.bind(this.emitter);
 
             this.off = this.emitter.off.bind(this.emitter);
-     
+
             /**
             * Listen for any event on this object and fire a callback when it's emitted
             *
@@ -74,7 +74,7 @@ const create = function(config) {
             *
             * @method once
             * @param {String} event The event name
-            * @param {Function} callback The function to run once 
+            * @param {Function} callback The function to run once
             */
             this.once = this.emitter.once.bind(this.emitter);
 
@@ -95,14 +95,14 @@ const create = function(config) {
         constructor() {
 
             super();
-            
+
             // emit an event from this object
             this.emit = (event, data) => {
 
                 // all events are forwarded to OCF object
                 // so you can globally bind to events with OCF.on()
                 OCF.emit(event, data);
-                
+
                 // send the event from the object that created it
                 this.emitter.emit(event, data);
 
@@ -110,7 +110,7 @@ const create = function(config) {
 
             // assign the list of plugins for this scope
             this.plugins = [];
-            
+
             // bind a plugin to this object
             this.plugin = function(module) {
 
@@ -122,9 +122,9 @@ const create = function(config) {
                 // see if there are plugins to attach to this class
                 if(module.extends && module.extends[className]) {
 
-                    // attach the plugins to this class 
+                    // attach the plugins to this class
                     // under their namespace
-                    OCF.addChild(this, module.namespace, 
+                    OCF.addChild(this, module.namespace,
                         new module.extends[className]);
 
                     this[module.namespace].OCF = OCF;
@@ -175,10 +175,10 @@ const create = function(config) {
             */
             this.users = {};
 
-            // this.room is our rltm.js connection 
+            // this.room is our rltm.js connection
             this.room = OCF.rltm.join(this.channel);
 
-            // whenever we get a message from the network 
+            // whenever we get a message from the network
             // run local broadcast message
             this.room.on('message', (uuid, data) => {
 
@@ -189,7 +189,7 @@ const create = function(config) {
 
             // forward user join events
             this.room.on('join', (uuid, state) => {
-                
+
                 let user = this.createUser(uuid, state);
 
                 /**
@@ -197,7 +197,7 @@ const create = function(config) {
                 *
                 * @event $ocf.join
                 * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
-                */     
+                */
                 this.broadcast('$ocf.join', {
                     user: user
                 });
@@ -246,8 +246,8 @@ const create = function(config) {
         }
 
         /**
-        * Send events to other clients in this {{#crossLink "User"}}{{/crossLink}}. 
-        * Events are broadcast over the network  and all events are made 
+        * Send events to other clients in this {{#crossLink "User"}}{{/crossLink}}.
+        * Events are broadcast over the network  and all events are made
         * on behalf of {{#crossLink "Me"}}{{/crossLink}}
         *
         * @method send
@@ -256,11 +256,11 @@ const create = function(config) {
         */
         send(event, data) {
 
-            // create a standardized payload object 
+            // create a standardized payload object
             let payload = {
                 data: data,            // the data supplied from params
                 sender: OCF.me.uuid,   // my own uuid
-                chat: this,            // an instance of this chat 
+                chat: this,            // an instance of this chat
             };
 
             // run the plugin queue to modify the event
@@ -269,9 +269,9 @@ const create = function(config) {
             }, (err, payload) => {
 
                 // remove chat otherwise it would be serialized
-                // instead, it's rebuilt on the other end. 
+                // instead, it's rebuilt on the other end.
                 // see this.broadcast
-                delete payload.chat; 
+                delete payload.chat;
 
                 // publish the event and data over the configured channel
                 this.room.message({
@@ -294,10 +294,10 @@ const create = function(config) {
         broadcast(event, payload) {
 
             if(typeof payload == "object") {
-                
+
                 // restore chat in payload
                 if(!payload.chat) {
-                    payload.chat = this;   
+                    payload.chat = this;
                 }
 
                 // turn a uuid found in payload.sender to a real user
@@ -345,7 +345,7 @@ const create = function(config) {
                 *
                 * @event $ocf.online
                 * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
-                */     
+                */
                 this.broadcast('$ocf.online', {
                     user: OCF.users[uuid]
                 });
@@ -388,7 +388,7 @@ const create = function(config) {
             * @event $ocf.state
             * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that changed state
             * @param {Object} payload.state The new user state for this ```Chat```
-            */           
+            */
             this.broadcast('$ocf.state', {
                 user: this.users[uuid],
                 state: this.users[uuid].state(this)
@@ -428,7 +428,7 @@ const create = function(config) {
                 // remove the user from the local list of users
                 delete this.users[uuid];
 
-                // we don't remove the user from the global list, 
+                // we don't remove the user from the global list,
                 // because they may be online in other channels
 
             } else {
@@ -457,7 +457,7 @@ const create = function(config) {
                 *
                 * @event $ocf.disconnect
                 * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that disconnected
-                */     
+                */
                 this.broadcast('$ocf.disconnect', this.users[uuid]);
 
                 /**
@@ -465,7 +465,7 @@ const create = function(config) {
                 *
                 * @event $ocf.offline
                 * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that has gone offline
-                */  
+                */
                 this.broadcast('$ocf.offline', this.users[uuid]);
 
             }
@@ -495,10 +495,10 @@ const create = function(config) {
             // look through the configured plugins
             for(let i in this.plugins) {
 
-                // if they have defined a function to run specifically 
+                // if they have defined a function to run specifically
                 // for this event
-                if(this.plugins[i].middleware 
-                    && this.plugins[i].middleware[location] 
+                if(this.plugins[i].middleware
+                    && this.plugins[i].middleware[location]
                     && this.plugins[i].middleware[location][event]) {
 
                     // add the function to the queue
@@ -517,7 +517,7 @@ const create = function(config) {
 
         /**
         * @private
-        * Set the state for {{#crossLink "Me"}}{{/crossLink}} within this {{#crossLink "User"}}{{/crossLink}}. 
+        * Set the state for {{#crossLink "Me"}}{{/crossLink}} within this {{#crossLink "User"}}{{/crossLink}}.
         * Broadcasts the ```$ocf.state``` event on other clients
         *
         * @method setState
@@ -570,7 +570,7 @@ const create = function(config) {
 
             /**
             * every user has a couple personal rooms we can connect to
-            * feed is a list of things a specific user does that 
+            * feed is a list of things a specific user does that
             * many people can subscribe to
             *
             * @property feed
@@ -590,7 +590,7 @@ const create = function(config) {
             this.direct = new Chat(
                 [OCF.globalChat.channel, 'direct', uuid].join('.'));
 
-            // if the user does not exist at all and we get enough 
+            // if the user does not exist at all and we get enough
             // information to build the user
             if(!OCF.users[uuid]) {
                 OCF.users[uuid] = this;
@@ -598,7 +598,7 @@ const create = function(config) {
 
             // update this user's state in it's created context
             this.assign(state, chat)
-            
+
         }
 
         /**
@@ -643,7 +643,7 @@ const create = function(config) {
 
             // store the chat in this user object
             this.chats[chat.channel] = chat;
-        
+
             // updates the user's state in that chatroom
             this.assign(state, chat);
         }
@@ -651,10 +651,10 @@ const create = function(config) {
     }
 
     /**
-    * Represents the client connection as a {{#crossLink "User"}}{{/crossLink}}. 
-    * Has the ability to update it's state on the network. An instance of 
+    * Represents the client connection as a {{#crossLink "User"}}{{/crossLink}}.
+    * Has the ability to update it's state on the network. An instance of
     * {{#crossLink "Me"}}{{/crossLink}} is returned by the ```OCF.connect()```
-    * method. 
+    * method.
     *
     * @class Me
     * @constructor
@@ -727,7 +727,7 @@ const create = function(config) {
         OCF.rltm = false;
 
         /**
-        * connect to realtime service and create instance of {{#crossLink "Me"}}{{/crossLink}} 
+        * connect to realtime service and create instance of {{#crossLink "Me"}}{{/crossLink}}
         *
         * @method connect
         * @param {String} uuid The uuid for {{#crossLink "Me"}}{{/crossLink}}
@@ -736,13 +736,13 @@ const create = function(config) {
         */
         OCF.connect = function(uuid, state) {
 
-            // make sure the uuid is set for this client 
+            // make sure the uuid is set for this client
             if(!uuid) {
-                throw new Error('You must supply a uuid as the ' + 
+                throw new Error('You must supply a uuid as the ' +
                     'first parameter when connecting.');
             }
 
-            // this creates a user known as Me and 
+            // this creates a user known as Me and
             // connects to the global chatroom
             this.config.rltm.config.uuid = uuid;
             this.config.rltm.config.state = state;
@@ -779,10 +779,10 @@ const create = function(config) {
             // given namespace
             ob[childName] = childOb;
 
-            // the new object can use ```this.parent``` to access 
+            // the new object can use ```this.parent``` to access
             // the root class
             childOb.parent = ob;
-            
+
         }
 
         return OCF;
