@@ -12,7 +12,7 @@
     <style type="text/css">
     * {
         margin: 0px;
-        padding: 0px;   
+        padding: 0px;
     }
     body {
         margin: 30px auto;
@@ -30,7 +30,7 @@
               Chat
             </div>
             <div class="card-block">
-                
+
                 <div id="chat" class="log">
                 </div>
 
@@ -42,15 +42,15 @@
 
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    
-    <script src="../../web/ocf.js" type="text/javascript"></script>
-    
+
+    <script src="../../dist/ocf.js" type="text/javascript"></script>
+
     <script type="text/javascript">
-        
+
         const username = ['user', new Date().getTime()].join('-');
         const OCF = OpenChatFramework.create({
             // rltm: {
-            //     service: 'pubnub', 
+            //     service: 'pubnub',
             //     config: {
             //         publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
             //         subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
@@ -71,12 +71,12 @@
         var chat = new OCF.Chat('facebookchat');
 
         $('#submit').click(() => {
-         
+
             chat.send('message', {
                 text: $('#message').val()
             });
             $('#message').val('');
-            
+
         });
 
         chat.on('message', (payload) => {
