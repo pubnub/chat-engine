@@ -6,7 +6,7 @@ const setup = function() {
     // OCF Configure
     OCF = OpenChatFramework.create({
         rltm: {
-            // service: 'pubnub', 
+            // service: 'pubnub',
             // config: {
             //     publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
             //     subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
@@ -28,32 +28,32 @@ const setup = function() {
 
 const $chatTemplate = function(chat) {
 
-    let html = 
-        '<div class="chat col-xs-6" id="' + chat.channel + '">' + 
-            '<div class="card">' + 
-                '<div class="card-header">' + 
-                    '<div class="col-sm-6">'  + 
+    let html =
+        '<div class="chat col-xs-6" id="' + chat.channel + '">' +
+            '<div class="card">' +
+                '<div class="card-header">' +
+                    '<div class="col-sm-6">'  +
                          chat.channel +
-                    '</div>' + 
+                    '</div>' +
                     '<div class="col-sm-6 text-right">' +
                         '<a href="#" class="close">x</a>' +
                     '</div>' +
                 '</div>' +
 
-                '<ul class="online-list-sub list-group list-group-flush"></ul>' + 
-                '<div class="card-block">' + 
-                    '<div class="log"></div>' + 
-                    '<p class="typing text-muted"></p>' + 
-                    '<form class="send-message">' + 
-                        '<div class="input-group">' + 
-                            '<input type="text" class="form-control message" placeholder="Your Message...">' + 
-                            '<span class="input-group-btn">' + 
-                                '<button class="btn btn-primary" type="submit">Send</button>' + 
-                            '</span>' + 
-                        '</div>' + 
-                    '</form>' + 
-                '</div>' + 
-            '</div>' + 
+                '<ul class="online-list-sub list-group list-group-flush"></ul>' +
+                '<div class="card-block">' +
+                    '<div class="log"></div>' +
+                    '<p class="typing text-muted"></p>' +
+                    '<form class="send-message">' +
+                        '<div class="input-group">' +
+                            '<input type="text" class="form-control message" placeholder="Your Message...">' +
+                            '<span class="input-group-btn">' +
+                                '<button class="btn btn-primary" type="submit">Send</button>' +
+                            '</span>' +
+                        '</div>' +
+                    '</form>' +
+                '</div>' +
+            '</div>' +
         '</div>';
 
     // define a HTML template for the new chatroom
@@ -63,10 +63,10 @@ const $chatTemplate = function(chat) {
 
 const $messageTemplate = function(payload, classes) {
 
-    let html = 
-        '<div class="'+classes+'">' + 
-            '<p class="text-muted username">' + payload.sender.state().username + '</p>' + 
-            '<p>' + payload.data.text + '</p>' + 
+    let html =
+        '<div class="'+classes+'">' +
+            '<p class="text-muted username">' + payload.sender.state().username + '</p>' +
+            '<p>' + payload.data.text + '</p>' +
         '</div>';
 
     return $(html);
@@ -77,10 +77,10 @@ const $userTemplate = function(user, chat) {
     let state = user.state(chat);
 
     // create the HTML template for the user
-    let html = 
-        '<li class="' + user.uuid + ' list-group-item">' + 
+    let html =
+        '<li class="' + user.uuid + ' list-group-item">' +
             '<a href="#">' + state.username  + '</a> ' +
-            '<span class="show-typing">is typing...</span>' + 
+            '<span class="show-typing">is typing...</span>' +
         '</li>';
 
     return $(html);
@@ -93,7 +93,7 @@ const identifyMe = function() {
     // create a user for myself and store as ```me```
     me = OCF.connect(new Date().getTime().toString());
 
-    me.plugin(OpenChatFramework.plugin.randomUsername(OCF.globalChat));
+    me.plugin(OpenChatFramework.plugin['ocf-random-username'](OCF.globalChat));
 
     // when I get a private invite
     me.direct.on('private-invite', (payload) => {
@@ -144,7 +144,7 @@ const renderUser = function($el, user, chat) {
 
         // append the user element to the input element on dom
         $el.append($tpl);
-           
+
     }
 
 };
@@ -171,14 +171,14 @@ const renderOnlineList = function($el, chat) {
     chat.on('$ocf.disconnect', (payload) => {
         renderUser($el, payload.user, chat);
     });
-    
+
     // when someone leaves the chat
     chat.on('$ocf.leave', (payload) => {
         // remove the user from the online list
         $('.' + payload.user.uuid).remove();
     });
 
-    chat.plugin(OpenChatFramework.plugin.typingIndicator({
+    chat.plugin(OpenChatFramework.plugin['ocf-typing-indicator']({
         timeout: 5000
     }));
 
@@ -194,7 +194,7 @@ const renderChat = function(privateChat) {
 
     // when someone types into the input box
     $tpl.find('.message').keypress((e) => {
-        
+
         // if that keypress was not "Enter"
         if(e.which != 13) {
 
@@ -227,17 +227,17 @@ const renderChat = function(privateChat) {
 
     // render a new message in the dom
     let renderMessage = (payload, classes) => {
-        
+
         // a list of extra classes for the message div
         classes = classes || '';
-        
+
         // if I didn't send this message
         if(payload.sender.constructor.name !== "Me") {
             // render it on the right
             classes += ' text-xs-right'
         }
 
-        // if the uuid of the user who sent this message is the same as the last 
+        // if the uuid of the user who sent this message is the same as the last
         if(lastSender == payload.sender.uuid) {
             // don't render the username again
             classes += ' hide-username';
@@ -258,7 +258,7 @@ const renderChat = function(privateChat) {
     });
 
 
-    privateChat.plugin(OpenChatFramework.plugin.history());
+    privateChat.plugin(OpenChatFramework.plugin['ocf-history']());
 
     // if this chat receives a message that's not from this sessions
     privateChat.on('$history.message', function(payload) {
@@ -269,7 +269,7 @@ const renderChat = function(privateChat) {
     // when this chat gets the typing event
     privateChat.on('$typingIndicator.startTyping', (payload) => {
 
-        // write some text saying that user is typing 
+        // write some text saying that user is typing
         $tpl.find('.typing').text(payload.sender.state().username + ' is typing...');
 
         // and show their typing indication next to their name in any other location
@@ -285,7 +285,7 @@ const renderChat = function(privateChat) {
 
         // and remove their indication in any other location on the page
         $('.' + payload.sender.uuid).find('.show-typing').hide();
-    
+
     });
 
     // when someone closes a private chat
@@ -303,7 +303,7 @@ const renderChat = function(privateChat) {
 // bind the input from the search bar to the usernameSearch plugin
 const bindUsernamePlugin = function() {
 
-    OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
+    OCF.globalChat.plugin(OpenChatFramework.plugin['ocf-online-user-search']());
 
     // when someone types in the username search
     $('#usernameSearch').on('change keyup paste click blur', () => {
@@ -313,7 +313,7 @@ const bindUsernamePlugin = function() {
 
         // if the value is set
         if(val) {
-            
+
             // call the plugin function to find out if that search query
             // matches anyone's username
             let online = OCF.globalChat.onlineUserSearch.search(val);

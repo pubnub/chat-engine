@@ -23,24 +23,24 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         let profile = localStorage.getItem('profile');
 
         if(profile && profile.length) {
-            
+
             profile = JSON.parse(profile);
             Me.profile = OCF.connect(profile.user_id, profile);
 
         }
 
         lock.on('authenticated', function(authResult) {
-        
+
             localStorage.setItem('id_token', authResult.idToken);
 
             lock.getProfile(authResult.idToken, function(error, profile) {
-                
+
                 if (error) {
                     console.log(error);
                 }
 
                 localStorage.setItem('profile', JSON.stringify(profile));
-            
+
                 // connect to OCF
                 Me.profile = OCF.connect(profile.user_id, profile);
 
@@ -58,11 +58,11 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
     })
     .factory('OCF', function(ngOCF) {
-        
+
         // OCF Configure
         let OCF = OpenChatFramework.create({
             rltm: {
-                service: 'pubnub', 
+                service: 'pubnub',
                 config: {
                     publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
                     subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
@@ -83,9 +83,9 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
     })
     .config(function($stateProvider, $urlRouterProvider) {
-        
+
         $urlRouterProvider.otherwise('/login');
-        
+
         $stateProvider
             .state('login', {
                 url: '/login',
@@ -151,13 +151,12 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     typingUsers: []
                 }
 
-                room.chat.plugin(OpenChatFramework.plugin.typingIndicator());
-
-                room.chat.plugin(OpenChatFramework.plugin.history());
-
-                room.chat.plugin(OpenChatFramework.plugin.unread());
-
-                room.chat.plugin(OpenChatFramework.plugin.notifications({
+                room.chat.plugin(OpenChatFramework.plugin['ocf-emoji']());
+                room.chat.plugin(OpenChatFramework.plugin['ocf-markdown']());
+                room.chat.plugin(OpenChatFramework.plugin['ocf-typing-indicator']());
+                room.chat.plugin(OpenChatFramework.plugin['ocf-history']());
+                room.chat.plugin(OpenChatFramework.plugin['ocf-unread-messages']());
+                room.chat.plugin(OpenChatFramework.plugin['ocf-desktop-notifications']({
                     title: (event) => {
                         return 'New FlowTron Message In ' + room.name
                     },
@@ -173,10 +172,6 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     }
                 }));
 
-                room.chat.plugin(OpenChatFramework.plugin.emoji());
-
-                room.chat.plugin(OpenChatFramework.plugin.markdown());
-
                 // function to add a message to messages array
                 let addMessage = (payload, type) => {
 
@@ -184,7 +179,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
                     // if the last message was sent from the same user
                     payload.sameUser = room.messages.length > 0 && payload.sender.uuid == room.messages[room.messages.length - 1].sender.uuid;
-                    
+
                     // if this message was sent by this client
                     payload.isSelf = payload.sender.uuid == Me.profile.uuid;
 
@@ -192,7 +187,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
                     if(!payload.isSelf && payload.type == 'message' || payload.type == 'history') {
                         sounds.broadcast.play();
-                    } 
+                    }
 
                     // add the message to the array
                     room.messages.push(payload);
@@ -230,7 +225,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     for(let i in room.typingUsers) {
 
                         if(room.typingUsers[i].uuid == user.uuid) {
-                            
+
                             found = true;
                             if(!isTyping) {
                                 room.typingUsers.splice(i, 1);
@@ -279,7 +274,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
     })
     .controller('OnlineUser', function($scope, OCF, Me, $state) {
-  
+
         $scope.invite = function(user, channel) {
 
             // send the clicked user a private message telling them we invited them
@@ -326,18 +321,18 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         });
 
-        OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch({
+        OCF.globalChat.plugin(OpenChatFramework.plugin['ocf-online-user-search']({
             field: 'name'
         }));
 
         // hide / show usernames based on input
         $scope.userSearch = {
             input: '',
-            fire: () => { 
+            fire: () => {
 
                 // get a list of our matching users
                 let found = OCF.globalChat.onlineUserSearch.search($scope.userSearch.input);
-                
+
                 // hide every user
                 for(let uuid in $scope.chat.users) {
                     $scope.chat.users[uuid].hideWhileSearch = true;
@@ -358,7 +353,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
 
         $scope.chat = $scope.room.chat;
 
-        $scope.chat.unread.active();
+        $scope.chat.unreadMessages.active();
 
         $scope.chat.on('message', () => {
             $scope.scrollToBottom();
@@ -426,7 +421,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.sendMessage = () => {
 
             if($scope.messageDraft.text) {
-                
+
                 sounds.send.play();
 
                 $scope.chat.send('message', {
@@ -434,7 +429,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
                     date: new Date()
                 });
 
-                $scope.messageDraft.text = '';   
+                $scope.messageDraft.text = '';
 
             }
 
@@ -451,7 +446,7 @@ angular.module('chatApp', ['open-chat-framework', 'auth0.lock', 'ui.router', 'ng
         $scope.scrollToBottom();
 
         $scope.$on('$destroy', function() {
-            $scope.chat.unread.inactive();
+            $scope.chat.unreadMessages.inactive();
         });
 
     });
