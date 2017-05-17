@@ -4,14 +4,14 @@ angular.module('chatApp', ['open-chat-framework'])
         // OCF Configure
         $rootScope.OCF = OpenChatFramework.create({
             rltm: {
-                service: 'pubnub', 
+                service: 'pubnub',
                 config: {
                     publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
                     subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
                     restore: false
                 }
             },
-            globalChannel: 'ocf-demo-angular-2'
+            globalChannel: 'ocf-demo-angular-3'
         });
 
         // bind open chat framework angular plugin
@@ -23,8 +23,13 @@ angular.module('chatApp', ['open-chat-framework'])
 
         // create a user for myself and store as ```me```
         $rootScope.me = $rootScope.OCF.connect(new Date().getTime());
-    
-        $rootScope.me.plugin(OpenChatFramework.plugin.randomUsername($rootScope.OCF.globalChat));
+
+        console.log(OpenChatFramework.plugin)
+        console.log(OpenChatFramework.plugin['ocf-random-username'])
+        console.log(OpenChatFramework.plugin['ocf-random-username']())
+        console.log(OpenChatFramework.plugin['ocf-random-username']($rootScope.OCF.globalChat))
+
+        $rootScope.me.plugin(OpenChatFramework.plugin['ocf-random-username']($rootScope.OCF.globalChat));
 
         // set a global array of chatrooms
         $rootScope.chats = [];
@@ -32,12 +37,11 @@ angular.module('chatApp', ['open-chat-framework'])
     }])
     .controller('Chat', function($scope) {
 
-        $scope.chat.plugin(OpenChatFramework.plugin.typingIndicator({
+        $scope.chat.plugin(OpenChatFramework.plugin['ocf-typing-indicator']({
             timeout: 5000
         }));
 
-
-        $scope.chat.plugin(OpenChatFramework.plugin.history());
+        $scope.chat.plugin(OpenChatFramework.plugin['ocf-history']());
 
         // every chat has a list of messages
         $scope.messages = [];
@@ -75,7 +79,7 @@ angular.module('chatApp', ['open-chat-framework'])
 
             // if the last message was sent from the same user
             payload.sameUser = $scope.messages.length > 0 && payload.sender.uuid == $scope.messages[$scope.messages.length - 1].sender.uuid;
-            
+
             // if this message was sent by this client
             payload.isSelf = payload.sender.uuid == $scope.me.uuid;
 
@@ -99,7 +103,7 @@ angular.module('chatApp', ['open-chat-framework'])
 
     })
     .controller('OnlineUser', function($scope) {
-  
+
         $scope.invite = function(user, channel) {
 
             console.log('sending invite to ', user, channel)
@@ -139,16 +143,16 @@ angular.module('chatApp', ['open-chat-framework'])
 
         });
 
-        $scope.OCF.globalChat.plugin(OpenChatFramework.plugin.onlineUserSearch());
+        $scope.OCF.globalChat.plugin(OpenChatFramework.plugin['ocf-online-user-search']());
 
         // hide / show usernames based on input
         $scope.userSearch = {
             input: '',
-            fire: () => { 
+            fire: () => {
 
                 // get a list of our matching users
                 let found = $scope.OCF.globalChat.onlineUserSearch.search($scope.userSearch.input);
-                
+
                 // hide every user
                 for(let uuid in $scope.chat.users) {
                     $scope.chat.users[uuid].hideWhileSearch = true;
@@ -165,9 +169,9 @@ angular.module('chatApp', ['open-chat-framework'])
         $scope.userAdd = {
             input: '',
             users: $scope.userAdd,
-            fire: () => {  
+            fire: () => {
                 if($scope.userAdd.input.length) {
-                    $scope.userAdd.users = $scope.OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);   
+                    $scope.userAdd.users = $scope.OCF.globalChat.onlineUserSearch.search($scope.userAdd.input);
                 } else {
                     $scope.userAdd.users = [];
                 }
