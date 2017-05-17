@@ -4,14 +4,14 @@ const source = require('vinyl-source-stream');
 
 // task
 gulp.task('compile', function () {
-    
+
     browserify({
-        entries: ['window.js'],
+        entries: ['./src/window.js'],
         debug: true
     })
     .bundle()
     .pipe(source('ocf.js'))
-    .pipe(gulp.dest('./web/'));
+    .pipe(gulp.dest('./dist/'));
 
 });
 
