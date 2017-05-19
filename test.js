@@ -5,22 +5,22 @@ const typingIndicator = require('./plugins/typingIndicator.js');
 const append = require('./plugins/append.js');
 const messageHistory = require('./plugins/messageHistory.js');
 
-const OpenChatFramework = require('./src/index.js'); 
+const OpenChatFramework = require('./src/index.js');
 
 let agentInput = process.env.AGENT || 'pubnub';
 
 const agents = {
     pubnub: {
-        service: 'pubnub', 
+        service: 'pubnub',
             config: {
-            publishKey: 'pub-c-07824b7a-6637-4e6d-91b4-7f0505d3de3f',
-            subscribeKey: 'sub-c-43b48ad6-d453-11e6-bd29-0619f8945a4f',
+            publishKey: 'demo',
+            subscribeKey: 'demo',
             uuid: new Date(),
             state: {}
         }
     },
     socketio: {
-        service: 'socketio', 
+        service: 'socketio',
         config: {
             endpoint: 'http://localhost:8000',
             uuid: new Date(),
@@ -112,7 +112,7 @@ let pluginchat;
 describe('plugins', function() {
 
     it('should be created', function() {
-        
+
         pluginchat = new OCF.Chat('pluginchat' + new Date().getTime());
 
         pluginchat.plugin(typingIndicator({
@@ -150,7 +150,7 @@ describe('plugins', function() {
 
     it('typing indicator', function(done) {
 
-        pluginchat.once('$typingIndicator.startTyping', () => { 
+        pluginchat.once('$typingIndicator.startTyping', () => {
             done();
         });
 
@@ -160,7 +160,7 @@ describe('plugins', function() {
 
     it('wildcard event', function(done) {
 
-        pluginchat.once('$typingIndicator.*', () => { 
+        pluginchat.once('$typingIndicator.*', () => {
             done();
         });
 
@@ -201,7 +201,7 @@ describe('history plugin', function() {
 
     it('history', function(done) {
 
-        this.timeout(10000); 
+        this.timeout(10000);
 
         let historychat2 = new OCF.Chat(historyChan);
         historychat2.plugin(messageHistory())
