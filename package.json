@@ -16,7 +16,7 @@
     "sdk",
     "realtime"
   ],
-  "author": "PubNub",
+  "author": "Ian Jennings",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/pubnub/open-chat-framework/issues"
