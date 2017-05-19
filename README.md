@@ -5,28 +5,41 @@ build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
 
 The real time server component is provided by Socket.io or PubNub. OCF is extensible and includes a plugin framework to make dropping in features simple.
 
-# Notes
+# Full Docs
 
-Open Chat Framework is currently under development. The API is subject to change.
+You can find the full docs on [the full documentation website](https://pubnub.github.io/open-chat-framework/docs/).
 
 # Examples
 
-## Javascript Examples
+## SDKs
 
-* [Chat](https://pubnub.github.io/open-chat-framework/examples/javascript/chat.html)
-* [Online List](https://pubnub.github.io/open-chat-framework/examples/javascript/online-list.html)
-* [Friends List](https://pubnub.github.io/open-chat-framework/examples/javascript/friends-list.html)
-* [Gravatar](https://pubnub.github.io/open-chat-framework/examples/javascript/gravatar.html)
+### Javascript
 
-## SDK Integrations
+* [Chat](https://github.com/pubnub/ocf-examples/blob/master/javascript/chat.html)
+* [Online List](https://github.com/pubnub/ocf-examples/blob/master/javascript/online-list.html)
+* [Friends List](https://github.com/pubnub/ocf-examples/blob/master/javascript/friends-list.html)
 
-* [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/index.html)
-* [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/index.html)
-* [React](./examples/react/public/index.html)
+### NodeJS
 
-## Authentication
+* [Bot](https://github.com/pubnub/ocf-examples/tree/master/nodejs)
 
-* [Facebook Login](https://pubnub.github.io/open-chat-framework/examples/3rd-party-login/facebook.html)
+### jQuery
+
+* [jQuery Simple](https://github.com/pubnub/ocf-examples/tree/master/jquery/simple)
+* [jQuery Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/jquery/kitchen-sink)
+
+### Angular
+
+* [Angular Simple](https://github.com/pubnub/ocf-examples/tree/master/angular/simple)
+* [Angular Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/angular/flowtron)
+
+### React
+
+* [React](https://github.com/pubnub/ocf-examples/tree/master/react)
+
+## 3rd Party Authentication
+
+* [Facebook Login](https://github.com/pubnub/ocf-examples/blob/master/javascript/facebook-login.html)
 
 ## Chatbot
 
@@ -34,7 +47,7 @@ Open Chat Framework is currently under development. The API is subject to change
 
 ## Plugins
 
-Check out the [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/index.html) and [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/index.html) examples to see plugins in action.
+Check out the [jQuery Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/jquery/kitchen-sink) and [Angular Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/angular/flowtron) examples to see plugins in action.
 
 - [Unread Messages](https://github.com/pubnub/ocf-unread-messages)
 - [Typing Indicator](https://github.com/pubnub/ocf-typing-indicator)
@@ -50,10 +63,6 @@ Check out the [jQuery](https://pubnub.github.io/open-chat-framework/examples/jqu
 ## Other usage examples
 
 [Test.js](test.js) includes some usage examples
-
-# Full Docs
-
-You can find the full docs on [the full documentation website](https://pubnub.github.io/open-chat-framework/docs/).
 
 # Table of Contents
 <!-- MarkdownTOC -->
