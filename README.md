@@ -1,7 +1,7 @@
 # OCF - Open Chat Framework
 
-OCF is an object oriented event emitter based framework for building chat applications in Javascript. OCF makes it easy to 
-build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease. 
+OCF is an object oriented event emitter based framework for building chat applications in Javascript. OCF makes it easy to
+build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
 
 The real time server component is provided by Socket.io or PubNub. OCF is extensible and includes a plugin framework to make dropping in features simple.
 
@@ -36,11 +36,16 @@ Open Chat Framework is currently under development. The API is subject to change
 
 Check out the [jQuery](https://pubnub.github.io/open-chat-framework/examples/jquery/index.html) and [Angular](https://pubnub.github.io/open-chat-framework/examples/angular/index.html) examples to see plugins in action.
 
-* [Middleware](./plugins/append.js)
-* [Message History](./plugins/messageHistory.js)
-* [Search Online Users](./plugins/onlineUserSearch.js)
-* [Set a Random Username](./plugins/randomUsername.js)
-* [Ian Is Typing... Indicator](./plugins/typingIndicator.js)
+- [Unread Messages](https://github.com/pubnub/ocf-unread-messages)
+- [Typing Indicator](https://github.com/pubnub/ocf-typing-indicator)
+- [Random Usernames](https://github.com/pubnub/ocf-random-username)
+- [Desktop Notifications](https://github.com/pubnub/ocf-desktop-notifications)
+- [Online User Search](https://github.com/pubnub/ocf-online-user-search)
+- [Image Uploads](https://github.com/pubnub/ocf-uploadcare)
+- [Persistent Message History](https://github.com/pubnub/ocf-history)
+- [Markdown Support](https://github.com/pubnub/ocf-markdown)
+- [Emoji Support](https://github.com/pubnub/ocf-emoji)
+= [Gravatar Support](https://github.com/pubnub/ocf-gravatar)
 
 ## Other usage examples
 
@@ -93,7 +98,7 @@ There are two require fields for initializing OCF.
 ```js
 let OCF = OpenChatFramework.create({
     rltm: {
-        service: 'socketio', 
+        service: 'socketio',
         config: {
             endpoint: 'http://localhost:8000',
         }
@@ -107,7 +112,7 @@ let OCF = OpenChatFramework.create({
 ```js
 const OCF = OpenChatFramework.create({
     rltm: {
-        service: 'pubnub', 
+        service: 'pubnub',
         config: {
             publishKey: 'YOUR_PUB_KEY',
             subscribeKey: 'YOUR_SUB_KEY'
@@ -181,15 +186,15 @@ The ```payload``` in the event callback is not the raw data you supplied while u
 
 Creating a bot is super easy and we can do it using everything we learned previously.
 
-First, the bot will subscribe to the ```message``` network event. 
+First, the bot will subscribe to the ```message``` network event.
 
-When a message comes it, it checks the payload to see if the message was sent by itself (to prevent infinite loops). 
+When a message comes it, it checks the payload to see if the message was sent by itself (to prevent infinite loops).
 
 If it was not sent by itself, it sends a message back to the chatroom repeating the original message that was sent to it.
 
 ```js
 chat.on('message', (payload) => {
-    
+
     // make sure this is not a message this client sent myself
     if(payload.user.data.uuid !== me.data.uuid) {
 
@@ -208,7 +213,7 @@ chat.on('message', (payload) => {
 You can subscribe to all events a namespace emits by using the ```*``` operator.
 
 ```js
-chat.on('$ocf.*', (event) => { 
+chat.on('$ocf.*', (event) => {
 });
 ```
 
@@ -216,7 +221,7 @@ You can get any event a chat emits by using the ```onAny``` method.
 
 ```js
 chat.onAny(() => {
-    
+
 });
 ```
 
@@ -262,7 +267,7 @@ return {
 }
 ```
 
-Every plugin needs to be kept in some ```namespace``` for reasons that will make sense later :). 
+Every plugin needs to be kept in some ```namespace``` for reasons that will make sense later :).
 
 The property ```extends``` tells OCF what classes this plugin is going to extend. In this example the plugin is extending ```Me```, and you can see that because the key ```Me``` is supplied.
 
@@ -275,14 +280,14 @@ across the network and all other clients will get notified that this client has 
 
 The method ```getName()``` is a generic method that gets added to all instances of ```Me``` under the namespace ```$yourPluginNamespace```. From outside the plugin, you could call ```Me.$yourPluginNamespace.getName()``` to return the value.
 
-## Event Middleware Plugin 
+## Event Middleware Plugin
 
 It's also possible to register middleware to run before events are sent or received.
 
 The following example registers a function that runs before the event ```message``` is sent over the network.
 
 ```js
-// middleware tells the framework to use these functions when 
+// middleware tells the framework to use these functions when
 // messages are sent
 return {
     namespace: '$yourPluginNamespace',
@@ -368,7 +373,7 @@ node examples/bot.js
 
 You can use file or localhost. Supply a username in the query string param to make it work properly.
 
-Example: 
+Example:
 
 ```
 ./open-chat-framework/examples/web.html?username=ian#
