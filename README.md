@@ -45,7 +45,7 @@ Check out the [jQuery](https://pubnub.github.io/open-chat-framework/examples/jqu
 - [Persistent Message History](https://github.com/pubnub/ocf-history)
 - [Markdown Support](https://github.com/pubnub/ocf-markdown)
 - [Emoji Support](https://github.com/pubnub/ocf-emoji)
-= [Gravatar Support](https://github.com/pubnub/ocf-gravatar)
+- [Gravatar Support](https://github.com/pubnub/ocf-gravatar)
 
 ## Other usage examples
 
