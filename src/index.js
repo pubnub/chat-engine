@@ -5,9 +5,7 @@
 // emitter
 const EventEmitter2 = require('eventemitter2').EventEmitter2;
 
-// import the rltm.js library from a sister directory
-// @todo include this as module
-const Rltm = require('rltm');
+const PubNub = require('pubnub');
 
 // allows a synchronous execution flow.
 const waterfall = require('async/waterfall');
@@ -18,12 +16,12 @@ const waterfall = require('async/waterfall');
 * @class OpenChatFramework
 * @constructor
 * @param {Object} foo Argument 1
-* @param config.rltm {Object} OCF is based off PubNub [rltm.js](https://github.com/pubnub/rltm.js) which lets you switch between PubNub and Socket.io just by changing your configuration. Check out [the rltm.js docs](https://github.com/pubnub/rltm.js) for more information.
+* @param config.pubnub {Object} OCF is based off PubNub. Supply your PubNub config here.
 * @param config.globalChannel {String} his is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
 * @return {Object} Returns an instance of OCF
 */
 
-const create = function(config) {
+const create = function(globalChannel = 'ocf-global', pnConfig) {
 
     let OCF = false;
 
@@ -48,7 +46,7 @@ const create = function(config) {
 
             // we bind to make sure wildcards work
             // https://github.com/asyncly/EventEmitter2/issues/186
-            this.emit = this.emitter.emit.bind(this.emitter);
+            this._emit = this.emitter.emit.bind(this.emitter);
 
             /**
             * Listen for a specific event and fire a callback when it's emitted
@@ -101,9 +99,9 @@ const create = function(config) {
 
                 // all events are forwarded to OCF object
                 // so you can globally bind to events with OCF.on()
-                OCF.emit(event, data);
+                OCF._emit(event, data);
 
-                // send the event from the object that created it
+                // emit the event from the object that created it
                 this.emitter.emit(event, data);
 
             }
@@ -131,6 +129,7 @@ const create = function(config) {
 
                     // if the plugin has a special construct function
                     // run it
+
                     if(this[module.namespace].construct) {
                         this[module.namespace].construct();
                     }
@@ -176,73 +175,110 @@ const create = function(config) {
             this.users = {};
 
             // this.room is our rltm.js connection
-            this.room = OCF.rltm.join(this.channel);
+            // this.room = OCF.rltm.join(this.channel);
 
             // whenever we get a message from the network
             // run local broadcast message
-            this.room.on('message', (uuid, data) => {
 
-                // all messages are in format [event_name, data]
-                this.broadcast(data.message[0], data.message[1]);
+            this.onHereNow = (status, response) => {
 
-            });
+                if(status.error) {
+                    throw new Error(
+                        'There was a problem fetching here.', err);
+                } else {
 
-            // forward user join events
-            this.room.on('join', (uuid, state) => {
+                    // get the list of occupants in this channel
+                    let occupants = response.channels[this.channel].occupants;
 
-                let user = this.createUser(uuid, state);
+                    // format the userList for rltm.js standard
+                    for(let i in occupants) {
+                        this.userUpdate(occupants[i].uuid, occupants[i].state);
+                    }
 
-                /**
-                * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has joined the room
-                *
-                * @event $ocf.join
-                * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
-                */
-                this.broadcast('$ocf.join', {
-                    user: user
-                });
-
-            });
-
-            // forward user state change events
-            this.room.on('state', (uuid, state) => {
-                this.userUpdate(uuid, state)
-            });
-
-            // forward user leaving events
-            this.room.on('leave', (uuid) => {
-                this.userLeave(uuid);
-            });
-
-            // forward user leaving events
-            this.room.on('disconnect', (uuid) => {
-                this.userDisconnect(uuid);
-            });
-
-            // get a list of users online now
-            this.room.here().then((occupants) => {
-
-                // for every occupant, create a model user
-                for(let uuid in occupants) {
-                    // and run the join functions
-                    this.createUser(uuid, occupants[uuid], true);
                 }
 
-            }, (err) => {
-                throw new Error(
-                    'There was a problem fetching here.', err);
+            };
+
+            this.onStatus = (statusEvent) => {
+
+                if (statusEvent.category === "PNConnectedCategory") {
+
+                    if(statusEvent.affectedChannels.indexOf(this.channel) > -1) {
+                        this.broadcast('$ocf.ready');
+                    }
+
+                }
+
+            };
+
+            this.onMessage = (m) => {
+
+                // if message is sent to this specific channel
+                if(this.channel == m.channel) {
+                    this.broadcast(m.message[0], m.message[1]);
+                }
+
+            };
+
+            this.onPresence = (presenceEvent) => {
+
+                // make sure channel matches this channel
+                if(this.channel == presenceEvent.channel) {
+
+                    // someone joins channel
+                    if(presenceEvent.action == "join") {
+
+                        let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
+
+                        /**
+                        * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has joined the room
+                        *
+                        * @event $ocf.join
+                        * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
+                        */
+                        this.broadcast('$ocf.join', {
+                            user: user
+                        });
+
+                    }
+
+                    // someone leaves channel
+                    if(presenceEvent.action == "leave") {
+                        this.userLeave(presenceEvent.uuid);
+                    }
+
+                    // someone timesout
+                    if(presenceEvent.action == "timeout") {
+                        this.userDisconnect(presenceEvent.uuid);
+                    }
+
+                    // someone's state is updated
+                    if(presenceEvent.action == "state-change") {
+                        this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+                    }
+
+                }
+
+            };
+
+            // get a list of users online now
+            // ask PubNub for information about connected users in this channel
+            OCF.pubnub.hereNow({
+                channels: [this.channel],
+                includeUUIDs: true,
+                includeState: true
+            }, this.onHereNow);
+
+            OCF.pubnub.addListener({
+                status: this.onStatus,
+                message: this.onMessage,
+                presence: this.onPresence
             });
 
-        }
+            OCF.pubnub.subscribe({
+                channels: [this.channel]
+            });
 
-        /**
-        * Execute a function when network connection has been made and {{#crossLink "Chat"}}{{/crossLink}} is ready
-        *
-        * @method ready
-        * @param {Function} callback Function to execute when connection is ready
-        */
-        ready(fn) {
-            this.room.ready(fn);
         }
 
         /**
@@ -250,21 +286,21 @@ const create = function(config) {
         * Events are broadcast over the network  and all events are made
         * on behalf of {{#crossLink "Me"}}{{/crossLink}}
         *
-        * @method send
+        * @method emit
         * @param {String} event The event name
         * @param {Object} data The event payload object
         */
-        send(event, data) {
+        emit(event, data) {
 
             // create a standardized payload object
             let payload = {
                 data: data,            // the data supplied from params
-                sender: OCF.me.uuid,   // my own uuid
+                emiter: OCF.me.uuid,   // my own uuid
                 chat: this,            // an instance of this chat
             };
 
             // run the plugin queue to modify the event
-            this.runPluginQueue('send', event, (next) => {
+            this.runPluginQueue('emit', event, (next) => {
                 next(null, payload);
             }, (err, payload) => {
 
@@ -274,7 +310,8 @@ const create = function(config) {
                 delete payload.chat;
 
                 // publish the event and data over the configured channel
-                this.room.message({
+
+                OCF.pubnub.publish({
                     message: [event, payload],
                     channel: this.channel
                 });
@@ -300,20 +337,20 @@ const create = function(config) {
                     payload.chat = this;
                 }
 
-                // turn a uuid found in payload.sender to a real user
-                if(payload.sender && OCF.users[payload.sender]) {
-                    payload.sender = OCF.users[payload.sender];
+                // turn a uuid found in payload.emiter to a real user
+                if(payload.emiter && OCF.users[payload.emiter]) {
+                    payload.emiter = OCF.users[payload.emiter];
                 }
 
             }
 
             // let plugins modify the event
-            this.runPluginQueue('broadcast', event, (next) => {
+            this.runPluginQueue('on', event, (next) => {
                 next(null, payload);
             }, (err, payload) => {
 
                 // emit this event to any listener
-                this.emit(event, payload);
+                this._emit(event, payload);
 
             });
 
@@ -478,7 +515,7 @@ const create = function(config) {
         * after events are broadcast or received.
         *
         * @method runPluginQueue
-        * @param {String} location Where in the middleeware the event should run (send, broadcast)
+        * @param {String} location Where in the middleeware the event should run (emit, broadcast)
         * @param {String} event The event name
         * @param {String} first The first function to run before the plugins have run
         * @param {String} last The last function to run after the plugins have run
@@ -525,8 +562,16 @@ const create = function(config) {
         */
         setState(state) {
 
-            // handy method to set state of user without touching rltm
-            this.room.state(state);
+            OCF.pubnub.setState(
+                {
+                    state: state,
+                    channels: [this.channel]
+                },
+                function (status, response) {
+                    // handle status, response
+                }
+            );
+
         }
 
     };
@@ -708,12 +753,6 @@ const create = function(config) {
         // Create the root OCF object
         OCF = new RootEmitter;
 
-        // stores config vars
-        OCF.config = config || {};
-
-        // set a default global channel if none is set
-        OCF.config.globalChannel = OCF.config.globalChannel || 'ocf-global';
-
         // create a global list of known users
         OCF.users = {};
 
@@ -723,8 +762,8 @@ const create = function(config) {
         // define the user that this client represents
         OCF.me = false;
 
-        // store a reference to the rltm.js networking library
-        OCF.rltm = false;
+        // store a reference to PubNub
+        OCF.pubnub = false;
 
         /**
         * connect to realtime service and create instance of {{#crossLink "Me"}}{{/crossLink}}
@@ -736,28 +775,22 @@ const create = function(config) {
         */
         OCF.connect = function(uuid, state) {
 
-            // make sure the uuid is set for this client
-            if(!uuid) {
-                throw new Error('You must supply a uuid as the ' +
-                    'first parameter when connecting.');
-            }
-
             // this creates a user known as Me and
             // connects to the global chatroom
-            this.config.rltm.config.uuid = uuid;
-            this.config.rltm.config.state = state;
 
-            // configure the rltm plugin with the params set in config method
-            this.rltm = new Rltm(config.rltm);
+            // this.config.rltm.config.uuid = uuid;
+            pnConfig.uuid = uuid || pnConfig.uuid;
+
+            this.pubnub = new PubNub(pnConfig);
 
             // create a new chat to use as globalChat
-            this.globalChat = new Chat(config.globalChannel);
+            this.globalChat = new Chat(globalChannel);
 
             // create a new user that represents this client
-            this.me = new Me(uuid);
+            this.me = new Me(this.pubnub.getUUID());
 
             // create a new instance of Me using input parameters
-            this.globalChat.createUser(uuid, state);
+            this.globalChat.createUser(this.pubnub.getUUID(), state);
 
             this.me.update(state);
 
