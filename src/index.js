@@ -183,8 +183,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
             this.onHereNow = (status, response) => {
 
                 if(status.error) {
-                    throw new Error(
-                        'There was a problem fetching here.', err);
+                    throw new Error('There was a problem fetching here.', status.err);
                 } else {
 
                     // get the list of occupants in this channel
