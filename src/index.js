@@ -95,7 +95,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
             super();
 
             // emit an event from this object
-            this.emit = (event, data) => {
+            this._emit = (event, data) => {
 
                 // all events are forwarded to OCF object
                 // so you can globally bind to events with OCF.on()
