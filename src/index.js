@@ -174,11 +174,8 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
             */
             this.users = {};
 
-            // this.room is our rltm.js connection
-            // this.room = OCF.rltm.join(this.channel);
-
             // whenever we get a message from the network
-            // run local broadcast message
+            // run local trigger message
 
             this.onHereNow = (status, response) => {
 
@@ -203,7 +200,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
                 if (statusEvent.category === "PNConnectedCategory") {
 
                     if(statusEvent.affectedChannels.indexOf(this.channel) > -1) {
-                        this.broadcast('$ocf.ready');
+                        this.trigger('$ocf.ready');
                     }
 
                 }
@@ -214,7 +211,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
 
                 // if message is sent to this specific channel
                 if(this.channel == m.channel) {
-                    this.broadcast(m.message[0], m.message[1]);
+                    this.trigger(m.message[0], m.message[1]);
                 }
 
             };
@@ -235,7 +232,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
                         * @event $ocf.join
                         * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
                         */
-                        this.broadcast('$ocf.join', {
+                        this.trigger('$ocf.join', {
                             user: user
                         });
 
@@ -282,7 +279,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
 
         /**
         * Send events to other clients in this {{#crossLink "User"}}{{/crossLink}}.
-        * Events are broadcast over the network  and all events are made
+        * Events are trigger over the network  and all events are made
         * on behalf of {{#crossLink "Me"}}{{/crossLink}}
         *
         * @method emit
@@ -305,7 +302,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
 
                 // remove chat otherwise it would be serialized
                 // instead, it's rebuilt on the other end.
-                // see this.broadcast
+                // see this.trigger
                 delete payload.chat;
 
                 // publish the event and data over the configured channel
@@ -323,11 +320,11 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
         * @private
         * Broadcasts an event locally to all listeners.
         *
-        * @method broadcast
+        * @method trigger
         * @param {String} event The event name
         * @param {Object} payload The event payload object
         */
-        broadcast(event, payload) {
+        trigger(event, payload) {
 
             if(typeof payload == "object") {
 
@@ -362,9 +359,9 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
         * @method createUser
         * @param {String} uuid The user uuid
         * @param {Object} state The user initial state
-        * @param {Boolean} broadcast Force a broadcast that this user is online
+        * @param {Boolean} trigger Force a trigger that this user is online
         */
-        createUser(uuid, state, broadcast = false) {
+        createUser(uuid, state, trigger = false) {
 
             // Ensure that this user exists in the global list
             // so we can reference it from here out
@@ -373,8 +370,8 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
             // Add this chatroom to the user's list of chats
             OCF.users[uuid].addChat(this, state);
 
-            // broadcast the join event over this chatroom
-            if(!this.users[uuid] || broadcast) {
+            // trigger the join event over this chatroom
+            if(!this.users[uuid] || trigger) {
 
                 /**
                 * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has come online
@@ -382,7 +379,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
                 * @event $ocf.online
                 * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
                 */
-                this.broadcast('$ocf.online', {
+                this.trigger('$ocf.online', {
                     user: OCF.users[uuid]
                 });
 
@@ -425,7 +422,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
             * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that changed state
             * @param {Object} payload.state The new user state for this ```Chat```
             */
-            this.broadcast('$ocf.state', {
+            this.trigger('$ocf.state', {
                 user: this.users[uuid],
                 state: this.users[uuid].state(this)
             });
@@ -457,9 +454,9 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
             // make sure this event is real, user may have already left
             if(this.users[uuid]) {
 
-                // if a user leaves, broadcast the event
-                this.broadcast('$ocf.leave', this.users[uuid]);
-                this.broadcast('$ocf.offline', this.users[uuid]);
+                // if a user leaves, trigger the event
+                this.trigger('$ocf.leave', this.users[uuid]);
+                this.trigger('$ocf.offline', this.users[uuid]);
 
                 // remove the user from the local list of users
                 delete this.users[uuid];
@@ -494,7 +491,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
                 * @event $ocf.disconnect
                 * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that disconnected
                 */
-                this.broadcast('$ocf.disconnect', this.users[uuid]);
+                this.trigger('$ocf.disconnect', this.users[uuid]);
 
                 /**
                 * A {{#crossLink "User"}}{{/crossLink}} has gone offline
@@ -502,7 +499,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
                 * @event $ocf.offline
                 * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that has gone offline
                 */
-                this.broadcast('$ocf.offline', this.users[uuid]);
+                this.trigger('$ocf.offline', this.users[uuid]);
 
             }
 
@@ -511,10 +508,10 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
         /**
         * @private
         * Load plugins and attach a queue of functions to execute before and
-        * after events are broadcast or received.
+        * after events are trigger or received.
         *
         * @method runPluginQueue
-        * @param {String} location Where in the middleeware the event should run (emit, broadcast)
+        * @param {String} location Where in the middleeware the event should run (emit, trigger)
         * @param {String} event The event name
         * @param {String} first The first function to run before the plugins have run
         * @param {String} last The last function to run after the plugins have run
@@ -522,7 +519,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
         runPluginQueue(location, event, first, last) {
 
             // this assembles a queue of functions to run as middleware
-            // event is a broadcasted event key
+            // event is a triggered event key
             let plugin_queue = [];
 
             // the first function is always required
