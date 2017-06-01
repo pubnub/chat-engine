@@ -291,7 +291,7 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
             // create a standardized payload object
             let payload = {
                 data: data,            // the data supplied from params
-                emiter: OCF.me.uuid,   // my own uuid
+                sender: OCF.me.uuid,   // my own uuid
                 chat: this,            // an instance of this chat
             };
 
@@ -333,9 +333,9 @@ const create = function(globalChannel = 'ocf-global', pnConfig) {
                     payload.chat = this;
                 }
 
-                // turn a uuid found in payload.emiter to a real user
-                if(payload.emiter && OCF.users[payload.emiter]) {
-                    payload.emiter = OCF.users[payload.emiter];
+                // turn a uuid found in payload.sender to a real user
+                if(payload.sender && OCF.users[payload.sender]) {
+                    payload.sender = OCF.users[payload.sender];
                 }
 
             }
