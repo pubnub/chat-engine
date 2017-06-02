@@ -768,7 +768,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
         * @param {Object} state The initial state for {{#crossLink "Me"}}{{/crossLink}}
         * @return {Me} me an instance of me
         */
-        OCF.connect = function(uuid, state) {
+        OCF.connect = function(uuid, state = {}) {
 
             // this creates a user known as Me and
             // connects to the global chatroom
