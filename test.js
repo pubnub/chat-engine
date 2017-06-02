@@ -27,10 +27,10 @@ describe('config', function() {
 
     it('should be configured', function() {
 
-        OCF = OpenChatFramework.create('test-channel', {
+        OCF = OpenChatFramework.create({
             publishKey: 'demo',
             subscribeKey: 'demo'
-        });
+        }, 'test-channel');
 
         assert.isOk(OCF);
 

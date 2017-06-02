@@ -21,7 +21,7 @@ const waterfall = require('async/waterfall');
 * @return {Object} Returns an instance of OCF
 */
 
-const create = function(globalChannel = 'ocf-global', pnConfig) {
+const create = function(pnConfig, globalChannel = 'ocf-global') {
 
     let OCF = false;
 
