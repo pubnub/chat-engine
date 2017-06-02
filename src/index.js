@@ -1,6 +1,5 @@
 "use strict";
 
-
 // Allows us to create and bind to events. Everything in OCF is an event
 // emitter
 const EventEmitter2 = require('eventemitter2').EventEmitter2;
@@ -257,14 +256,6 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
             };
 
-            // get a list of users online now
-            // ask PubNub for information about connected users in this channel
-            OCF.pubnub.hereNow({
-                channels: [this.channel],
-                includeUUIDs: true,
-                includeState: true
-            }, this.onHereNow);
-
             OCF.pubnub.addListener({
                 status: this.onStatus,
                 message: this.onMessage,
@@ -272,8 +263,17 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             });
 
             OCF.pubnub.subscribe({
-                channels: [this.channel]
+                channels: [this.channel],
+                withPresence: true
             });
+
+            // get a list of users online now
+            // ask PubNub for information about connected users in this channel
+            OCF.pubnub.hereNow({
+                channels: [this.channel],
+                includeUUIDs: true,
+                includeState: true
+            }, this.onHereNow);
 
         }
 
