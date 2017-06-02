@@ -1,12 +1,12 @@
 {
   "author": "Ian Jennings",
   "name": "ocf",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Open Chat Framework",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "publish": "gulp; npm publish;"
+    "deploy": "gulp; npm publish;"
   },
   "repository": {
     "type": "git",

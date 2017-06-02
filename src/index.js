@@ -436,9 +436,8 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
          */
         leave() {
 
-            // disconnect from the chat
-            this.room.leave().then(() => {
-                // should get caught on as network event
+            OCF.pubnub.unsubscribe({
+                channels: [this.channel]
             });
 
         }
