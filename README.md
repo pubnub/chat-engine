@@ -5,6 +5,10 @@ build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
 
 The real time server component is provided by Socket.io or PubNub. OCF is extensible and includes a plugin framework to make dropping in features simple.
 
+# Getting Started
+
+Check out [the getting started guide](https://github.com/pubnub/open-chat-framework/tree/master/getting-started.md).
+
 # Full Docs
 
 You can find the full docs on [the full documentation website](https://pubnub.github.io/open-chat-framework/docs/).
