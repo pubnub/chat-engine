@@ -1,7 +1,3 @@
-# DEPRICATED! OUT OF DATE!
-
-There have been breaking API changes and this document is no longer correct.
-
 # Table of Contents
 <!-- MarkdownTOC -->
 
@@ -37,41 +33,21 @@ There have been breaking API changes and this document is no longer correct.
 
 There are two require fields for initializing OCF.
 
-* ```rltm``` - OCF is based off PubNub [rltm.js](https://github.com/pubnub/rltm.js) which lets you switch between PubNub and Socket.io just by changing your configuration. Check out [the rltm.js docs](https://github.com/pubnub/rltm.js) for more information.
+* ```pubnub``` - Your PubNub configuration.
 * ```globalChannel``` - This is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
 
-### Socket.io
-
-```js
-let OCF = OpenChatFramework.create({
-    rltm: {
-        service: 'socketio',
-        config: {
-            endpoint: 'http://localhost:8000',
-        }
-    },
-    globalChannel: 'ocf-root-channel'
-});
-```
-
-### PubNub
+### Create
 
 ```js
 const OCF = OpenChatFramework.create({
-    rltm: {
-        service: 'pubnub',
-        config: {
-            publishKey: 'YOUR_PUB_KEY',
-            subscribeKey: 'YOUR_SUB_KEY'
-        }
-    },
-    globalChannel: 'ocf-root-channel'
+    publishKey: 'YOUR_PUB_KEY',
+    subscribeKey: 'YOUR_SUB_KEY'
 });
 ```
 
-## Connect to OCF Network
+## Connect
 
-Now we're going to connect to the network (defined in ```rltm``` config). In order to connect, we need to identify ourselves to the network.
+Now we're going to connect to the PubNub network. In order to connect, we need to identify ourselves to the network.
 
 ```
 me = OCF.connect(uuid, {username: username});
@@ -90,7 +66,7 @@ This instance of OCF will make all further requests on behalf of the ```uuid``` 
 Once OCF is set up, creating and connecting to a chatroom is as simple as:
 
 ```js
-let chat = new Chat('channel');
+let chat = new OCF.Chat('channel');
 ```
 
 This will automatically connect to the chat room.
@@ -100,7 +76,7 @@ This will automatically connect to the chat room.
 You can send a message to the chat by using the ```send()``` method to broadcast an event over the network.
 
 ```js
-chat.send('message', 'my message');
+chat.emit('message', 'my message');
 ```
 
 The first parameter is the event to send, and the second parameter is the message payload.
