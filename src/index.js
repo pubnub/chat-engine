@@ -1,4 +1,4 @@
-"use strict";
+ "use strict";
 
 // Allows us to create and bind to events. Everything in OCF is an event
 // emitter
@@ -162,7 +162,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @property channel
             * @type String
             */
-            this.channel = channel;
+            this.channel = [globalChannel, channel].join('.');
 
             /**
             * A list of users in this {{#crossLink "Chat"}}{{/crossLink}}. Automatically kept in sync,
@@ -617,7 +617,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @type Chat
             */
             this.feed = new Chat(
-                [OCF.globalChat.channel, 'feed', uuid].join('.'));
+                [OCF.globalChat.channel, uuid, 'feed'].join('.'));
 
             /**
             * direct is a private channel that anybody can publish to
@@ -628,7 +628,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @type Chat
             */
             this.direct = new Chat(
-                [OCF.globalChat.channel, 'direct', uuid].join('.'));
+                [OCF.globalChat.channel, uuid, 'direct'].join('.'));
 
             // if the user does not exist at all and we get enough
             // information to build the user
