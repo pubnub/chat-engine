@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pubnub/open-chat-framework.git"
+    "url": "git+https://github.com/pubnub/chat-engine.git"
   },
   "keywords": [
     "pubnub",
@@ -21,9 +21,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pubnub/open-chat-framework/issues"
+    "url": "https://github.com/pubnub/chat-engine/issues"
   },
-  "homepage": "https://github.com/pubnub/open-chat-framework#readme",
+  "homepage": "https://github.com/pubnub/chat-engine#readme",
   "devDependencies": {
     "browserify": "^13.1.0",
     "chai": "^3.5.0",
