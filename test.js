@@ -87,6 +87,59 @@ describe('chat', function() {
 
 });
 
+
+let historyChan = 'history-chat-4';
+
+describe('history plugin', function() {
+
+    it('should be created', function(done) {
+
+        let historychat = new OCF.Chat(historyChan);
+        let ready = false;
+
+        historychat.on('$ocf.ready', () => {
+
+            historychat.emit('message', {
+                text: 'hello world'
+            });
+
+            historychat.emit('message', {
+                text: 'hello world'
+            });
+
+            historychat.emit('message', {
+                text: 'hello world'
+            });
+
+            if(!ready) {
+                done();
+                ready = true;
+            }
+
+        })
+
+    });
+
+    it('history', function(done) {
+
+        this.timeout(10000);
+
+        let historychat2 = new OCF.Chat(historyChan);
+
+        historychat2.history('message');
+
+        console.log(historychat2)
+
+        historychat2.once("$history.message", (message) => {
+            assert.isOk(message);
+            done();
+        });
+
+    });
+
+});
+
+
 // let pluginchat;
 
 // describe('plugins', function() {

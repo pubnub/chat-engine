@@ -54,7 +54,16 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @param {String} event The event name
             * @param {Function} callback The function to run when the event is emitted
             */
-            this.on = this.emitter.on.bind(this.emitter);
+            this._on = this.emitter.on.bind(this.emitter);
+
+            this.on = (event, cb) => {
+
+                // ensure the user exists within the global space
+                this.events[event] = this.events[event] || new Event(this, event);
+
+                this._on(event, cb);
+
+            };
 
             this.off = this.emitter.off.bind(this.emitter);
 
@@ -74,6 +83,42 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @param {Function} callback The function to run once
             */
             this.once = this.emitter.once.bind(this.emitter);
+
+        }
+
+    }
+
+    class Event {
+
+        constructor(Chat, event) {
+
+            this.channel = [Chat.channel, event].join('.');
+
+            this.publish = (m) => {
+
+                OCF.pubnub.publish({
+                    message: m,
+                    channel: this.channel
+                });
+
+            }
+
+            this.onMessage = (m) => {
+
+                if(this.channel == m.channel) {
+                    Chat.trigger(event, m.message);
+                }
+
+            }
+
+            OCF.pubnub.addListener({
+                message: this.onMessage
+            });
+
+            OCF.pubnub.subscribe({
+                channels: [this.channel],
+                withPresence: true
+            });
 
         }
 
@@ -162,7 +207,12 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @property channel
             * @type String
             */
-            this.channel = [globalChannel, channel].join('.');
+
+            this.channel = channel;
+
+            if(channel.indexOf(globalChannel) == -1) {
+                this.channel = [globalChannel, channel].join('.');
+            }
 
             /**
             * A list of users in this {{#crossLink "Chat"}}{{/crossLink}}. Automatically kept in sync,
@@ -172,6 +222,9 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @type Object
             */
             this.users = {};
+
+
+            this.events = {}
 
             // whenever we get a message from the network
             // run local trigger message
@@ -206,14 +259,34 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
             };
 
-            this.onMessage = (m) => {
+            this.history = (event, config = {}) => {
 
-                // if message is sent to this specific channel
-                if(this.channel == m.channel) {
-                    this.trigger(m.message[0], m.message[1]);
-                }
+                this.events[event] = this.events[event] || new Event(this, event);
 
-            };
+                config.channel = this.events[event].channel;
+
+                OCF.pubnub.history(config, (status, response) => {
+
+                    if(response.error) {
+                        throw new Error(response.error);
+                    } else {
+
+                        response.messages.forEach((message) => {
+
+                            // trigger the same event with the same data
+                            // but the event name is now history:name rather than just name
+                            // to distinguish it from the original live events
+                            this.trigger(
+                                ['$history', event].join('.'),
+                                message.entry);
+
+                        });
+
+                    }
+
+                });
+
+            }
 
             this.onPresence = (presenceEvent) => {
 
@@ -307,10 +380,10 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
                 // publish the event and data over the configured channel
 
-                OCF.pubnub.publish({
-                    message: [event, payload],
-                    channel: this.channel
-                });
+                // ensure the event exists within the global space
+                this.events[event] = this.events[event] || new Event(this, event);
+
+                this.events[event].publish(payload);
 
             });
 
