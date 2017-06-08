@@ -20,7 +20,7 @@ const waterfall = require('async/waterfall');
 * @return {Object} Returns an instance of ChatEngine
 */
 
-const create = function(pnConfig, globalChannel = 'ocf-global') {
+const create = function(pnConfig, globalChannel = 'chat-engine') {
 
     let ChatEngine = false;
 
