@@ -6,11 +6,11 @@ The real time server component is provided by Socket.io or PubNub. PubNub Chat E
 
 # Getting Started
 
-Check out [the getting started guide](https://github.com/pubnub/open-chat-framework/tree/master/getting-started.md).
+Check out [the getting started guide](https://github.com/pubnub/chat-engine/tree/master/getting-started.md).
 
 # Full Docs
 
-You can find the full docs on [the full documentation website](https://pubnub.github.io/open-chat-framework/docs/).
+You can find the full docs on [the full documentation website](https://pubnub.github.io/chat-engine/docs/).
 
 # Examples
 
@@ -18,50 +18,50 @@ You can find the full docs on [the full documentation website](https://pubnub.gi
 
 ### Javascript
 
-* [Chat](https://github.com/pubnub/ocf-examples/blob/master/javascript/chat.html)
-* [Online List](https://github.com/pubnub/ocf-examples/blob/master/javascript/online-list.html)
-* [Friends List](https://github.com/pubnub/ocf-examples/blob/master/javascript/friends-list.html)
+* [Chat](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/chat.html)
+* [Online List](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/online-list.html)
+* [Friends List](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/friends-list.html)
 
 ### NodeJS
 
-* [Bot](https://github.com/pubnub/ocf-examples/tree/master/nodejs)
+* [Bot](https://github.com/pubnub/chat-engine-examples/tree/master/nodejs)
 
 ### jQuery
 
-* [jQuery Simple](https://github.com/pubnub/ocf-examples/tree/master/jquery/simple)
-* [jQuery Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/jquery/kitchen-sink)
+* [jQuery Simple](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple)
+* [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink)
 
 ### Angular
 
-* [Angular Simple](https://github.com/pubnub/ocf-examples/tree/master/angular/simple)
-* [Angular Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/angular/flowtron)
+* [Angular Simple](https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple)
+* [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron)
 
 ### React
 
-* [React](https://github.com/pubnub/ocf-examples/tree/master/react)
+* [React](https://github.com/pubnub/chat-engine-examples/tree/master/react)
 
 ## 3rd Party Authentication
 
-* [Facebook Login](https://github.com/pubnub/ocf-examples/blob/master/javascript/facebook-login.html)
+* [Facebook Login](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/facebook-login.html)
 
 ## Chatbot
 
-* [NodeJS ChatBot](https://pubnub.github.io/open-chat-framework/examples/bot.js)
+* [NodeJS ChatBot](https://pubnub.github.io/chat-engine/examples/bot.js)
 
 ## Plugins
 
-Check out the [jQuery Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/jquery/kitchen-sink) and [Angular Kitchen Sink](https://github.com/pubnub/ocf-examples/tree/master/angular/flowtron) examples to see plugins in action.
+Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink) and [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron) examples to see plugins in action.
 
-- [Unread Messages](https://github.com/pubnub/ocf-unread-messages)
-- [Typing Indicator](https://github.com/pubnub/ocf-typing-indicator)
-- [Random Usernames](https://github.com/pubnub/ocf-random-username)
-- [Desktop Notifications](https://github.com/pubnub/ocf-desktop-notifications)
-- [Online User Search](https://github.com/pubnub/ocf-online-user-search)
-- [Image Uploads](https://github.com/pubnub/ocf-uploadcare)
-- [Persistent Message History](https://github.com/pubnub/ocf-history)
-- [Markdown Support](https://github.com/pubnub/ocf-markdown)
-- [Emoji Support](https://github.com/pubnub/ocf-emoji)
-- [Gravatar Support](https://github.com/pubnub/ocf-gravatar)
+- [Unread Messages](https://github.com/pubnub/chat-engine-unread-messages)
+- [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator)
+- [Random Usernames](https://github.com/pubnub/chat-engine-random-username)
+- [Desktop Notifications](https://github.com/pubnub/chat-engine-desktop-notifications)
+- [Online User Search](https://github.com/pubnub/chat-engine-online-user-search)
+- [Image Uploads](https://github.com/pubnub/chat-engine-uploadcare)
+- [Persistent Message History](https://github.com/pubnub/chat-engine-history)
+- [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
+- [Emoji Support](https://github.com/pubnub/chat-engine-emoji)
+- [Gravatar Support](https://github.com/pubnub/chat-engine-gravatar)
 
 ## Other usage examples
 
