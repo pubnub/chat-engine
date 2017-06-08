@@ -1,7 +1,7 @@
 {
   "author": "Ian Jennings",
   "name": "ocf",
-  "version": "0.1.14",
+  "version": "0.2.0",
   "description": "Open Chat Framework",
   "main": "src/index.js",
   "scripts": {
