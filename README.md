@@ -1,3 +1,5 @@
+![](http://i.imgur.com/CibBsK1.png)
+
 # PubNub Chat Engine
 
 PubNub Chat Engine is an object oriented event emitter based framework for building chat applications in Javascript. PubNub Chat Engine makes it easy to build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
