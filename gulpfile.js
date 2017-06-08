@@ -10,7 +10,7 @@ gulp.task('compile', function () {
         debug: true
     })
     .bundle()
-    .pipe(source('ocf.js'))
+    .pipe(source('chat-engine.js'))
     .pipe(gulp.dest('./dist/'));
 
 });

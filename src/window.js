@@ -1,1 +1,1 @@
-window.OpenChatFramework = window.OpenChatFramework || require('./index.js');
+window.ChatEngineCore = window.ChatEngineCore || require('./index.js');

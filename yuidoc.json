@@ -1,5 +1,5 @@
 {
-  "name": "OpenChatFramework",
+  "name": "ChatEngine",
   "version": "0.0.1",
   "options": {
     "paths": "src",

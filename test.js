@@ -128,8 +128,6 @@ describe('history plugin', function() {
 
         historychat2.history('message');
 
-        console.log(historychat2)
-
         historychat2.once("$history.message", (message) => {
             assert.isOk(message);
             done();

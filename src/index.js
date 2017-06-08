@@ -1,6 +1,6 @@
  "use strict";
 
-// Allows us to create and bind to events. Everything in OCF is an event
+// Allows us to create and bind to events. Everything in ChatEngine is an event
 // emitter
 const EventEmitter2 = require('eventemitter2').EventEmitter2;
 
@@ -10,22 +10,22 @@ const PubNub = require('pubnub');
 const waterfall = require('async/waterfall');
 
 /**
-* Global object used to create an instance of OCF.
+* Global object used to create an instance of ChatEngine.
 *
 * @class OpenChatFramework
 * @constructor
 * @param {Object} foo Argument 1
-* @param config.pubnub {Object} OCF is based off PubNub. Supply your PubNub config here.
+* @param config.pubnub {Object} ChatEngine is based off PubNub. Supply your PubNub config here.
 * @param config.globalChannel {String} his is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
-* @return {Object} Returns an instance of OCF
+* @return {Object} Returns an instance of ChatEngine
 */
 
 const create = function(pnConfig, globalChannel = 'ocf-global') {
 
-    let OCF = false;
+    let ChatEngine = false;
 
     /**
-    * Configures an event emitter that other OCF objects inherit. Adds shortcut methods for
+    * Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
     * ```this.on()```, ```this.emit()```, etc.
     *
     * @class RootEmitter
@@ -96,7 +96,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
             this.publish = (m) => {
 
-                OCF.pubnub.publish({
+                ChatEngine.pubnub.publish({
                     message: m,
                     channel: this.channel
                 });
@@ -111,11 +111,11 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
             }
 
-            OCF.pubnub.addListener({
+            ChatEngine.pubnub.addListener({
                 message: this.onMessage
             });
 
-            OCF.pubnub.subscribe({
+            ChatEngine.pubnub.subscribe({
                 channels: [this.channel],
                 withPresence: true
             });
@@ -125,7 +125,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
     }
 
     /**
-    * An OCF generic emitter that supports plugins and forwards
+    * An ChatEngine generic emitter that supports plugins and forwards
     * events to a global emitter.
     *
     * @class Emitter
@@ -141,9 +141,9 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             // emit an event from this object
             this._emit = (event, data) => {
 
-                // all events are forwarded to OCF object
-                // so you can globally bind to events with OCF.on()
-                OCF._emit(event, data);
+                // all events are forwarded to ChatEngine object
+                // so you can globally bind to events with ChatEngine.on()
+                ChatEngine._emit(event, data);
 
                 // emit the event from the object that created it
                 this.emitter.emit(event, data);
@@ -166,10 +166,10 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
                     // attach the plugins to this class
                     // under their namespace
-                    OCF.addChild(this, module.namespace,
+                    ChatEngine.addChild(this, module.namespace,
                         new module.extends[className]);
 
-                    this[module.namespace].OCF = OCF;
+                    this[module.namespace].ChatEngine = ChatEngine;
 
                     // if the plugin has a special construct function
                     // run it
@@ -265,7 +265,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
                 config.channel = this.events[event].channel;
 
-                OCF.pubnub.history(config, (status, response) => {
+                ChatEngine.pubnub.history(config, (status, response) => {
 
                     if(response.error) {
                         throw new Error(response.error);
@@ -329,20 +329,20 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
             };
 
-            OCF.pubnub.addListener({
+            ChatEngine.pubnub.addListener({
                 status: this.onStatus,
                 message: this.onMessage,
                 presence: this.onPresence
             });
 
-            OCF.pubnub.subscribe({
+            ChatEngine.pubnub.subscribe({
                 channels: [this.channel],
                 withPresence: true
             });
 
             // get a list of users online now
             // ask PubNub for information about connected users in this channel
-            OCF.pubnub.hereNow({
+            ChatEngine.pubnub.hereNow({
                 channels: [this.channel],
                 includeUUIDs: true,
                 includeState: true
@@ -364,7 +364,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             // create a standardized payload object
             let payload = {
                 data: data,            // the data supplied from params
-                sender: OCF.me.uuid,   // my own uuid
+                sender: ChatEngine.me.uuid,   // my own uuid
                 chat: this,            // an instance of this chat
             };
 
@@ -407,8 +407,8 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
                 }
 
                 // turn a uuid found in payload.sender to a real user
-                if(payload.sender && OCF.users[payload.sender]) {
-                    payload.sender = OCF.users[payload.sender];
+                if(payload.sender && ChatEngine.users[payload.sender]) {
+                    payload.sender = ChatEngine.users[payload.sender];
                 }
 
             }
@@ -438,10 +438,10 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
             // Ensure that this user exists in the global list
             // so we can reference it from here out
-            OCF.users[uuid] = OCF.users[uuid] || new User(uuid);
+            ChatEngine.users[uuid] = ChatEngine.users[uuid] || new User(uuid);
 
             // Add this chatroom to the user's list of chats
-            OCF.users[uuid].addChat(this, state);
+            ChatEngine.users[uuid].addChat(this, state);
 
             // trigger the join event over this chatroom
             if(!this.users[uuid] || trigger) {
@@ -453,16 +453,16 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
                 * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
                 */
                 this.trigger('$ocf.online', {
-                    user: OCF.users[uuid]
+                    user: ChatEngine.users[uuid]
                 });
 
             }
 
             // store this user in the chatroom
-            this.users[uuid] = OCF.users[uuid];
+            this.users[uuid] = ChatEngine.users[uuid];
 
             // return the instance of this user
-            return OCF.users[uuid];
+            return ChatEngine.users[uuid];
 
         }
 
@@ -477,7 +477,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
         userUpdate(uuid, state) {
 
             // ensure the user exists within the global space
-            OCF.users[uuid] = OCF.users[uuid] || new User(uuid);
+            ChatEngine.users[uuid] = ChatEngine.users[uuid] || new User(uuid);
 
             // if we don't know about this user
             if(!this.users[uuid]) {
@@ -509,7 +509,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
          */
         leave() {
 
-            OCF.pubnub.unsubscribe({
+            ChatEngine.pubnub.unsubscribe({
                 channels: [this.channel]
             });
 
@@ -630,7 +630,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
         */
         setState(state) {
 
-            OCF.pubnub.setState(
+            ChatEngine.pubnub.setState(
                 {
                     state: state,
                     channels: [this.channel]
@@ -653,7 +653,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
     */
     class User extends Emitter {
 
-        constructor(uuid, state = {}, chat = OCF.globalChat) {
+        constructor(uuid, state = {}, chat = ChatEngine.globalChat) {
 
             super();
 
@@ -690,7 +690,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @type Chat
             */
             this.feed = new Chat(
-                [OCF.globalChat.channel, uuid, 'feed'].join('.'));
+                [ChatEngine.globalChat.channel, uuid, 'feed'].join('.'));
 
             /**
             * direct is a private channel that anybody can publish to
@@ -701,12 +701,12 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             * @type Chat
             */
             this.direct = new Chat(
-                [OCF.globalChat.channel, uuid, 'direct'].join('.'));
+                [ChatEngine.globalChat.channel, uuid, 'direct'].join('.'));
 
             // if the user does not exist at all and we get enough
             // information to build the user
-            if(!OCF.users[uuid]) {
-                OCF.users[uuid] = this;
+            if(!ChatEngine.users[uuid]) {
+                ChatEngine.users[uuid] = this;
             }
 
             // update this user's state in it's created context
@@ -720,7 +720,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
         * @method state
         * @param {Chat} chat Chatroom to retrieve state from
         */
-        state(chat = OCF.globalChat) {
+        state(chat = ChatEngine.globalChat) {
             return this.states[chat.channel] || {};
         }
 
@@ -731,7 +731,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
         * @param {Object} state The new state for the user
         * @param {Chat} chat Chatroom to retrieve state from
         */
-        update(state, chat = OCF.globalChat) {
+        update(state, chat = ChatEngine.globalChat) {
             let chatState = this.state(chat) || {};
             this.states[chat.channel] = Object.assign(chatState, state);
         }
@@ -766,7 +766,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
     /**
     * Represents the client connection as a {{#crossLink "User"}}{{/crossLink}}.
     * Has the ability to update it's state on the network. An instance of
-    * {{#crossLink "Me"}}{{/crossLink}} is returned by the ```OCF.connect()```
+    * {{#crossLink "Me"}}{{/crossLink}} is returned by the ```ChatEngine.connect()```
     * method.
     *
     * @class Me
@@ -797,9 +797,9 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
         * @method update
         * @param {Object} state The new state for {{#crossLink "Me"}}{{/crossLink}}
         * @param {Chat} chat An instance of the {{#crossLink "Chat"}}{{/crossLink}} where state will be updated.
-        * Defaults to ```OCF.globalChat```.
+        * Defaults to ```ChatEngine.globalChat```.
         */
-        update(state, chat = OCF.globalChat) {
+        update(state, chat = ChatEngine.globalChat) {
 
             // run the root update function
             super.update(state, chat);
@@ -814,24 +814,24 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
     /**
      * Provides the base Widget class...
      *
-     * @class OCF
+     * @class ChatEngine
      */
     const init = function() {
 
-        // Create the root OCF object
-        OCF = new RootEmitter;
+        // Create the root ChatEngine object
+        ChatEngine = new RootEmitter;
 
         // create a global list of known users
-        OCF.users = {};
+        ChatEngine.users = {};
 
         // define our global chatroom all users join by default
-        OCF.globalChat = false;
+        ChatEngine.globalChat = false;
 
         // define the user that this client represents
-        OCF.me = false;
+        ChatEngine.me = false;
 
         // store a reference to PubNub
-        OCF.pubnub = false;
+        ChatEngine.pubnub = false;
 
         /**
         * connect to realtime service and create instance of {{#crossLink "Me"}}{{/crossLink}}
@@ -841,7 +841,7 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
         * @param {Object} state The initial state for {{#crossLink "Me"}}{{/crossLink}}
         * @return {Me} me an instance of me
         */
-        OCF.connect = function(uuid, state = {}) {
+        ChatEngine.connect = function(uuid, state = {}) {
 
             // this creates a user known as Me and
             // connects to the global chatroom
@@ -865,16 +865,16 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
             // return me
             return this.me;
 
-            // client can access globalChat through OCF.globalChat
+            // client can access globalChat through ChatEngine.globalChat
 
         };
 
         // our exported classes
-        OCF.Chat = Chat;
-        OCF.User = User;
+        ChatEngine.Chat = Chat;
+        ChatEngine.User = User;
 
         // add an object as a subobject under a namespoace
-        OCF.addChild = (ob, childName, childOb) => {
+        ChatEngine.addChild = (ob, childName, childOb) => {
 
             // assign the new child object as a property of parent under the
             // given namespace
@@ -886,16 +886,16 @@ const create = function(pnConfig, globalChannel = 'ocf-global') {
 
         }
 
-        return OCF;
+        return ChatEngine;
 
     }
 
-    // return an instance of OCF
+    // return an instance of ChatEngine
     return init();
 
 }
 
-// export the OCF api
+// export the ChatEngine api
 module.exports = {
     plugin: {},  // leave a spot for plugins to exist
     create: create
