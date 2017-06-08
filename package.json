@@ -2,7 +2,7 @@
   "author": "Ian Jennings",
   "name": "ocf",
   "name": "chat-engine",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Open Chat Framework",
   "main": "src/index.js",
   "scripts": {

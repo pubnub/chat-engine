@@ -216,7 +216,7 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             /**
             * A list of users in this {{#crossLink "Chat"}}{{/crossLink}}. Automatically kept in sync,
-            * Use ```Chat.on('$ocf.join')``` and related events to get notified when this changes
+            * Use ```Chat.on('$.join')``` and related events to get notified when this changes
             *
             * @property users
             * @type Object
@@ -252,7 +252,7 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
                 if (statusEvent.category === "PNConnectedCategory") {
 
                     if(statusEvent.affectedChannels.indexOf(this.channel) > -1) {
-                        this.trigger('$ocf.ready');
+                        this.trigger('$.ready');
                     }
 
                 }
@@ -301,10 +301,10 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
                         /**
                         * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has joined the room
                         *
-                        * @event $ocf.join
+                        * @event $.join
                         * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
                         */
-                        this.trigger('$ocf.join', {
+                        this.trigger('$.join', {
                             user: user
                         });
 
@@ -449,10 +449,10 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
                 /**
                 * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has come online
                 *
-                * @event $ocf.online
+                * @event $.online
                 * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
                 */
-                this.trigger('$ocf.online', {
+                this.trigger('$.online', {
                     user: ChatEngine.users[uuid]
                 });
 
@@ -491,11 +491,11 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
             /**
             * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has changed state
             *
-            * @event $ocf.state
+            * @event $.state
             * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that changed state
             * @param {Object} payload.state The new user state for this ```Chat```
             */
-            this.trigger('$ocf.state', {
+            this.trigger('$.state', {
                 user: this.users[uuid],
                 state: this.users[uuid].state(this)
             });
@@ -527,8 +527,8 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
             if(this.users[uuid]) {
 
                 // if a user leaves, trigger the event
-                this.trigger('$ocf.leave', this.users[uuid]);
-                this.trigger('$ocf.offline', this.users[uuid]);
+                this.trigger('$.leave', this.users[uuid]);
+                this.trigger('$.offline', this.users[uuid]);
 
                 // remove the user from the local list of users
                 delete this.users[uuid];
@@ -560,18 +560,18 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
                 /**
                 * A {{#crossLink "User"}}{{/crossLink}} has been disconnected from the ```Chat```
                 *
-                * @event $ocf.disconnect
+                * @event $.disconnect
                 * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that disconnected
                 */
-                this.trigger('$ocf.disconnect', this.users[uuid]);
+                this.trigger('$.disconnect', this.users[uuid]);
 
                 /**
                 * A {{#crossLink "User"}}{{/crossLink}} has gone offline
                 *
-                * @event $ocf.offline
+                * @event $.offline
                 * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that has gone offline
                 */
-                this.trigger('$ocf.offline', this.users[uuid]);
+                this.trigger('$.offline', this.users[uuid]);
 
             }
 
@@ -623,7 +623,7 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         /**
         * @private
         * Set the state for {{#crossLink "Me"}}{{/crossLink}} within this {{#crossLink "User"}}{{/crossLink}}.
-        * Broadcasts the ```$ocf.state``` event on other clients
+        * Broadcasts the ```$.state``` event on other clients
         *
         * @method setState
         * @param {Object} state The new state {{#crossLink "Me"}}{{/crossLink}} will have within this {{#crossLink "User"}}{{/crossLink}}
