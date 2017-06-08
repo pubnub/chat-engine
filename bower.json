@@ -1,5 +1,5 @@
 {
-  "name": "ocr",
+  "name": "chat-engine",
   "description": "PubNub Open Chat Framework",
   "main": "index.js",
   "authors": [

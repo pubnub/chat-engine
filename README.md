@@ -1,9 +1,8 @@
-# OCF - Open Chat Framework
+# PubNub Chat Engine
 
-OCF is an object oriented event emitter based framework for building chat applications in Javascript. OCF makes it easy to
-build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
+PubNub Chat Engine is an object oriented event emitter based framework for building chat applications in Javascript. PubNub Chat Engine makes it easy to build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
 
-The real time server component is provided by Socket.io or PubNub. OCF is extensible and includes a plugin framework to make dropping in features simple.
+The real time server component is provided by Socket.io or PubNub. PubNub Chat Engine is extensible and includes a plugin framework to make dropping in features simple.
 
 # Getting Started
 
