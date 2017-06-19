@@ -8,7 +8,7 @@ The real time server component is provided by Socket.io or PubNub. PubNub Chat E
 
 # Getting Started
 
-Check out [the getting started guide](https://github.com/pubnub/chat-engine/tree/master/getting-started.md).
+Check out [the getting started guide](https://github.com/pubnub/chat-engine-tutorial).
 
 # Full Docs
 
