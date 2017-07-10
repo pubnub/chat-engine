@@ -65,6 +65,10 @@ Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-exampl
 - [Emoji Support](https://github.com/pubnub/chat-engine-emoji)
 - [Gravatar Support](https://github.com/pubnub/chat-engine-gravatar)
 
+### Creating your own plugin
+
+There's a full guide to creating your own plugin [here](https://github.com/pubnub/chat-engine-plugin). It also includes a command line tool (```chat-engine-plugin```) that packages your plugin for Node and web.
+
 ## Other usage examples
 
 [Test.js](test.js) includes some usage examples
