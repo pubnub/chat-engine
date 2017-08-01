@@ -1,4 +1,4 @@
- "use strict";
+     "use strict";
 
 // Allows us to create and bind to events. Everything in ChatEngine is an event
 // emitter
@@ -6,36 +6,44 @@ const EventEmitter2 = require('eventemitter2').EventEmitter2;
 
 const PubNub = require('pubnub');
 
-// allows a synchronous execution flow.
+// allows asynchronous execution flow.
 const waterfall = require('async/waterfall');
 
 /**
-* Global object used to create an instance of ChatEngine.
-*
-* @class OpenChatFramework
-* @constructor
-* @param {Object} foo Argument 1
-* @param config.pubnub {Object} ChatEngine is based off PubNub. Supply your PubNub config here.
-* @param config.globalChannel {String} his is the global channel that all clients are connected to automatically. It's used for global announcements, global presence, etc.
-* @return {Object} Returns an instance of ChatEngine
-*/
+Global object used to create an instance of {@link ChatEngine}.
 
+@alias ChatEngineCore
+@param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/java-se-java/api-reference-configuration).
+@param [globalChannel] {Chat.channel} The global channel name. See {@link ChatEngine.globalChat}
+@return {ChatEngine} Returns an instance of {@link ChatEngine}
+@example
+const ChatEngine = ChatEngineCore.create({
+    publishKey: 'demo',
+    subscribeKey: 'demo'
+}, 'global-channel');
+*/
 const create = function(pnConfig, globalChannel = 'chat-engine') {
 
     let ChatEngine = false;
 
     /**
-    * Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
+    * The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
     * ```this.on()```, ```this.emit()```, etc.
-    *
-    * @class RootEmitter
-    * @constructor
     */
     class RootEmitter {
 
         constructor() {
 
-            // create an ee2
+            /**
+            * @private
+            */
+            this.events = {};
+
+            /**
+            Create a new EventEmitter2 object for this class.
+
+            @private
+            */
             this.emitter = new EventEmitter2({
               wildcard: true,
               newListener: true,
@@ -45,42 +53,61 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             // we bind to make sure wildcards work
             // https://github.com/asyncly/EventEmitter2/issues/186
+
+            /**
+            Private emit method that broadcasts the event to listeners on this page.
+
+            @private
+            @param {String} event The event name
+            @param {Object} the event payload
+            */
             this._emit = this.emitter.emit.bind(this.emitter);
 
             /**
-            * Listen for a specific event and fire a callback when it's emitted
-            *
-            * @method on
-            * @param {String} event The event name
-            * @param {Function} callback The function to run when the event is emitted
+            Listen for a specific event and fire a callback when it's emitted
+
+            @private
+            @param {String} event The event name
+            @param {Function} callback The function to run when the event is emitted
             */
+
             this._on = this.emitter.on.bind(this.emitter);
 
+            /**
+            Listen for a specific event and fire a callback when it's emitted
+
+            @param {String} event The event name
+            @param {Function} cb The function to run when the event is emitted
+            */
             this.on = (event, cb) => {
 
-                // ensure the user exists within the global space
+                // keep track of all events on this emitter
                 this.events[event] = this.events[event] || new Event(this, event);
 
+                // call the private _on property
                 this._on(event, cb);
 
             };
 
+            /**
+            Stop listening to an event
+            @method
+            @param {String} event The event name
+            */
             this.off = this.emitter.off.bind(this.emitter);
 
             /**
-            * Listen for any event on this object and fire a callback when it's emitted
-            *
-            * @method onAny
-            * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
+            Listen for any event on this object and fire a callback when it's emitted
+            @method
+            @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
             */
             this.onAny = this.emitter.onAny.bind(this.emitter);
 
             /**
-            * Listen for an event and only fire the callback a single time
-            *
-            * @method once
-            * @param {String} event The event name
-            * @param {Function} callback The function to run once
+            Listen for an event and only fire the callback a single time
+            @method
+            @param {String} event The event name
+            @param {Function} callback The function to run once
             */
             this.once = this.emitter.once.bind(this.emitter);
 
@@ -88,12 +115,29 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
     }
 
+    /**
+    Represents an event that may be emitted or subscribed to.
+    */
     class Event {
 
         constructor(Chat, event) {
 
+            /**
+            The [PubNub channel](https://www.pubnub.com/developers/tech/key-concepts/publish-subscribe/channels/) upon which this event is broadcast. Events
+            are always a property of a {@link Chat}.
+
+            @readonly
+            @type String
+            @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+            */
             this.channel = [Chat.channel, event].join('.');
 
+            /**
+            Publishes the event over the PubNub network to the {@link Event} channel
+
+            @private
+            @param {Object} data The event payload object
+            */
             this.publish = (m) => {
 
                 ChatEngine.pubnub.publish({
@@ -103,6 +147,12 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             }
 
+            /**
+            Forwards events to the proper {@link Chat}
+
+            @private
+            @param {Object} data The event payload object
+            */
             this.onMessage = (m) => {
 
                 if(this.channel == m.channel) {
@@ -111,10 +161,12 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             }
 
+            // call onMessage when PubNub receives an event
             ChatEngine.pubnub.addListener({
                 message: this.onMessage
             });
 
+            // subscribe to the PubNub channel for this event
             ChatEngine.pubnub.subscribe({
                 channels: [this.channel],
                 withPresence: true
@@ -125,12 +177,9 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
     }
 
     /**
-    * An ChatEngine generic emitter that supports plugins and forwards
-    * events to a global emitter.
-    *
-    * @class Emitter
-    * @constructor
-    * @extends RootEmitter
+    An ChatEngine generic emitter that supports plugins and forwards
+    events to a global emitter.
+    @extends RootEmitter
     */
     class Emitter extends RootEmitter {
 
@@ -138,7 +187,12 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             super();
 
-            // emit an event from this object
+            /**
+            Forwards events to the proper {@link Chat}
+
+            @private
+            @param {String} event The event payload object
+            */
             this._emit = (event, data) => {
 
                 // all events are forwarded to ChatEngine object
@@ -150,15 +204,22 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             }
 
-            // assign the list of plugins for this scope
+            /**
+            Stores a list of plugins bound to this object
+            @private
+            */
             this.plugins = [];
 
-            // bind a plugin to this object
+            /**
+            Binds a plugin to this object
+            @param {Object} module The plugin module
+            */
             this.plugin = function(module) {
 
+                // add this plugin to a list of plugins for this object
                 this.plugins.push(module);
 
-                // returns the name of the class
+                // returns the name of this class
                 let className = this.constructor.name;
 
                 // see if there are plugins to attach to this class
@@ -173,7 +234,6 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
                     // if the plugin has a special construct function
                     // run it
-
                     if(this[module.namespace].construct) {
                         this[module.namespace].construct();
                     }
@@ -188,26 +248,29 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
     }
 
     /**
-    * This is the root {{#crossLink "Chat"}}{{/crossLink}} class that represents a chat room
-    *
-    * @class Chat
-    * @constructor
-    * @param {String} channel The channel name for the Chat
-    * @extends Emitter
+    This is the root {@link Chat} class that represents a chat room
+
+    @param {String} channel A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
+    @extends Emitter
+    @fires Chat#$"."ready
+    @fires Chat#$"."join
+    @fires Chat#$"."online
+    @fires Chat#$"."state
+    @fires Chat#$"."leave
+    @fires Chat#$"."disconnect
+    @fires Chat#$"."offline
     */
     class Chat extends Emitter {
 
-        constructor(channel) {
+        constructor(channel = new Date().getTime()) {
 
             super();
 
             /**
-            * The channel name for this {{#crossLink "Chat"}}{{/crossLink}}
-            *
-            * @property channel
             * @type String
+            * @readonly
+            * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
             */
-
             this.channel = channel;
 
             if(channel.indexOf(globalChannel) == -1) {
@@ -215,20 +278,31 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
             }
 
             /**
-            * A list of users in this {{#crossLink "Chat"}}{{/crossLink}}. Automatically kept in sync,
-            * Use ```Chat.on('$.join')``` and related events to get notified when this changes
-            *
-            * @property users
-            * @type Object
+            A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
+            Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
+
+            @type Object
+            @readonly
             */
             this.users = {};
 
+            /**
+            A map of {@link Event} bound to this {@link Chat}
 
+            @private
+            @type Object
+            @readonly
+            */
             this.events = {}
 
-            // whenever we get a message from the network
-            // run local trigger message
+            /**
+            Updates list of {@link User}s in this {@link Chat}
+            based on who is online now.
 
+            @private
+            @param {Object} status The response status
+            @param {Object} response The response payload object
+            */
             this.onHereNow = (status, response) => {
 
                 if(status.error) {
@@ -247,11 +321,28 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             };
 
+            /**
+            Fires when PubNub network connection changes
+
+            @private
+            @param {Object} statusEvent The response status
+            */
             this.onStatus = (statusEvent) => {
 
+                // if the event says we're connected
                 if (statusEvent.category === "PNConnectedCategory") {
 
+                    // and the channel matches this Chat
                     if(statusEvent.affectedChannels.indexOf(this.channel) > -1) {
+
+                        /**
+                        * Broadcast that the {@link Chat} is connected to the network.
+                        * @event Chat#$"."ready
+                        * @example
+                        * chat.on('$.ready', () => {
+                        *     console.log('chat is ready to go!');
+                        * });
+                        */
                         this.trigger('$.ready');
                     }
 
@@ -259,12 +350,23 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             };
 
+            /**
+            Get messages that have been published to the network before this client was connected.
+            Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
+            you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
+
+            @param {String} event The name of the event we're getting history for
+            @param {Object} [config] The PubNub history config for this call
+            */
             this.history = (event, config = {}) => {
 
+                // create the event if it does not exist
                 this.events[event] = this.events[event] || new Event(this, event);
 
+                // set the PubNub configured channel to this channel
                 config.channel = this.events[event].channel;
 
+                // run the PubNub history method for this event
                 ChatEngine.pubnub.history(config, (status, response) => {
 
                     if(response.error) {
@@ -288,6 +390,12 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             }
 
+            /**
+            Keep track of {@link User}s in the room by subscribing to PubNub presence events.
+
+            @private
+            @param {Object} data The PubNub presence response for this event
+            */
             this.onPresence = (presenceEvent) => {
 
                 // make sure channel matches this channel
@@ -299,10 +407,15 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
                         let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
 
                         /**
-                        * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has joined the room
+                        * Fired when a {@link User} has joined the room.
                         *
-                        * @event $.join
-                        * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
+                        * @event Chat#$"."join
+                        * @param {Object} data The payload returned by the event
+                        * @param {User} data.user The {@link User} that came online
+                        * @example
+                        * chat.on('$.join', (data) => {
+                        *     console.log('User has joined the room!', data.user);
+                        * });
                         */
                         this.trigger('$.join', {
                             user: user
@@ -329,12 +442,14 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
             };
 
+            // listen to all PubNub events for this Chat
             ChatEngine.pubnub.addListener({
                 status: this.onStatus,
                 message: this.onMessage,
                 presence: this.onPresence
             });
 
+            // subscribe to the PubNub channel for this Chat
             ChatEngine.pubnub.subscribe({
                 channels: [this.channel],
                 withPresence: true
@@ -351,13 +466,12 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * Send events to other clients in this {{#crossLink "User"}}{{/crossLink}}.
-        * Events are trigger over the network  and all events are made
-        * on behalf of {{#crossLink "Me"}}{{/crossLink}}
-        *
-        * @method emit
-        * @param {String} event The event name
-        * @param {Object} data The event payload object
+        Send events to other clients in this {@link User}.
+        Events are trigger over the network  and all events are made
+        on behalf of {@link Me}
+
+        @param {String} event The event name
+        @param {Object} data The event payload object
         */
         emit(event, data) {
 
@@ -390,12 +504,11 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * @private
-        * Broadcasts an event locally to all listeners.
-        *
-        * @method trigger
-        * @param {String} event The event name
-        * @param {Object} payload The event payload object
+        Broadcasts an event locally to all listeners.
+
+        @private
+        @param {String} event The event name
+        @param {Object} payload The event payload object
         */
         trigger(event, payload) {
 
@@ -426,13 +539,12 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * @private
-        * Add a user to the {{#crossLink "Chat"}}{{/crossLink}}, creating it if it doesn't already exist.
-        *
-        * @method createUser
-        * @param {String} uuid The user uuid
-        * @param {Object} state The user initial state
-        * @param {Boolean} trigger Force a trigger that this user is online
+        Add a user to the {@link Chat}, creating it if it doesn't already exist.
+
+        @private
+        @param {String} uuid The user uuid
+        @param {Object} state The user initial state
+        @param {Boolean} trigger Force a trigger that this user is online
         */
         createUser(uuid, state, trigger = false) {
 
@@ -447,10 +559,18 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
             if(!this.users[uuid] || trigger) {
 
                 /**
-                * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has come online
+                * Broadcast that a {@link User} has come online. This is when
+                * the framework firsts learn of a user. This can be triggered
+                * by, ```$.join```, or other network events that
+                * notify the framework of a new user.
                 *
-                * @event $.online
-                * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that came online
+                * @event Chat#$"."online
+                * @param {Object} data The payload returned by the event
+                * @param {User} data.user The {@link User} that came online
+                * @example
+                * chat.on('$.online', (data) => {
+                *     console.log('User has come online:', data.user);
+                * });
                 */
                 this.trigger('$.online', {
                     user: ChatEngine.users[uuid]
@@ -467,11 +587,9 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
+        * Update a user's state within this {@link Chat}.
         * @private
-        * Update a user's state within this {{#crossLink "Chat"}}{{/crossLink}}.
-        *
-        * @method userUpdate
-        * @param {String} uuid The {{#crossLink "User"}}{{/crossLink}} uuid
+        * @param {String} uuid The {@link User} uuid
         * @param {Object} state State to update for the user
         */
         userUpdate(uuid, state) {
@@ -489,11 +607,15 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
             this.users[uuid].assign(state, this);
 
             /**
-            * Broadcast that a {{#crossLink "User"}}{{/crossLink}} has changed state
-            *
-            * @event $.state
-            * @param {Object} payload.user The {{#crossLink "User"}}{{/crossLink}} that changed state
-            * @param {Object} payload.state The new user state for this ```Chat```
+            * Broadcast that a {@link User} has changed state.
+            * @event Chat#$"."state
+            * @param {Object} data The payload returned by the event
+            * @param {User} data.user The {@link User} that changed state
+            * @param {Object} data.state The new user state for this ```Chat```
+            * @example
+            * chat.on('$.state', (data) => {
+            *     console.log('User has changed state:', data.user, 'new state:', data.state);
+            * });
             */
             this.trigger('$.state', {
                 user: this.users[uuid],
@@ -503,10 +625,8 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-         * Leave from the {{#crossLink "Chat"}}{{/crossLink}} on behalf of {{#crossLink "Me"}}{{/crossLink}}
-         *
-         * @method leave
-         */
+        Leave from the {@link Chat} on behalf of {@link Me}.
+        */
         leave() {
 
             ChatEngine.pubnub.unsubscribe({
@@ -516,17 +636,27 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-         * @private
-         * Perform updates when a user has left the {{#crossLink "Chat"}}{{/crossLink}}.
-         *
-         * @method leave
-         */
+        Perform updates when a user has left the {@link Chat}.
+
+        @private
+        */
         userLeave(uuid) {
 
             // make sure this event is real, user may have already left
             if(this.users[uuid]) {
 
                 // if a user leaves, trigger the event
+
+                /**
+                * Fired when a {@link User} intentionally leaves a {@link Chat}.
+                *
+                * @event Chat#$"."leave
+                * @param {User} user The {@link User} that has left the room
+                * @example
+                * chat.on('$.leave', (user) => {
+                *     console.log('User left the room manually:', user);
+                * });
+                */
                 this.trigger('$.leave', this.users[uuid]);
                 this.trigger('$.offline', this.users[uuid]);
 
@@ -546,11 +676,10 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * @private
-        * Fired when a user disconnects from the {{#crossLink "Chat"}}{{/crossLink}}
-        *
-        * @method userDisconnect
-        * @param {String} uuid The uuid of the {{#crossLink "Chat"}}{{/crossLink}} that left
+        Fired when a user disconnects from the {@link Chat}
+
+        @private
+        @param {String} uuid The uuid of the {@link Chat} that left
         */
         userDisconnect(uuid) {
 
@@ -558,18 +687,28 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
             if(this.users[uuid]) {
 
                 /**
-                * A {{#crossLink "User"}}{{/crossLink}} has been disconnected from the ```Chat```
+                * Fired specifically when a {@link User} looses network connection
+                * to the {@link Chat} involuntarily.
                 *
-                * @event $.disconnect
-                * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that disconnected
+                * @event Chat#$"."disconnect
+                * @param {Object} User The {@link User} that disconnected
+                * @example
+                * chat.on('$.disconnect', (user) => {
+                *     console.log('User disconnected from the network:', user);
+                * });
                 */
                 this.trigger('$.disconnect', this.users[uuid]);
 
                 /**
-                * A {{#crossLink "User"}}{{/crossLink}} has gone offline
+                * A {@link User} has gone offline. Triggered by ```$.leave```
+                * or ```$.disconnect```.
                 *
-                * @event $.offline
-                * @param {Object} User The {{#crossLink "User"}}{{/crossLink}} that has gone offline
+                * @event Chat#$"."offline
+                * @param {User} user The {@link User} that has gone offline
+                * @example
+                * chat.on('$.offline', (user) => {
+                *     console.log('User disconnected from the network:', user);
+                * });
                 */
                 this.trigger('$.offline', this.users[uuid]);
 
@@ -578,15 +717,14 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * @private
-        * Load plugins and attach a queue of functions to execute before and
-        * after events are trigger or received.
-        *
-        * @method runPluginQueue
-        * @param {String} location Where in the middleeware the event should run (emit, trigger)
-        * @param {String} event The event name
-        * @param {String} first The first function to run before the plugins have run
-        * @param {String} last The last function to run after the plugins have run
+        Load plugins and attach a queue of functions to execute before and
+        after events are trigger or received.
+
+        @private
+        @param {String} location Where in the middleeware the event should run (emit, trigger)
+        @param {String} event The event name
+        @param {String} first The first function to run before the plugins have run
+        @param {String} last The last function to run after the plugins have run
         */
         runPluginQueue(location, event, first, last) {
 
@@ -621,12 +759,11 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * @private
-        * Set the state for {{#crossLink "Me"}}{{/crossLink}} within this {{#crossLink "User"}}{{/crossLink}}.
-        * Broadcasts the ```$.state``` event on other clients
-        *
-        * @method setState
-        * @param {Object} state The new state {{#crossLink "Me"}}{{/crossLink}} will have within this {{#crossLink "User"}}{{/crossLink}}
+        Set the state for {@link Me} within this {@link User}.
+        Broadcasts the ```$.state``` event on other clients
+
+        @private
+        @param {Object} state The new state {@link Me} will have within this {@link User}
         */
         setState(state) {
 
@@ -645,11 +782,12 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
     };
 
     /**
-    * This is our User class which represents a connected client
-    *
-    * @class User
-    * @constructor
-    * @extends Emitter
+    This is our User class which represents a connected client.
+    @class
+    @extends Emitter
+    @param uuid
+    @param state
+    @param chat
     */
     class User extends Emitter {
 
@@ -658,47 +796,55 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
             super();
 
             /**
-            * the User's uuid. This is public id exposed to the network.
-            *
-            * @property uuid
-            * @type String
+            The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
+            Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+
+            @readonly
+            @type String
             */
             this.uuid = uuid;
 
             /**
-            * keeps account of user state in each channel
-            *
-            * @property states
-            * @type Object
+            A map of the User's state in each {@link Chat}. Stays in sync automatically.
+
+            @private
+            @type Object
             */
             this.states = {};
 
             /**
-            * keep a list of chatrooms this user is in
+            * An object containing the Chats this {@link User} is currently in. The key of each item in the object is the {@link Chat.channel} and the value is the {@link Chat} object. Note that for privacy, this map will only contain {@link Chat}s that the client ({@link Me}) is also connected to.
             *
-            * @property chats
+            * @readonly
             * @type Object
+            * @example
+            *{
+            *    "globalChannel": {
+            *        channel: "globalChannel",
+            *        users: {
+            *            //...
+            *        },
+            *    },
+            *    // ...
+            * }
             */
             this.chats = {};
 
             /**
-            * every user has a couple personal rooms we can connect to
-            * feed is a list of things a specific user does that
-            * many people can subscribe to
-            *
-            * @property feed
-            * @type Chat
+            Feed is a Chat that only streams things a User does, like
+            'startTyping' or 'idle' events for example. Anybody can subscribe
+            to a User's feed, but only the User can publish to it (security not yet implemented).
+
+            @type Chat
             */
             this.feed = new Chat(
                 [ChatEngine.globalChat.channel, uuid, 'feed'].join('.'));
 
             /**
-            * direct is a private channel that anybody can publish to
-            * but only the user can subscribe to
-            * this permission based system is not implemented yet
-            *
-            * @property direct
-            * @type Chat
+            Direct is a private channel that anybody can publish to but only the user can subscribe to. Great
+            for pushing notifications or inviting to other chats. (security not implemented yet).
+
+            @type Chat
             */
             this.direct = new Chat(
                 [ChatEngine.globalChat.channel, uuid, 'direct'].join('.'));
@@ -715,19 +861,15 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * get the user's state in a chatroom
-        *
-        * @method state
-        * @param {Chat} chat Chatroom to retrieve state from
+        Gets the user state in a {@link Chat}.
+        @param {Chat} chat Chatroom to retrieve state from
         */
         state(chat = ChatEngine.globalChat) {
             return this.states[chat.channel] || {};
         }
 
         /**
-        * update the user's state in a specific chatroom
-        *
-        * @method update
+        * @private
         * @param {Object} state The new state for the user
         * @param {Chat} chat Chatroom to retrieve state from
         */
@@ -737,20 +879,18 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * @private
-        * this is only called from network updates
-        *
-        * @method assign
+        this is only called from network updates
+
+        @private
         */
         assign(state, chat) {
             this.update(state, chat);
         }
 
         /**
-        * @private
-        * adds a chat to this user
-        *
-        * @method addChat
+        adds a chat to this user
+
+        @private
         */
         addChat(chat, state) {
 
@@ -764,15 +904,14 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
     }
 
     /**
-    * Represents the client connection as a {{#crossLink "User"}}{{/crossLink}}.
-    * Has the ability to update it's state on the network. An instance of
-    * {{#crossLink "Me"}}{{/crossLink}} is returned by the ```ChatEngine.connect()```
-    * method.
-    *
-    * @class Me
-    * @constructor
-    * @param {String} uuid The uuid of this user
-    * @extends User
+    Represents the client connection as a special {@link User} with write permissions.
+    Has the ability to update it's state on the network. An instance of
+    {@link Me} is returned by the ```ChatEngine.connect()```
+    method.
+
+    @class Me
+    @param {String} uuid The uuid of this user
+    @extends User
     */
     class Me extends User {
 
@@ -792,12 +931,11 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
         }
 
         /**
-        * Update this user state over the network
-        *
-        * @method update
-        * @param {Object} state The new state for {{#crossLink "Me"}}{{/crossLink}}
-        * @param {Chat} chat An instance of the {{#crossLink "Chat"}}{{/crossLink}} where state will be updated.
-        * Defaults to ```ChatEngine.globalChat```.
+        Update {@link Me}'s state in a {@link Chat}. All {@link User}s in the {@link Chat} will be notified of this change via ($.update)[Chat.html#event:$%2522.%2522state].
+        @param {Object} state The new state for {@link Me}
+        @param {Chat} chat An instance of the {@link Chat} where state will be updated.
+        Defaults to ```ChatEngine.globalChat```.
+        @fires Chat#event:$"."state
         */
         update(state, chat = ChatEngine.globalChat) {
 
@@ -812,34 +950,50 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
     }
 
     /**
-     * Provides the base Widget class...
-     *
-     * @class ChatEngine
+    Provides the base Widget class...
+
+    @class ChatEngine
+    @extends RootEmitter
      */
     const init = function() {
 
         // Create the root ChatEngine object
         ChatEngine = new RootEmitter;
 
-        // create a global list of known users
+        /**
+        * A map of all known users in this instance of ChatEngine
+        * @memberof ChatEngine
+        */
         ChatEngine.users = {};
 
-        // define our global chatroom all users join by default
+        /**
+        * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
+        * @member globalChat
+        * @memberof ChatEngine
+        */
         ChatEngine.globalChat = false;
 
-        // define the user that this client represents
+        /**
+        * This instance of ChatEngine represented as a special {@link User} know as {@link Me}
+        * @member {Me} me
+        * @memberof ChatEngine
+        */
         ChatEngine.me = false;
 
-        // store a reference to PubNub
+        /**
+        * An instance of PubNub, the networking infrastructure that powers the realtime communication between {@link User}s in {@link Chats}.
+        * @member {Object} pubnub
+        * @memberof ChatEngine
+        */
         ChatEngine.pubnub = false;
 
         /**
-        * connect to realtime service and create instance of {{#crossLink "Me"}}{{/crossLink}}
+        connect to realtime service and create instance of {@link Me}
         *
-        * @method connect
-        * @param {String} uuid The uuid for {{#crossLink "Me"}}{{/crossLink}}
-        * @param {Object} state The initial state for {{#crossLink "Me"}}{{/crossLink}}
-        * @return {Me} me an instance of me
+        @memberof ChatEngine
+        @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
+        @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
+        @return {Me} me an instance of me
         */
         ChatEngine.connect = function(uuid, state = {}) {
 
@@ -869,8 +1023,20 @@ const create = function(pnConfig, globalChannel = 'chat-engine') {
 
         };
 
-        // our exported classes
+        /**
+        * The {@link Chat} class.
+        * @member {Chat} Chat
+        * @memberof ChatEngine
+        * @see {@link Chat}
+        */
         ChatEngine.Chat = Chat;
+
+        /**
+        * The {@link User} class.
+        * @member {User} User
+        * @memberof ChatEngine
+        * @see {@link User}
+        */
         ChatEngine.User = User;
 
         // add an object as a subobject under a namespoace

@@ -1,0 +1,36 @@
+{
+    "opts": {
+        "template": "./docdash",  // same as -t templates/default
+        "destination": "./docs/",          // same as -d ./out/
+        "recurse": true,                  // same as -r
+        "tutorials": "./guide/", // same as -u path/to/tutorials
+        "readme": "./README.md"
+    },
+    "docdash": {
+        "static": true,  // Display the static members inside the navbar
+        "sort": true     // Sort the methods in the navbar
+    },
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc","closure"]
+    },
+    "source": {
+        "include": [
+            "src/index.js",
+            "../chat-engine-uploadcare/src/plugin.js",
+            "../chat-engine-typing-indicator/src/plugin.js",
+            "../chat-engine-desktop-notifications/src/plugin.js",
+            "../chat-engine-emoji/src/plugin.js",
+            "../chat-engine-random-username/src/plugin.js",
+            "../chat-engine-unread-messages/src/plugin.js",
+            "../chat-engine-gravatar/src/plugin.js",
+            "../chat-engine-markdown/src/plugin.js",
+            "../chat-engine-online-user-search/src/plugin.js"
+        ]
+    },
+    "plugins": [
+        "plugins/markdown",
+        "./doc_plugins/ceextend.js",
+        "./doc_plugins/ceplugin.js"
+    ]
+}

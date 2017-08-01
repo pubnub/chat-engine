@@ -1,5 +1,3 @@
-![](http://i.imgur.com/CibBsK1.png)
-
 # PubNub Chat Engine
 
 PubNub Chat Engine is an object oriented event emitter based framework for building chat applications in Javascript. PubNub Chat Engine makes it easy to build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
@@ -8,7 +6,7 @@ The real time server component is provided by Socket.io or PubNub. PubNub Chat E
 
 # Getting Started
 
-Check out [the getting started guide](https://github.com/pubnub/chat-engine-tutorial).
+Check out [the getting started guide](https://github.com/pubnub/chat-engine/tree/master/getting-started.md).
 
 # Full Docs
 
@@ -64,10 +62,6 @@ Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-exampl
 - [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
 - [Emoji Support](https://github.com/pubnub/chat-engine-emoji)
 - [Gravatar Support](https://github.com/pubnub/chat-engine-gravatar)
-
-### Creating your own plugin
-
-There's a full guide to creating your own plugin [here](https://github.com/pubnub/chat-engine-plugin). It also includes a command line tool (```chat-engine-plugin```) that packages your plugin for Node and web.
 
 ## Other usage examples
 

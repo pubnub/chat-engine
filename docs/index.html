@@ -2,120 +2,109 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>OpenChatFramework</title>
-    <link rel="stylesheet" href="">
-    <link rel="stylesheet" href="./assets/vendor/prettify/prettify-min.css">
-    <link rel="stylesheet" href="./assets/css/main.css" id="site_styles">
-    <link rel="stylesheet" href="./assets/css/custom.css">
-    <link rel="stylesheet" href="./assets/vendor/bootstrap/css/bootstrap.css">
-    <link rel="shortcut icon" type="image/png" href="./assets/favicon.png">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
 </head>
-<body class="yui3-skin-sam">
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <h1 class="brand" style="padding: 10px 16px 10px; height: 20px; line-height: 20px; margin-left: 0;">
-	    <img alt="OpenChatFramework" src="./assets/css/logo.png" style="max-height: 65%;" title="OpenChatFramework">
-            OpenChatFramework
-        </h1>
-	<div class="nav">
-            <li class="divider-vertical"></li>
-            <li>
-                <p class="navbar-text">
-                    API Docs for Version: <b>1.0.0</b>
-                </p>
-            </li>
-        </div>
-        <form class="navbar-form pull-right" style="line-height: 40px; height: 40px;">
-            <input style="margin-top: 0;" type="text" class="search-query" placeholder="Search for classes/modules..." data-obj='["classes/Chat", "classes/Emitter", "classes/Me", "classes/OCF", "classes/OpenChatFramework", "classes/RootEmitter", "classes/User"]'>
-        </form>
-    </div>
-</div>
-<div class="container">
-    <div class="row">
-        <div class="span3">
-	    <div>
-	        <h3>APIs</h3>
-	        <div id="sidebar">
-	            <ul id="main-nav" class="nav nav-tabs" style="margin-bottom:0;">
-	                <li class="active"><a href="#classes" data-toggle="tab">Classes</a></li>
-	                <li><a href="#modules" data-toggle="tab">Modules</a></li>
-	            </ul>
-	    
-	            <div id="api-tabview-filter">
-	                <input type="search" placeholder="Type to filter APIs">
-	            </div>
-	    
-	            <div class="tab-content" style="border: 1px solid #DDD; border-top:0;">
-	                <div class="tab-pane active" id="classes">
-	                    <ul id="api-classes" class="nav nav-list">
-	                            <li><a href="./classes/Chat.html">Chat</a></li>
-	                            <li><a href="./classes/Emitter.html">Emitter</a></li>
-	                            <li><a href="./classes/Me.html">Me</a></li>
-	                            <li><a href="./classes/OCF.html">OCF</a></li>
-	                            <li><a href="./classes/OpenChatFramework.html">OpenChatFramework</a></li>
-	                            <li><a href="./classes/RootEmitter.html">RootEmitter</a></li>
-	                            <li><a href="./classes/User.html">User</a></li>
-	                    </ul>
-	                </div>
-	    
-	                <div class="tab-pane" id="modules">
-	                    <ul id="api-modules" class="nav nav-list">
-	                    </ul>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-        </div>
-        <div class="span9">
-                <form id="options-form" class="form-inline pull-right">
-                    Show:
-                    <label for="api-show-inherited" class="checkbox">
-                        <input type="checkbox" id="api-show-inherited" checked>
-                        Inherited
-                    </label>
-            
-                    <label for="api-show-protected" class="checkbox">
-                        <input type="checkbox" id="api-show-protected">
-                        Protected
-                    </label>
-            
-                    <label for="api-show-private" class="checkbox">
-                        <input type="checkbox" id="api-show-private">
-                        Private
-                    </label>
-                    <label for="api-show-deprecated" class="checkbox">
-                        <input type="checkbox" id="api-show-deprecated">
-                        Deprecated
-                    </label>
-            
-                </form>
-            
-            <div class="apidocs">
-                <div id="docs-main">
-                    <div class="content">
-<p>Browse to a module or class using the sidebar to view its API documentation.</p>
+<body>
 
-<h2>Keyboard Shortcuts</h2>
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
 
-<ul>
-    <li><p>Press <kbd>s</kbd> to focus the API search box.</p></li>
+<label for="nav-trigger" class="overlay"></label>
 
-    <li><p>Use <kbd>Up</kbd> and <kbd>Down</kbd> to select classes, modules, and search results.</p></li>
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Guides</h3><ul><li data-sidebar="getting-started"><a href="tutorial-getting-started.html">Getting Started</a><ul><li data-sidebar="node"><a href="tutorial-node.html">Set Up NodeJS</a></li><li data-sidebar="install"><a href="tutorial-install.html">Installing Chat Engine</a></li><li data-sidebar="pubnub"><a href="tutorial-pubnub.html">Set Up PubNub</a></li><li data-sidebar="configure"><a href="tutorial-configure.html">Configure the SDK</a></li></ul></li><li data-sidebar="concepts"><a href="tutorial-concepts.html">Concepts</a><ul><li data-sidebar="me"><a href="tutorial-me_.html">Me</a></li><li data-sidebar="users"><a href="tutorial-users.html">Users and State</a></li><li data-sidebar="chats"><a href="tutorial-chats.html">Chats</a></li><li data-sidebar="globalChat"><a href="tutorial-globalChat.html">Global Chat</a></li><li data-sidebar="events"><a href="tutorial-events.html">Events</a></li><li data-sidebar="payload"><a href="tutorial-payload.html">Event Payload</a></li><li data-sidebar="wildcard"><a href="tutorial-wildcard.html">Namespaces and Wildcards</a></li><li data-sidebar="online-list"><a href="tutorial-online-list.html">Online List</a></li><li data-sidebar="using"><a href="tutorial-using.html">Plugins</a></li><li data-sidebar="build"><a href="tutorial-build.html">Build a Plugin</a></li></ul></li><li data-sidebar="angular"><a href="tutorial-angular.html">Angular</a><ul><li data-sidebar="ng-simple"><a href="tutorial-ng-simple.html">Simple</a></li><li data-sidebar="ng-flowtron"><a href="tutorial-ng-flowtron.html">Flowtron</a></li></ul></li><li data-sidebar="topology"><a href="tutorial-topology.html">topology</a><ul></ul></li><li data-sidebar="jquery"><a href="tutorial-jquery.html">jQuery</a><ul><li data-sidebar="full"><a href="tutorial-full.html">Setting Up</a></li><li data-sidebar="jq-simple"><a href="tutorial-jq-simple.html">Simple</a></li><li data-sidebar="jq-kitchen"><a href="tutorial-jq-kitchen.html">Kitchen Sink</a></li></ul></li><li data-sidebar="js"><a href="tutorial-js.html">Javacsript</a><ul><li data-sidebar="chat"><a href="tutorial-chat_.html">Chat</a></li><li data-sidebar="friends"><a href="tutorial-friends.html">Friends List</a></li><li data-sidebar="online"><a href="tutorial-online.html">Online List</a></li><li data-sidebar="facebook"><a href="tutorial-facebook.html">Facebook Auth</a></li></ul></li><li data-sidebar="nodejs"><a href="tutorial-nodejs.html">NodeJS</a><ul><li data-sidebar="chatbot"><a href="tutorial-chatbot.html">Chat Bot</a></li></ul></li><li data-sidebar="react"><a href="tutorial-react.html">React</a><ul><li data-sidebar="react-simple"><a href="tutorial-react-simple.html">Web</a></li><li data-sidebar="react-native"><a href="tutorial-react-native.html">Native</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatEngineCore">ChatEngineCore</a></li></ul><h3>Plugins</h3><ul><li data-sidebar="chat-engine-desktop-notifications"><a href="module-chat-engine-desktop-notifications.html">chat-engine-desktop-notifications</a></li><li data-sidebar="chat-engine-emoji"><a href="module-chat-engine-emoji.html">chat-engine-emoji</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-emoji.html#~parseEmoji">parseEmoji()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~render">render()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-gravatar"><a href="module-chat-engine-gravatar.html">chat-engine-gravatar</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-gravatar.html#~state()%2522.%2522gravatar">state().gravatar</a></li></ul></ul></li><li data-sidebar="chat-engine-markdown"><a href="module-chat-engine-markdown.html">chat-engine-markdown</a></li><li data-sidebar="chat-engine-online-user-search"><a href="module-chat-engine-online-user-search.html">chat-engine-online-user-search</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-online-user-search.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-random-username"><a href="module-chat-engine-random-username.html">chat-engine-random-username</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-random-username.html#~state()%2522.%2522username">state().username</a></li></ul></ul></li><li data-sidebar="chat-engine-typing-indicator"><a href="module-chat-engine-typing-indicator.html">chat-engine-typing-indicator</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522startTyping">typingindicator.startTyping()</a></li><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522stopTyping">typingindicator.stopTyping()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522startTyping">$typingIndiciator.startTyping</a></li><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522stopTyping">$typingIndiciator.stopTyping</a></li></ul></ul></li><li data-sidebar="chat-engine-unread-messages"><a href="module-chat-engine-unread-messages.html">chat-engine-unread-messages</a><ul><li><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadCount">unreadCount</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-unread-messages.html#~event:$unread">$unread</a></li></ul></ul></li><li data-sidebar="chat-engine-uploadcare"><a href="module-chat-engine-uploadcare.html">chat-engine-uploadcare</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-uploadcare.html#~uploadcare%2522.%2522bind">uploadcare.bind()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-uploadcare.html#~event:$uploadcare%2522.%2522upload">$uploadcare.upload</a></li></ul></ul></li></ul><h3>Reference</h3><ul><li data-sidebar="Chat"><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="Chat.html#channel">channel</a></li><li data-type='member'><a href="Chat.html#users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="Chat.html#emit">emit()</a></li><li data-type='method'><a href="Chat.html#history">history()</a></li><li data-type='method'><a href="Chat.html#leave">leave()</a></li><li data-type='method'><a href="Chat.html#off">off()</a></li><li data-type='method'><a href="Chat.html#on">on()</a></li><li data-type='method'><a href="Chat.html#onAny">onAny()</a></li><li data-type='method'><a href="Chat.html#once">once()</a></li><li data-type='method'><a href="Chat.html#plugin">plugin()</a></li></ul><ul class='events'><li data-type='event'><a href="Chat.html#event:$%2522.%2522disconnect">$.disconnect</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522join">$.join</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522leave">$.leave</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline">$.offline</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online">$.online</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522ready">$.ready</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522state">$.state</a></li></ul></li><li data-sidebar="ChatEngine"><a href="ChatEngine.html">ChatEngine</a><ul class='members'><li data-type='member'><a href="ChatEngine.html#.Chat">Chat</a></li><li data-type='member'><a href="ChatEngine.html#.globalChat">globalChat</a></li><li data-type='member'><a href="ChatEngine.html#.me">me</a></li><li data-type='member'><a href="ChatEngine.html#.pubnub">pubnub</a></li><li data-type='member'><a href="ChatEngine.html#.User">User</a></li><li data-type='member'><a href="ChatEngine.html#.users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="ChatEngine.html#.connect">connect()</a></li><li data-type='method'><a href="ChatEngine.html#off">off()</a></li><li data-type='method'><a href="ChatEngine.html#on">on()</a></li><li data-type='method'><a href="ChatEngine.html#onAny">onAny()</a></li><li data-type='method'><a href="ChatEngine.html#once">once()</a></li></ul></li><li data-sidebar="Emitter"><a href="Emitter.html">Emitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="Emitter.html#off">off()</a></li><li data-type='method'><a href="Emitter.html#on">on()</a></li><li data-type='method'><a href="Emitter.html#onAny">onAny()</a></li><li data-type='method'><a href="Emitter.html#once">once()</a></li><li data-type='method'><a href="Emitter.html#plugin">plugin()</a></li></ul></li><li data-sidebar="Event"><a href="Event.html">Event</a><ul class='members'><li data-type='member'><a href="Event.html#channel">channel</a></li></ul></li><li data-sidebar="Me"><a href="Me.html">Me</a><ul class='members'><li data-type='member'><a href="Me.html#chats">chats</a></li><li data-type='member'><a href="Me.html#direct">direct</a></li><li data-type='member'><a href="Me.html#feed">feed</a></li><li data-type='member'><a href="Me.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="Me.html#off">off()</a></li><li data-type='method'><a href="Me.html#on">on()</a></li><li data-type='method'><a href="Me.html#onAny">onAny()</a></li><li data-type='method'><a href="Me.html#once">once()</a></li><li data-type='method'><a href="Me.html#plugin">plugin()</a></li><li data-type='method'><a href="Me.html#state">state()</a></li><li data-type='method'><a href="Me.html#update">update()</a></li></ul></li><li data-sidebar="RootEmitter"><a href="RootEmitter.html">RootEmitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="RootEmitter.html#off">off()</a></li><li data-type='method'><a href="RootEmitter.html#on">on()</a></li><li data-type='method'><a href="RootEmitter.html#onAny">onAny()</a></li><li data-type='method'><a href="RootEmitter.html#once">once()</a></li></ul></li><li data-sidebar="User"><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="User.html#chats">chats</a></li><li data-type='member'><a href="User.html#direct">direct</a></li><li data-type='member'><a href="User.html#feed">feed</a></li><li data-type='member'><a href="User.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="User.html#off">off()</a></li><li data-type='method'><a href="User.html#on">on()</a></li><li data-type='method'><a href="User.html#onAny">onAny()</a></li><li data-type='method'><a href="User.html#once">once()</a></li><li data-type='method'><a href="User.html#plugin">plugin()</a></li><li data-type='method'><a href="User.html#state">state()</a></li></ul></li></ul>
+</nav>
 
-    <li class="mac-only"><p>With the API search box or sidebar focused, use <kbd><span class="cmd">&#x2318;</span>-Left</kbd> or <kbd><span class="cmd">&#x2318;</span>-Right</kbd> to switch sidebar tabs.</p></li>
+<div id="main">
+    
 
-    <li class="pc-only"><p>With the API search box or sidebar focused, use <kbd>Ctrl+Left</kbd> and <kbd>Ctrl+Right</kbd> to switch sidebar tabs.</p></li>
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1>PubNub Chat Engine</h1><p>PubNub Chat Engine is an object oriented event emitter based framework for building chat applications in Javascript. PubNub Chat Engine makes it easy to build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.</p>
+<p>The real time server component is provided by Socket.io or PubNub. PubNub Chat Engine is extensible and includes a plugin framework to make dropping in features simple.</p>
+<h1>Getting Started</h1><p>Check out <a href="https://github.com/pubnub/chat-engine/tree/master/getting-started.md">the getting started guide</a>.</p>
+<h1>Full Docs</h1><p>You can find the full docs on <a href="https://pubnub.github.io/chat-engine/docs/">the full documentation website</a>.</p>
+<h1>Examples</h1><h2>SDKs</h2><h3>Javascript</h3><ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/javascript/chat.html">Chat</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/javascript/online-list.html">Online List</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/javascript/friends-list.html">Friends List</a></li>
 </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<h3>NodeJS</h3><ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/nodejs">Bot</a></li>
+</ul>
+<h3>jQuery</h3><ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple">jQuery Simple</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink">jQuery Kitchen Sink</a></li>
+</ul>
+<h3>Angular</h3><ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple">Angular Simple</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron">Angular Kitchen Sink</a></li>
+</ul>
+<h3>React</h3><ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/react">React</a></li>
+</ul>
+<h2>3rd Party Authentication</h2><ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/javascript/facebook-login.html">Facebook Login</a></li>
+</ul>
+<h2>Chatbot</h2><ul>
+<li><a href="https://pubnub.github.io/chat-engine/examples/bot.js">NodeJS ChatBot</a></li>
+</ul>
+<h2>Plugins</h2><p>Check out the <a href="https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink">jQuery Kitchen Sink</a> and <a href="https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron">Angular Kitchen Sink</a> examples to see plugins in action.</p>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-unread-messages">Unread Messages</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-typing-indicator">Typing Indicator</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-random-username">Random Usernames</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-desktop-notifications">Desktop Notifications</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-online-user-search">Online User Search</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-uploadcare">Image Uploads</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-history">Persistent Message History</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-markdown">Markdown Support</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-emoji">Emoji Support</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-gravatar">Gravatar Support</a></li>
+</ul>
+<h2>Other usage examples</h2><p><a href="test.js">Test.js</a> includes some usage examples</p></article>
+    </section>
+
+
+
+
+
+
 </div>
-<script src="./assets/vendor/jquery/jquery-1.8.2.min.js"></script>
-<script src="./assets/vendor/bootstrap/js/bootstrap.js"></script>
-<script src="./assets/vendor/prettify/prettify-min.js"></script>
-<script src="./assets/js/yuidoc-bootstrap.js"></script>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.2</a> on Mon Jul 31 2017 18:39:28 GMT-0500 (CDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
 <script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
 </body>
 </html>

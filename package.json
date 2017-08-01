@@ -1,13 +1,13 @@
 {
   "author": "Ian Jennings",
-  "name": "ocf",
   "name": "chat-engine",
   "version": "0.2.1",
   "description": "Open Chat Framework",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "gulp; npm publish;"
+    "deploy": "gulp; npm publish;",
+    "docs": "jsdoc src/index.js -c jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -27,16 +27,16 @@
   "devDependencies": {
     "browserify": "^13.1.0",
     "chai": "^3.5.0",
+    "chat-engine-typing-indicator": "0.0.x",
     "gulp": "^3.9.1",
     "gulp-uglify": "^2.0.0",
     "mocha": "^3.1.2",
-    "chat-engine-typing-indicator": "0.0.x",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "docdash": "^0.4.0"
   },
   "dependencies": {
     "async": "^2.1.2",
     "eventemitter2": "^2.2.1",
-    "pubnub": "^4.10.0",
-    "yuidoc-bootstrap-theme": "^1.0.6"
+    "pubnub": "^4.10.0"
   }
 }

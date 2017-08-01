@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.css" />
+    <style type="text/css">
+      body {
+        padding-top: 20px;
+      }
+      #log {
+        height: 250px;
+        overflow-y: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+          <div class="col-sm-6 col-sm-offset-3">
+            <div class="list-group" id="log"></div>
+            <input type="text" class="form-control" id="message" placeholder="Your message here...">
+          </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="node_modules/chat-engine/dist/chat-engine.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+  </body>
+</html>
