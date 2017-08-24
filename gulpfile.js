@@ -12,7 +12,8 @@ gulp.task('compile', function () {
     })
     .bundle()
     .pipe(source('chat-engine.js'))
-    .pipe(gulp.dest('./hot/' + package.version));
+    .pipe(gulp.dest('./dist/latest/'))
+    .pipe(gulp.dest('./dist/v/' + package.version));
 
 });
 
