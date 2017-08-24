@@ -1,0 +1,170 @@
+<html>
+    <head>
+
+        <script src="http://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="crossorigin="anonymous"></script>
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+        <script type="text/javascript" src="./client.js"></script>
+        <script type="text/javascript" src="./setup.js"></script>
+
+        <style type="text/css">
+          body {
+            padding: 30px ;
+            overflow-x: hidden;
+          }
+          .loader,
+          .loader:after {
+            border-radius: 50%;
+            width: 10em;
+            height: 10em;
+          }
+          .loader {
+            margin: 60px auto;
+            font-size: 10px;
+            position: relative;
+            text-indent: -9999em;
+            border-top: 1.1em solid rgba(22,54,255, 0.2);
+            border-right: 1.1em solid rgba(22,54,255, 0.2);
+            border-bottom: 1.1em solid rgba(22,54,255, 0.2);
+            border-left: 1.1em solid #1636ff;
+            -webkit-transform: translateZ(0);
+            -ms-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-animation: load8 1.1s infinite linear;
+            animation: load8 1.1s infinite linear;
+          }
+          @-webkit-keyframes load8 {
+            0% {
+              -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
+          }
+          @keyframes load8 {
+            0% {
+              -webkit-transform: rotate(0deg);
+              transform: rotate(0deg);
+            }
+            100% {
+              -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+            }
+          }
+
+          #load, #output, #error {
+            display: none;
+          }
+          #status {
+            text-align: center;
+          }
+        </style>
+
+    </head>
+    <body>
+
+        <div id="load">
+          <div class="loader">Loading...</div>
+          <ul class="list-group" id="status">
+          </ul>
+        </div>
+
+
+
+        <div id="error">
+
+          <div class="alert alert-danger" role="alert">
+            <strong>Something went wrong!</strong> <span id="error-out"></span>
+          </div>
+
+        </div>
+
+        <form id="provision">
+
+          <div id="warning">
+            <div class="alert alert-info" role="alert">
+              <strong>Don't have an account?</strong> <a href="https://admin.pubnub.com/#/register">Sign up for PubNub</a>.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">PubNub Email:</label>
+            <input type="email" class="form-control" id="email" placeholder="Email" value="ian+pubnubgarbage@meetjennings.com">
+          </div>
+
+          <div class="form-group">
+            <label for="password">PubNub Password:</label>
+            <input type="password" class="form-control" id="password" placeholder="Password" value="Mrgarbageis#1!">
+          </div>
+
+          <button type="submit" class="btn btn-default">Create Keys</button>
+
+        </form>
+
+        <div id="output">
+
+          <div id="success">
+            <div class="alert alert-success" role="alert">
+              <strong>All Set!</strong> Copy and paste the code below!
+            </div>
+          </div>
+
+          <pre><code id="code"></code></pre>
+
+        </div>
+
+        <script type="text/javascript">
+          $('#provision').submit(() => {
+
+            $('#provision').hide();
+            $('#load').show();
+            Provision($('#email').val(), $('#password').val(), function(err, data) {
+
+              if(err) {
+
+                $('#load').hide();
+                $('#provision').show();
+
+                console.log(err)
+
+                $('#error-out').html(err);
+                $('#error').show();
+              } else {
+
+              $('#load').hide();
+
+                let output = "";
+                output += "// Make sure to import ChatEngine first!\n";
+                output += "ChatEngine = ChatEngineCore.create({\n";
+                output += "    publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',\n";
+                output += "    subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe'\n";
+                output += "});\n";
+
+                $('#code').text(output);
+                $('#output').show();
+
+              }
+
+            }, function(statusText){
+
+              $('#status').append($('<li class="list-group-item">' + statusText + '</li>'));
+
+            });
+
+            return false;
+
+          });
+        </script>
+
+    </body>
+</html>

@@ -1,18 +1,15 @@
  {
      "getting-started": {
-         "title": "Getting Started",
+         "title": "Get Started",
          "children": {
-             "node": {
-                 "title": "Set Up NodeJS"
-             },
              "install": {
-                 "title": "Installing Chat Engine"
+                 "title": "Install ChatEngine"
              },
              "pubnub": {
-                 "title": "Set Up PubNub"
+                 "title": "Get PubNub Keys"
              },
-             "configure": {
-                 "title": "Configure the SDK"
+             "quick": {
+                 "title": "Quick Start Guide"
              }
          }
      },
@@ -28,43 +25,70 @@
              "chats": {
                  "title": "Chats"
              },
-             "globalChat": {
-                 "title": "Global Chat"
-             },
              "events": {
                  "title": "Events"
+             },
+             "namespaces": {
+                 "title": "Namespaces"
+             },
+             "wildcard": {
+                 "title": "Wildcards"
              },
              "payload": {
                  "title": "Event Payload"
              },
-             "wildcard": {
-                 "title": "Namespaces and Wildcards"
+             "history": {
+                 "title": "History"
+             },
+             "globalChat": {
+                 "title": "Global Chat"
              },
              "online-list": {
                  "title": "Online List"
+             },
+             "auth": {
+                 "title": "Authentication"
+             },
+             "privacy": {
+                 "title": "Privacy"
+             },
+             "private": {
+                 "title": "Private Chats"
+             },
+             "templating": {
+                 "title": "Templating"
+             },
+             "errors": {
+                 "title": "Errors"
              },
              "using": {
                  "title": "Plugins"
              },
              "build": {
                  "title": "Build a Plugin"
+             },
+             "functions": {
+                 "title": "PubNub Functions"
+             },
+             "topology": {
+                 "title": "PubNub Channel Topology"
              }
          }
      },
      "js": {
-         "title": "Javacsript",
+         "title": "Javascript",
          "children": {
              "chat": {
-                 "title": "Chat"
+                 "title": "JS Chat"
              },
              "friends": {
-                 "title": "Friends List"
+                 "title": "JS Friends List"
              },
              "online": {
-                 "title": "Online List"
+                 "title": "JS Online List"
              },
              "facebook": {
-                 "title": "Facebook Auth"
+                 "title": "JS Facebook Auth"
              }
          }
      },
@@ -72,10 +96,10 @@
          "title": "Angular",
          "children": {
              "ng-simple": {
-                 "title": "Simple"
+                 "title": "Angular Bootstrap"
              },
              "ng-flowtron": {
-                 "title": "Flowtron"
+                 "title": "Angular Desktop Chat"
              }
          }
      },
@@ -83,24 +107,21 @@
          "title": "React",
          "children": {
              "react-simple": {
-                 "title": "Web"
+                 "title": "React Web"
              },
              "react-native": {
-                 "title": "Native"
+                 "title": "React Native"
              }
          }
      },
      "jquery": {
          "title": "jQuery",
          "children": {
-             "full": {
-                 "title": "Setting Up"
-             },
              "jq-simple": {
-                 "title": "Simple"
+                 "title": "jQuery Chat"
              },
              "jq-kitchen": {
-                 "title": "Kitchen Sink"
+                 "title": "jQuery Kitchen Sink"
              }
          }
      },
@@ -108,7 +129,7 @@
          "title": "NodeJS",
          "children": {
              "chatbot": {
-                 "title": "Chat Bot"
+                 "title": "NodeJS Chat Bot"
              }
          }
      }

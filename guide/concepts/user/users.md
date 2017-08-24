@@ -2,6 +2,8 @@
 
 {@link User}s are other browser windows connected to the {@link Chat} via ChatEngine. A User represents a connected client.
 
+## Me
+
 When a client connects to ChatEngine, they create a special {@link User} called {@link Me}. {@link Me} represents "this {@link User} for this instance."
 
 {@link Me} and {@link User} are similar in many ways, with the main difference being that {@link Me} can update state on the network while {@link User} cannot update state.
@@ -31,13 +33,13 @@ let me = ChatEngine.connect('ian-jennings');
 We can update the {@link User}'s state on the network with the {@link Me#update} method.
 
 ```js
-me.update({color: getColor()})
+me.update({color: getColor()});
 ```
 
-All state based methods (like {@link Me#update} and {@link Chat#event:$"."state} events) use {@link ChatEngine.globalChat} by default.
+All state based methods (like {@link Me#update} and {@link Chat#event:$"."state} events) use {@link ChatEngine.global} by default.
 
 ```
-ChatEngine.globalChat.on('$state', (payload) => {
+ChatEngine.global.on('$.state', (payload) => {
   console.log(payload.user + ' updated state: ' + payload.state);
 });
 
@@ -52,18 +54,18 @@ let me = ChatEngine.connect('ian-jennings', {color: getColor()});
 What if we want to get a {@link User}'s state some other time?
 
 ```js
-// get the first user in globalChat
-let user = ChatEngine.globalChat.users[0];
+// get the first user in global chat
+let user = ChatEngine.global.users[0];
 
 // output the user's state
 console.log(user.state());
 ```
 
-Until now we've only delt with state in the {@link ChatEngine#globalChat}, but {@link User}s can have different states in different {@link Chat}s.
+Until now we've only delt with state in the {@link ChatEngine#global}, but {@link User}s can have different states in different {@link Chat}s.
 
 ```js
-let customStateChat = new ChatEngine.chat('state-chat');
-customStateChat.on('$state', (payload) {
+let customStateChat = new ChatEngine.Chat('state-chat');
+customStateChat.on('$.state', (payload) {
     // update is fired here
 });
 me.update({newState: true}, customStateChat);

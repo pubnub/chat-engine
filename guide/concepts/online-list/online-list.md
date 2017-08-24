@@ -1,6 +1,6 @@
-### See who else is online
+### Online List
 
-![](/guide/getting-started/assets/README-c71c143b.png)
+![](/getting-started/assets/README-c71c143b.png)
 
 A list of all the clients who have joined the chatroom is available from ```chat.users```.
 
@@ -17,15 +17,26 @@ It returns a list of ```Users``` who have also joined this chat.
 }
 ```
 
-When a new ```User``` comes online, the ```Chat``` emits the ```$.online``` event.
+This property is kept in sync as Users join and leave the Chats. If you're using
+a library like React or Angular, you can simply loop through ```chat.users```
+to render list of online users.
+
+### Online Events
+
+The list of
+
+* When first joining a Chat, the Chat will emit ```$.online.here``` for every ```User``` in the room.
+* Any time a new ```User``` joins, the ```Chat``` emits the ```$.online.join``` event.
+
+Here we subscribe both events with wildcard syntax (```$.online.*```).
 
 ```js
-chat.on('$.online', (newUser) -> {
+chat.on('$.online.*', (newUser) -> {
   console.log('new user', newUser);
 });
 ```
 
-## Hooking it up to a GUI
+### Hooking it up to a GUI
 
 Let's combine the information above into a small app that logs when you and other users come online.
 
@@ -71,11 +82,11 @@ chat.on('$.ready', (payload) => {
 });
 ```
 
-We can also subscribe to the ```$.online``` event to find out when other ```User```s are online.
+We subscribe to the ```$.online.*``` event to learn about online ```User```s.
 
 ```js
-chat.on('$.online', (payload) => {
-  appendMessage('Status', payload.user.uuid + ' has come online!');
+chat.on('$.online.*', (payload) => {
+  appendMessage('Status', payload.user.uuid + ' is in this room!');
 });
 ```
 

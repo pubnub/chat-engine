@@ -1,4 +1,12 @@
-## How to Get Your PubNub Keys
+# Automagic PubNub Setup
+
+In order to get set up as fast as possible, you can login into the form below with your PubNub credentials.
+
+This will automatically create a new ChatEngine App in your PubNub account, an new key pair, and enable all the PubNub features required for ChatEngine to work properly.
+
+<iframe src="../setup/" width="100%" height="400" /></iframe>
+
+# Manual PubNub Setup
 
 Navigate to http://admin.pubnub.com and login or create an account. Don't worry, it's free!
 

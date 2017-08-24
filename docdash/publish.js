@@ -107,7 +107,7 @@ function buildItemTypeStrings(item) {
 
     if (item && item.type && item.type.names) {
         item.type.names.forEach(function(name) {
-            types.push( linkto(name, htmlsafe(name)) );
+            types.push(linkto(name, htmlsafe(name)) );
         });
     }
 
@@ -280,7 +280,7 @@ function attachModuleSymbols(doclets, modules) {
                     symbol = doop(symbol);
 
                     if (symbol.kind === 'class' || symbol.kind === 'function') {
-                        symbol.name = symbol.name.replace('module:', 'require("') + '")';
+                        symbol.name = symbol.name.replace('module:', 'require(\'') + '\')';
                     }
 
                     return symbol;
@@ -295,7 +295,7 @@ function renderMember(member) {
 
     // if (!member.scope === 'static') return;
     itemsNav += "<li data-type='member'>";
-    itemsNav += linkto(member.longname, member.name.replace('"."', '.'));
+    itemsNav += linkto(member.longname, member.name.replace(/"/g,""));
     itemsNav += "</li>";
 
     return itemsNav;
@@ -307,7 +307,7 @@ function renderMethod(method) {
     var itemsNav = '';
 
     itemsNav += "<li data-type='method'>";
-    itemsNav += linkto(method.longname, method.name.replace('"."', '.') + '()');
+    itemsNav += linkto(method.longname, method.name.replace(/"/g,"") + '()');
     itemsNav += "</li>";
 
     return itemsNav;
@@ -317,7 +317,7 @@ function renderMethod(method) {
 function renderEvent(event) {
     var itemsNav = '';
     itemsNav += "<li data-type='event'>";
-    itemsNav += linkto(event.longname, event.name.replace('"."', '.'));
+    itemsNav += linkto(event.longname, event.name.replace(/"/g,""));
     itemsNav += "</li>";
     return itemsNav;
 }
@@ -528,6 +528,7 @@ function buildNav(members) {
     nav += buildMemberNav(members.tutorials, 'Guides', seenTutorials, linktoTutorial, true, members.children);
 
     if (members.globals.length) {
+
         var globalNav = '';
 
         members.globals.forEach(function(g) {
@@ -830,7 +831,7 @@ exports.publish = function(taffyData, opts, tutorials) {
     // tutorials can have only one parent so there is no risk for loops
     function saveChildren(node) {
         node.children.forEach(function(child) {
-            generateTutorial('Tutorial: ' + child.title, child, helper.tutorialToUrl(child.name));
+            generateTutorial('' + child.title, child, helper.tutorialToUrl(child.name));
             saveChildren(child);
         });
     }
