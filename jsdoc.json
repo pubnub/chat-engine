@@ -1,6 +1,6 @@
 {
     "opts": {
-        "template": "./docdash",  // same as -t templates/default
+        "template": "./_docs/docdash",  // same as -t templates/default
         "destination": "./docs/",          // same as -d ./out/
         "recurse": true,                  // same as -r
         "tutorials": "./guide/", // same as -u path/to/tutorials
@@ -30,7 +30,7 @@
     },
     "plugins": [
         "plugins/markdown",
-        "./doc_plugins/ceextend.js",
-        "./doc_plugins/ceplugin.js"
+        "./_docs/doc_plugins/ceextend.js",
+        "./_docs/doc_plugins/ceplugin.js"
     ]
 }
