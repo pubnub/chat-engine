@@ -117,7 +117,7 @@ message was sent to. For more on this, see {@tutorial payload}.
 
 ```js
 lobby.on('message', (payload) => {
-    console.log(payload.user.uiud, 'sent a message to', payload.chat.channel, 'with value', payload.data);
+    console.log(payload.sender.uiud, 'sent a message to', payload.chat.channel, 'with value', payload.data);
 });
 ```
 
@@ -135,8 +135,8 @@ on every machine because state is synced between everybody.
 
 ```js
 lobby.on('message', (payload) => {
-    console.log(payload.user.uuid, 'sent a message', payload.data.text);
-    console.log('they are on team', payload.user.state().team);
+    console.log(payload.sender.uuid, 'sent a message', payload.data.text);
+    console.log('they are on team', payload.sender.state().team);
 });
 ```
 

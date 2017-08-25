@@ -713,7 +713,7 @@ const create = function(pnConfig, ceConfig = {}) {
         * @example
         * chat.emit('custom-event', {value: true});
         * chat.on('custom-event', (payload) => {
-        *     console.log(payload.user.uuid, 'emitted the value', payload.data.value);
+        *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
         * });
         */
         emit(event, data) {
@@ -1125,7 +1125,7 @@ const create = function(pnConfig, ceConfig = {}) {
             * @example
             * // me
             * me.direct.on('private-message', (payload) -> {
-            *     console.log(payload.user.uuid, 'sent your a direct message');
+            *     console.log(payload.sender.uuid, 'sent your a direct message');
             * });
             *
             * // another instance

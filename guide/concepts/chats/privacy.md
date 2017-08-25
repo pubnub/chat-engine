@@ -37,7 +37,7 @@ This is helpful for sending messages directly to users, to ping them, or challen
 ```js
 // me
 me.direct.on('game-invite', (payload) -> {
-     console.log(payload.user.uuid, 'sent your a game invite on the map', payload.data.map);
+     console.log(payload.sender.uuid, 'sent your a game invite on the map', payload.data.map);
 });
 
 // someone else
@@ -59,7 +59,7 @@ me.feed.emit('update.away', 'I may be away from my computer right now');
 // another instance
 them.feed.connect();
 them.feed.on('update.away', (payload) => {
-    console.log(payload.user.uuid, 'is away');
+    console.log(payload.sender.uuid, 'is away');
 });
 ```
 

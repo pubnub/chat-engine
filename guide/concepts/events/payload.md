@@ -14,11 +14,9 @@ data.
 
 You can find the actual message contents supplied to {@link Chat#emit} within the ```payload.data``` property.
 
-ChatEngine event payloads are augmented with additional information supplied by the framework. Most of the time these are ```payload.user``` and ```payload.chat.
+ChatEngine event payloads are augmented with additional information supplied by the framework. Most of the time these are ```payload.sender``` and ```payload.chat.
 
-The property ```payload.chat``` is the {@link Chat} that event was broadcast broadcast on, and the ```payload.user``` is the {@link User} that broadcast the message.
-
-The property ```payload.user``` is the {@link User} that is responsible for calling {@link Chat#emit}.
+The property ```payload.chat``` is the {@link Chat} that event was broadcast broadcast on, and the ```payload.sender``` is the {@link User} that broadcast the message via {@link Chat#emit}.
 
 The {@link User} and {@link Chat} properties are both fully interactive instances. Therefor, you can do things like ```payload.chat.emit('message')``` to automatically reply to a message.
 
@@ -51,10 +49,10 @@ ChatEngine.global.on('like', (payload) => {
     if(payload.data.who == 'emily') {
 
         // opens an alert that says "ian likes you!""
-        alert(payload.user.uuid + ' likes you!');
+        alert(payload.sender.uuid + ' likes you!');
 
         // Log 'Ian Jennings' from Ian's state
-        console.log('His full name is', payload.user.state().fullName);
+        console.log('His full name is', payload.sender.state().fullName);
 
         // Get all the other users in the chat that emitted this event
         console.log('Other users who saw this are', payload.chat.users);
