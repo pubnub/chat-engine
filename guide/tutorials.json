@@ -6,7 +6,7 @@
                  "title": "Install ChatEngine"
              },
              "pubnub": {
-                 "title": "Get PubNub Keys"
+                 "title": "Configure ChatEngine"
              },
              "quick": {
                  "title": "Quick Start Guide"

@@ -101,7 +101,7 @@ app.use('/facebook', function(req, res, next) {
     request.get('https://graph.facebook.com/debug_token', {
         qs: {
             input_token: req.body.authKey,
-            access_token: '1628895400474971|a505381fd6a6af14da16db8b1ffffaee'
+            access_token: '305450936585628|d86681ec056638c4e80ee0921ea3bc34'
         },
         json: true
     }, function(err, body, response){

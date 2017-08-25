@@ -1,6 +1,6 @@
 This is a simple tutorial that explains ChatEngine as quickly as possible.
 
-This guide assumes you've already followed install and config and have a variable called ```ChatEngine``` to work with.
+Before following this guide, be sure to follow the setup instructions found in {@tutorial install} and {@tutorial pubnub} tutorials.
 
 We'll be creating a simple chat lobby where you can see who's online and invite one another to private chats.
 
