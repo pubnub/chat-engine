@@ -49,6 +49,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #000;
   font-weight: 400;
   margin: 0;
+  line-height: 1.2em;
 }
 
 h1 {
@@ -127,9 +128,7 @@ tt, code, kbd, samp {
 }
 
 #main {
-  float: right;
-  min-width: 360px;
-  width: calc(100% - 290px);
+  margin-left: 300px;
 }
 
 header {
@@ -605,13 +604,13 @@ span.param-type, .params td .param-type, .param-type dd {
 
   nav {
     background: #FFF;
-    width: 250px;
+    width: 300px;
     height: 100%;
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
-    left: -250px;
+    left: -300px;
     z-index: 3;
     padding: 0 10px;
     transition: left 0.2s;
@@ -626,8 +625,7 @@ span.param-type, .params td .param-type, .param-type dd {
   }
 
   #main {
-    width: 100%;
-    min-width: 360px;
+    margin-left: 0px;
   }
 
   #main h1.page-title {
