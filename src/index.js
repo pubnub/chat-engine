@@ -1301,6 +1301,13 @@ const create = function(pnConfig, ceConfig = {}) {
         ChatEngine.pubnub = false;
 
         /**
+        * Indicates if ChatEngine has fired the {@link ChatEngine#$"."ready} event
+        * @member {Object} ready
+        * @memberof ChatEngine
+        */
+        ChatEngine.ready = false;
+
+        /**
         connect to realtime service and create instance of {@link Me}
         *
         @memberof ChatEngine
@@ -1342,6 +1349,8 @@ const create = function(pnConfig, ceConfig = {}) {
                     this._emit('$.ready', {
                         me: this.me
                     });
+
+                    this.ready = true;
 
                 });
 
