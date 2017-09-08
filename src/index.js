@@ -1473,12 +1473,11 @@ const create = function(pnConfig, ceConfig = {}) {
 
                 pnConfig.authKey = authKey;
 
-
-
                 axios.post(ceConfig.authUrl + '/auth', {
                     uuid: pnConfig.uuid,
                     channel: ceConfig.globalChannel,
-                    authData: this.me.authData
+                    authData: this.me.authData,
+                    authKey: pnConfig.authKey
                 })
                 .then((response) => {
 

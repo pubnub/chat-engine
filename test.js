@@ -13,7 +13,7 @@ describe('import', function() {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel  = 'chat-engine-demo-test';
+let globalChannel  = 'chat-engine-demo-test-woop';
 
 describe('config', function() {
 
