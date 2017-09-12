@@ -620,15 +620,9 @@ const create = function(pnConfig, ceConfig = {}) {
             this.connected = false;
 
             /**
-            * Connect to PubNub servers to initialize the chat.
-            * @example
-            * // create a new chatroom, but don't connect to it automatically
-            * let chat = new Chat('some-chat', false)
-            *
-            * // connect to the chat when we feel like it
-            * chat.connect();
-            */
-            this.connect = () => {
+             * @private
+             */
+            this.onPrep = () => {
 
                 if(!this.connected) {
 
@@ -650,17 +644,6 @@ const create = function(pnConfig, ceConfig = {}) {
 
                 }
 
-            };
-
-            /**
-             * @private
-             */
-            this.onPrep = () => {
-
-                if(autoConnect) {
-                    this.connect();
-                }
-
             }
 
             /**
@@ -672,11 +655,13 @@ const create = function(pnConfig, ceConfig = {}) {
                     return this.onPrep();
                 } else {
 
-                    axios.post(ceConfig.authUrl + '/chat', {
+                    axios.post(ceConfig.authUrl + '/chats', {
+                        globalChannel: ceConfig.globalChannel,
                         authKey: pnConfig.authKey,
                         uuid: pnConfig.uuid,
                         channel: this.channel,
-                        authData: ChatEngine.me.authData
+                        authData: ChatEngine.me.authData,
+                        private: needGrant
                     })
                     .then((response) => {
                         this.onPrep();
@@ -693,10 +678,21 @@ const create = function(pnConfig, ceConfig = {}) {
 
             }
 
-            if(needGrant) {
+            /**
+            * Connect to PubNub servers to initialize the chat.
+            * @example
+            * // create a new chatroom, but don't connect to it automatically
+            * let chat = new Chat('some-chat', false)
+            *
+            * // connect to the chat when we feel like it
+            * chat.connect();
+            */
+            this.connect = () => {
                 this.grant();
-            } else {
-                this.onPrep();
+            };
+
+            if(autoConnect) {
+                this.grant();
             }
 
             ChatEngine.chats[this.channel] = this;
@@ -1141,6 +1137,10 @@ const create = function(pnConfig, ceConfig = {}) {
                 ChatEngine.users[uuid] = this;
             }
 
+            this.direct.on('$.server.chat.created', (payload) => {
+                ChatEngine.addChatToSession(payload.key, payload.channel)
+            });
+
             // update this user's state in it's created context
             this.assign(state, chat)
 
@@ -1307,6 +1307,19 @@ const create = function(pnConfig, ceConfig = {}) {
         */
         ChatEngine.ready = false;
 
+        ChatEngine.session = {};
+
+        ChatEngine.addChatToSession = function(key, channel) {
+
+            this.session[key] = this.session[key] || {};
+            this.session[key][channel] = new Chat(channel, key == 'private', false);
+
+            ChatEngine._emit('$.session.chat.new', {
+                key: key,
+                chat: this.session[key][channel]
+            });
+
+        }
         /**
         * Connect to realtime service and create instance of {@link Me}
         * @method ChatEngine#connect
@@ -1323,7 +1336,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
             pnConfig.uuid = uuid;
 
-            let complete = () => {
+            let complete = (chatData) => {
 
                 this.pubnub = new PubNub(pnConfig);
 
@@ -1339,6 +1352,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
                 this.me.update(state);
 
+
                 /**
                  * Fired when ChatEngine is connected to the internet and ready to go!
                  * @event ChatEngine#$"."ready
@@ -1351,9 +1365,21 @@ const create = function(pnConfig, ceConfig = {}) {
 
                     this.ready = true;
 
+                    for(let key in chatData) {
+
+                        let index = null;
+                        for(index in chatData[key]) {
+
+                            let remoteChannel = chatData[key][index];
+                            this.addChatToSession(key, remoteChannel);
+
+                        }
+
+                    }
+
                 });
 
-
+                // chats.session =
 
                 /**
                 Fires when PubNub network connection changes
@@ -1473,7 +1499,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
                 pnConfig.authKey = authKey;
 
-                axios.post(ceConfig.authUrl + '/auth', {
+                axios.post(ceConfig.authUrl + '/setup', {
                     uuid: pnConfig.uuid,
                     channel: ceConfig.globalChannel,
                     authData: this.me.authData,
@@ -1481,7 +1507,7 @@ const create = function(pnConfig, ceConfig = {}) {
                 })
                 .then((response) => {
 
-                    complete();
+                    complete(response.data);
 
                 })
                 .catch((error) => {

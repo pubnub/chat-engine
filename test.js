@@ -38,16 +38,20 @@ describe('connect', function() {
 
     it('should be identified as new user', function(done) {
 
-        ChatEngine.connect('ian', {works: true}, 'ian-authtoken');
+        this.timeout(4000);
 
         ChatEngine.on('$.ready', (data) => {
+
             assert.isObject(data.me);
             me = data.me;
+
             done();
         });
 
+        ChatEngine.connect('ian', {works: true}, 'ian-authtoken');
+
         ChatEngine.on('$.network.*', (data) => {
-            // console.log(data.operation)
+            console.log(data.operation)
         })
 
     });
@@ -64,7 +68,7 @@ describe('chat', function() {
 
         chat.onAny((event) => {
             // console.log(event)
-        })
+        });
 
         done();
 
@@ -112,7 +116,27 @@ describe('chat', function() {
 
 });
 
-let chat2;
+describe('remote chat list', function() {
+
+    it('should be populated', function(done) {
+
+        assert.isObject(ChatEngine.session.fixed);
+        done();
+
+    });
+
+    it('should be get notified of new chats', function(done) {
+
+        ChatEngine.once('$.session.chat.new', (payload) => {
+            done();
+        });
+
+        let syncChat = new ChatEngine.Chat('some channel', true, true);
+
+    });
+
+});
+// let chat2;
 
 // describe('myself-presence', function() {
 

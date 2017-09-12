@@ -184,46 +184,95 @@ let authUser = (uuid, authKey, channel, done) => {
 }
 
 // we logged in, grant
-app.post('/insecure/auth', function (req, res) {
+app.post('/insecure/setup', function (req, res) {
+
+    let fixed = [
+        'Main',
+        'Portal',
+        'Content',
+        'Support',
+        'Open Source',
+        'Client Eng',
+        'Docs',
+        'Marketing',
+        'Ops',
+        'Foolery'
+    ];
+
+    let key = ['private', req.param.uuid].join(':');
+    let myPrivateChats = db[key] || [];
+
+    key = ['public', req.param.uuid].join(':');
+    let myPublicChats = db[key] || [];
 
     globalGrant(req.body.channel, req.body.uuid, req.body.authKey, () => {
-        res.sendStatus(200);
+
         db['authkeys:' + req.body.uuid] = req.body.authKey;
+
+        console.log('response returning json')
+
+        return res.json({
+            fixed: fixed,
+            private: myPrivateChats,
+            public: myPublicChats
+        });
+
     });
 
 });
 
-
 // new chat
-app.post('/insecure/chat', function(req, res) {
+app.post('/insecure/chats', function(req, res) {
 
-    // if the client says this is public, believe them and make sure we know of this chat in the list
-    // if(db['public'].indexOf(req.body.channel) == -1) {
-    //     db['public'].push(req.body.channel);
-    // }
+    // if the client says this is public, add them to the list of public chats for this user
 
-    // needs to check that chat does not exist within private listing
-    if(db['private'].indexOf(req.body.channel) == -1) {
+    // logic goes here to tell if user can create this specific chat
+    console.log('new chat created on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.channel, 'privatE?', req.body.private);
 
-        db['private'].push(req.body.channel);
+    let newChan = [req.body.globalChannel, 'user', req.body.uuid, 'write.', 'direct'].join('#');
 
-        // logic goes here to tell if user can create this specific chat
-        console.log('new chat created on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.channel);
+    console.log('new chan', newChan)
 
-        authUser(req.body.uuid, req.body.authKey, req.body.channel, () => {
-            console.log('chat finished auth')
-            return res.sendStatus(200);
-        });
+    pubnub.publish({
+        channel: newChan,
+        message: {
+            event: '$.server.chat.created',
+            channel: req.body.channel,
+            key: req.body.private ? 'private' : 'public'
+        }
+    }, function(a,b) {
+        console.log(a,b)
+    });
+
+    if(!req.body.private) {
+
+        let key = ['public', req.body.uuid].join(':');
+        db[key] = db[key] || [];
+
+        if(db[key].indexOf(req.body.channel) == -1) {
+            db[key].push(req.body.channel);
+        }
+
+        return res.sendStatus(200);
 
     } else {
-        console.log('not auto granting', req.body.uuid, req.body.authKey, 'permissions on', req.body.channel, 'because the channel already has permissions');
-        return res.sendStatus(200)
+
+        // needs to check that chat does not exist within private listing
+        if(db['private'].indexOf(req.body.channel) == -1) {
+
+            db['private'].push(req.body.channel);
+
+            authUser(req.body.uuid, req.body.authKey, req.body.channel, () => {
+                console.log('chat finished auth')
+                return res.sendStatus(200);
+            });
+
+        } else {
+            console.log('not auto granting', req.body.uuid, req.body.authKey, 'permissions on', req.body.channel, 'because the channel already has permissions');
+            return res.sendStatus(200)
+        }
+
     }
-
-
-    // make a new chat
-    // person who makes chat gets the permission
-    // response tells them to join
 
 });
 
@@ -263,7 +312,7 @@ app.post('/test', function (req, res) {
     if(req.body.authKey == 'open-sesame') {
 
         // grants everybody!
-        globalGrant(    req.body.channel, req.body.uuid, req.body.authKey, () => {
+        globalGrant(req.body.channel, req.body.uuid, req.body.authKey, () => {
             res.sendStatus(200);
         });
 
