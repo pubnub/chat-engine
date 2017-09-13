@@ -227,30 +227,33 @@ app.post('/insecure/chats', function(req, res) {
     // if the client says this is public, add them to the list of public chats for this user
 
     // logic goes here to tell if user can create this specific chat
-    console.log('new chat created on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.channel, 'privatE?', req.body.private);
+    console.log('new chat created on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.chat.channel, 'privatE?', req.body.chat.private);
 
     let newChan = [req.body.globalChannel, 'user', req.body.uuid, 'write.', 'direct'].join('#');
 
     console.log('new chan', newChan)
 
+    console.log(req.body)
+
+    console.log(req.body.chat);
+
     pubnub.publish({
         channel: newChan,
         message: {
             event: '$.server.chat.created',
-            channel: req.body.channel,
-            key: req.body.private ? 'private' : 'public'
+            chat: req.body.chat
         }
     }, function(a,b) {
         console.log(a,b)
     });
 
-    if(!req.body.private) {
+    if(!req.body.chat.private) {
 
         let key = ['public', req.body.uuid].join(':');
         db[key] = db[key] || [];
 
-        if(db[key].indexOf(req.body.channel) == -1) {
-            db[key].push(req.body.channel);
+        if(db[key].indexOf(req.body.chat.channel) == -1) {
+            db[key].push(req.body.chat.channel);
         }
 
         return res.sendStatus(200);
@@ -258,17 +261,17 @@ app.post('/insecure/chats', function(req, res) {
     } else {
 
         // needs to check that chat does not exist within private listing
-        if(db['private'].indexOf(req.body.channel) == -1) {
+        if(db['private'].indexOf(req.body.chat.channel) == -1) {
 
-            db['private'].push(req.body.channel);
+            db['private'].push(req.body.chat.channel);
 
-            authUser(req.body.uuid, req.body.authKey, req.body.channel, () => {
+            authUser(req.body.uuid, req.body.authKey, req.body.chat.channel, () => {
                 console.log('chat finished auth')
                 return res.sendStatus(200);
             });
 
         } else {
-            console.log('not auto granting', req.body.uuid, req.body.authKey, 'permissions on', req.body.channel, 'because the channel already has permissions');
+            console.log('not auto granting', req.body.uuid, req.body.authKey, 'permissions on', req.body.chat.channel, 'because the channel already has permissions');
             return res.sendStatus(200)
         }
 
@@ -282,15 +285,15 @@ app.post('/insecure/invite', function (req, res) {
     // grants the user permission in the channel
     let key = ['private', req.body.myUUID].join(':');
 
-    console.log('invite called', req.body.uuid, req.body.authKey, 'in channel', req.body.channel, 'with key', key)
+    console.log('invite called', req.body.uuid, req.body.authKey, 'in channel', req.body.chat.channel, 'with key', key)
     console.log(db[key])
 
-    if(db[key] && db[key].indexOf(req.body.channel) > -1) {
+    if(db[key] && db[key].indexOf(req.body.chat.channel) > -1) {
 
         console.log('this user has auth in this chan, and can invite other users... proceeding');
 
         // grants, grants, grants, grants, grants grants, grants everybody!
-        authUser(req.body.uuid, db['authkeys:' + req.body.uuid], req.body.channel, () => {
+        authUser(req.body.uuid, db['authkeys:' + req.body.uuid], req.body.chat.channel, () => {
             res.sendStatus(200);
         });
 

@@ -356,7 +356,7 @@ const create = function(pnConfig, ceConfig = {}) {
     */
     class Chat extends Emitter {
 
-        constructor(channel = new Date().getTime(), needGrant = true, autoConnect = true) {
+        constructor(channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
 
             super();
 
@@ -380,6 +380,10 @@ const create = function(pnConfig, ceConfig = {}) {
             if(this.channel.indexOf(ceConfig.globalChannel) == -1) {
                 this.channel = [ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
             }
+
+            this.isPrivate = needGrant;
+
+            this.group = group;
 
             /**
             A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -491,6 +495,16 @@ const create = function(pnConfig, ceConfig = {}) {
 
             }
 
+            this.objectify = () => {
+
+                return {
+                    channel: this.channel,
+                    group: this.group,
+                    private: this.isPrivate
+                }
+
+            }
+
             /**
             * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
             * @param {User} user The {@link User} to invite to this chatroom.
@@ -543,14 +557,16 @@ const create = function(pnConfig, ceConfig = {}) {
                     axios.post(ceConfig.authUrl + '/invite', {
                         authKey: pnConfig.authKey,
                         uuid: user.uuid,
-                        channel: this.channel,
                         myUUID: ChatEngine.me.uuid,
-                        authData: ChatEngine.me.authData
+                        authData: ChatEngine.me.authData,
+                        chat: this.objectify()
                     })
                     .then((response) => {
                         complete();
                     })
                     .catch((error) => {
+
+                        console.log(error)
 
                         throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), {
                             error: error
@@ -659,9 +675,8 @@ const create = function(pnConfig, ceConfig = {}) {
                         globalChannel: ceConfig.globalChannel,
                         authKey: pnConfig.authKey,
                         uuid: pnConfig.uuid,
-                        channel: this.channel,
                         authData: ChatEngine.me.authData,
-                        private: needGrant
+                        chat: this.objectify()
                     })
                     .then((response) => {
                         this.onPrep();
@@ -1107,7 +1122,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
             // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
             this.feed = new Chat(
-                [ChatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name == "Me");
+                [ChatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name == "Me", 'feed');
 
             /**
             * Direct is a private channel that anybody can publish to but only
@@ -1129,7 +1144,7 @@ const create = function(pnConfig, ceConfig = {}) {
             * them.direct.emit('private-message', {secret: 42});
             */
             this.direct = new Chat(
-                [ChatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name == "Me");
+                [ChatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name == "Me", 'direct');
 
             // if the user does not exist at all and we get enough
             // information to build the user
@@ -1138,7 +1153,7 @@ const create = function(pnConfig, ceConfig = {}) {
             }
 
             this.direct.on('$.server.chat.created', (payload) => {
-                ChatEngine.addChatToSession(payload.key, payload.channel)
+                ChatEngine.addChatToSession(payload.chat)
             });
 
             // update this user's state in it's created context
@@ -1309,14 +1324,13 @@ const create = function(pnConfig, ceConfig = {}) {
 
         ChatEngine.session = {};
 
-        ChatEngine.addChatToSession = function(key, channel) {
+        ChatEngine.addChatToSession = function(chat) {
 
-            this.session[key] = this.session[key] || {};
-            this.session[key][channel] = new Chat(channel, key == 'private', false);
+            this.session[chat.group] = this.session[chat.group] || {};
+            this.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
 
             ChatEngine._emit('$.session.chat.new', {
-                key: key,
-                chat: this.session[key][channel]
+                chat: this.session[chat.group][chat.channel]
             });
 
         }
@@ -1342,7 +1356,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
                 // create a new chat to use as global chat
                 // we don't do auth on this one becauseit's assumed to be done with the /auth request below
-                this.global = new Chat(ceConfig.globalChannel, false, true);
+                this.global = new Chat(ceConfig.globalChannel, false, true, 'global');
 
                 // create a new user that represents this client
                 this.me = new Me(pnConfig.uuid, authData);
