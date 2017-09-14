@@ -145,7 +145,7 @@ app.use('/insecure', function(req, res, next) {
 
 let db = {};
 
-let authUser = (uuid, authKey, channel, done) => {
+let authUser = (uuid, authKey, channel, forceAuth, done) => {
 
     let key = ['authed', channel].join(':');
 
@@ -157,7 +157,7 @@ let authUser = (uuid, authKey, channel, done) => {
 
     let newChannels = [channel, channel + '-pnpres'];
 
-    if(!db[key].length || (db[key].indexOf(uuid) > -1 && authKey)) {
+    if(!db[key].length || forceAuth || (db[key].indexOf(uuid) > -1 && authKey)) {
 
         console.log('new grant for', uuid, authKey, 'access on channel', channel)
 
@@ -274,7 +274,7 @@ app.post('/insecure/chats', function(req, res) {
 
     } else {
 
-        authUser(req.body.uuid, req.body.authKey, req.body.chat.channel, () => {
+        authUser(req.body.uuid, req.body.authKey, req.body.chat.channel, false, () => {
             console.log('chat finished auth')
             return res.sendStatus(200);
         });
@@ -295,7 +295,7 @@ app.post('/insecure/invite', function (req, res) {
     console.log(db[key])
 
     // grants, grants, grants, grants, grants grants, grants everybody!
-    authUser(req.body.uuid, db['authkeys:' + req.body.uuid], req.body.chat.channel, () => {
+    authUser(req.body.uuid, db['authkeys:' + req.body.uuid], req.body.chat.channel, true, () => {
         res.sendStatus(200);
     });
 

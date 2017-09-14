@@ -13,7 +13,7 @@ describe('import', function() {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel  = 'chat-engine-demo-test-woop';
+let globalChannel  = 'shoop';
 
 describe('config', function() {
 
@@ -205,7 +205,10 @@ describe('invite', function() {
 
             myChat = new ChatEngine.Chat(payload.data.channel);
 
-            done();
+            myChat.on('$.connected', () => {
+                done();
+            });
+
         });
 
         // me is the current context
@@ -215,13 +218,15 @@ describe('invite', function() {
 
     it('two users are able to talk to each other in private channel', function(done) {
 
-        myChat.emit('message', {
-            text: 'sup?'
-        });
+        this.timeout(5000)
 
         yourChat.on('message', (payload) => {
             assert.equal(payload.data.text, 'sup?');
             done();
+        });
+
+        myChat.emit('message', {
+            text: 'sup?'
         });
 
     });
