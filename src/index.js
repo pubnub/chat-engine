@@ -229,8 +229,6 @@ const create = function(pnConfig, ceConfig = {}) {
             */
             this.onMessage = (m) => {
 
-                console.log('updated', m.message.event)
-
                 if(this.channel == m.channel && m.message.event == event) {
                     chat.trigger(m.message.event, m.message);
                 }
@@ -567,8 +565,6 @@ const create = function(pnConfig, ceConfig = {}) {
                         complete();
                     })
                     .catch((error) => {
-
-                        console.log(error)
 
                         throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), {
                             error: error
@@ -1032,8 +1028,6 @@ const create = function(pnConfig, ceConfig = {}) {
 
         onConnectionReady() {
 
-            console.log('connectuin ready mofo')
-
             /**
             * Broadcast that the {@link Chat} is connected to the network.
             * @event Chat#$"."connected
@@ -1044,7 +1038,6 @@ const create = function(pnConfig, ceConfig = {}) {
             */
             this.connected = true;
 
-            console.log('firing connected')
             this.trigger('$.connected');
 
             // get a list of users online now
@@ -1158,12 +1151,7 @@ const create = function(pnConfig, ceConfig = {}) {
             }
 
             this.direct.on('$.server.chat.created', (payload) => {
-
-                console.log('server chat created')
-                console.log(payload)
-
                 ChatEngine.addChatToSession(payload.chat);
-
             });
 
             // update this user's state in it's created context
@@ -1390,14 +1378,7 @@ const create = function(pnConfig, ceConfig = {}) {
                     this.ready = true;
 
                     for(let key in chatData) {
-
-                        let index = null;
-                        for(index in chatData[key]) {
-
-                            this.addChatToSession(chatData[key][index]);
-
-                        }
-
+                        this.addChatToSession(chatData[key]);
                     }
 
                 });
