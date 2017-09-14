@@ -1325,11 +1325,22 @@ const create = function(pnConfig, ceConfig = {}) {
         ChatEngine.addChatToSession = function(chat) {
 
             this.session[chat.group] = this.session[chat.group] || {};
-            this.session[chat.group][chat.channel] = this.chats[chat.channel] || new Chat(chat.channel, chat.private, false, chat.group);
 
-            ChatEngine._emit('$.session.chat.new', {
-                chat: this.session[chat.group][chat.channel]
-            });
+            let existingChat = this.chats[chat.channel];
+
+            if(existingChat) {
+                console.log('chat already exists')
+                this.session[chat.group][chat.channel] = existingChat;
+            } else {
+                console.log('creating new and emitting')
+                this.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
+
+                ChatEngine._emit('$.session.chat.new', {
+                    chat: this.session[chat.group][chat.channel]
+                });
+
+            }
+
 
         }
         /**

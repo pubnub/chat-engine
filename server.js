@@ -149,11 +149,7 @@ let authUser = (uuid, authKey, channel, forceAuth, done) => {
 
     let key = ['authed', channel].join(':');
 
-
     db[key] = db[key] || [];
-
-    console.log('key is!' ,key)
-    console.log('value is', db[key])
 
     let newChannels = [channel, channel + '-pnpres'];
 
