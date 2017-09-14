@@ -187,16 +187,26 @@ let authUser = (uuid, authKey, channel, done) => {
 app.post('/insecure/setup', function (req, res) {
 
     let fixed = [
-        'Main',
-        'Portal',
-        'Content',
-        'Support',
-        'Open Source',
-        'Client Eng',
-        'Docs',
-        'Marketing',
-        'Ops',
-        'Foolery'
+        {
+            channel: 'Main',
+            private: false,
+            group: 'fixed'
+        },
+        {
+            channel: 'Support',
+            private: false,
+            group: 'fixed'
+        },
+        {
+            channel: 'Docs',
+            private: false,
+            group: 'fixed'
+        },
+        {
+            channel: 'Foolery',
+            private: false,
+            group: 'fixed'
+        },
     ];
 
     let key = ['private', req.param.uuid].join(':');

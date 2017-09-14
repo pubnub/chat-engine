@@ -122,6 +122,7 @@ describe('remote chat list', function() {
 
         assert.isObject(ChatEngine.session.global);
         assert.isObject(ChatEngine.session.default);
+        assert.isObject(ChatEngine.session.fixed);
         done();
 
     });

@@ -1329,6 +1329,8 @@ const create = function(pnConfig, ceConfig = {}) {
             this.session[chat.group] = this.session[chat.group] || {};
             this.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
 
+            console.log(this.session)
+
             ChatEngine._emit('$.session.chat.new', {
                 chat: this.session[chat.group][chat.channel]
             });
@@ -1384,8 +1386,7 @@ const create = function(pnConfig, ceConfig = {}) {
                         let index = null;
                         for(index in chatData[key]) {
 
-                            let remoteChannel = chatData[key][index];
-                            this.addChatToSession(key, remoteChannel);
+                            this.addChatToSession(chatData[key][index]);
 
                         }
 
