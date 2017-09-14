@@ -262,18 +262,34 @@ app.post('/insecure/chats', function(req, res) {
         let key = ['public', req.body.uuid].join(':');
         db[key] = db[key] || [];
 
-        if(db[key].indexOf(req.body.chat.channel) == -1) {
-            db[key].push(req.body.chat.channel);
+        let found = false;
+        db[key].forEach((chat) => {
+            if(!found & chat.channel == req.body.chat.channel) {
+                found = true;
+            }
+        })
+
+        if(!found) {
+            db[key].push(req.body.chat);
         }
 
         return res.sendStatus(200);
 
     } else {
 
-        // needs to check that chat does not exist within private listing
-        if(db['private'].indexOf(req.body.chat.channel) == -1) {
+        let key = ['public', req.body.uuid].join(':');
 
-            db['private'].push(req.body.chat.channel);
+        let found = false;
+        db[key].forEach((chat) => {
+            if(!found & chat.channel == req.body.chat.channel) {
+                found = true;
+            }
+        })
+
+        // needs to check that chat does not exist within private listing
+        if(!found) {
+
+            db[key].push(req.body.chat);
 
             authUser(req.body.uuid, req.body.authKey, req.body.chat.channel, () => {
                 console.log('chat finished auth')

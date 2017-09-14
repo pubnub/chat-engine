@@ -229,6 +229,8 @@ const create = function(pnConfig, ceConfig = {}) {
             */
             this.onMessage = (m) => {
 
+                console.log('updated', m.message.event)
+
                 if(this.channel == m.channel && m.message.event == event) {
                     chat.trigger(m.message.event, m.message);
                 }
@@ -1030,6 +1032,8 @@ const create = function(pnConfig, ceConfig = {}) {
 
         onConnectionReady() {
 
+            console.log('connectuin ready mofo')
+
             /**
             * Broadcast that the {@link Chat} is connected to the network.
             * @event Chat#$"."connected
@@ -1040,6 +1044,7 @@ const create = function(pnConfig, ceConfig = {}) {
             */
             this.connected = true;
 
+            console.log('firing connected')
             this.trigger('$.connected');
 
             // get a list of users online now
@@ -1153,7 +1158,12 @@ const create = function(pnConfig, ceConfig = {}) {
             }
 
             this.direct.on('$.server.chat.created', (payload) => {
-                ChatEngine.addChatToSession(payload.chat)
+
+                console.log('server chat created')
+                console.log(payload)
+
+                ChatEngine.addChatToSession(payload.chat);
+
             });
 
             // update this user's state in it's created context
@@ -1327,9 +1337,7 @@ const create = function(pnConfig, ceConfig = {}) {
         ChatEngine.addChatToSession = function(chat) {
 
             this.session[chat.group] = this.session[chat.group] || {};
-            this.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
-
-            console.log(this.session)
+            this.session[chat.group][chat.channel] = this.chats[chat.channel] || new Chat(chat.channel, chat.private, false, chat.group);
 
             ChatEngine._emit('$.session.chat.new', {
                 chat: this.session[chat.group][chat.channel]
