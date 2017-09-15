@@ -145,8 +145,12 @@ describe('remote chat list', function() {
 
         ChatEngine.on('$.session.chat.leave', (payload) => {
 
-            assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-            assert.isUndefined(ChatEngine.session['default'][syncChat.channel]);
+            setTimeout(function() {
+
+                    assert.isUndefined(ChatEngine.chats[syncChat.channel]);
+                    assert.isUndefined(ChatEngine.session['default'][syncChat.channel]);
+
+            }, 1000)
 
             done();
         });
