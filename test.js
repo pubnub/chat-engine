@@ -66,19 +66,11 @@ describe('chat', function() {
 
         chat = new ChatEngine.Chat('chat', false);
 
-        chat.onAny((event) => {
-            // console.log(event)
-        });
-
         done();
 
     });
 
     it('should get ready callback', function(done) {
-
-        chat.onAny((e) => {
-            // console.log(e)
-        })
 
         chat.on('$.connected', () => {
 
@@ -118,22 +110,39 @@ describe('chat', function() {
 
 describe('remote chat list', function() {
 
+    it('should be get notified of new chats', function(done) {
+
+        this.timeout(10000)
+
+        // first instance looking or new chats
+        ChatEngine.on('$.session.chat.new', (payload) => {
+            done();
+        });
+
+        // create a new chat within some other instance
+        ChatEngineClone = ChatEngineCore.create({
+            publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
+            subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
+        }, {
+            authUrl: 'http://localhost:3000/insecure',
+            globalChannel: globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngineClone.connect('ian', {works: true}, 'ian-authtoken');
+
+        ChatEngineClone.on('$.ready', () => {
+            let syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
+        })
+
+    });
+
     it('should be populated', function(done) {
 
         assert.isObject(ChatEngine.session.global);
         assert.isObject(ChatEngine.session.default);
         assert.isObject(ChatEngine.session.fixed);
         done();
-
-    });
-
-    it('should be get notified of new chats', function(done) {
-
-        ChatEngine.once('$.session.chat.new', (payload) => {
-            done();
-        });
-
-        let syncChat = new ChatEngine.Chat('some channel', true, true);
 
     });
 

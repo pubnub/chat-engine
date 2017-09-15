@@ -1324,23 +1324,23 @@ const create = function(pnConfig, ceConfig = {}) {
 
         ChatEngine.addChatToSession = function(chat) {
 
-            this.session[chat.group] = this.session[chat.group] || {};
+            ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
 
-            let existingChat = this.chats[chat.channel];
+            let existingChat = ChatEngine.chats[chat.channel];
 
             if(existingChat) {
-                console.log('chat already exists')
-                this.session[chat.group][chat.channel] = existingChat;
+
+                ChatEngine.session[chat.group][chat.channel] = existingChat;
+
             } else {
-                console.log('creating new and emitting')
-                this.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
+
+                ChatEngine.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
 
                 ChatEngine._emit('$.session.chat.new', {
-                    chat: this.session[chat.group][chat.channel]
+                    chat: ChatEngine.session[chat.group][chat.channel]
                 });
 
             }
-
 
         }
         /**
@@ -1361,35 +1361,35 @@ const create = function(pnConfig, ceConfig = {}) {
 
             let complete = (chatData) => {
 
-                this.pubnub = new PubNub(pnConfig);
+                ChatEngine.pubnub = new PubNub(pnConfig);
 
                 // create a new chat to use as global chat
                 // we don't do auth on this one becauseit's assumed to be done with the /auth request below
-                this.global = new Chat(ceConfig.globalChannel, false, true, 'global');
+                ChatEngine.global = new Chat(ceConfig.globalChannel, false, true, 'global');
 
                 // create a new user that represents this client
-                this.me = new Me(pnConfig.uuid, authData);
+                ChatEngine.me = new Me(pnConfig.uuid, authData);
 
                 // create a new instance of Me using input parameters
-                this.global.createUser(pnConfig.uuid, state);
+                ChatEngine.global.createUser(pnConfig.uuid, state);
 
-                this.me.update(state);
+                ChatEngine.me.update(state);
 
 
                 /**
                  * Fired when ChatEngine is connected to the internet and ready to go!
                  * @event ChatEngine#$"."ready
                  */
-                this.global.on('$.connected', () => {
+                ChatEngine.global.on('$.connected', () => {
 
-                    this._emit('$.ready', {
-                        me: this.me
+                    ChatEngine._emit('$.ready', {
+                        me: ChatEngine.me
                     });
 
-                    this.ready = true;
+                    ChatEngine.ready = true;
 
                     for(let key in chatData) {
-                        this.addChatToSession(chatData[key]);
+                        ChatEngine.addChatToSession(chatData[key]);
                     }
 
                 });
@@ -1402,7 +1402,7 @@ const create = function(pnConfig, ceConfig = {}) {
                 @private
                 @param {Object} statusEvent The response status
                 */
-                this.pubnub.addListener({
+                ChatEngine.pubnub.addListener({
                     status: (statusEvent) => {
 
                         /**
@@ -1490,7 +1490,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
                                 } else {
 
-                                    this._emit(eventName, statusEvent);
+                                    ChatEngine._emit(eventName, statusEvent);
 
                                 }
 
@@ -1498,7 +1498,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
                         } else {
 
-                            this._emit(eventName, statusEvent);
+                            ChatEngine._emit(eventName, statusEvent);
 
                         }
 
@@ -1517,7 +1517,7 @@ const create = function(pnConfig, ceConfig = {}) {
                 axios.post(ceConfig.authUrl + '/setup', {
                     uuid: pnConfig.uuid,
                     channel: ceConfig.globalChannel,
-                    authData: this.me.authData,
+                    authData: ChatEngine.me.authData,
                     authKey: pnConfig.authKey
                 })
                 .then((response) => {
@@ -1531,7 +1531,7 @@ const create = function(pnConfig, ceConfig = {}) {
                     * There was a problem logging in
                     * @event ChatEngine#$"."error"."auth
                     */
-                    throwError(this, '_emit', 'auth', new Error('There was a problem logging into the auth server ('+ceConfig.authUrl+').'), {
+                    throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server ('+ceConfig.authUrl+').'), {
                         error: error
                     });
 
