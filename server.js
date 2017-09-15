@@ -279,6 +279,41 @@ app.post('/insecure/chats', function(req, res) {
 
 });
 
+app.delete('/insecure/chats', function(req, res) {
+
+    console.log(req.body)
+
+    console.log('chat deleted on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.chat.channel, 'privatE?', req.body.chat.private);
+
+    let newChan = [req.body.globalChannel, 'user', req.body.uuid, 'write.', 'direct'].join('#');
+
+    let key = ['session', req.body.uuid].join(':');
+    db[key] = db[key] || [];
+
+    db[key].forEach((chat) => {
+
+        if(chat.channel == req.body.chat.channel) {
+
+            delete db[key][chat.channel];
+
+            pubnub.publish({
+                channel: newChan,
+                message: {
+                    event: '$.server.chat.deleted',
+                    chat: req.body.chat
+                }
+            }, function(a,b) {
+                console.log(a,b)
+            });
+
+        }
+
+    });
+
+    return res.sendStatus(200);
+
+});
+
 app.post('/insecure/invite', function (req, res) {
 
     // you can only invite if you're in the channel

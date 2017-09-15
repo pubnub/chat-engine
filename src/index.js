@@ -887,6 +887,25 @@ const create = function(pnConfig, ceConfig = {}) {
                 channels: [this.channel]
             });
 
+            axios.delete(ceConfig.authUrl + '/chats', {
+                data: {
+                globalChannel: ceConfig.globalChannel,
+                authKey: pnConfig.authKey,
+                uuid: pnConfig.uuid,
+                authData: ChatEngine.me.authData,
+                chat: this.objectify()
+            }})
+            .then((response) => {
+
+            })
+            .catch((error) => {
+
+                throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), {
+                    error: error
+                });
+
+            });
+
         }
 
         /**
@@ -1154,6 +1173,10 @@ const create = function(pnConfig, ceConfig = {}) {
                 ChatEngine.addChatToSession(payload.chat);
             });
 
+            this.direct.on('$.server.chat.deleted', (payload) => {
+                ChatEngine.removeChatFromSession(payload.chat);
+            });
+
             // update this user's state in it's created context
             this.assign(state, chat)
 
@@ -1343,6 +1366,11 @@ const create = function(pnConfig, ceConfig = {}) {
             }
 
         }
+
+        ChatEngine.removeChatFromSession = function(chat) {
+
+        }
+
         /**
         * Connect to realtime service and create instance of {@link Me}
         * @method ChatEngine#connect

@@ -108,6 +108,8 @@ describe('chat', function() {
 
 });
 
+let ChatEngineClone;
+let syncChat;
 describe('remote chat list', function() {
 
     it('should be get notified of new chats', function(done) {
@@ -132,10 +134,27 @@ describe('remote chat list', function() {
         ChatEngineClone.connect('ian', {works: true}, 'ian-authtoken');
 
         ChatEngineClone.on('$.ready', () => {
-            let syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
-        })
+            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
+        });
 
     });
+
+    it('should keep delete in sync', function(done) {
+
+        this.timeout(10000);
+
+        ChatEngine.on('$.server.chat.deleted', (payload) => {
+            done();
+        });
+
+        setTimeout(function() {
+
+            syncChat.leave();
+
+        }, 1000);
+
+
+    })
 
     it('should be populated', function(done) {
 
