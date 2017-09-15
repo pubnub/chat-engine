@@ -1359,7 +1359,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
                 ChatEngine.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
 
-                ChatEngine._emit('$.session.chat.new', {
+                ChatEngine._emit('$.session.chat.join', {
                     chat: ChatEngine.session[chat.group][chat.channel]
                 });
 
@@ -1369,12 +1369,12 @@ const create = function(pnConfig, ceConfig = {}) {
 
         ChatEngine.removeChatFromSession = function(chat) {
 
-            delete ChatEngine.chats[chat.channel];
-            delete ChatEngine.session[chat.group][chat.channel];
-
-            ChatEngine._emit('$.session.chat.left', {
+            ChatEngine._emit('$.session.chat.leave', {
                 chat: ChatEngine.session[chat.group][chat.channel]
             });
+
+            delete ChatEngine.chats[chat.channel];
+            delete ChatEngine.session[chat.group][chat.channel];
 
         }
 
