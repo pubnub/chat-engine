@@ -1543,13 +1543,35 @@ const create = function(pnConfig, ceConfig = {}) {
 
             }
 
+            let getChats = function() {
+
+                axios.get(ceConfig.authUrl + '/chats', {
+                    uuid: pnConfig.uuid
+                })
+                .then((response) => {
+                    complete(response.data);
+                })
+                .catch((error) => {
+
+                    /**
+                    * There was a problem logging in
+                    * @event ChatEngine#$"."error"."auth
+                    */
+                    throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server ('+ceConfig.authUrl+').'), {
+                        error: error
+                    });
+
+                });
+
+            }
+
             if(ceConfig.insecure) {
-                complete();
+                getChats();
             } else {
 
                 pnConfig.authKey = authKey;
 
-                axios.post(ceConfig.authUrl + '/setup', {
+                axios.post(ceConfig.authUrl + '/grant', {
                     uuid: pnConfig.uuid,
                     channel: ceConfig.globalChannel,
                     authData: ChatEngine.me.authData,
@@ -1557,7 +1579,7 @@ const create = function(pnConfig, ceConfig = {}) {
                 })
                 .then((response) => {
 
-                    complete(response.data);
+                    getChats(response.data);
 
                 })
                 .catch((error) => {

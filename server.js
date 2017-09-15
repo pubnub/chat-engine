@@ -185,8 +185,19 @@ let authUser = (uuid, authKey, channel, forceAuth, done) => {
 
 }
 
+app.post('/insecure/grant', function(req, res) {
+
+    globalGrant(req.body.channel, req.body.uuid, req.body.authKey, () => {
+
+        db['authkeys:' + req.body.uuid] = req.body.authKey;
+        return res.sendStatus(200);
+
+    });
+
+});
+
 // we logged in, grant
-app.post('/insecure/setup', function (req, res) {
+app.get('/insecure/chats', function (req, res) {
 
     let fixed = [
         {
@@ -211,18 +222,12 @@ app.post('/insecure/setup', function (req, res) {
         },
     ];
 
-    console.log('uuid found as', req.body.uuid)
+    console.log('uuid found as', req.param.uuid)
 
-    key2 = ['session', req.body.uuid].join(':');
+    key2 = ['session', req.param.uuid].join(':');
     let myPublicChats = db[key2] || [];
 
-    globalGrant(req.body.channel, req.body.uuid, req.body.authKey, () => {
-
-        db['authkeys:' + req.body.uuid] = req.body.authKey;
-
-        return res.json(fixed.concat(myPublicChats));
-
-    });
+    return res.json(fixed.concat(myPublicChats));
 
 });
 
