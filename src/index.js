@@ -554,7 +554,7 @@ const create = function(pnConfig, ceConfig = {}) {
                     complete();
                 } else {
 
-                    axios.post(ceConfig.authUrl + '/invite', {
+                    axios.post(ceConfig.authUrl + '/chat/invite', {
                         authKey: pnConfig.authKey,
                         uuid: user.uuid,
                         myUUID: ChatEngine.me.uuid,

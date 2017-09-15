@@ -320,7 +320,7 @@ app.delete('/insecure/chats', function(req, res) {
 
 });
 
-app.post('/insecure/invite', function (req, res) {
+app.post('/insecure/chat/invite', function (req, res) {
 
     // you can only invite if you're in the channel
     // grants the user permission in the channel
