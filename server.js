@@ -187,6 +187,7 @@ let authUser = (uuid, authKey, channel, forceAuth, done) => {
 
 app.post('/insecure/grant', function(req, res) {
 
+    console.log('doing global grant')
     globalGrant(req.body.channel, req.body.uuid, req.body.authKey, () => {
 
         db['authkeys:' + req.body.uuid] = req.body.authKey;
@@ -270,18 +271,7 @@ app.post('/insecure/chats', function(req, res) {
         db[key].push(req.body.chat);
     }
 
-    if(!req.body.chat.private) {
-
-        return res.sendStatus(200);
-
-    } else {
-
-        authUser(req.body.uuid, req.body.authKey, req.body.chat.channel, false, () => {
-            console.log('chat finished auth')
-            return res.sendStatus(200);
-        });
-
-    }
+    return res.sendStatus(200);
 
 });
 
@@ -317,6 +307,21 @@ app.delete('/insecure/chats', function(req, res) {
     });
 
     return res.sendStatus(200);
+
+});
+
+app.post('/insecure/chat/grant', function(req, res) {
+
+    if(req.body.chat.private) {
+
+        authUser(req.body.uuid, req.body.authKey, req.body.chat.channel, false, () => {
+            console.log('chat finished auth')
+            return res.sendStatus(200);
+        });
+
+    } else {
+        return res.sendStatus(200);
+    }
 
 });
 

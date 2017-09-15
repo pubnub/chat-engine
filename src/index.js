@@ -665,9 +665,7 @@ const create = function(pnConfig, ceConfig = {}) {
              */
             this.grant = () => {
 
-                if(ceConfig.insecure) {
-                    return this.onPrep();
-                } else {
+                let createChat = () => {
 
                     axios.post(ceConfig.authUrl + '/chats', {
                         globalChannel: ceConfig.globalChannel,
@@ -678,6 +676,30 @@ const create = function(pnConfig, ceConfig = {}) {
                     })
                     .then((response) => {
                         this.onPrep();
+                    })
+                    .catch((error) => {
+
+                        throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), {
+                            error: error
+                        });
+
+                    });
+
+                }
+
+                if(ceConfig.insecure) {
+                    return createChat();
+                } else {
+
+                    axios.post(ceConfig.authUrl + '/chat/grant', {
+                        globalChannel: ceConfig.globalChannel,
+                        authKey: pnConfig.authKey,
+                        uuid: pnConfig.uuid,
+                        authData: ChatEngine.me.authData,
+                        chat: this.objectify()
+                    })
+                    .then((response) => {
+                        createChat();
                     })
                     .catch((error) => {
 

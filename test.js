@@ -284,7 +284,7 @@ describe('invite', function() {
             });
 
             illegalAccessChat.onAny((event, packet) => {
-                console.log('illegal ---', event)
+                // console.log('illegal ---', event)
             })
 
             illegalAccessChat.once('$.error.publish', () => {
