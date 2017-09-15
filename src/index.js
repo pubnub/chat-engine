@@ -1369,6 +1369,13 @@ const create = function(pnConfig, ceConfig = {}) {
 
         ChatEngine.removeChatFromSession = function(chat) {
 
+            delete ChatEngine.chats[chat.channel];
+            delete ChatEngine.session[chat.group][chat.channel];
+
+            ChatEngine._emit('$.session.chat.left', {
+                chat: ChatEngine.session[chat.group][chat.channel]
+            });
+
         }
 
         /**

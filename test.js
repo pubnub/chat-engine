@@ -143,7 +143,11 @@ describe('remote chat list', function() {
 
         this.timeout(10000);
 
-        ChatEngine.on('$.server.chat.deleted', (payload) => {
+        ChatEngine.on('$.session.chat.left', (payload) => {
+
+            assert.isUndefined(ChatEngine.chats[syncChat.channel]);
+            assert.isUndefined(ChatEngine.session['default'][syncChat.channel]);
+
             done();
         });
 
