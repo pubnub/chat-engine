@@ -162,6 +162,7 @@ let authUser = (uuid, authKey, channel, forceAuth, done) => {
     console.log('in list of permissions?', (db[key].indexOf(uuid) > -1));
     console.log('auth key?',  authKey)
     console.log('people permitted in that room', db[key])
+    console.log(channel)
 
     if(forceAuth || !db[key].length || (db[key].indexOf(uuid) > -1 && authKey)) {
 
@@ -345,11 +346,7 @@ app.post('/insecure/chat/invite', function (req, res) {
     // you can only invite if you're in the channel
     // grants the user permission in the channel
 
-    console.log(req.body.myUUID)
     let key = ['authed', req.body.chat.channel].join(':');
-
-    console.log('invite called', req.body.uuid, req.body.myUUID, req.body.authKey, 'in channel', req.body.chat.channel, 'with key', key)
-    console.log(db[key])
 
     // grants, grants, grants, grants, grants grants, grants everybody!
     authUser(req.body.uuid, db['authkeys:' + req.body.uuid], req.body.chat.channel, true, () => {
