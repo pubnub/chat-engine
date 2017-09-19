@@ -628,7 +628,7 @@ const create = function(pnConfig, ceConfig = {}) {
             };
 
             /**
-             * Boolean value that indicates of the Chat is connected to the network.
+             * Boolean value that indicates of the Chat is connected to the network
              * @type {Boolean}
              */
             this.connected = false;
@@ -905,6 +905,8 @@ const create = function(pnConfig, ceConfig = {}) {
         */
         leave() {
 
+            console.log('leaving', this.channel)
+
             ChatEngine.pubnub.unsubscribe({
                 channels: [this.channel]
             });
@@ -918,6 +920,8 @@ const create = function(pnConfig, ceConfig = {}) {
                 chat: this.objectify()
             }})
             .then((response) => {
+
+                console.log('left from', this.channel)
 
             })
             .catch((error) => {
@@ -936,6 +940,8 @@ const create = function(pnConfig, ceConfig = {}) {
         @private
         */
         userLeave(uuid) {
+
+            console.log('user found as leaving', this.channel, 'with uuid', uuid)
 
             // make sure this event is real, user may have already left
             if(this.users[uuid]) {
@@ -1195,7 +1201,13 @@ const create = function(pnConfig, ceConfig = {}) {
                 ChatEngine.addChatToSession(payload.chat);
             });
 
+
             this.direct.on('$.server.chat.deleted', (payload) => {
+
+                console.log(this.direct.channel)
+
+                console.log(payload)
+
                 ChatEngine.removeChatFromSession(payload.chat);
             });
 
@@ -1567,9 +1579,7 @@ const create = function(pnConfig, ceConfig = {}) {
 
             let getChats = function() {
 
-                axios.get(ceConfig.authUrl + '/chats', {
-                    uuid: pnConfig.uuid
-                })
+                axios.get(ceConfig.authUrl + '/chats?uuid=' + pnConfig.uuid)
                 .then((response) => {
                     complete(response.data);
                 })

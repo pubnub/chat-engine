@@ -223,12 +223,16 @@ app.get('/insecure/chats', function (req, res) {
         },
     ];
 
-    console.log('uuid found as', req.param.uuid)
+    console.log('uuid found as', req.query.uuid)
 
-    key2 = ['session', req.param.uuid].join(':');
+    key2 = ['session', req.query.uuid].join(':');
     let myPublicChats = db[key2] || [];
 
-    return res.json(fixed.concat(myPublicChats));
+    let chats = fixed.concat(myPublicChats);
+
+    console.log('my chats found as', chats)
+
+    return res.json(chats);
 
 });
 
