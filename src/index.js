@@ -434,6 +434,8 @@ const create = function(pnConfig, ceConfig = {}) {
                         this.userUpdate(occupants[i].uuid, occupants[i].state);
                     }
 
+                    this.trigger('$.connected');
+
                 }
 
             };
@@ -1085,8 +1087,6 @@ const create = function(pnConfig, ceConfig = {}) {
             */
             this.connected = true;
 
-            this.trigger('$.connected');
-
             // get a list of users online now
             // ask PubNub for information about connected users in this channel
             ChatEngine.pubnub.hereNow({
@@ -1203,10 +1203,6 @@ const create = function(pnConfig, ceConfig = {}) {
 
 
             this.direct.on('$.server.chat.deleted', (payload) => {
-
-                console.log(this.direct.channel)
-
-                console.log(payload)
 
                 ChatEngine.removeChatFromSession(payload.chat);
             });
@@ -1403,12 +1399,17 @@ const create = function(pnConfig, ceConfig = {}) {
 
         ChatEngine.removeChatFromSession = function(chat) {
 
-            ChatEngine._emit('$.session.chat.leave', {
-                chat: ChatEngine.session[chat.group][chat.channel]
-            });
+            if(ChatEngine.chats[chat.channel] || ChatEngine.session[chat.group][chat.channel]) {
 
-            delete ChatEngine.chats[chat.channel];
-            delete ChatEngine.session[chat.group][chat.channel];
+                ChatEngine._emit('$.session.chat.leave', {
+                    chat: ChatEngine.session[chat.group][chat.channel]
+                });
+
+                // don't delete from chatengine.chats, because we can still get events from this chat
+                delete ChatEngine.chats[chat.channel];
+                delete ChatEngine.session[chat.group][chat.channel];
+
+            }
 
         }
 
