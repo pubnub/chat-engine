@@ -434,8 +434,6 @@ const create = function(pnConfig, ceConfig = {}) {
                         this.userUpdate(occupants[i].uuid, occupants[i].state);
                     }
 
-                    this.trigger('$.connected');
-
                 }
 
             };
@@ -907,8 +905,6 @@ const create = function(pnConfig, ceConfig = {}) {
         */
         leave() {
 
-            console.log('leaving', this.channel)
-
             ChatEngine.pubnub.unsubscribe({
                 channels: [this.channel]
             });
@@ -922,8 +918,6 @@ const create = function(pnConfig, ceConfig = {}) {
                 chat: this.objectify()
             }})
             .then((response) => {
-
-                console.log('left from', this.channel)
 
             })
             .catch((error) => {
@@ -1093,7 +1087,11 @@ const create = function(pnConfig, ceConfig = {}) {
                 channels: [this.channel],
                 includeUUIDs: true,
                 includeState: true
-            }, this.onHereNow);
+            }, (status, response) => {
+                console.log('got here')
+                this.onHereNow(status, response)
+                this.trigger('$.connected');
+            });
 
         }
 

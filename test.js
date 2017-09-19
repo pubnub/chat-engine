@@ -62,27 +62,12 @@ let chat;
 
 describe('chat', function() {
 
-    it('should be created', function(done) {
-
-        chat = new ChatEngine.Chat('chat', false);
-
-        done();
-
-    });
-
-    it('should get ready callback', function(done) {
-
-        chat.on('$.connected', () => {
-
-            done();
-
-        });
-
-    });
 
     it('should get me as join event', function(done) {
 
         this.timeout(10000);
+
+        chat = new ChatEngine.Chat('chat', false);
 
         chat.once('$.online.*', (p) => {
             assert(p.user.uuid == ChatEngine.me.uuid, 'this online event is me')
@@ -90,6 +75,28 @@ describe('chat', function() {
         });
 
     })
+
+    it('should be created', function(done) {
+
+
+        chat.onAny((event, payload) => {
+            console.log(event, payload)
+        })
+
+        done();
+
+    });
+
+    it('should get ready callback', function(done) {
+
+        chat2 = new ChatEngine.Chat('chat2', false);
+        chat2.on('$.connected', () => {
+
+            done();
+
+        });
+
+    });
 
     it('should get message', function(done) {
 
