@@ -1372,6 +1372,8 @@ const create = function(pnConfig, ceConfig = {}) {
 
         ChatEngine.addChatToSession = function(chat) {
 
+            console.log('add chat to session', chat)
+
             ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
 
             let existingChat = ChatEngine.chats[chat.channel];

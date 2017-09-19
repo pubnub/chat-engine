@@ -302,11 +302,13 @@ app.delete('/insecure/chats', function(req, res) {
     let key = ['session', req.body.uuid].join(':');
     db[key] = db[key] || [];
 
-    db[key].forEach((chat) => {
+    db[key].forEach((chat, index) => {
 
         if(chat.channel == req.body.chat.channel) {
 
-            delete db[key][chat.channel];
+            console.log('FOUND FOUND FOUND')
+
+            db[key].splice(index, 1);
 
             pubnub.publish({
                 channel: newChan,
