@@ -1399,17 +1399,15 @@ const create = function(pnConfig, ceConfig = {}) {
 
         ChatEngine.removeChatFromSession = function(chat) {
 
-            if(ChatEngine.chats[chat.channel] || ChatEngine.session[chat.group][chat.channel]) {
+            let targetChat = ChatEngine.session[chat.group][chat.channel] || chat;
 
-                ChatEngine._emit('$.session.chat.leave', {
-                    chat: ChatEngine.session[chat.group][chat.channel]
-                });
+            ChatEngine._emit('$.session.chat.leave', {
+                chat: targetChat
+            });
 
-                // don't delete from chatengine.chats, because we can still get events from this chat
-                delete ChatEngine.chats[chat.channel];
-                delete ChatEngine.session[chat.group][chat.channel];
-
-            }
+            // don't delete from chatengine.chats, because we can still get events from this chat
+            delete ChatEngine.chats[chat.channel];
+            delete ChatEngine.session[chat.group][chat.channel];
 
         }
 

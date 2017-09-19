@@ -65,12 +65,14 @@ let globalGrant = function(gChan, myUUID, myAuthKey, next) {
     pubnub.grant({
         channels: chanEverybodyR,
         read: true, // false to disallow
+        write: false,
         ttl: 0
     }, function (a,b,c) {
 
         pubnub.grant({
             channels: chanEverybodyW,
             write: true, // false to disallow
+            read: false,
             ttl: 0
         }, function (a,b,c) {
 
