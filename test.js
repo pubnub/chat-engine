@@ -13,7 +13,7 @@ describe('import', function() {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel  = 'shoop';
+let globalChannel  = 'thisistheglobalchannel-whatever' + new Date().getTime();
 
 describe('config', function() {
 
@@ -67,7 +67,7 @@ describe('chat', function() {
 
         this.timeout(10000);
 
-        chat = new ChatEngine.Chat('chat', false);
+        chat = new ChatEngine.Chat('chat');
 
         chat.once('$.online.*', (p) => {
             assert(p.user.uuid == ChatEngine.me.uuid, 'this online event is me')
@@ -76,20 +76,9 @@ describe('chat', function() {
 
     })
 
-    it('should be created', function(done) {
-
-
-        chat.onAny((event, payload) => {
-            console.log(event, payload)
-        })
-
-        done();
-
-    });
-
     it('should get ready callback', function(done) {
 
-        chat2 = new ChatEngine.Chat('chat2', false);
+        chat2 = new ChatEngine.Chat('chat2');
         chat2.on('$.connected', () => {
 
             done();

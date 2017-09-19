@@ -937,8 +937,6 @@ const create = function(pnConfig, ceConfig = {}) {
         */
         userLeave(uuid) {
 
-            console.log('user found as leaving', this.channel, 'with uuid', uuid)
-
             // make sure this event is real, user may have already left
             if(this.users[uuid]) {
 
@@ -1088,7 +1086,6 @@ const create = function(pnConfig, ceConfig = {}) {
                 includeUUIDs: true,
                 includeState: true
             }, (status, response) => {
-                console.log('got here')
                 this.onHereNow(status, response)
                 this.trigger('$.connected');
             });
