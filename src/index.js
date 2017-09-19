@@ -784,8 +784,24 @@ const create = function(pnConfig, ceConfig = {}) {
         @param {String} event The event name
         @param {Object} payload The event payload object
         */
+
         trigger(event, payload) {
 
+            let complete = () => {
+
+                // let plugins modify the event
+                this.runPluginQueue('on', event, (next) => {
+                    next(null, payload);
+                }, (err, payload) => {
+
+                    // emit this event to any listener
+                    this._emit(event, payload);
+
+                });
+
+            }
+
+            // this can be made into plugin
             if(typeof payload == "object") {
 
                 // restore chat in payload
@@ -794,21 +810,29 @@ const create = function(pnConfig, ceConfig = {}) {
                 }
 
                 // turn a uuid found in payload.sender to a real user
-                if(payload.sender && ChatEngine.users[payload.sender]) {
-                    payload.sender = ChatEngine.users[payload.sender];
+                if(payload.sender) {
+
+                    if(ChatEngine.users[payload.sender]) {
+                        payload.sender = ChatEngine.users[payload.sender];
+                        complete();
+                    } else {
+
+                        payload.sender = new User(payload.sender);
+
+                        payload.sender._getState(this, () => {
+                            console.log('state not set', payload.sender.state());
+                            complete();
+                        });
+
+                    }
+
+                } else {
+                    complete();
                 }
 
+            } else {
+                complete();
             }
-
-            // let plugins modify the event
-            this.runPluginQueue('on', event, (next) => {
-                next(null, payload);
-            }, (err, payload) => {
-
-                // emit this event to any listener
-                this._emit(event, payload);
-
-            });
 
         }
 
@@ -1192,16 +1216,6 @@ const create = function(pnConfig, ceConfig = {}) {
                 ChatEngine.users[uuid] = this;
             }
 
-            this.direct.on('$.server.chat.created', (payload) => {
-                ChatEngine.addChatToSession(payload.chat);
-            });
-
-
-            this.direct.on('$.server.chat.deleted', (payload) => {
-
-                ChatEngine.removeChatFromSession(payload.chat);
-            });
-
             // update this user's state in it's created context
             this.assign(state, chat)
 
@@ -1257,6 +1271,36 @@ const create = function(pnConfig, ceConfig = {}) {
             this.assign(state, chat);
         }
 
+        _getState(chat, callback) {
+
+            // state needs to be kept on own server
+            ChatEngine.pubnub.getState({
+                uuid: this.uuid,
+                channels: [ChatEngine.global.channel, chat.channel]
+            }, (status, response) => {
+
+                if(status.statusCode == 200) {
+
+                    for(let channel in response.channels.channels) {
+                        this.assign(response.channels.channels[channel], ChatEngine.chats[channel]);
+                    }
+
+                    console.log('state callback', response, this)
+
+                    callback();
+
+                } else {
+
+                    throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'), {
+                        errorText: status.errorData.response.text,
+                        error: status.errorData,
+                    });
+
+                }
+            });
+
+        }
+
     }
 
     /**
@@ -1277,6 +1321,15 @@ const create = function(pnConfig, ceConfig = {}) {
             super(uuid);
 
             this.authData = authData;
+
+            this.direct.on('$.server.chat.created', (payload) => {
+                ChatEngine.addChatToSession(payload.chat);
+            });
+
+
+            this.direct.on('$.server.chat.deleted', (payload) => {
+                ChatEngine.removeChatFromSession(payload.chat);
+            });
 
         }
 
@@ -1371,8 +1424,6 @@ const create = function(pnConfig, ceConfig = {}) {
         ChatEngine.session = {};
 
         ChatEngine.addChatToSession = function(chat) {
-
-            console.log('add chat to session', chat)
 
             ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
 
@@ -1521,7 +1572,7 @@ const create = function(pnConfig, ceConfig = {}) {
                         */
 
                         // map the pubnub events into chat engine events
-                        let map = {
+                        let categories = {
                             'PNNetworkUpCategory': 'up.online',
                             'PNNetworkDownCategory': 'down.offline',
                             'PNNetworkIssuesCategory': 'down.issue',
@@ -1534,7 +1585,7 @@ const create = function(pnConfig, ceConfig = {}) {
                             'PNTimeoutCategory': 'down.timeout'
                         };
 
-                        let eventName = ['$', 'network', map[statusEvent.category]|| 'undefined'].join('.');
+                        let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
 
                         if(statusEvent.affectedChannels) {
 
