@@ -1234,6 +1234,7 @@ const create = function(pnConfig, ceConfig = {}) {
         * let someChatState = user.state(someChat);s
         */
         state(chat = ChatEngine.global) {
+            chat = ChatEngine.global;
             return this.states[chat.channel] || {};
         }
 
@@ -1243,6 +1244,7 @@ const create = function(pnConfig, ceConfig = {}) {
         * @param {Chat} chat Chatroom to retrieve state from
         */
         update(state, chat = ChatEngine.global) {
+            chat = ChatEngine.global;
             let chatState = this.state(chat) || {};
             this.states[chat.channel] = Object.assign(chatState, state);
         }
@@ -1253,6 +1255,7 @@ const create = function(pnConfig, ceConfig = {}) {
         @private
         */
         assign(state, chat) {
+            chat = ChatEngine.global;
             this.update(state, chat);
         }
 
@@ -1348,7 +1351,8 @@ const create = function(pnConfig, ceConfig = {}) {
             super.update(state, chat);
 
             // publish the update over the global channel
-            chat.setState(state);
+
+            ChatEngine.global.setState(state);
 
         }
 
