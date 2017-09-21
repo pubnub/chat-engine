@@ -1233,9 +1233,8 @@ const create = function(pnConfig, ceConfig = {}) {
         * let someChat = new ChatEngine.Chat('some-channel');
         * let someChatState = user.state(someChat);s
         */
-        state(chat = ChatEngine.global) {
-            chat = ChatEngine.global;
-            return this.states[chat.channel] || {};
+        state() {
+            return this.states[ChatEngine.global.channel] || {};
         }
 
         /**
@@ -1243,10 +1242,9 @@ const create = function(pnConfig, ceConfig = {}) {
         * @param {Object} state The new state for the user
         * @param {Chat} chat Chatroom to retrieve state from
         */
-        update(state, chat = ChatEngine.global) {
-            chat = ChatEngine.global;
-            let chatState = this.state(chat) || {};
-            this.states[chat.channel] = Object.assign(chatState, state);
+        update(state) {
+            let chatState = this.state(ChatEngine.global) || {};
+            this.states[ChatEngine.global.channel] = Object.assign(chatState, state);
         }
 
         /**
