@@ -916,7 +916,7 @@ const create = function(pnConfig, ceConfig = {}) {
             */
             this.trigger('$.state', {
                 user: this.users[uuid],
-                state: this.users[uuid].state(this)
+                state: this.users[uuid].state()
             });
 
         }
@@ -1243,7 +1243,7 @@ const create = function(pnConfig, ceConfig = {}) {
         * @param {Chat} chat Chatroom to retrieve state from
         */
         update(state) {
-            let chatState = this.state(ChatEngine.global) || {};
+            let chatState = this.state() || {};
             this.states[ChatEngine.global.channel] = Object.assign(chatState, state);
         }
 
