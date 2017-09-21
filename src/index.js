@@ -1142,10 +1142,17 @@ const create = function(pnConfig, ceConfig = {}) {
             this.uuid = uuid;
 
             /**
-            A map of the User's state in each {@link Chat}. Stays in sync automatically.
-
-            @private
-            @type Object
+            * Gets the user state in a {@link Chat}. See {@link Me#update} for how to assign state values.
+            * @param {Chat} chat Chatroom to retrieve state from
+            * @return {Object} Returns a generic JSON object containing state information.
+            * @example
+            *
+            * // Global State
+            * let globalState = user.state();
+            *
+            * // State in some channel
+            * let someChat = new ChatEngine.Chat('some-channel');
+            * let someChatState = user.state(someChat);s
             */
             this.state = {};
 
@@ -1221,30 +1228,13 @@ const create = function(pnConfig, ceConfig = {}) {
         }
 
         /**
-        * Gets the user state in a {@link Chat}. See {@link Me#update} for how to assign state values.
-        * @param {Chat} chat Chatroom to retrieve state from
-        * @return {Object} Returns a generic JSON object containing state information.
-        * @example
-        *
-        * // Global State
-        * let globalState = user.state();
-        *
-        * // State in some channel
-        * let someChat = new ChatEngine.Chat('some-channel');
-        * let someChatState = user.state(someChat);s
-        */
-        state() {
-            return this.state;
-        }
-
-        /**
         * @private
         * @param {Object} state The new state for the user
         * @param {Chat} chat Chatroom to retrieve state from
         */
         update(state) {
             let oldState = this.state || {};
-            this.states = Object.assign(oldState, state);
+            this.state = Object.assign(oldState, state);
         }
 
         /**
