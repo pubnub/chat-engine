@@ -11,11 +11,7 @@ rules:
   indent:
     - error
     - 4
-  max-len:
-    - error
-    - 120
-    - ignoreComments: true
-    - ignoreUrls: true
+  max-len: 0
   global-require: 0
   vars-on-top: 0
   padded-blocks: 0
