@@ -180,7 +180,6 @@ const create = function(pnConfig, ceConfig = {}) {
             /**
             Events are always a property of a {@link Chat}. Responsible for
             listening to specific events and firing events when they occur.
-;
             @readonly
             @type String
             @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
@@ -1273,30 +1272,15 @@ const create = function(pnConfig, ceConfig = {}) {
 
         _getState(chat, callback) {
 
-            // state needs to be kept on own server
-            ChatEngine.pubnub.getState({
-                uuid: this.uuid,
-                channels: [ChatEngine.global.channel, chat.channel]
-            }, (status, response) => {
+            axios.get('https://pubsub.pubnub.com/v1/blocks/sub-key/'+pnConfig.subscribeKey+'/state?globalChannel=' + ceConfig.globalChannel + '&uuid=' + this.uuid)
+            .then((response) => {
+                this.assign(response.data)
+                callback();
+            })
+            .catch((error) => {
 
-                if(status.statusCode == 200) {
+                throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
 
-                    for(let channel in response.channels.channels) {
-                        this.assign(response.channels.channels[channel], ChatEngine.chats[channel]);
-                    }
-
-                    console.log('state callback', response, this)
-
-                    callback();
-
-                } else {
-
-                    throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'), {
-                        errorText: status.errorData.response.text,
-                        error: status.errorData,
-                    });
-
-                }
             });
 
         }
