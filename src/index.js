@@ -819,7 +819,7 @@ const create = function(pnConfig, ceConfig = {}) {
                         payload.sender = new User(payload.sender);
 
                         payload.sender._getState(this, () => {
-                            console.log('state not set', payload.sender.state());
+                            console.log('state not set', payload.sender.state);
                             complete();
                         });
 
@@ -916,7 +916,7 @@ const create = function(pnConfig, ceConfig = {}) {
             */
             this.trigger('$.state', {
                 user: this.users[uuid],
-                state: this.users[uuid].state()
+                state: this.users[uuid].state
             });
 
         }
@@ -1081,7 +1081,7 @@ const create = function(pnConfig, ceConfig = {}) {
             ChatEngine.pubnub.setState(
                 {
                     state: state,
-                    channels: [this.channel]
+                    channels: [ChatEngine.global.channel]
                 },
                 (status, response) => {
                     // handle status, response
@@ -1147,7 +1147,7 @@ const create = function(pnConfig, ceConfig = {}) {
             @private
             @type Object
             */
-            this.states = {};
+            this.state = {};
 
             /**
             * An object containing the Chats this {@link User} is currently in. The key of each item in the object is the {@link Chat.channel} and the value is the {@link Chat} object. Note that for privacy, this map will only contain {@link Chat}s that the client ({@link Me}) is also connected to.
@@ -1234,7 +1234,7 @@ const create = function(pnConfig, ceConfig = {}) {
         * let someChatState = user.state(someChat);s
         */
         state() {
-            return this.states[ChatEngine.global.channel] || {};
+            return this.state;
         }
 
         /**
@@ -1243,8 +1243,8 @@ const create = function(pnConfig, ceConfig = {}) {
         * @param {Chat} chat Chatroom to retrieve state from
         */
         update(state) {
-            let chatState = this.state() || {};
-            this.states[ChatEngine.global.channel] = Object.assign(chatState, state);
+            let oldState = this.state || {};
+            this.states = Object.assign(oldState, state);
         }
 
         /**
