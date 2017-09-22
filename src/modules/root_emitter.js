@@ -110,4 +110,4 @@ class RootEmitter {
 
 }
 
-module.export = RootEmitter;
+module.exports = RootEmitter;
