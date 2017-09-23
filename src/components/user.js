@@ -1,9 +1,6 @@
 const axios = require('axios');
 
 const Emitter = require('../modules/emitter');
-const Chat = require('../components/chat');
-
-const { throwError } = require('../utils');
 
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
@@ -84,9 +81,10 @@ class User extends Emitter {
          * them.feed.on('update', (payload) => {})
          */
 
+        const Chat = require('../components/chat');
+
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new Chat(
-            [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
+        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -107,8 +105,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new Chat(
-            [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
+        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -163,7 +160,7 @@ class User extends Emitter {
                 callback();
             })
             .catch(() => {
-                throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
             });
 
     }

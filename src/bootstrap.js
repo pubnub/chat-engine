@@ -5,7 +5,6 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/me');
-const { throwError } = require('./utils');
 
 /**
  Provides the base Widget class...
@@ -64,6 +63,19 @@ module.exports = (ceConfig, pnConfig) => {
 
     ChatEngine.session = {};
 
+    ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
+
+        if (ceConfig.throwErrors) {
+            // throw ceError;
+            throw ceError;
+        }
+
+        payload.ceError = ceError.toString();
+
+        self[cb](['$', 'error', key].join('.'), payload);
+
+    };
+
     ChatEngine.addChatToSession = (chat) => {
         ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
 
@@ -72,7 +84,7 @@ module.exports = (ceConfig, pnConfig) => {
         if (existingChat) {
             ChatEngine.session[chat.group][chat.channel] = existingChat;
         } else {
-            ChatEngine.session[chat.group][chat.channel] = new Chat(chat.channel, chat.private, false, chat.group);
+            ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
 
             ChatEngine._emit('$.session.chat.join', {
                 chat: ChatEngine.session[chat.group][chat.channel]
@@ -117,7 +129,7 @@ module.exports = (ceConfig, pnConfig) => {
 
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new Chat(ceConfig.globalChannel, false, true, 'global');
+            ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
             // create a new user that represents this client
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
@@ -254,7 +266,7 @@ module.exports = (ceConfig, pnConfig) => {
                      * There was a problem logging in
                      * @event ChatEngine#$"."error"."auth
                      */
-                    throwError(ceConfig, ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.authUrl + ').'), { error });
+                    ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.authUrl + ').'), { error });
                 });
         };
 
@@ -276,7 +288,7 @@ module.exports = (ceConfig, pnConfig) => {
                      * There was a problem logging in
                      * @event ChatEngine#$"."error"."auth
                      */
-                    throwError(ceConfig, ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.authUrl + ').'), { error });
+                    ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.authUrl + ').'), { error });
                 });
         }
 
@@ -288,7 +300,11 @@ module.exports = (ceConfig, pnConfig) => {
      * @memberof ChatEngine
      * @see {@link Chat}
      */
-    ChatEngine.Chat = Chat;
+    ChatEngine.Chat = class extends Chat {
+        constructor(...args) {
+            super(ChatEngine, ...args);
+        }
+    };
 
     /**
      * The {@link User} class.
@@ -296,7 +312,11 @@ module.exports = (ceConfig, pnConfig) => {
      * @memberof ChatEngine
      * @see {@link User}
      */
-    ChatEngine.User = User;
+    ChatEngine.User = class extends User {
+        constructor(...args) {
+            super(ChatEngine, ...args);
+        }
+    };
 
     // add an object as a subobject under a namespoace
     ChatEngine.addChild = (ob, childName, childOb) => {

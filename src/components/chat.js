@@ -4,8 +4,7 @@ const axios = require('axios');
 
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
-const User = require('../components/event');
-const { throwError } = require('../utils');
+const User = require('../components/user');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -87,7 +86,7 @@ class Chat extends Emitter {
                  * There was a problem fetching the presence of this chat
                  * @event Chat#$"."error"."presence
                  */
-                throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
+                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
                     error: status.errorData,
                     errorText: status.errorData.response.text
                 });
@@ -118,7 +117,7 @@ class Chat extends Emitter {
         this.history = (event, config = {}) => {
 
             // create the event if it does not exist
-            this.events[event] = this.events[event] || new Event(this, event);
+            this.events[event] = this.events[event] || new Event(chatEngine, this, event);
 
             // set the PubNub configured channel to this channel
             config.channel = this.events[event].channel;
@@ -132,7 +131,7 @@ class Chat extends Emitter {
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
+                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
                         errorText: status.errorData.response.text,
                         error: status.error,
                     });
@@ -230,7 +229,7 @@ class Chat extends Emitter {
                         complete();
                     })
                     .catch((error) => {
-                        throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                     });
             }
 
@@ -300,7 +299,7 @@ class Chat extends Emitter {
             if (!this.connected) {
 
                 if (!chatEngine.pubnub) {
-                    throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+                    chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
                 // listen to all PubNub events for this Chat
@@ -337,7 +336,7 @@ class Chat extends Emitter {
                         this.onPrep();
                     })
                     .catch((error) => {
-                        throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                     });
             };
 
@@ -355,7 +354,7 @@ class Chat extends Emitter {
                         createChat();
                     })
                     .catch((error) => {
-                        throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                     });
 
             }
@@ -418,7 +417,7 @@ class Chat extends Emitter {
             // publish the event and data over the configured channel
 
             // ensure the event exists within the global space
-            this.events[event] = this.events[event] || new Event(this, event);
+            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
 
             this.events[event].publish(pluginResponse);
 
@@ -464,7 +463,7 @@ class Chat extends Emitter {
                     complete();
                 } else {
 
-                    payload.sender = new User(payload.sender);
+                    payload.sender = new User(this.chatEngine, payload.sender);
 
                     payload.sender._getState(this, () => {
                         console.log('state not set', payload.sender.state);
@@ -495,9 +494,8 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
 
-        // Add this chatroom to the user's list of chats
         this.chatEngine.users[uuid].addChat(this, state);
 
         // trigger the join event over this chatroom
@@ -540,7 +538,7 @@ class Chat extends Emitter {
     userUpdate(uuid, state) {
 
         // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
 
         // if we don't know about this user
         if (!this.users[uuid]) {
@@ -590,7 +588,7 @@ class Chat extends Emitter {
             } })
             .then(() => {})
             .catch((error) => {
-                throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
             });
 
     }

@@ -49,7 +49,7 @@ class Emitter extends RootEmitter {
         this.on = (event, cb) => {
 
             // keep track of all events on this emitter
-            this.events[event] = this.events[event] || new Event(this, event);
+            this.events[event] = this.events[event] || new Event(chatEngine, this, event);
 
             // call the private _on property
             this._on(event, cb);

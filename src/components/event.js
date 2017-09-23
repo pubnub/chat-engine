@@ -1,5 +1,3 @@
-const { throwError } = require('../utils');
-
 /**
  Represents an event that may be emitted or subscribed to.
  */
@@ -38,7 +36,7 @@ class Event {
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
                      */
-                    throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
+                    chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
                         errorText: status.errorData.response.text,
                         error: status.errorData,
                     });

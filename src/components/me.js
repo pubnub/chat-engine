@@ -15,7 +15,7 @@ class Me extends User {
     constructor(chatEngine, uuid, authData) {
 
         // call the User constructor
-        super(uuid);
+        super(chatEngine, uuid);
 
         this.authData = authData;
         this.chatEngine = chatEngine;
