@@ -1,4 +1,4 @@
-const ChatEngineCore = require('../src/index.js');
+const ChatEngineCore = require('../../src/index.js');
 
 const assert = require('chai').assert;
 
