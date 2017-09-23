@@ -19,6 +19,9 @@ module.exports = (ceConfig, pnConfig) => {
     // Create the root ChatEngine object
     let ChatEngine = new RootEmitter();
 
+    ChatEngine.ceConfig = ceConfig;
+    ChatEngine.pnConfig = pnConfig;
+
     /**
      * A map of all known {@link User}s in this instance of ChatEngine
      * @memberof ChatEngine

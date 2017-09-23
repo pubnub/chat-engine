@@ -29,7 +29,7 @@ class Event {
             chatEngine.pubnub.publish({
                 message: m,
                 channel: this.channel
-            }, (status, response) => {
+            }, (status) => {
 
                 if (status.statusCode === 200) {
                     chat.trigger('$.publish.success');

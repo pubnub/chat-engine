@@ -3,6 +3,8 @@ const axios = require('axios');
 const Emitter = require('../modules/emitter');
 const Chat = require('../components/chat');
 
+const { throwError } = require('../utils');
+
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
  If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
@@ -21,6 +23,8 @@ class User extends Emitter {
         }
 
         super();
+
+        this.chatEngine = chatEngine;
 
         /**
          The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
@@ -82,7 +86,7 @@ class User extends Emitter {
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
         this.feed = new Chat(
-            [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name == "Me", 'feed');
+            [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -133,7 +137,7 @@ class User extends Emitter {
      @private
      */
     assign(state, chat) {
-        chat = chatEngine.global;
+        chat = this.chatEngine.global;
         this.update(state, chat);
     }
 
@@ -152,13 +156,13 @@ class User extends Emitter {
     }
 
     _getState(chat, callback) {
-        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/state?globalChannel=' + ceConfig.globalChannel + '&uuid=' + this.uuid;
+        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
         axios.get(url)
             .then((response) => {
                 this.assign(response.data);
                 callback();
             })
-            .catch((error) => {
+            .catch(() => {
                 throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
             });
 
