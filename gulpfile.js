@@ -29,7 +29,12 @@ gulp.task('lint_tests', [], () => {
 });
 
 gulp.task('unit_tests', () => {
-    return gulp.src(['test/**/*.test.js'], { read: false })
+    return gulp.src(['test/unit/**/*.test.js'], { read: false })
+        .pipe(mocha({ reporter: 'spec' }));
+});
+
+gulp.task('integration_tests', () => {
+    return gulp.src(['test/integration/**/*.test.js'], { read: false })
         .pipe(mocha({ reporter: 'spec' }));
 });
 
@@ -38,7 +43,7 @@ gulp.task('default', ['compile']);
 gulp.task('validate', ['lint_code', 'lint_tests']);
 
 gulp.task('test', (done) => {
-    runSequence('unit_tests', 'validate', done);
+    runSequence('unit_tests', 'integration_tests', 'validate', done);
 });
 
 gulp.task('watch', () => {

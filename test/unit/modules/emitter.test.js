@@ -1,0 +1,4 @@
+
+describe('#emitter', () => {
+    it('works!', () => {});
+});
