@@ -25,7 +25,7 @@ gulp.task('lint_code', [], () => {
 });
 
 gulp.task('lint_tests', [], () => {
-    return gulp.src(['src/**/*.js'])
+    return gulp.src(['test/**/*.js'])
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
