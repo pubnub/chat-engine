@@ -61,6 +61,10 @@ module.exports = (ceConfig, pnConfig) => {
      */
     ChatEngine.ready = false;
 
+    /**
+    * A map of {@link Chat}s that this instance of ChatEngine is representing.
+    * @type {Object}
+    */
     ChatEngine.session = {};
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
@@ -76,16 +80,32 @@ module.exports = (ceConfig, pnConfig) => {
 
     };
 
+    /**
+    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
+    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
+    @private
+    */
     ChatEngine.addChatToSession = (chat) => {
+
+        // create the chat if it doesn't exist
         ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
 
+        // check the chat exists within the global list but is not grouped
         let existingChat = ChatEngine.chats[chat.channel];
 
+        // if it exists
         if (existingChat) {
+            // assign it to the group
             ChatEngine.session[chat.group][chat.channel] = existingChat;
         } else {
+            // otherwise, try to recreate it with the server information
             ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
 
+            /**
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            * @event ChatEngine#$"."session"."chat"."join
+            */
             ChatEngine._emit('$.session.chat.join', {
                 chat: ChatEngine.session[chat.group][chat.channel]
             });
@@ -93,10 +113,19 @@ module.exports = (ceConfig, pnConfig) => {
 
     };
 
+
+    /**
+    Removes {@link Chat} within ChatEngine.session
+    @private
+    */
     ChatEngine.removeChatFromSession = (chat) => {
 
         let targetChat = ChatEngine.session[chat.group][chat.channel] || chat;
 
+        /**
+        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+        * @event ChatEngine#$"."session"."chat"."leave
+        */
         ChatEngine._emit('$.session.chat.leave', {
             chat: targetChat
         });
@@ -259,38 +288,37 @@ module.exports = (ceConfig, pnConfig) => {
 
         let getChats = () => {
 
-            axios.get(ceConfig.authUrl + '/chats?uuid=' + pnConfig.uuid)
+            axios.get(ceConfig.endpoint + '/chats?uuid=' + pnConfig.uuid)
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
                     /**
                      * There was a problem logging in
                      * @event ChatEngine#$"."error"."auth
                      */
-                    ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.authUrl + ').'), { error });
+                    ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server ('+ceConfig.endpoint+').'), {
+                        error
+                    });
+
                 });
         };
 
-        if (ceConfig.insecure) {
-            getChats();
-        } else {
-            pnConfig.authKey = authKey;
+        pnConfig.authKey = authKey;
 
-            axios.post(ceConfig.authUrl + '/grant', {
-                uuid: pnConfig.uuid,
-                channel: ceConfig.globalChannel,
-                authData: ChatEngine.me.authData,
-                authKey: pnConfig.authKey
-            })
-                .then((response) => { getChats(response.data); })
-                .catch((error) => {
+        axios.post(ceConfig.authUrl + '/grant', {
+            uuid: pnConfig.uuid,
+            channel: ceConfig.globalChannel,
+            authData: ChatEngine.me.authData,
+            authKey: pnConfig.authKey
+        })
+            .then((response) => { getChats(response.data); })
+            .catch((error) => {
 
-                    /**
-                     * There was a problem logging in
-                     * @event ChatEngine#$"."error"."auth
-                     */
-                    ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.authUrl + ').'), { error });
-                });
-        }
+                /**
+                 * There was a problem logging in
+                 * @event ChatEngine#$"."error"."auth
+                 */
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+            });
 
     };
 

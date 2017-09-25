@@ -129,7 +129,6 @@ class User extends Emitter {
      @private
      */
     assign(state) {
-        chat = this.chatEngine.global;
         this.update(state);
     }
 
@@ -147,6 +146,10 @@ class User extends Emitter {
         this.assign(state, chat);
     }
 
+    /**
+    Get stored user state from remote server.
+    @private
+    */
     _getState(chat, callback) {
         const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
         axios.get(url)
