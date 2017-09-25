@@ -589,7 +589,7 @@ class Chat extends Emitter {
         });
 
         // delete the chat in the remote list
-        axios.delete(ceConfig.endpoint + '/chats', {
+        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
             data: {
                 globalChannel: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,

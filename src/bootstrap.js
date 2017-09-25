@@ -291,11 +291,12 @@ module.exports = (ceConfig, pnConfig) => {
             axios.get(ceConfig.endpoint + '/chats?uuid=' + pnConfig.uuid)
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
+
                     /**
                      * There was a problem logging in
-                     * @event ChatEngine#$"."error"."auth
+                     * @event ChatEngine#$"."error"."session
                      */
-                    ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server ('+ceConfig.endpoint+').'), {
+                    ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server ('+ceConfig.endpoint+').'), {
                         error
                     });
 
@@ -304,7 +305,7 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.authKey = authKey;
 
-        axios.post(ceConfig.authUrl + '/grant', {
+        axios.post(ceConfig.endpoint + '/grant', {
             uuid: pnConfig.uuid,
             channel: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
@@ -312,6 +313,8 @@ module.exports = (ceConfig, pnConfig) => {
         })
             .then((response) => { getChats(response.data); })
             .catch((error) => {
+
+                console.log(error)
 
                 /**
                  * There was a problem logging in
