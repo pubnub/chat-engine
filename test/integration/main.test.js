@@ -1,10 +1,10 @@
-const ChatEngineCore = require('./src/index.js');
+const ChatEngineCore = require('../../src/index.js');
 
 const assert = require('chai').assert;
 
-describe('import', function() {
+describe('import', () => {
 
-    it('ChatEngine should be imported', function() {
+    it('ChatEngine should be imported', () => {
         assert.isObject(ChatEngineCore, 'was successfully created');
     });
 
@@ -13,18 +13,18 @@ describe('import', function() {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel  = 'thisistheglobalchannel-whatever' + new Date().getTime();
+let globalChannel = 'thisistheglobalchannel-whatever' + new Date().getTime();
 
-describe('config', function() {
+describe('config', () => {
 
-    it('should be configured', function() {
+    it('should be configured', () => {
 
         ChatEngine = ChatEngineCore.create({
             publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
             subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
         }, {
             authUrl: 'http://localhost:3000/insecure',
-            globalChannel: globalChannel,
+            globalChannel,
             throwErrors: false
         });
 
@@ -34,9 +34,9 @@ describe('config', function() {
 
 });
 
-describe('connect', function() {
+describe('connect', () => {
 
-    it('should be identified as new user', function(done) {
+    it('should be identified as new user', function (done) {
 
         this.timeout(4000);
 
@@ -48,11 +48,11 @@ describe('connect', function() {
             done();
         });
 
-        ChatEngine.connect('ian', {works: true}, 'ian-authtoken');
+        ChatEngine.connect('ian', { works: true }, 'ian-authtoken');
 
         ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation)
-        })
+            console.log(data.operation);
+        });
 
     });
 
@@ -60,25 +60,25 @@ describe('connect', function() {
 
 let chat;
 
-describe('chat', function() {
+describe('chat', () => {
 
 
-    it('should get me as join event', function(done) {
+    it('should get me as join event', function (done) {
 
         this.timeout(10000);
 
         chat = new ChatEngine.Chat('chat');
 
         chat.once('$.online.*', (p) => {
-            assert(p.user.uuid == ChatEngine.me.uuid, 'this online event is me')
+            assert(p.user.uuid === ChatEngine.me.uuid, 'this online event is me');
             done();
         });
 
-    })
+    });
 
-    it('should get ready callback', function(done) {
+    it('should get ready callback', (done) => {
 
-        chat2 = new ChatEngine.Chat('chat2');
+        let chat2 = new ChatEngine.Chat('chat2');
         chat2.on('$.connected', () => {
 
             done();
@@ -87,7 +87,7 @@ describe('chat', function() {
 
     });
 
-    it('should get message', function(done) {
+    it('should get message', (done) => {
 
         chat.on('something', (payload) => {
 
@@ -106,11 +106,11 @@ describe('chat', function() {
 
 let ChatEngineClone;
 let syncChat;
-describe('remote chat list', function() {
+describe('remote chat list', () => {
 
-    it('should be get notified of new chats', function(done) {
+    it('should be get notified of new chats', function (done) {
 
-        this.timeout(10000)
+        this.timeout(10000);
 
         // first instance looking or new chats
         ChatEngine.on('$.session.chat.join', (payload) => {
@@ -123,11 +123,11 @@ describe('remote chat list', function() {
             subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
         }, {
             authUrl: 'http://localhost:3000/insecure',
-            globalChannel: globalChannel,
+            globalChannel,
             throwErrors: false
         });
 
-        ChatEngineClone.connect('ian', {works: true}, 'ian-authtoken');
+        ChatEngineClone.connect('ian', { works: true }, 'ian-authtoken');
 
         ChatEngineClone.on('$.ready', () => {
             syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
@@ -135,32 +135,32 @@ describe('remote chat list', function() {
 
     });
 
-    it('should keep delete in sync', function(done) {
+    it('should keep delete in sync', function (done) {
 
         this.timeout(10000);
 
         ChatEngine.on('$.session.chat.leave', (payload) => {
 
-            setTimeout(function() {
+            setTimeout(() => {
 
-                    assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                    assert.isUndefined(ChatEngine.session['default'][syncChat.channel]);
+                assert.isUndefined(ChatEngine.chats[syncChat.channel]);
+                assert.isUndefined(ChatEngine.session.default[syncChat.channel]);
 
-            }, 1000)
+            }, 1000);
 
             done();
         });
 
-        setTimeout(function() {
+        setTimeout(() => {
 
             syncChat.leave();
 
         }, 1000);
 
 
-    })
+    });
 
-    it('should be populated', function(done) {
+    it('should be populated', (done) => {
 
         assert.isObject(ChatEngine.session.global);
         assert.isObject(ChatEngine.session.default);
@@ -198,19 +198,19 @@ let myChat;
 let you;
 let yourChat;
 
-describe('invite', function() {
+describe('invite', () => {
 
-    it('should be created', function(done) {
+    it('should be created', (done) => {
 
         ChatEngineYou = ChatEngineCore.create({
             publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
             subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
         }, {
             authUrl: 'http://localhost:3000/insecure',
-            globalChannel: globalChannel
+            globalChannel
         });
 
-        ChatEngineYou.connect('stephen', {works: true}, 'stephen-authtoken');
+        ChatEngineYou.connect('stephen', { works: true }, 'stephen-authtoken');
 
         ChatEngineYou.on('$.ready', (data) => {
             you = data.me;
@@ -219,7 +219,7 @@ describe('invite', function() {
 
     });
 
-    it('should create chat', function(done) {
+    it('should create chat', (done) => {
 
         yourChat = new ChatEngineYou.Chat('secret-channel-');
 
@@ -229,7 +229,7 @@ describe('invite', function() {
 
     });
 
-    it('should invite other users', function(done) {
+    it('should invite other users', (done) => {
 
         me.direct.on('$.invite', (payload) => {
 
@@ -248,9 +248,9 @@ describe('invite', function() {
 
     });
 
-    it('two users are able to talk to each other in private channel', function(done) {
+    it('two users are able to talk to each other in private channel', function (done) {
 
-        this.timeout(5000)
+        this.timeout(5000);
 
         yourChat.on('message', (payload) => {
             assert.equal(payload.data.text, 'sup?');
@@ -263,7 +263,7 @@ describe('invite', function() {
 
     });
 
-    it('should not be able to join another chat', function(done) {
+    it('should not be able to join another chat', (done) => {
 
         let targetChan = 'super-secret-channel-';
 
@@ -275,13 +275,13 @@ describe('invite', function() {
 
             illegalAccessChat.on('$.connected', () => {
 
-                done(new Error('This user should not be able to join', illegalAccessChat.channel))
+                done(new Error('This user should not be able to join', illegalAccessChat.channel));
 
             });
 
             illegalAccessChat.onAny((event, packet) => {
                 // console.log('illegal ---', event)
-            })
+            });
 
             illegalAccessChat.once('$.error.publish', () => {
                 done();
