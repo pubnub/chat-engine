@@ -33,17 +33,12 @@ class User extends Emitter {
         this.uuid = uuid;
 
         /**
-         * Gets the user state in a {@link Chat}. See {@link Me#update} for how to assign state values.
-         * @param {Chat} chat Chatroom to retrieve state from
+         * Gets the user state. See {@link Me#update} for how to assign state values.
          * @return {Object} Returns a generic JSON object containing state information.
          * @example
          *
-         * // Global State
-         * let globalState = user.state();
-         *
-         * // State in some channel
-         * let someChat = new ChatEngine.Chat('some-channel');
-         * let someChatState = user.state(someChat);s
+         * // State
+         * let state = user.state();
          */
         this.state = {};
 
@@ -114,7 +109,7 @@ class User extends Emitter {
         }
 
         // update this user's state in it's created context
-        this.assign(state, chat);
+        this.assign(state);
 
     }
 
@@ -133,9 +128,9 @@ class User extends Emitter {
 
      @private
      */
-    assign(state, chat) {
+    assign(state) {
         chat = this.chatEngine.global;
-        this.update(state, chat);
+        this.update(state);
     }
 
     /**
