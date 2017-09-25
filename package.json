@@ -18,7 +18,6 @@
     "sdk",
     "realtime"
   ],
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/pubnub/chat-engine/issues"
   },
