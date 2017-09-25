@@ -10,8 +10,9 @@ const User = require('../components/user');
  This is the root {@link Chat} class that represents a chat room
 
  @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
+ @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
+ @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @extends Emitter
  @fires Chat#$"."ready
  @fires Chat#$"."state
@@ -26,10 +27,6 @@ class Chat extends Emitter {
 
         this.chatEngine = chatEngine;
 
-        if (chatEngine.ceConfig.insecure) {
-            needGrant = false;
-        }
-
         /**
          * A string identifier for the Chat room.
          * @type String
@@ -38,6 +35,8 @@ class Chat extends Emitter {
          */
         this.channel = channel.toString();
 
+        // public.* has PubNub permissions for everyone to read and write
+        // private.* is totally locked down and users must be granted access one by one
         let chanPrivString = 'public.';
 
         if (needGrant) {
@@ -48,8 +47,18 @@ class Chat extends Emitter {
             this.channel = [chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
+        /**
+        * Does this chat require new {@link User}s to be granted explicit access to this room?
+        * @type Boolean
+        * @readonly
+        */
         this.isPrivate = needGrant;
 
+        /**
+        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+        * @type String
+        * @readonly
+        */
         this.group = group;
 
         /**
@@ -159,6 +168,10 @@ class Chat extends Emitter {
 
         };
 
+        /**
+        * Turns a {@link Chat} into a JSON representation.
+        * @return {Object}
+        */
         this.objectify = () => {
 
             return {
@@ -214,24 +227,19 @@ class Chat extends Emitter {
 
             };
 
-            if (chatEngine.ceConfig.insecure) {
-                complete();
-            } else {
-
-                axios.post(chatEngine.ceConfig.authUrl + '/chat/invite', {
-                    authKey: chatEngine.pnConfig.authKey,
-                    uuid: user.uuid,
-                    myUUID: chatEngine.me.uuid,
-                    authData: chatEngine.me.authData,
-                    chat: this.objectify()
+            axios.post(chatEngine.ceConfig.endpoint + '/chat/invite', {
+                authKey: chatEngine.pnConfig.authKey,
+                uuid: user.uuid,
+                myUUID: chatEngine.me.uuid,
+                authData: chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    complete();
                 })
-                    .then(() => {
-                        complete();
-                    })
-                    .catch((error) => {
-                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                    });
-            }
+                .catch((error) => {
+                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
 
         };
 
@@ -325,7 +333,7 @@ class Chat extends Emitter {
 
             let createChat = () => {
 
-                axios.post(chatEngine.ceConfig.authUrl + '/chats', {
+                axios.post(chatEngine.ceConfig.endpoint + '/chats', {
                     globalChannel: chatEngine.ceConfig.globalChannel,
                     authKey: chatEngine.pnConfig.authKey,
                     uuid: chatEngine.pnConfig.uuid,
@@ -340,24 +348,19 @@ class Chat extends Emitter {
                     });
             };
 
-            if (chatEngine.ceConfig.insecure) {
-                return createChat();
-            } else {
-                axios.post(chatEngine.ceConfig.authUrl + '/chat/grant', {
-                    globalChannel: chatEngine.ceConfig.globalChannel,
-                    authKey: chatEngine.pnConfig.authKey,
-                    uuid: chatEngine.pnConfig.uuid,
-                    authData: chatEngine.me.authData,
-                    chat: this.objectify()
+            axios.post(chatEngine.ceConfig.endpoint + '/chat/grant', {
+                globalChannel: chatEngine.ceConfig.globalChannel,
+                authKey: chatEngine.pnConfig.authKey,
+                uuid: chatEngine.pnConfig.uuid,
+                authData: chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    createChat();
                 })
-                    .then(() => {
-                        createChat();
-                    })
-                    .catch((error) => {
-                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                    });
-
-            }
+                .catch((error) => {
+                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
 
         };
 
@@ -455,16 +458,19 @@ class Chat extends Emitter {
                 payload.chat = this;
             }
 
-            // turn a uuid found in payload.sender to a real user
+            // if we should try to restore the sender property
             if (payload.sender) {
 
+                // this use already exists in memory
                 if (this.chatEngine.users[payload.sender]) {
                     payload.sender = this.chatEngine.users[payload.sender];
                     complete();
                 } else {
 
+                    // the user doesn't exist, create it
                     payload.sender = new User(this.chatEngine, payload.sender);
 
+                    // try to get stored state from server
                     payload.sender._getState(this, () => {
                         console.log('state not set', payload.sender.state);
                         complete();
@@ -473,10 +479,12 @@ class Chat extends Emitter {
                 }
 
             } else {
+                // there's no "sender" in this object, move on
                 complete();
             }
 
         } else {
+            // payload is not an object, we want nothing to do with it.
             complete();
         }
 
@@ -530,7 +538,7 @@ class Chat extends Emitter {
     }
 
     /**
-     * Update a user's state within this {@link Chat}.
+     * Update a user's state.
      * @private
      * @param {String} uuid The {@link User} uuid
      * @param {Object} state State to update for the user
@@ -547,20 +555,20 @@ class Chat extends Emitter {
         }
 
         // update this user's state in this chatroom
-        this.users[uuid].assign(state, this);
+        this.users[uuid].assign(state);
 
         /**
          * Broadcast that a {@link User} has changed state.
-         * @event Chat#$"."state
+         * @event ChatEngine#$"."state
          * @param {Object} data The payload returned by the event
          * @param {User} data.user The {@link User} that changed state
-         * @param {Object} data.state The new user state for this ```Chat```
+         * @param {Object} data.state The new user state
          * @example
-         * chat.on('$.state', (data) => {
-                *     console.log('User has changed state:', data.user, 'new state:', data.state);
-                * });
+         * ChatEngine.on('$.state', (data) => {
+         *     console.log('User has changed state:', data.user, 'new state:', data.state);
+         * });
          */
-        this.trigger('$.state', {
+        this.chatEngine._emit('$.state', {
             user: this.users[uuid],
             state: this.users[uuid].state
         });
@@ -569,16 +577,19 @@ class Chat extends Emitter {
 
     /**
      * Leave from the {@link Chat} on behalf of {@link Me}.
+     * @fires Chat#event:$"."offline"."leave
      * @example
      * chat.leave();
      */
     leave() {
 
+        // unsubscribe from the channel locally
         this.chatEngine.pubnub.unsubscribe({
             channels: [this.channel]
         });
 
-        axios.delete(this.chatEngine.ceConfig.authUrl + '/chats', {
+        // delete the chat in the remote list
+        axios.delete(ceConfig.endpoint + '/chats', {
             data: {
                 globalChannel: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
@@ -732,8 +743,9 @@ class Chat extends Emitter {
             includeUUIDs: true,
             includeState: true
         }, (status, response) => {
-            this.onHereNow(status, response);
+            // trigger that SDK is ready before emitting online events
             this.trigger('$.connected');
+            this.onHereNow(status, response);
         });
 
     }
