@@ -1,3 +1,18 @@
+# Under Development
+
+## Running Anything
+
+1. Must have ```server.js``` running.
+2. If working with history, deploy the code in ```/functions``` to PubNub blocks. See ```/functions/readme.md```.
+
+## Compiling
+
+Run ```gulp``` to compile, but you should probably run ```gulp watch``` to get consistent changes.
+
+## Running Tests
+
+Run ```gulp test```.
+
 # PubNub Chat Engine
 
 PubNub Chat Engine is an object oriented event emitter based framework for building chat applications in Javascript. PubNub Chat Engine makes it easy to build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.

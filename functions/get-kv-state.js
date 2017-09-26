@@ -1,5 +1,6 @@
+// rest endpoint/state
 export default (request, response) => {
-    
+
     const pubnub = require('pubnub');
     const kvstore = require('kvstore');
     const xhr = require('xhr');
@@ -15,13 +16,13 @@ export default (request, response) => {
 
     // Set the status code - by default it would return 200
     response.status = 200;
-    
+
     let key = paramsObject.globalChannel + ':' + paramsObject.uuid + ':state';
 
     console.log(key)
 
     return kvstore.get(key).then((state) => {
-        
+
         return response.send(state);
     })
 
