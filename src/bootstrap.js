@@ -4,7 +4,7 @@ const PubNub = require('pubnub');
 const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
-const User = require('./components/me');
+const User = require('./components/user');
 
 /**
  Provides the base Widget class...
