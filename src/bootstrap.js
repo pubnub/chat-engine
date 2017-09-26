@@ -296,7 +296,7 @@ module.exports = (ceConfig, pnConfig) => {
                      * There was a problem logging in
                      * @event ChatEngine#$"."error"."session
                      */
-                    ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server ('+ceConfig.endpoint+').'), {
+                    ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
                         error
                     });
 
