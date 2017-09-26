@@ -13,11 +13,7 @@ const Emitter = require('../modules/emitter');
  */
 class User extends Emitter {
 
-    constructor(chatEngine, uuid, state = {}, chat) {
-
-        if (!chat) {
-            chat = chatEngine.global;
-        }
+    constructor(chatEngine, uuid, state = {}) {
 
         super();
 

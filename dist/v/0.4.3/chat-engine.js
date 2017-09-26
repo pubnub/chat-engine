@@ -508,11 +508,7 @@ const Emitter = __webpack_require__(16);
  */
 class User extends Emitter {
 
-    constructor(chatEngine, uuid, state = {}, chat) {
-
-        if (!chat) {
-            chat = chatEngine.global;
-        }
+    constructor(chatEngine, uuid, state = {}) {
 
         super();
 
@@ -2672,7 +2668,13 @@ module.exports = (ceConfig, pnConfig) => {
      */
     ChatEngine.User = class extends User {
         constructor(...args) {
-            super(ChatEngine, ...args);
+
+            if(ChatEngine.me.uuid == args[0]) {
+                return ChatEngine.me;
+            } else {
+                super(ChatEngine, ...args);
+            }
+
         }
     };
 

@@ -345,7 +345,13 @@ module.exports = (ceConfig, pnConfig) => {
      */
     ChatEngine.User = class extends User {
         constructor(...args) {
-            super(ChatEngine, ...args);
+
+            if(ChatEngine.me.uuid == args[0]) {
+                return ChatEngine.me;
+            } else {
+                super(ChatEngine, ...args);
+            }
+
         }
     };
 
