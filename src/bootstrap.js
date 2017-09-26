@@ -314,8 +314,6 @@ module.exports = (ceConfig, pnConfig) => {
             .then((response) => { getChats(response.data); })
             .catch((error) => {
 
-                console.log(error)
-
                 /**
                  * There was a problem logging in
                  * @event ChatEngine#$"."error"."auth
@@ -346,7 +344,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.User = class extends User {
         constructor(...args) {
 
-            if(ChatEngine.me.uuid == args[0]) {
+            if (ChatEngine.me.uuid === args[0]) {
                 return ChatEngine.me;
             } else {
                 super(ChatEngine, ...args);

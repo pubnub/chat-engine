@@ -2103,6 +2103,8 @@ class Emitter extends RootEmitter {
 
         super();
 
+        this.chatEngine = chatEngine;
+
         /**
          Emit events locally.
 
@@ -2113,7 +2115,7 @@ class Emitter extends RootEmitter {
 
             // all events are forwarded to ChatEngine object
             // so you can globally bind to events with ChatEngine.on()
-            chatEngine._emit(event, data);
+            this.chatEngine._emit(event, data);
 
             // emit the event from the object that created it
             this.emitter.emit(event, data);
@@ -2140,7 +2142,7 @@ class Emitter extends RootEmitter {
         this.on = (event, cb) => {
 
             // keep track of all events on this emitter
-            this.events[event] = this.events[event] || new Event(chatEngine, this, event);
+            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
 
             // call the private _on property
             this._on(event, cb);
@@ -2170,9 +2172,9 @@ class Emitter extends RootEmitter {
 
                 // attach the plugins to this class
                 // under their namespace
-                chatEngine.addChild(this, module.namespace, new module.extends[className]());
+                this.chatEngine.addChild(this, module.namespace, new module.extends[className]());
 
-                this[module.namespace].ChatEngine = chatEngine;
+                this[module.namespace].ChatEngine = this.chatEngine;
 
                 // if the plugin has a special construct function
                 // run it
@@ -2637,8 +2639,6 @@ module.exports = (ceConfig, pnConfig) => {
             .then((response) => { getChats(response.data); })
             .catch((error) => {
 
-                console.log(error)
-
                 /**
                  * There was a problem logging in
                  * @event ChatEngine#$"."error"."auth
@@ -2669,7 +2669,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.User = class extends User {
         constructor(...args) {
 
-            if(ChatEngine.me.uuid == args[0]) {
+            if (ChatEngine.me.uuid === args[0]) {
                 return ChatEngine.me;
             } else {
                 super(ChatEngine, ...args);
