@@ -47,5 +47,6 @@ gulp.task('test', (done) => {
 });
 
 gulp.task('watch', () => {
-    gulp.watch('./src/*', ['compile']);
+    runSequence('compile');
+    gulp.watch('src/**/*.js', ['compile']);
 });
