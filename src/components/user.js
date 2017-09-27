@@ -19,6 +19,8 @@ class User extends Emitter {
 
         this.chatEngine = chatEngine;
 
+        this.name = 'User';
+
         /**
          The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
          Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).

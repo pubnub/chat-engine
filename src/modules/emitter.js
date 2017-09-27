@@ -14,6 +14,8 @@ class Emitter extends RootEmitter {
 
         this.chatEngine = chatEngine;
 
+        this.name = 'Emitter';
+
         /**
          Emit events locally.
 
@@ -73,15 +75,12 @@ class Emitter extends RootEmitter {
             // add this plugin to a list of plugins for this object
             this.plugins.push(module);
 
-            // returns the name of this class
-            let className = this.constructor.name;
-
             // see if there are plugins to attach to this class
-            if (module.extends && module.extends[className]) {
+            if (module.extends && module.extends[this.name]) {
 
                 // attach the plugins to this class
                 // under their namespace
-                this.chatEngine.addChild(this, module.namespace, new module.extends[className]());
+                this.chatEngine.addChild(this, module.namespace, new module.extends[this.name]());
 
                 this[module.namespace].ChatEngine = this.chatEngine;
 
@@ -97,4 +96,8 @@ class Emitter extends RootEmitter {
 
 }
 
+console.log('UPDATED')
+
 module.exports = Emitter;
+
+

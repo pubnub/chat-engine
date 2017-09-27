@@ -16,6 +16,8 @@ class RootEmitter {
         */
         this.events = {};
 
+        this.name = 'RootEmitter';
+
         /**
         Create a new EventEmitter2 object for this class.
 

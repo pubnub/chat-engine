@@ -27,6 +27,8 @@ class Chat extends Emitter {
 
         this.chatEngine = chatEngine;
 
+        this.name = 'Chat';
+
         /**
          * A string identifier for the Chat room.
          * @type String

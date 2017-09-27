@@ -14,6 +14,7 @@ class Event {
          */
         this.channel = chat.channel;
 
+        this.name = 'Event';
         /**
          Publishes the event over the PubNub network to the {@link Event} channel
 
