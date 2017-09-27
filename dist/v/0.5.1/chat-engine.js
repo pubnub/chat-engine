@@ -2691,8 +2691,6 @@ module.exports = (ceConfig, pnConfig) => {
     // add an object as a subobject under a namespoace
     ChatEngine.addChild = (ob, childName, childOb) => {
 
-        console.log('addChild', ob, childName, childOb)
-
         // assign the new child object as a property of parent under the
         // given namespace
         ob[childName] = childOb;
