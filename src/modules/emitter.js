@@ -97,5 +97,3 @@ class Emitter extends RootEmitter {
 }
 
 module.exports = Emitter;
-
-
