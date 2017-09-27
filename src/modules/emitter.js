@@ -96,8 +96,6 @@ class Emitter extends RootEmitter {
 
 }
 
-console.log('UPDATED')
-
 module.exports = Emitter;
 
 
