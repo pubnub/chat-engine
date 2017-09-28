@@ -18,12 +18,12 @@ describe('#emitter', () => {
 
     });
 
-    it('Emitter should be instanced', (done) => {
+    it('should successfully create an instance', (done) => {
         assert.isObject(emitterInstance, 'was successfully created');
         done();
     });
 
-    it('Emitter should be listened an event', (done) => {
+    it('should listen to an event', (done) => {
         emitterInstance.on('foo', (msg) => {
             assert(msg === 'hello world', 'got the expected value');
             done();
@@ -32,7 +32,7 @@ describe('#emitter', () => {
         emitterInstance._emit('foo', 'hello world');
     });
 
-    it('Emitter should be received a plugin', (done) => {
+    it('should accept a plugin', (done) => {
         let plugin = () => {
             class extension {
             }
@@ -47,7 +47,7 @@ describe('#emitter', () => {
         };
 
         emitterInstance.plugin(plugin);
-        assert(emitterInstance.plugins.length === 1, 'was received the pluging');
+        assert(emitterInstance.plugins.length === 1, 'plugin works!');
         done();
     });
 });

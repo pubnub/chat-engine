@@ -4,13 +4,13 @@ const RootEmitter = require('../../../src/modules/root_emitter');
 let instance = null;
 
 describe('#root_emitter', () => {
-    it('RootEmitter should be instanced', (done) => {
+    it('should successfully create an instance', (done) => {
         instance = new RootEmitter();
         assert.isObject(instance, 'was successfully created');
         done();
     });
 
-    it('RootEmmiter should be gotten an event fired', (done) => {
+    it('should respond on event fired', (done) => {
         instance.on('foo', () => {
             done();
         });
@@ -18,7 +18,7 @@ describe('#root_emitter', () => {
         instance._emit('foo');
     });
 
-    it('RootEmmiter should be gotten a value within an event', (done) => {
+    it('should get a value within an event', (done) => {
         instance.on('specialized', (value) => {
             assert(value === 'hello world', 'got the expected value');
             done();
@@ -27,7 +27,7 @@ describe('#root_emitter', () => {
         instance._emit('specialized', 'hello world');
     });
 
-    it('RootEmmiter should be gotten an wildcare event fired', (done) => {
+    it('should accept a wildcard event', (done) => {
         instance.on('foo.*', () => {
             done();
         });
@@ -35,7 +35,7 @@ describe('#root_emitter', () => {
         instance._emit('foo.happy');
     });
 
-    it('RootEmmiter should be gotten an event only once', (done) => {
+    it('should get an event only once', (done) => {
         instance.once('bar', () => {
             done();
         });
@@ -43,9 +43,9 @@ describe('#root_emitter', () => {
         instance._emit('bar');
     });
 
-    it('RootEmmiter should be gotten whatever event fired', (done) => {
+    it('should get generic event', (done) => {
         instance.onAny((event) => {
-            assert(event === 'bar', 'listened the expected event');
+            assert(event === 'bar', 'expected event fired');
             done();
         });
 
