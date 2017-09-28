@@ -7,15 +7,12 @@ globals:
   beforeEach: true
   afterEach: true
   Promise: true
+  window: true
 rules:
   indent:
     - error
     - 4
-  max-len:
-    - error
-    - 120
-    - ignoreComments: true
-    - ignoreUrls: true
+  max-len: 0
   global-require: 0
   vars-on-top: 0
   padded-blocks: 0
@@ -26,6 +23,8 @@ rules:
   consistent-return: 0
   no-param-reassign: 0
   no-underscore-dangle: 0
+  arrow-body-style: 0
+  no-else-return: 0
   no-unused-vars:
     - warn
     - varsIgnorePattern: "process"

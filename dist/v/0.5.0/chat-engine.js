@@ -514,8 +514,6 @@ class User extends Emitter {
 
         this.chatEngine = chatEngine;
 
-        this.name = 'User';
-
         /**
          The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
          Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
@@ -1138,8 +1136,6 @@ class RootEmitter {
         */
         this.events = {};
 
-        this.name = 'RootEmitter';
-
         /**
         Create a new EventEmitter2 object for this class.
 
@@ -1269,8 +1265,6 @@ class Chat extends Emitter {
         super(chatEngine);
 
         this.chatEngine = chatEngine;
-
-        this.name = 'Chat';
 
         /**
          * A string identifier for the Chat room.
@@ -2111,8 +2105,6 @@ class Emitter extends RootEmitter {
 
         this.chatEngine = chatEngine;
 
-        this.name = 'Emitter';
-
         /**
          Emit events locally.
 
@@ -2172,12 +2164,15 @@ class Emitter extends RootEmitter {
             // add this plugin to a list of plugins for this object
             this.plugins.push(module);
 
+            // returns the name of this class
+            let className = this.constructor.name;
+
             // see if there are plugins to attach to this class
-            if (module.extends && module.extends[this.name]) {
+            if (module.extends && module.extends[className]) {
 
                 // attach the plugins to this class
                 // under their namespace
-                this.chatEngine.addChild(this, module.namespace, new module.extends[this.name]());
+                this.chatEngine.addChild(this, module.namespace, new module.extends[className]());
 
                 this[module.namespace].ChatEngine = this.chatEngine;
 
@@ -2194,8 +2189,6 @@ class Emitter extends RootEmitter {
 }
 
 module.exports = Emitter;
-
-
 
 
 /***/ }),
@@ -2218,7 +2211,6 @@ class Event {
          */
         this.channel = chat.channel;
 
-        this.name = 'Event';
         /**
          Publishes the event over the PubNub network to the {@link Event} channel
 
@@ -5141,8 +5133,6 @@ class Me extends User {
 
         // call the User constructor
         super(chatEngine, uuid);
-
-        this.name = 'Me';
 
         this.authData = authData;
         this.chatEngine = chatEngine;

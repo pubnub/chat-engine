@@ -17,13 +17,14 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   next();
 });
 
 
 function logger(req,res,next){
   console.log('\n-----', req.method, req.url, '\n');
-  console.log(req.body)
+  // console.log(req.body)
   next();
 }
 
@@ -64,12 +65,14 @@ let globalGrant = function(gChan, myUUID, myAuthKey, next) {
     pubnub.grant({
         channels: chanEverybodyR,
         read: true, // false to disallow
+        write: false,
         ttl: 0
     }, function (a,b,c) {
 
         pubnub.grant({
             channels: chanEverybodyW,
             write: true, // false to disallow
+            read: false,
             ttl: 0
         }, function (a,b,c) {
 
@@ -145,101 +148,212 @@ app.use('/insecure', function(req, res, next) {
 
 let db = {};
 
-let authUser = (uuid, authKey, channel, done) => {
+let authUser = (uuid, authKey, channel, forceAuth, done) => {
 
-    console.log('new grant for ', uuid, authKey, 'access on channel', channel)
+    let key = ['authed', channel].join(':');
 
-    let key = ['channel', channel].join(':');
     db[key] = db[key] || [];
 
     let newChannels = [channel, channel + '-pnpres'];
 
-    pubnub.grant({
-        channels: newChannels,
-        read: true, // false to disallow
-        write: true,
-        ttl: 0,
-        authKeys: [authKey]
-    }, function (a,b,c) {
+    console.log('!!!!', channel, key, db[key])
 
-        console.log('uuid', uuid, 'has access to', key, 'with authkey', authKey)
+    console.log('forceAuth?', forceAuth)
+    console.log('in list of permissions?', (db[key].indexOf(uuid) > -1));
+    console.log('auth key?',  authKey)
+    console.log('people permitted in that room', db[key])
+    console.log(channel)
 
-        db[key] = db[key].concat([uuid]);
+    if(forceAuth || !db[key].length || (db[key].indexOf(uuid) > -1 && authKey)) {
 
-        console.log(db[key])
-        console.log(key)
+    // if(!db[key].length || forceAuth || (db[key].indexOf(uuid) > -1 && authKey)) {
 
-       done();
+        console.log('new grant for', uuid, authKey, 'access on channel', channel)
 
-    });
+        pubnub.grant({
+            channels: newChannels,
+            read: true, // false to disallow
+            write: true,
+            ttl: 0,
+            authKeys: [authKey]
+        }, function (a,b,c) {
+
+            console.log('uuid', uuid, 'granted access to', key, 'with authkey', authKey)
+
+            if(db[key].indexOf(uuid) == -1) {
+                db[key].push(uuid);
+            }
+
+           done();
+
+        });
+
+    } else {
+
+        console.log('unauthorized for that chan')
+
+        done('no autheky supplied')
+    }
 
 }
 
-// we logged in, grant
-app.post('/insecure/auth', function (req, res) {
+app.post('/insecure/grant', function(req, res) {
 
+    console.log('doing global grant')
     globalGrant(req.body.channel, req.body.uuid, req.body.authKey, () => {
-        res.sendStatus(200);
+
         db['authkeys:' + req.body.uuid] = req.body.authKey;
+        return res.sendStatus(200);
+
     });
 
 });
 
+// we logged in, grant
+app.get('/insecure/chats', function (req, res) {
+
+    let fixed = [
+        {
+            channel: 'Main',
+            private: false,
+            group: 'fixed'
+        },
+        {
+            channel: 'Support',
+            private: false,
+            group: 'fixed'
+        },
+        {
+            channel: 'Docs',
+            private: false,
+            group: 'fixed'
+        },
+        {
+            channel: 'Foolery',
+            private: false,
+            group: 'fixed'
+        },
+    ];
+
+    console.log('uuid found as', req.query.uuid)
+
+    key2 = ['session', req.query.uuid].join(':');
+    let myPublicChats = db[key2] || [];
+
+    let chats = fixed.concat(myPublicChats);
+
+    console.log('my chats found as', chats)
+
+    return res.json(chats);
+
+});
 
 // new chat
-app.post('/insecure/chat', function(req, res) {
+app.post('/insecure/chats', function(req, res) {
 
-    let key = ['channel', req.body.channel].join(':');
+    // if the client says this is public, add them to the list of public chats for this user
+
+    // logic goes here to tell if user can create this specific chat
+    console.log('new chat created on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.chat.channel, 'privatE?', req.body.chat.private);
+
+    let newChan = [req.body.globalChannel, 'user', req.body.uuid, 'write.', 'direct'].join('#');
+
+    pubnub.publish({
+        channel: newChan,
+        message: {
+            event: '$.server.chat.created',
+            chat: req.body.chat
+        }
+    }, function(a,b) {
+        // console.log(a,b)
+    });
+
+    let key = ['session', req.body.uuid].join(':');
+    db[key] = db[key] || [];
+
+    let found = false;
 
     if(!db[key]) {
+        db[key] = [];
+    }
 
-        // logic goes here to tell if user can create this specific chat
-        console.log('new chat created on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.channel, 'with key', key);
+    db[key].forEach((chat) => {
+        if(!found & chat.channel == req.body.chat.channel) {
+            found = true;
+        }
+    })
 
-        authUser(req.body.uuid, req.body.authKey, req.body.channel, () => {
+    if(!found) {
+        db[key].push(req.body.chat);
+    }
+
+    return res.sendStatus(200);
+
+});
+
+app.delete('/insecure/chats', function(req, res) {
+
+    console.log(req.body)
+
+    console.log('chat deleted on behalf of ', req.body.uuid, req.body.authKey, 'for channel', req.body.chat.channel, 'privatE?', req.body.chat.private);
+
+    let newChan = [req.body.globalChannel, 'user', req.body.uuid, 'write.', 'direct'].join('#');
+
+    let key = ['session', req.body.uuid].join(':');
+    db[key] = db[key] || [];
+
+    db[key].forEach((chat, index) => {
+
+        if(chat.channel == req.body.chat.channel) {
+
+            console.log('FOUND FOUND FOUND')
+
+            db[key].splice(index, 1);
+
+            pubnub.publish({
+                channel: newChan,
+                message: {
+                    event: '$.server.chat.deleted',
+                    chat: req.body.chat
+                }
+            }, function(a,b) {
+                console.log(a,b)
+            });
+
+        }
+
+    });
+
+    return res.sendStatus(200);
+
+});
+
+app.post('/insecure/chat/grant', function(req, res) {
+
+    if(req.body.chat.private) {
+
+        authUser(req.body.uuid, req.body.authKey, req.body.chat.channel, false, () => {
             console.log('chat finished auth')
             return res.sendStatus(200);
         });
 
     } else {
-
-        console.log('not auto granting', req.body.uuid, req.body.authKey, 'permissions on', req.body.channel, 'because the channel already has permissions');
-        return res.sendStatus(200)
+        return res.sendStatus(200);
     }
-
-
-    // make a new chat
-    // person who makes chat gets the permission
-    // response tells them to join
 
 });
 
-app.post('/insecure/invite', function (req, res) {
+app.post('/insecure/chat/invite', function (req, res) {
 
     // you can only invite if you're in the channel
     // grants the user permission in the channel
 
-    let key = ['channel', req.body.channel].join(':');
+    let key = ['authed', req.body.chat.channel].join(':');
 
-    console.log('invite called', req.body.uuid, req.body.authKey, 'in channel', req.body.channel, 'with key', key)
-
-    console.log(db[key])
-
-    if(db[key] && db[key].indexOf(req.body.myUUID) > -1) {
-
-        console.log('this user has auth in this chan, and can invite other users... proceeding');
-
-        // grants everybody!
-        authUser(req.body.uuid, db['authkeys:' + req.body.uuid], req.body.channel, () => {
-            res.sendStatus(200);
-        });
-
-    } else {
-
-        console.log('can not invite user to this channel')
-
-        res.sendStatus(401)
-    }
+    // grants, grants, grants, grants, grants grants, grants everybody!
+    authUser(req.body.uuid, db['authkeys:' + req.body.uuid], req.body.chat.channel, true, () => {
+        res.sendStatus(200);
+    });
 
 });
 
@@ -252,7 +366,7 @@ app.post('/test', function (req, res) {
     if(req.body.authKey == 'open-sesame') {
 
         // grants everybody!
-        globalGrant(    req.body.channel, req.body.uuid, req.body.authKey, () => {
+        globalGrant(req.body.channel, req.body.uuid, req.body.authKey, () => {
             res.sendStatus(200);
         });
 
@@ -264,6 +378,6 @@ app.post('/test', function (req, res) {
 
 reset();
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
-})
+app.listen(3000, () => {
+    console.log('Example app listening on port 3000!');
+});

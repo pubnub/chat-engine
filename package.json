@@ -1,11 +1,10 @@
 {
-  "author": "Ian Jennings",
+  "author": "PubNub",
   "name": "chat-engine",
-  "version": "0.4.2",
-  "description": "Open Chat Framework",
+  "version": "0.5.2",
+  "description": "ChatEngine",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "gulp; npm publish;",
     "docs": "jsdoc src/index.js -c jsdoc.json"
   },
@@ -19,27 +18,36 @@
     "sdk",
     "realtime"
   ],
-  "license": "MIT",
   "bugs": {
     "url": "https://github.com/pubnub/chat-engine/issues"
   },
   "homepage": "https://github.com/pubnub/chat-engine#readme",
   "devDependencies": {
     "body-parser": "^1.17.2",
-    "browserify": "^13.1.0",
     "chai": "^3.5.0",
     "chat-engine-typing-indicator": "0.0.x",
     "docdash": "^0.4.0",
+    "eslint": "^4.7.1",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
     "express": "^4.15.3",
     "gulp": "^3.9.1",
+    "gulp-eslint": "^4.0.0",
+    "gulp-mocha": "^4.3.1",
     "gulp-uglify": "^2.0.0",
+    "jsdoc": "^3.5.5",
     "mocha": "^3.1.2",
-    "vinyl-source-stream": "^1.1.0"
+    "run-sequence": "^2.2.0",
+    "sinon": "^4.0.0",
+    "stats-webpack-plugin": "^0.6.1",
+    "webpack": "^3.6.0",
+    "webpack-stream": "^4.0.0"
   },
   "dependencies": {
     "async": "^2.1.2",
     "axios": "^0.16.2",
     "eventemitter2": "^2.2.1",
-    "pubnub": "^4.13.0"
+    "pubnub": "^4.13.0",
+    "request": "^2.82.0"
   }
 }
