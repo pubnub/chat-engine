@@ -152,6 +152,8 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.uuid = uuid;
 
+        pnConfig.authKey = authKey || pnConfig.uuid;
+
         let complete = (chatData) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
@@ -302,8 +304,6 @@ module.exports = (ceConfig, pnConfig) => {
 
                 });
         };
-
-        pnConfig.authKey = authKey;
 
         axios.post(ceConfig.endpoint + '/grant', {
             uuid: pnConfig.uuid,
