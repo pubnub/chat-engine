@@ -1,23 +1,35 @@
 const assert = require('chai').assert;
+const sinon = require('sinon');
 const Bootstrap = require('../../../src/bootstrap');
 const Emitter = require('../../../src/modules/emitter');
 
-let instance = null;
-
 describe('#emitter', () => {
+    let emitterInstance = null;
+    let chatEngineInstance = null;
+
+    beforeEach(() => {
+        chatEngineInstance = Bootstrap({ publishKey: 'demo', subscribeKey: 'demo' });
+        emitterInstance = new Emitter(chatEngineInstance);
+
+        // mock pubnub
+        chatEngineInstance.pubnub = {
+            addListener: sinon.spy()
+        };
+
+    });
+
     it('Emitter should be instanced', (done) => {
-        instance = new Emitter(Bootstrap({ publishKey: 'demo', subscribeKey: 'demo' }));
-        assert.isObject(instance, 'was successfully created');
+        assert.isObject(emitterInstance, 'was successfully created');
         done();
     });
 
     it('Emitter should be listened an event', (done) => {
-        instance.on('foo', (msg) => {
+        emitterInstance.on('foo', (msg) => {
             assert(msg === 'hello world', 'got the expected value');
             done();
         });
 
-        instance._emit('foo', 'hello world');
+        emitterInstance._emit('foo', 'hello world');
     });
 
     it('Emitter should be received a plugin', (done) => {
@@ -34,9 +46,8 @@ describe('#emitter', () => {
             };
         };
 
-        instance.plugin(plugin);
-        assert(instance.plugins.length === 1, 'was received the pluging');
+        emitterInstance.plugin(plugin);
+        assert(emitterInstance.plugins.length === 1, 'was received the pluging');
         done();
     });
 });
-
