@@ -1,4 +1,3 @@
-
 const waterfall = require('async/waterfall');
 const axios = require('axios');
 
@@ -474,7 +473,6 @@ class Chat extends Emitter {
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {
-                        console.log('state not set', payload.sender.state);
                         complete();
                     });
 

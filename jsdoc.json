@@ -16,7 +16,14 @@
     },
     "source": {
         "include": [
-            "src",
+            "src/index.js",
+            "src/bootstrap.js",
+            "src/components/chat.js",
+            "src/components/event.js",
+            "src/components/me.js",
+            "src/components/user.js",
+            "src/modules/emitter.js",
+            "src/modules/root_emitter.js",
             "../chat-engine-uploadcare/src/plugin.js",
             "../chat-engine-typing-indicator/src/plugin.js",
             "../chat-engine-desktop-notifications/src/plugin.js",
