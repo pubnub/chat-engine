@@ -36,7 +36,7 @@ class User extends Emitter {
          * @example
          *
          * // State
-         * let state = user.state();
+         * let state = user.state;
          */
         this.state = {};
 
