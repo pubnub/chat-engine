@@ -1555,11 +1555,7 @@ class Chat extends Emitter {
                     chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
-                // listen to all PubNub events for this Chat
-                chatEngine.pubnub.addListener({
-                    message: this.onMessage,
-                    presence: this.onPresence
-                });
+                // this will trigger ready callbacks
 
                 // subscribe to the PubNub channel for this Chat
                 chatEngine.pubnub.subscribe({
@@ -1623,7 +1619,7 @@ class Chat extends Emitter {
         };
 
         if (autoConnect) {
-            this.grant();
+            this.connect();
         }
 
         chatEngine.chats[this.channel] = this;
@@ -1717,7 +1713,6 @@ class Chat extends Emitter {
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {
-                        console.log('state not set', payload.sender.state);
                         complete();
                     });
 
@@ -1979,6 +1974,8 @@ class Chat extends Emitter {
                 *     console.log('chat is ready to go!');
                 * });
          */
+        this.trigger('$.connected');
+
         this.connected = true;
 
         // get a list of users online now
@@ -1987,10 +1984,12 @@ class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, (status, response) => {
-            // trigger that SDK is ready before emitting online events
-            this.trigger('$.connected');
-            this.onHereNow(status, response);
+        }, this.onHereNow);
+
+        // listen to all PubNub events for this Chat
+        this.chatEngine.pubnub.addListener({
+            message: this.onMessage,
+            presence: this.onPresence
         });
 
     }
@@ -2196,8 +2195,6 @@ class Emitter extends RootEmitter {
 module.exports = Emitter;
 
 
-
-
 /***/ }),
 /* 17 */
 /***/ (function(module, exports) {
@@ -2218,6 +2215,8 @@ class Event {
          */
         this.channel = chat.channel;
 
+        this.chatEngine = chatEngine;
+
         this.name = 'Event';
         /**
          Publishes the event over the PubNub network to the {@link Event} channel
@@ -2229,7 +2228,7 @@ class Event {
 
             m.event = event;
 
-            chatEngine.pubnub.publish({
+            this.chatEngine.pubnub.publish({
                 message: m,
                 channel: this.channel
             }, (status) => {
@@ -2241,7 +2240,7 @@ class Event {
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
                      */
-                    chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
+                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
                         errorText: status.errorData.response.text,
                         error: status.errorData,
                     });
@@ -2266,7 +2265,7 @@ class Event {
         };
 
         // call onMessage when PubNub receives an event
-        chatEngine.pubnub.addListener({
+        this.chatEngine.pubnub.addListener({
             message: this.onMessage
         });
 
@@ -2493,10 +2492,6 @@ module.exports = (ceConfig, pnConfig) => {
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // create a new instance of Me using input parameters
-            ChatEngine.global.createUser(pnConfig.uuid, state);
-
-
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
@@ -2506,7 +2501,7 @@ module.exports = (ceConfig, pnConfig) => {
                 // create a new user that represents this client
                 ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
 
-                ChatEngine.me.update(state);
+                // ChatEngine.me.update(state);
 
                 ChatEngine._emit('$.ready', {
                     me: ChatEngine.me
@@ -2517,6 +2512,7 @@ module.exports = (ceConfig, pnConfig) => {
                 chatData.forEach((chatItem) => {
                     ChatEngine.addChatToSession(chatItem);
                 });
+
             });
 
             // chats.session =
@@ -5150,7 +5146,6 @@ class Me extends User {
         this.direct.on('$.server.chat.created', (payload) => {
             chatEngine.addChatToSession(payload.chat);
         });
-
 
         this.direct.on('$.server.chat.deleted', (payload) => {
             chatEngine.removeChatFromSession(payload.chat);

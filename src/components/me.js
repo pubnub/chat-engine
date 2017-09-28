@@ -26,7 +26,6 @@ class Me extends User {
             chatEngine.addChatToSession(payload.chat);
         });
 
-
         this.direct.on('$.server.chat.deleted', (payload) => {
             chatEngine.removeChatFromSession(payload.chat);
         });

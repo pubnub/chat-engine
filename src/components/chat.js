@@ -312,11 +312,7 @@ class Chat extends Emitter {
                     chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
-                // listen to all PubNub events for this Chat
-                chatEngine.pubnub.addListener({
-                    message: this.onMessage,
-                    presence: this.onPresence
-                });
+                // this will trigger ready callbacks
 
                 // subscribe to the PubNub channel for this Chat
                 chatEngine.pubnub.subscribe({
@@ -380,7 +376,7 @@ class Chat extends Emitter {
         };
 
         if (autoConnect) {
-            this.grant();
+            this.connect();
         }
 
         chatEngine.chats[this.channel] = this;
@@ -474,7 +470,6 @@ class Chat extends Emitter {
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {
-                        console.log('state not set', payload.sender.state);
                         complete();
                     });
 
@@ -736,6 +731,8 @@ class Chat extends Emitter {
                 *     console.log('chat is ready to go!');
                 * });
          */
+        this.trigger('$.connected');
+
         this.connected = true;
 
         // get a list of users online now
@@ -744,10 +741,12 @@ class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, (status, response) => {
-            // trigger that SDK is ready before emitting online events
-            this.trigger('$.connected');
-            this.onHereNow(status, response);
+        }, this.onHereNow);
+
+        // listen to all PubNub events for this Chat
+        this.chatEngine.pubnub.addListener({
+            message: this.onMessage,
+            presence: this.onPresence
         });
 
     }

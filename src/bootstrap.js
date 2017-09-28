@@ -160,10 +160,6 @@ module.exports = (ceConfig, pnConfig) => {
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // create a new instance of Me using input parameters
-            ChatEngine.global.createUser(pnConfig.uuid, state);
-
-
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
@@ -173,7 +169,7 @@ module.exports = (ceConfig, pnConfig) => {
                 // create a new user that represents this client
                 ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
 
-                ChatEngine.me.update(state);
+                // ChatEngine.me.update(state);
 
                 ChatEngine._emit('$.ready', {
                     me: ChatEngine.me
@@ -184,6 +180,7 @@ module.exports = (ceConfig, pnConfig) => {
                 chatData.forEach((chatItem) => {
                     ChatEngine.addChatToSession(chatItem);
                 });
+
             });
 
             // chats.session =
