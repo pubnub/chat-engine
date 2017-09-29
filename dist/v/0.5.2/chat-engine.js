@@ -1683,8 +1683,6 @@ class Chat extends Emitter {
 
     trigger(event, payload) {
 
-        console.log('triggering', event)
-
         let complete = () => {
 
             // let plugins modify the event
@@ -1719,7 +1717,6 @@ class Chat extends Emitter {
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {
-                        console.log('state not set', payload.sender.state);
                         complete();
                     });
 
@@ -1993,7 +1990,6 @@ class Chat extends Emitter {
             // trigger that SDK is ready before emitting online events
             this.trigger('$.connected');
             this.onHereNow(status, response);
-            console.log(response)
         });
 
     }
