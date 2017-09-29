@@ -52,10 +52,10 @@ class Me extends User {
      * // update state
      * me.update({value: true});
      */
-    update(state, chat = this.chatEngine.global) {
+    update(state) {
 
         // run the root update function
-        super.update(state, chat);
+        super.update(state);
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state);
