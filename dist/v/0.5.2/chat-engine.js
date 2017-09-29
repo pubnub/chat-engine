@@ -1515,12 +1515,7 @@ class Chat extends Emitter {
                                   *     console.log('User has joined the room!', data.user);
                                   * });
                      */
-
-                    // It's possible for PubNub to send us both a join and have the user appear in here_now
-                    // Avoid firing duplicate $.online events.
-                    if (!this.users[user.uuid]) {
-                        this.trigger('$.online.join', { user });
-                    }
+                    this.trigger('$.online.join', { user });
 
                 }
 
@@ -1560,7 +1555,11 @@ class Chat extends Emitter {
                     chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
-                // this will trigger ready callbacks
+                // listen to all PubNub events for this Chat
+                chatEngine.pubnub.addListener({
+                    message: this.onMessage,
+                    presence: this.onPresence
+                });
 
                 // subscribe to the PubNub channel for this Chat
                 chatEngine.pubnub.subscribe({
@@ -1624,7 +1623,7 @@ class Chat extends Emitter {
         };
 
         if (autoConnect) {
-            this.connect();
+            this.grant();
         }
 
         chatEngine.chats[this.channel] = this;
@@ -1718,6 +1717,7 @@ class Chat extends Emitter {
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {
+                        console.log('state not set', payload.sender.state);
                         complete();
                     });
 
@@ -1979,8 +1979,6 @@ class Chat extends Emitter {
                 *     console.log('chat is ready to go!');
                 * });
          */
-        this.trigger('$.connected');
-
         this.connected = true;
 
         // get a list of users online now
@@ -1989,12 +1987,10 @@ class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, this.onHereNow);
-
-        // listen to all PubNub events for this Chat
-        this.chatEngine.pubnub.addListener({
-            message: this.onMessage,
-            presence: this.onPresence
+        }, (status, response) => {
+            // trigger that SDK is ready before emitting online events
+            this.trigger('$.connected');
+            this.onHereNow(status, response);
         });
 
     }
@@ -2200,6 +2196,8 @@ class Emitter extends RootEmitter {
 module.exports = Emitter;
 
 
+
+
 /***/ }),
 /* 17 */
 /***/ (function(module, exports) {
@@ -2220,8 +2218,6 @@ class Event {
          */
         this.channel = chat.channel;
 
-        this.chatEngine = chatEngine;
-
         this.name = 'Event';
         /**
          Publishes the event over the PubNub network to the {@link Event} channel
@@ -2233,7 +2229,7 @@ class Event {
 
             m.event = event;
 
-            this.chatEngine.pubnub.publish({
+            chatEngine.pubnub.publish({
                 message: m,
                 channel: this.channel
             }, (status) => {
@@ -2245,7 +2241,7 @@ class Event {
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
                      */
-                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
+                    chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
                         errorText: status.errorData.response.text,
                         error: status.errorData,
                     });
@@ -2270,7 +2266,7 @@ class Event {
         };
 
         // call onMessage when PubNub receives an event
-        this.chatEngine.pubnub.addListener({
+        chatEngine.pubnub.addListener({
             message: this.onMessage
         });
 
@@ -2497,23 +2493,33 @@ module.exports = (ceConfig, pnConfig) => {
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // create a new user that represents this client
-            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
-            ChatEngine.me.update(state);
+            // create a new instance of Me using input parameters
+            ChatEngine.global.createUser(pnConfig.uuid, state);
+
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
              */
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
+            ChatEngine.global.on('$.connected', () => {
+
+                // create a new user that represents this client
+                ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+
+                ChatEngine.me.update(state);
+
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
+                });
+
+                ChatEngine.ready = true;
+
+                chatData.forEach((chatItem) => {
+                    ChatEngine.addChatToSession(chatItem);
+                });
             });
 
-            ChatEngine.ready = true;
-
-            chatData.forEach((chatItem) => {
-                ChatEngine.addChatToSession(chatItem);
-            });
+            // chats.session =
 
             /**
              Fires when PubNub network connection changes
@@ -5145,6 +5151,7 @@ class Me extends User {
             chatEngine.addChatToSession(payload.chat);
         });
 
+
         this.direct.on('$.server.chat.deleted', (payload) => {
             chatEngine.removeChatFromSession(payload.chat);
         });
@@ -5171,10 +5178,10 @@ class Me extends User {
      * // update state
      * me.update({value: true});
      */
-    update(state) {
+    update(state, chat = this.chatEngine.global) {
 
         // run the root update function
-        super.update(state);
+        super.update(state, chat);
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state);
