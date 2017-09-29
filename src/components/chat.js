@@ -748,6 +748,7 @@ class Chat extends Emitter {
             // trigger that SDK is ready before emitting online events
             this.trigger('$.connected');
             this.onHereNow(status, response);
+            console.log(response)
         });
 
     }

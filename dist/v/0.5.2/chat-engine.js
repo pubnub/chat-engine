@@ -1991,6 +1991,7 @@ class Chat extends Emitter {
             // trigger that SDK is ready before emitting online events
             this.trigger('$.connected');
             this.onHereNow(status, response);
+            console.log(response)
         });
 
     }
@@ -2194,8 +2195,6 @@ class Emitter extends RootEmitter {
 }
 
 module.exports = Emitter;
-
-
 
 
 /***/ }),
@@ -2492,10 +2491,6 @@ module.exports = (ceConfig, pnConfig) => {
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
-
-            // create a new instance of Me using input parameters
-            ChatEngine.global.createUser(pnConfig.uuid, state);
-
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
@@ -5151,7 +5146,6 @@ class Me extends User {
             chatEngine.addChatToSession(payload.chat);
         });
 
-
         this.direct.on('$.server.chat.deleted', (payload) => {
             chatEngine.removeChatFromSession(payload.chat);
         });
@@ -5178,10 +5172,10 @@ class Me extends User {
      * // update state
      * me.update({value: true});
      */
-    update(state, chat = this.chatEngine.global) {
+    update(state) {
 
         // run the root update function
-        super.update(state, chat);
+        super.update(state);
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state);
