@@ -141,7 +141,7 @@ module.exports = (ceConfig, pnConfig) => {
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
      * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
-     * * @param {Strung} authKey A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
+     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
      * @param {Object} [authData] Additional data to send to the authentication endpoint. Not used by ChatEngine SDK.
      * @fires $"."connected
      */
@@ -151,6 +151,8 @@ module.exports = (ceConfig, pnConfig) => {
         // connects to the global chatroom
 
         pnConfig.uuid = uuid;
+
+        pnConfig.authKey = authKey || pnConfig.uuid;
 
         let complete = (chatData) => {
 
@@ -302,8 +304,6 @@ module.exports = (ceConfig, pnConfig) => {
 
                 });
         };
-
-        pnConfig.authKey = authKey;
 
         axios.post(ceConfig.endpoint + '/grant', {
             uuid: pnConfig.uuid,
