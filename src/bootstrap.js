@@ -81,61 +81,6 @@ module.exports = (ceConfig, pnConfig) => {
     };
 
     /**
-    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
-    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
-    @private
-    */
-    ChatEngine.addChatToSession = (chat) => {
-
-        // create the chat if it doesn't exist
-        ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
-
-        // check the chat exists within the global list but is not grouped
-        let existingChat = ChatEngine.chats[chat.channel];
-
-        // if it exists
-        if (existingChat) {
-            // assign it to the group
-            ChatEngine.session[chat.group][chat.channel] = existingChat;
-        } else {
-            // otherwise, try to recreate it with the server information
-            ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
-        }
-
-        /**
-        * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-        * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-        * @event ChatEngine#$"."session"."chat"."join
-        */
-        ChatEngine._emit('$.session.chat.join', {
-            chat: ChatEngine.session[chat.group][chat.channel]
-        });
-
-    };
-
-
-    /**
-    Removes {@link Chat} within ChatEngine.session
-    @private
-    */
-    ChatEngine.removeChatFromSession = (chat) => {
-
-        let targetChat = ChatEngine.session[chat.group][chat.channel] || chat;
-        /**
-        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-        * @event ChatEngine#$"."session"."chat"."leave
-        */
-        ChatEngine._emit('$.session.chat.leave', {
-            chat: targetChat
-        });
-
-        // don't delete from chatengine.chats, because we can still get events from this chat
-        delete ChatEngine.chats[chat.channel];
-        delete ChatEngine.session[chat.group][chat.channel];
-
-    };
-
-    /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
@@ -181,7 +126,7 @@ module.exports = (ceConfig, pnConfig) => {
                 ChatEngine.ready = true;
 
                 chatData.forEach((chatItem) => {
-                    ChatEngine.addChatToSession(chatItem);
+                    ChatEngine.me.addChatToSession(chatItem);
                 });
 
             });

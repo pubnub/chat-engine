@@ -376,8 +376,8 @@ class Chat extends Emitter {
          * chat.connect();
          */
         this.connect = () => {
-            this.chatEngine.me.addChat(this);
             this.grant();
+            this.chatEngine.me.addChat(this);
         };
 
         if (autoConnect) {
