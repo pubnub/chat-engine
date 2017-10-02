@@ -496,11 +496,6 @@ class Chat extends Emitter {
         // update this user's state in this chatroom
         this.users[uuid].assign(state);
 
-        this.users[uuid].trigger('$.state', {
-            user: this,
-            state: this.users[uuid].state
-        });
-
     }
 
     /**

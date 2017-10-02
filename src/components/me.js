@@ -36,14 +36,6 @@ class Me extends User {
 
     }
 
-    // assign updates from network
-    assign(state) {
-        // we call "update" because calling "super.assign"
-        // will direct back to "this.update" which creates
-        // a loop of network updates
-        super.update(state);
-    }
-
     /**
      * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
      * will be notified of this change via ```$.state```.
@@ -66,6 +58,14 @@ class Me extends User {
 
     }
 
+    // assign updates from network
+    assign(state) {
+        // we call "update" because calling "super.assign"
+        // will direct back to "this.update" which creates
+        // a loop of network updates
+        super.update(state);
+
+    }
 
     /**
     Stores {@link Chat} within ```Me.chats```.

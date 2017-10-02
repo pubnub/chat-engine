@@ -140,7 +140,17 @@ class User extends Emitter {
      @private
      */
     assign(state) {
+
+        // store a reference of old state
+        let oldState = JSON.parse(JSON.stringify(this.state));
+
         this.update(state);
+
+        this.trigger('$.state', {
+            user: this,
+            state: this.state,
+            oldState
+        });
     }
 
     /**

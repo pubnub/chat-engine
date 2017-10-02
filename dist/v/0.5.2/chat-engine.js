@@ -991,11 +991,6 @@ class Chat extends Emitter {
         // update this user's state in this chatroom
         this.users[uuid].assign(state);
 
-        this.users[uuid].trigger('$.state', {
-            user: this,
-            state: this.users[uuid].state
-        });
-
     }
 
     /**
@@ -1296,7 +1291,17 @@ class User extends Emitter {
      @private
      */
     assign(state) {
+
+        // store a reference of old state
+        let oldState = JSON.parse(JSON.stringify(this.state));
+
         this.update(state);
+
+        this.trigger('$.state', {
+            user: this,
+            state: this.state,
+            oldState
+        });
     }
 
     /**
@@ -5120,14 +5125,6 @@ class Me extends User {
 
     }
 
-    // assign updates from network
-    assign(state) {
-        // we call "update" because calling "super.assign"
-        // will direct back to "this.update" which creates
-        // a loop of network updates
-        super.update(state);
-    }
-
     /**
      * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
      * will be notified of this change via ```$.state```.
@@ -5150,6 +5147,14 @@ class Me extends User {
 
     }
 
+    // assign updates from network
+    assign(state) {
+        // we call "update" because calling "super.assign"
+        // will direct back to "this.update" which creates
+        // a loop of network updates
+        super.update(state);
+
+    }
 
     /**
     Stores {@link Chat} within ```Me.chats```.

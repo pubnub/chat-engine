@@ -241,6 +241,7 @@ describe('invite', () => {
         let lastUpdated = new Date().getTime();
 
         myChat.users[yourChat.chatEngine.me.uuid].on('$.state', (payload) => {
+
             assert.equal(payload.state.lastUpdated, lastUpdated);
             done();
         });
