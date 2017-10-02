@@ -100,16 +100,16 @@ module.exports = (ceConfig, pnConfig) => {
         } else {
             // otherwise, try to recreate it with the server information
             ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
-
-            /**
-            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            * @event ChatEngine#$"."session"."chat"."join
-            */
-            ChatEngine._emit('$.session.chat.join', {
-                chat: ChatEngine.session[chat.group][chat.channel]
-            });
         }
+
+        /**
+        * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+        * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+        * @event ChatEngine#$"."session"."chat"."join
+        */
+        ChatEngine._emit('$.session.chat.join', {
+            chat: ChatEngine.session[chat.group][chat.channel]
+        });
 
     };
 
