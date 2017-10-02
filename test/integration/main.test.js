@@ -109,11 +109,12 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.once('$.session.chat.restore', (payload) => {
+        ChatEngine.on('$.session.chat.restore', (payload) => {
 
-            if(payload.chat.channel, syncChat.channel) {
+            if (syncChat && payload.chat.channel == syncChat.channel) {
                 done();
             }
+
         });
 
         // create a new chat within some other instance
