@@ -353,19 +353,6 @@ module.exports = (ceConfig, pnConfig) => {
         }
     };
 
-    // add an object as a subobject under a namespoace
-    ChatEngine.addChild = (ob, childName, childOb) => {
-
-        // assign the new child object as a property of parent under the
-        // given namespace
-        ob[childName] = childOb;
-
-        // the new object can use ```this.parent``` to access
-        // the root class
-        childOb.parent = ob;
-
-    };
-
     return ChatEngine;
 
 };
