@@ -154,14 +154,6 @@ describe('remote chat list', () => {
 
     });
 
-    // it('should be populated', (done) => {
-
-    //     assert.isObject(ChatEngine.session.global);
-    //     assert.isObject(ChatEngine.session.default);
-    //     assert.isObject(ChatEngine.session.fixed);
-    //     done();
-
-    // });
 
 });
 
@@ -232,6 +224,34 @@ describe('invite', () => {
         myChat.emit('message', {
             text: 'sup?'
         });
+
+    });
+
+    it('should have two users', (done) => {
+
+        assert.equal(Object.keys(myChat.users).length, 2);
+        done();
+
+    });
+
+    it('should get user state notifications', function (done) {
+
+        this.timeout(5000);
+
+        let lastUpdated = new Date().getTime();
+
+        myChat.users[yourChat.chatEngine.me.uuid].on('$.state', (payload) => {
+            assert.equal(payload.state.lastUpdated, lastUpdated);
+            done();
+        });
+
+        setTimeout(() => {
+
+            yourChat.chatEngine.me.update({
+                lastUpdated
+            });
+
+        }, 1000);
 
     });
 

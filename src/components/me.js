@@ -68,7 +68,7 @@ class Me extends User {
 
 
     /**
-    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
+    Stores {@link Chat} within ```Me.chats```.
     @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
     @private
     */
@@ -80,7 +80,7 @@ class Me extends User {
         /**
         * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
         * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-        * @event ChatEngine#$"."session"."chat"."restore
+        * @event Me#$"."session"."chat"."restore
         */
 
         this.trigger('$.session.chat.restore', {
@@ -91,7 +91,7 @@ class Me extends User {
 
 
     /**
-    Removes {@link Chat} within ChatEngine.session
+    Removes {@link Chat} within Me.chats
     @private
     */
     serverRemoveChat(chat) {
@@ -106,7 +106,7 @@ class Me extends User {
 
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-            * @event ChatEngine#$"."session"."chat"."leave
+            * @event Me#$"."session"."chat"."leave
             */
             this.trigger('$.session.chat.leave', {
                 chat: targetChat

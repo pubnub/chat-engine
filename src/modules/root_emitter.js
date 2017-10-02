@@ -139,7 +139,7 @@ class RootEmitter {
         if (typeof payload === 'object') {
 
             // restore chat in payload
-            if (!payload.chat) {
+            if (!payload.chat && this.name === 'Chat') {
                 payload.chat = this;
             }
 
@@ -176,7 +176,7 @@ class RootEmitter {
 
     /**
      Load plugins and attach a queue of functions to execute before and
-     after events are trigger or received.
+     after events are f or received.
 
      @private
      @param {String} location Where in the middleeware the event should run (emit, trigger)

@@ -116,8 +116,22 @@ class User extends Emitter {
      * @param {Object} state The new state for the user
      */
     update(state) {
+
         let oldState = this.state || {};
         this.state = Object.assign(oldState, state);
+
+        /**
+         * Broadcast that a {@link User} has changed state.
+         * @event ChatEngine#$"."state
+         * @param {Object} data The payload returned by the event
+         * @param {User} data.user The {@link User} that changed state
+         * @param {Object} data.state The new user state
+         * @example
+         * ChatEngine.on('$.state', (data) => {
+         *     console.log('User has changed state:', data.user, 'new state:', data.state);
+         * });
+         */
+
     }
 
     /**

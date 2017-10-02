@@ -496,19 +496,8 @@ class Chat extends Emitter {
         // update this user's state in this chatroom
         this.users[uuid].assign(state);
 
-        /**
-         * Broadcast that a {@link User} has changed state.
-         * @event ChatEngine#$"."state
-         * @param {Object} data The payload returned by the event
-         * @param {User} data.user The {@link User} that changed state
-         * @param {Object} data.state The new user state
-         * @example
-         * ChatEngine.on('$.state', (data) => {
-         *     console.log('User has changed state:', data.user, 'new state:', data.state);
-         * });
-         */
-        this.chatEngine._emit('$.state', {
-            user: this.users[uuid],
+        this.users[uuid].trigger('$.state', {
+            user: this,
             state: this.users[uuid].state
         });
 
