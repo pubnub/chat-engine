@@ -443,7 +443,7 @@ class Chat extends Emitter {
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
 
-        this.chatEngine.users[uuid].addChat(this, state);
+        this.chatEngine.users[uuid].addChat(this);
 
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
@@ -564,6 +564,8 @@ class Chat extends Emitter {
 
             // remove the user from the local list of users
             delete this.users[uuid];
+
+            this.users[uuid].removeChat(this);
 
             // we don't remove the user from the global list,
             // because they may be online in other channels

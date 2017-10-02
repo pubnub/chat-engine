@@ -151,6 +151,7 @@ class User extends Emitter {
             state: this.state,
             oldState
         });
+
     }
 
     /**
@@ -158,17 +159,27 @@ class User extends Emitter {
 
      @private
      */
-    addChat(chat, state) {
+    addChat(chat) {
 
         // store the chat in this user object
         this.chats[chat.channel] = chat;
 
-        // updates the user's state in that chatroom
-        this.assign(state, chat);
+        this.trigger('$.join', {
+            user: this,
+            chat
+        });
+
     }
 
     removeChat(chat) {
+
         delete this.chats[chat.channel];
+
+        this.trigger('$.leave', {
+            user: this,
+            chat
+        });
+
     }
 
     /**
