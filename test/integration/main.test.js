@@ -110,7 +110,10 @@ describe('remote chat list', () => {
 
         // first instance looking or new chats
         ChatEngine.once('$.session.chat.restore', (payload) => {
-            done();
+
+            if(payload.chat.channel, syncChat.channel) {
+                done();
+            }
         });
 
         // create a new chat within some other instance
