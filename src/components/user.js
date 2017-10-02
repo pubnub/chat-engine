@@ -204,7 +204,7 @@ class User extends Emitter {
     }
 
     /**
-    Get stored user state from remote server.git add
+    Get stored user state from remote server.
     @private
     */
     _getState(chat, callback) {
