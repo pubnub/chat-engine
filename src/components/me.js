@@ -23,12 +23,13 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
+        // these should be middleware
         this.direct.on('$.server.chat.created', (payload) => {
-            this.addChatToSession(payload.chat);
+            this.serverAddChat(payload.chat);
         });
 
         this.direct.on('$.server.chat.deleted', (payload) => {
-            this.removeChatFromSession(payload.chat);
+            this.serverRemoveChat(payload.chat);
         });
 
     }
@@ -69,7 +70,7 @@ class Me extends User {
     @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
     @private
     */
-    addChatToSession(chat) {
+    serverAddChat(chat) {
 
         // create the chat if it doesn't exist
         this.chatEngine.session[chat.group] = this.chatEngine.session[chat.group] || {};
@@ -102,7 +103,7 @@ class Me extends User {
     Removes {@link Chat} within ChatEngine.session
     @private
     */
-    removeChatFromSession(chat) {
+    serverRemoveChat(chat) {
 
         let targetChat = this.chatEngine.session[chat.group][chat.channel] || chat;
         /**

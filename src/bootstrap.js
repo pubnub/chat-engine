@@ -126,7 +126,7 @@ module.exports = (ceConfig, pnConfig) => {
                 ChatEngine.ready = true;
 
                 chatData.forEach((chatItem) => {
-                    ChatEngine.me.addChatToSession(chatItem);
+                    ChatEngine.me.serverAddChat(chatItem);
                 });
 
             });
