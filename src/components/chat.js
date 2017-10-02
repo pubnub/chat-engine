@@ -376,6 +376,7 @@ class Chat extends Emitter {
          * chat.connect();
          */
         this.connect = () => {
+            this.chatEngine.me.addChat(this);
             this.grant();
         };
 
@@ -591,6 +592,8 @@ class Chat extends Emitter {
         });
 
         this.connected = false;
+
+        this.chatEngine.me.removeChat(this);
 
         // delete the chat in the remote list
         axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {

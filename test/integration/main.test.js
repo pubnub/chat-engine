@@ -113,7 +113,10 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.on('$.session.chat.join', (payload) => {
+        ChatEngine.once('$.session.chat.join', (payload) => {
+
+            console.log(payload.chat.channel)
+
             done();
         });
 
