@@ -102,6 +102,8 @@ module.exports = (ceConfig, pnConfig) => {
             ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
         }
 
+        ChatEngine.me.addChat(chat);
+
         /**
         * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
         * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
@@ -184,6 +186,7 @@ module.exports = (ceConfig, pnConfig) => {
                 chatData.forEach((chatItem) => {
                     ChatEngine.addChatToSession(chatItem);
                 });
+
             });
 
             // chats.session =

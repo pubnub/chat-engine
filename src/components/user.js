@@ -114,7 +114,6 @@ class User extends Emitter {
     /**
      * @private
      * @param {Object} state The new state for the user
-     * @param {Chat} chat Chatroom to retrieve state from
      */
     update(state) {
         let oldState = this.state || {};
@@ -122,8 +121,8 @@ class User extends Emitter {
     }
 
     /**
-     this is only called from network updates
-
+    this is only called from network updates
+    stubbed out as this method is different for Me
      @private
      */
     assign(state) {
@@ -142,6 +141,10 @@ class User extends Emitter {
 
         // updates the user's state in that chatroom
         this.assign(state, chat);
+    }
+
+    removeChat(chat) {
+        delete this.chats[chat.channel];
     }
 
     /**
