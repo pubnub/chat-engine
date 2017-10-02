@@ -29,7 +29,9 @@ class Me extends User {
         });
 
         this.direct.on('$.server.chat.deleted', (payload) => {
+
             this.serverRemoveChat(payload.chat);
+
         });
 
     }
@@ -72,28 +74,17 @@ class Me extends User {
     */
     serverAddChat(chat) {
 
-        // create the chat if it doesn't exist
-        this.chatEngine.session[chat.group] = this.chatEngine.session[chat.group] || {};
-
         // check the chat exists within the global list but is not grouped
-        let existingChat = this.chatEngine.chats[chat.channel];
-
-        // if it exists
-        if (existingChat) {
-            // assign it to the group
-            this.chatEngine.session[chat.group][chat.channel] = existingChat;
-        } else {
-            // otherwise, try to recreate it with the server information
-            this.chatEngine.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
-        }
+        let theChat = this.chatEngine.chats[chat.channel] || new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
 
         /**
         * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
         * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-        * @event ChatEngine#$"."session"."chat"."join
+        * @event ChatEngine#$"."session"."chat"."restore
         */
-        this.chatEngine._emit('$.session.chat.join', {
-            chat: this.chatEngine.session[chat.group][chat.channel]
+
+        this.trigger('$.session.chat.restore', {
+            chat: theChat
         });
 
     }
@@ -105,18 +96,23 @@ class Me extends User {
     */
     serverRemoveChat(chat) {
 
-        let targetChat = this.chatEngine.session[chat.group][chat.channel] || chat;
-        /**
-        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-        * @event ChatEngine#$"."session"."chat"."leave
-        */
-        this.chatEngine._emit('$.session.chat.leave', {
-            chat: targetChat
-        });
+        let targetChat = this.chatEngine.chats[chat.channel];
 
-        // don't delete from chatengine.chats, because we can still get events from this chat
-        delete this.chatEngine.chats[chat.channel];
-        delete this.chatEngine.session[chat.group][chat.channel];
+        // if this is the same client that fired leave(), the chat would already
+        // be removed
+        if (targetChat) {
+
+            targetChat.leave();
+
+            /**
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+            * @event ChatEngine#$"."session"."chat"."leave
+            */
+            this.trigger('$.session.chat.leave', {
+                chat: targetChat
+            });
+
+        }
 
     }
 

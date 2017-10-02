@@ -50,10 +50,6 @@ describe('connect', () => {
 
         ChatEngine.connect('ian', { works: true }, 'ian-authtoken');
 
-        ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation);
-        });
-
     });
 
 });
@@ -113,10 +109,7 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.once('$.session.chat.join', (payload) => {
-
-            console.log(payload.chat.channel)
-
+        ChatEngine.once('$.session.chat.restore', (payload) => {
             done();
         });
 
@@ -144,12 +137,7 @@ describe('remote chat list', () => {
 
         ChatEngine.on('$.session.chat.leave', (payload) => {
 
-            setTimeout(() => {
-
-                assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                assert.isUndefined(ChatEngine.session.default[syncChat.channel]);
-
-            }, 1000);
+            assert.isUndefined(me.chats[syncChat.channel]);
 
             done();
         });
@@ -160,41 +148,18 @@ describe('remote chat list', () => {
 
         }, 1000);
 
-
     });
 
-    it('should be populated', (done) => {
+    // it('should be populated', (done) => {
 
-        assert.isObject(ChatEngine.session.global);
-        assert.isObject(ChatEngine.session.default);
-        assert.isObject(ChatEngine.session.fixed);
-        done();
+    //     assert.isObject(ChatEngine.session.global);
+    //     assert.isObject(ChatEngine.session.default);
+    //     assert.isObject(ChatEngine.session.fixed);
+    //     done();
 
-    });
+    // });
 
 });
-// let chat2;
-
-// describe('myself-presence', function() {
-
-//     it('should be created', function(done) {
-
-//         chat2 = new ChatEngine.Chat(new Date() + 'chat');
-
-//         it('should get self as online event', function(done) {
-
-//             chat2.on('$.online.*', (event) => {
-//                 console.log(event);
-//             })
-
-//         });
-
-//         done();
-
-//     });
-
-
-// });
 
 let myChat;
 

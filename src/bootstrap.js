@@ -21,6 +21,8 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.ceConfig = ceConfig;
     ChatEngine.pnConfig = pnConfig;
 
+    ChatEngine.instanceID = new Date().getTime() + Math.random() * 9999999;
+
     /**
      * A map of all known {@link User}s in this instance of ChatEngine
      * @memberof ChatEngine
