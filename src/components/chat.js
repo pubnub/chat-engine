@@ -595,7 +595,7 @@ class Chat extends Emitter {
              * to the {@link Chat} involuntarily.
              *
              * @event Chat#$"."offline"."disconnect
-             * @param {Object} data The {@link User} that disconnected
+             * @param {Object} data The payload object
              * @param {Object} data.user The {@link User} that disconnected
              * @example
              * chat.on('$.offline.disconnect', (data) => {

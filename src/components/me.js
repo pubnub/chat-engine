@@ -43,7 +43,7 @@ class Me extends User {
      * @param {Object} state The new state for {@link Me}
      * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
      * Defaults to ```ChatEngine.global```.
-     * @fires Chat#event:$"."state
+     * @fires User#event:$"."state
      * @example
      * // update state
      * me.update({value: true});
@@ -82,7 +82,6 @@ class Me extends User {
         * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
         * @event Me#$"."session"."chat"."restore
         */
-
         this.trigger('$.session.chat.restore', {
             chat: theChat
         });

@@ -146,6 +146,14 @@ class User extends Emitter {
 
         this.update(state);
 
+        /**
+        * Fired when a {@link User} updates their state.
+        * @event User#$"."state
+        * @param {Object} data The payload object
+        * @param {User} data.user This {@link User}.
+        * @param {Object} data.state The new {@link User} state.
+        * @param {Object} data.oldState The previous state before updates.
+        */
         this.trigger('$.state', {
             user: this,
             state: this.state,
@@ -164,7 +172,14 @@ class User extends Emitter {
         // store the chat in this user object
         this.chats[chat.channel] = chat;
 
-        this.trigger('$.join', {
+        /**
+        * Fired when a {@link User} appears in a {@link Chat}
+        * @event User#$"."online
+        * @param {Object} data The payload object
+        * @param {User} data.user This {@link User}.
+        * @param {Chat} data.state The {@link Chat} the user was found in.
+        */
+        this.trigger('$.online', {
             user: this,
             chat
         });
@@ -175,7 +190,13 @@ class User extends Emitter {
 
         delete this.chats[chat.channel];
 
-        this.trigger('$.leave', {
+        /**
+        * Fired when a {@link User} leaves a {@link Chat}
+        * @event User#$"."offline
+        * @param {User} data.user This {@link User}.
+        * @param {Chat} data.state The {@link Chat} the user left.
+        */
+        this.trigger('$.offline', {
             user: this,
             chat
         });
@@ -183,7 +204,7 @@ class User extends Emitter {
     }
 
     /**
-    Get stored user state from remote server.
+    Get stored user state from remote server.git add
     @private
     */
     _getState(chat, callback) {
