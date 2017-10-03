@@ -113,7 +113,7 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.on('$.session.chat.join', (payload) => {
+        ChatEngine.me.on('$.session.chat.join', (payload) => {
             done();
         });
 
@@ -139,7 +139,7 @@ describe('remote chat list', () => {
 
         this.timeout(10000);
 
-        ChatEngine.on('$.session.chat.leave', (payload) => {
+        ChatEngine.me.on('$.session.chat.leave', (payload) => {
 
             setTimeout(() => {
 

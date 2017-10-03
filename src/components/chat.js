@@ -1,4 +1,3 @@
-const waterfall = require('async/waterfall');
 const axios = require('axios');
 
 const Emitter = require('../modules/emitter');
@@ -431,67 +430,6 @@ class Chat extends Emitter {
     }
 
     /**
-     Broadcasts an event locally to all listeners.
-
-     @private
-     @param {String} event The event name
-     @param {Object} payload The event payload object
-     */
-
-    trigger(event, payload) {
-
-        let complete = () => {
-
-            // let plugins modify the event
-            this.runPluginQueue('on', event, (next) => {
-                next(null, payload);
-            }, (err, pluginResponse) => {
-                // emit this event to any listener
-                this._emit(event, pluginResponse);
-            });
-
-        };
-
-        // this can be made into plugin
-        if (typeof payload === 'object') {
-
-            // restore chat in payload
-            if (!payload.chat) {
-                payload.chat = this;
-            }
-
-            // if we should try to restore the sender property
-            if (payload.sender) {
-
-                // this use already exists in memory
-                if (this.chatEngine.users[payload.sender]) {
-                    payload.sender = this.chatEngine.users[payload.sender];
-                    complete();
-                } else {
-
-                    // the user doesn't exist, create it
-                    payload.sender = new User(this.chatEngine, payload.sender);
-
-                    // try to get stored state from server
-                    payload.sender._getState(this, () => {
-                        complete();
-                    });
-
-                }
-
-            } else {
-                // there's no "sender" in this object, move on
-                complete();
-            }
-
-        } else {
-            // payload is not an object, we want nothing to do with it.
-            complete();
-        }
-
-    }
-
-    /**
      Add a user to the {@link Chat}, creating it if it doesn't already exist.
 
      @private
@@ -676,42 +614,6 @@ class Chat extends Emitter {
 
             this.trigger('$.offline.disconnect', { user: this.users[uuid] });
         }
-
-    }
-
-    /**
-     Load plugins and attach a queue of functions to execute before and
-     after events are trigger or received.
-
-     @private
-     @param {String} location Where in the middleeware the event should run (emit, trigger)
-     @param {String} event The event name
-     @param {String} first The first function to run before the plugins have run
-     @param {String} last The last function to run after the plugins have run
-     */
-    runPluginQueue(location, event, first, last) {
-
-        // this assembles a queue of functions to run as middleware
-        // event is a triggered event key
-        let pluginQueue = [];
-
-        // the first function is always required
-        pluginQueue.push(first);
-
-        // look through the configured plugins
-        this.plugins.forEach((pluginItem) => {
-            // if they have defined a function to run specifically
-            // for this event
-            if (pluginItem.middleware && pluginItem.middleware[location] && pluginItem.middleware[location][event]) {
-                // add the function to the queue
-                pluginQueue.push(pluginItem.middleware[location][event]);
-            }
-        });
-
-        // waterfall runs the functions in assigned order
-        // waiting for one to complete before moving to the next
-        // when it's done, the ```last``` parameter is called
-        waterfall(pluginQueue, last);
 
     }
 

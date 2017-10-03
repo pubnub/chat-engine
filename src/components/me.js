@@ -91,7 +91,7 @@ class Me extends User {
             * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
             * @event ChatEngine#$"."session"."chat"."join
             */
-            this.chatEngine._emit('$.session.chat.join', {
+            this.trigger('$.session.chat.join', {
                 chat: this.session[chat.group][chat.channel]
             });
         }
@@ -110,7 +110,7 @@ class Me extends User {
         * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
         * @event ChatEngine#$"."session"."chat"."leave
         */
-        this.chatEngine._emit('$.session.chat.leave', {
+        this.trigger('$.session.chat.leave', {
             chat: targetChat
         });
 

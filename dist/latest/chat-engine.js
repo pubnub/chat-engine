@@ -80,7 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var bind = __webpack_require__(4);
+var bind = __webpack_require__(5);
 var isBuffer = __webpack_require__(21);
 
 /*global toString:true*/
@@ -413,10 +413,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(6);
+    adapter = __webpack_require__(7);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(6);
+    adapter = __webpack_require__(7);
   }
   return adapter;
 }
@@ -487,726 +487,10 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const axios = __webpack_require__(1);
-
-const Emitter = __webpack_require__(16);
-
-/**
- This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
- If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
- @class
- @extends Emitter
- @param uuid
- @param state
- @param chat
- */
-class User extends Emitter {
-
-    constructor(chatEngine, uuid, state = {}) {
-
-        super();
-
-        this.chatEngine = chatEngine;
-
-        this.name = 'User';
-
-        /**
-         The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
-         Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-
-         @readonly
-         @type String
-         */
-        this.uuid = uuid;
-
-        /**
-         * Gets the user state. See {@link Me#update} for how to assign state values.
-         * @return {Object} Returns a generic JSON object containing state information.
-         * @example
-         *
-         * // State
-         * let state = user.state;
-         */
-        this.state = {};
-
-        const Chat = __webpack_require__(11);
-
-        /**
-         * Feed is a Chat that only streams things a User does, like
-         * 'startTyping' or 'idle' events for example. Anybody can subscribe
-         * to a User's feed, but only the User can publish to it. Users will
-         * not be able to converse in this channel.
-         *
-         * @type Chat
-         * @example
-         * // me
-         * me.feed.emit('update', 'I may be away from my computer right now');
-         *
-         * // another instance
-         * them.feed.connect();
-         * them.feed.on('update', (payload) => {})
-         */
-
-        // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
-
-        /**
-         * Direct is a private channel that anybody can publish to but only
-         * the user can subscribe to. Great for pushing notifications or
-         * inviting to other chats. Users will not be able to communicate
-         * with one another inside of this chat. Check out the
-         * {@link Chat#invite} method for private chats utilizing
-         * {@link User#direct}.
-         *
-         * @type Chat
-         * @example
-         * // me
-         * me.direct.on('private-message', (payload) -> {
-                *     console.log(payload.sender.uuid, 'sent your a direct message');
-                * });
-         *
-         * // another instance
-         * them.direct.connect();
-         * them.direct.emit('private-message', {secret: 42});
-         */
-        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
-
-        // if the user does not exist at all and we get enough
-        // information to build the user
-        if (!chatEngine.users[uuid]) {
-            chatEngine.users[uuid] = this;
-        }
-
-        // update this user's state in it's created context
-        this.assign(state);
-
-    }
-
-    /**
-     * @private
-     * @param {Object} state The new state for the user
-     * @param {Chat} chat Chatroom to retrieve state from
-     */
-    update(state) {
-        let oldState = this.state || {};
-        this.state = Object.assign(oldState, state);
-    }
-
-    /**
-     this is only called from network updates
-
-     @private
-     */
-    assign(state) {
-        this.update(state);
-    }
-
-    /**
-    Get stored user state from remote server.
-    @private
-    */
-    _getState(chat, callback) {
-        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
-        axios.get(url)
-            .then((response) => {
-                this.assign(response.data);
-                callback();
-            })
-            .catch(() => {
-                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
-            });
-
-    }
-
-}
-
-module.exports = User;
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
-  };
-};
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(0);
-var settle = __webpack_require__(24);
-var buildURL = __webpack_require__(26);
-var parseHeaders = __webpack_require__(27);
-var isURLSameOrigin = __webpack_require__(28);
-var createError = __webpack_require__(7);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(29);
-
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
-
-    if (utils.isFormData(requestData)) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
-    var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false;
-
-    // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-    if (process.env.NODE_ENV !== 'test' &&
-        typeof window !== 'undefined' &&
-        window.XDomainRequest && !('withCredentials' in request) &&
-        !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-      request.onprogress = function handleProgress() {};
-      request.ontimeout = function handleTimeout() {};
-    }
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password || '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    // Listen for ready state
-    request[loadEvent] = function handleLoad() {
-      if (!request || (request.readyState !== 4 && !xDomain)) {
-        return;
-      }
-
-      // The request errored out and we didn't get a response, this will be
-      // handled by onerror instead
-      // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-        return;
-      }
-
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      var response = {
-        data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/mzabriskie/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(resolve, reject, response);
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
-        request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(30);
-
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
-          cookies.read(config.xsrfCookieName) :
-          undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (config.withCredentials) {
-      request.withCredentials = true;
-    }
-
-    // Add responseType to request if needed
-    if (config.responseType) {
-      try {
-        request.responseType = config.responseType;
-      } catch (e) {
-        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
-        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
-        if (config.responseType !== 'json') {
-          throw e;
-        }
-      }
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken) {
-      // Handle cancellation
-      config.cancelToken.promise.then(function onCanceled(cancel) {
-        if (!request) {
-          return;
-        }
-
-        request.abort();
-        reject(cancel);
-        // Clean up request
-        request = null;
-      });
-    }
-
-    if (requestData === undefined) {
-      requestData = null;
-    }
-
-    // Send the request
-    request.send(requestData);
-  });
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var enhanceError = __webpack_require__(25);
-
-/**
- * Create an Error with the specified message, config, error code, request and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-// Allows us to create and bind to events. Everything in ChatEngine is an event
-// emitter
-const EventEmitter2 = __webpack_require__(39).EventEmitter2;
-
-/**
-* The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
-* ```this.on()```, ```this.emit()```, etc.
-*/
-class RootEmitter {
-
-    constructor() {
-
-        /**
-        * @private
-        */
-        this.events = {};
-
-        this.name = 'RootEmitter';
-
-        /**
-        Create a new EventEmitter2 object for this class.
-
-        @private
-        */
-        this.emitter = new EventEmitter2({
-            wildcard: true,
-            newListener: true,
-            maxListeners: 50,
-            verboseMemoryLeak: true
-        });
-
-        // we bind to make sure wildcards work
-        // https://github.com/asyncly/EventEmitter2/issues/186
-
-        /**
-        Private emit method that broadcasts the event to listeners on this page.
-
-        @private
-        @param {String} event The event name
-        @param {Object} the event payload
-        */
-        this._emit = this.emitter.emit.bind(this.emitter);
-
-        /**
-        Listen for a specific event and fire a callback when it's emitted. This is reserved in case ```this.on``` is overwritten.
-
-        @private
-        @param {String} event The event name
-        @param {Function} callback The function to run when the event is emitted
-        */
-
-        this._on = this.emitter.on.bind(this.emitter);
-
-        /**
-        * Listen for a specific event and fire a callback when it's emitted. Supports wildcard matching.
-        * @method
-        * @param {String} event The event name
-        * @param {Function} cb The function to run when the event is emitted
-        * @example
-        *
-        * // Get notified whenever someone joins the room
-        * object.on('event', (payload) => {
-        *     console.log('event was fired').
-        * })
-        *
-        * // Get notified of event.a and event.b
-        * object.on('event.*', (payload) => {
-        *     console.log('event.a or event.b was fired').;
-        * })
-        */
-        this.on = this.emitter.on.bind(this.emitter);
-
-        /**
-        * Stop a callback from listening to an event.
-        * @method
-        * @param {String} event The event name
-        * @example
-        * let callback = function(payload;) {
-        *    console.log('something happend!');
-        * };
-        * object.on('event', callback);
-        * // ...
-        * object.off('event', callback);
-        */
-        this.off = this.emitter.off.bind(this.emitter);
-
-        /**
-        * Listen for any event on this object and fire a callback when it's emitted
-        * @method
-        * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
-        * @example
-        * object.onAny((event, payload) => {
-        *     console.log('All events trigger this.');
-        * });
-        */
-        this.onAny = this.emitter.onAny.bind(this.emitter);
-
-        /**
-        * Listen for an event and only fire the callback a single time
-        * @method
-        * @param {String} event The event name
-        * @param {Function} callback The function to run once
-        * @example
-        * object.once('message', => (event, payload) {
-        *     console.log('This is only fired once!');
-        * });
-        */
-        this.once = this.emitter.once.bind(this.emitter);
-
-    }
-
-}
-
-module.exports = RootEmitter;
-
-
-/***/ }),
-/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const waterfall = __webpack_require__(40);
@@ -1214,7 +498,7 @@ const axios = __webpack_require__(1);
 
 const Emitter = __webpack_require__(16);
 const Event = __webpack_require__(17);
-const User = __webpack_require__(3);
+const User = __webpack_require__(4);
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -1642,67 +926,6 @@ class Chat extends Emitter {
     }
 
     /**
-     Broadcasts an event locally to all listeners.
-
-     @private
-     @param {String} event The event name
-     @param {Object} payload The event payload object
-     */
-
-    trigger(event, payload) {
-
-        let complete = () => {
-
-            // let plugins modify the event
-            this.runPluginQueue('on', event, (next) => {
-                next(null, payload);
-            }, (err, pluginResponse) => {
-                // emit this event to any listener
-                this._emit(event, pluginResponse);
-            });
-
-        };
-
-        // this can be made into plugin
-        if (typeof payload === 'object') {
-
-            // restore chat in payload
-            if (!payload.chat) {
-                payload.chat = this;
-            }
-
-            // if we should try to restore the sender property
-            if (payload.sender) {
-
-                // this use already exists in memory
-                if (this.chatEngine.users[payload.sender]) {
-                    payload.sender = this.chatEngine.users[payload.sender];
-                    complete();
-                } else {
-
-                    // the user doesn't exist, create it
-                    payload.sender = new User(this.chatEngine, payload.sender);
-
-                    // try to get stored state from server
-                    payload.sender._getState(this, () => {
-                        complete();
-                    });
-
-                }
-
-            } else {
-                // there's no "sender" in this object, move on
-                complete();
-            }
-
-        } else {
-            // payload is not an object, we want nothing to do with it.
-            complete();
-        }
-
-    }
-
-    /**
      Add a user to the {@link Chat}, creating it if it doesn't already exist.
 
      @private
@@ -1975,6 +1198,722 @@ module.exports = Chat;
 
 
 /***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const axios = __webpack_require__(1);
+
+const Emitter = __webpack_require__(16);
+
+/**
+ This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
+ If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
+ @class
+ @extends Emitter
+ @param uuid
+ @param state
+ @param chat
+ */
+class User extends Emitter {
+
+    constructor(chatEngine, uuid, state = {}) {
+
+        super();
+
+        this.chatEngine = chatEngine;
+
+        this.name = 'User';
+
+        /**
+         The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
+         Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+
+         @readonly
+         @type String
+         */
+        this.uuid = uuid;
+
+        /**
+         * Gets the user state. See {@link Me#update} for how to assign state values.
+         * @return {Object} Returns a generic JSON object containing state information.
+         * @example
+         *
+         * // State
+         * let state = user.state;
+         */
+        this.state = {};
+
+        const Chat = __webpack_require__(3);
+
+        /**
+         * Feed is a Chat that only streams things a User does, like
+         * 'startTyping' or 'idle' events for example. Anybody can subscribe
+         * to a User's feed, but only the User can publish to it. Users will
+         * not be able to converse in this channel.
+         *
+         * @type Chat
+         * @example
+         * // me
+         * me.feed.emit('update', 'I may be away from my computer right now');
+         *
+         * // another instance
+         * them.feed.connect();
+         * them.feed.on('update', (payload) => {})
+         */
+
+        // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
+        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
+
+        /**
+         * Direct is a private channel that anybody can publish to but only
+         * the user can subscribe to. Great for pushing notifications or
+         * inviting to other chats. Users will not be able to communicate
+         * with one another inside of this chat. Check out the
+         * {@link Chat#invite} method for private chats utilizing
+         * {@link User#direct}.
+         *
+         * @type Chat
+         * @example
+         * // me
+         * me.direct.on('private-message', (payload) -> {
+                *     console.log(payload.sender.uuid, 'sent your a direct message');
+                * });
+         *
+         * // another instance
+         * them.direct.connect();
+         * them.direct.emit('private-message', {secret: 42});
+         */
+        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
+
+        // if the user does not exist at all and we get enough
+        // information to build the user
+        if (!chatEngine.users[uuid]) {
+            chatEngine.users[uuid] = this;
+        }
+
+        // update this user's state in it's created context
+        this.assign(state);
+
+    }
+
+    /**
+     * @private
+     * @param {Object} state The new state for the user
+     * @param {Chat} chat Chatroom to retrieve state from
+     */
+    update(state) {
+        let oldState = this.state || {};
+        this.state = Object.assign(oldState, state);
+    }
+
+    /**
+     this is only called from network updates
+
+     @private
+     */
+    assign(state) {
+        this.update(state);
+    }
+
+    /**
+    Get stored user state from remote server.
+    @private
+    */
+    _getState(chat, callback) {
+        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
+        axios.get(url)
+            .then((response) => {
+                this.assign(response.data);
+                callback();
+            })
+            .catch(() => {
+                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+            });
+
+    }
+
+}
+
+module.exports = User;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var utils = __webpack_require__(0);
+var settle = __webpack_require__(24);
+var buildURL = __webpack_require__(26);
+var parseHeaders = __webpack_require__(27);
+var isURLSameOrigin = __webpack_require__(28);
+var createError = __webpack_require__(8);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(29);
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+    var loadEvent = 'onreadystatechange';
+    var xDomain = false;
+
+    // For IE 8/9 CORS support
+    // Only supports POST and GET calls and doesn't returns the response headers.
+    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
+    if (process.env.NODE_ENV !== 'test' &&
+        typeof window !== 'undefined' &&
+        window.XDomainRequest && !('withCredentials' in request) &&
+        !isURLSameOrigin(config.url)) {
+      request = new window.XDomainRequest();
+      loadEvent = 'onload';
+      xDomain = true;
+      request.onprogress = function handleProgress() {};
+      request.ontimeout = function handleTimeout() {};
+    }
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password || '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    // Listen for ready state
+    request[loadEvent] = function handleLoad() {
+      if (!request || (request.readyState !== 4 && !xDomain)) {
+        return;
+      }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      var response = {
+        data: responseData,
+        // IE sends 1223 instead of 204 (https://github.com/mzabriskie/axios/issues/201)
+        status: request.status === 1223 ? 204 : request.status,
+        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(resolve, reject, response);
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      var cookies = __webpack_require__(30);
+
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+          cookies.read(config.xsrfCookieName) :
+          undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (config.withCredentials) {
+      request.withCredentials = true;
+    }
+
+    // Add responseType to request if needed
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+        if (config.responseType !== 'json') {
+          throw e;
+        }
+      }
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken) {
+      // Handle cancellation
+      config.cancelToken.promise.then(function onCanceled(cancel) {
+        if (!request) {
+          return;
+        }
+
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
+    }
+
+    if (requestData === undefined) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__(25);
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+// Allows us to create and bind to events. Everything in ChatEngine is an event
+// emitter
+const EventEmitter2 = __webpack_require__(39).EventEmitter2;
+
+/**
+* The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
+* ```this.on()```, ```this.emit()```, etc.
+*/
+class RootEmitter {
+
+    constructor() {
+
+        /**
+        * @private
+        */
+        this.events = {};
+
+        this.name = 'RootEmitter';
+
+        /**
+        Create a new EventEmitter2 object for this class.
+
+        @private
+        */
+        this.emitter = new EventEmitter2({
+            wildcard: true,
+            newListener: true,
+            maxListeners: 50,
+            verboseMemoryLeak: true
+        });
+
+        // we bind to make sure wildcards work
+        // https://github.com/asyncly/EventEmitter2/issues/186
+
+        /**
+        Private emit method that broadcasts the event to listeners on this page.
+
+        @private
+        @param {String} event The event name
+        @param {Object} the event payload
+        */
+        this._emit = this.emitter.emit.bind(this.emitter);
+
+        /**
+        Listen for a specific event and fire a callback when it's emitted. This is reserved in case ```this.on``` is overwritten.
+
+        @private
+        @param {String} event The event name
+        @param {Function} callback The function to run when the event is emitted
+        */
+
+        this._on = this.emitter.on.bind(this.emitter);
+
+        /**
+        * Listen for a specific event and fire a callback when it's emitted. Supports wildcard matching.
+        * @method
+        * @param {String} event The event name
+        * @param {Function} cb The function to run when the event is emitted
+        * @example
+        *
+        * // Get notified whenever someone joins the room
+        * object.on('event', (payload) => {
+        *     console.log('event was fired').
+        * })
+        *
+        * // Get notified of event.a and event.b
+        * object.on('event.*', (payload) => {
+        *     console.log('event.a or event.b was fired').;
+        * })
+        */
+        this.on = this.emitter.on.bind(this.emitter);
+
+        /**
+        * Stop a callback from listening to an event.
+        * @method
+        * @param {String} event The event name
+        * @example
+        * let callback = function(payload;) {
+        *    console.log('something happend!');
+        * };
+        * object.on('event', callback);
+        * // ...
+        * object.off('event', callback);
+        */
+        this.off = this.emitter.off.bind(this.emitter);
+
+        /**
+        * Listen for any event on this object and fire a callback when it's emitted
+        * @method
+        * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
+        * @example
+        * object.onAny((event, payload) => {
+        *     console.log('All events trigger this.');
+        * });
+        */
+        this.onAny = this.emitter.onAny.bind(this.emitter);
+
+        /**
+        * Listen for an event and only fire the callback a single time
+        * @method
+        * @param {String} event The event name
+        * @param {Function} callback The function to run once
+        * @example
+        * object.once('message', => (event, payload) {
+        *     console.log('This is only fired once!');
+        * });
+        */
+        this.once = this.emitter.once.bind(this.emitter);
+
+    }
+
+}
+
+module.exports = RootEmitter;
+
+
+/***/ }),
 /* 12 */
 /***/ (function(module, exports) {
 
@@ -2069,7 +2008,7 @@ module.exports = isObject;
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const RootEmitter = __webpack_require__(10);
+const RootEmitter = __webpack_require__(11);
 const Event = __webpack_require__(17);
 
 /**
@@ -2308,10 +2247,10 @@ module.exports = {
 const axios = __webpack_require__(1);
 const PubNub = __webpack_require__(38);
 
-const RootEmitter = __webpack_require__(10);
-const Chat = __webpack_require__(11);
+const RootEmitter = __webpack_require__(11);
+const Chat = __webpack_require__(3);
 const Me = __webpack_require__(65);
-const User = __webpack_require__(3);
+const User = __webpack_require__(4);
 
 /**
  Provides the base Widget class...
@@ -2426,7 +2365,7 @@ module.exports = (ceConfig, pnConfig) => {
             ChatEngine.ready = true;
 
             chatData.forEach((chatItem) => {
-                ChatEngine.addChatToSession(chatItem);
+                ChatEngine.me.addChatToSession(chatItem);
             });
 
             /**
@@ -2620,7 +2559,7 @@ module.exports = (ceConfig, pnConfig) => {
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(4);
+var bind = __webpack_require__(5);
 var Axios = __webpack_require__(22);
 var defaults = __webpack_require__(2);
 
@@ -2655,9 +2594,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(9);
+axios.Cancel = __webpack_require__(10);
 axios.CancelToken = __webpack_require__(36);
-axios.isCancel = __webpack_require__(8);
+axios.isCancel = __webpack_require__(9);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -2817,7 +2756,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(7);
+var createError = __webpack_require__(8);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -3236,7 +3175,7 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(33);
-var isCancel = __webpack_require__(8);
+var isCancel = __webpack_require__(9);
 var defaults = __webpack_require__(2);
 
 /**
@@ -3389,7 +3328,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(9);
+var Cancel = __webpack_require__(10);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -5031,7 +4970,8 @@ module.exports = exports["default"];
 /* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const User = __webpack_require__(3);
+const User = __webpack_require__(4);
+const Chat = __webpack_require__(3);
 
 /**
  Represents the client connection as a special {@link User} with write permissions.
@@ -5055,12 +4995,14 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
+        this.session = {};
+
         this.direct.on('$.server.chat.created', (payload) => {
-            chatEngine.addChatToSession(payload.chat);
+            this.addChatToSession(payload.chat);
         });
 
         this.direct.on('$.server.chat.deleted', (payload) => {
-            chatEngine.removeChatFromSession(payload.chat);
+            this.removeChatFromSession(payload.chat);
         });
 
     }
@@ -5092,6 +5034,61 @@ class Me extends User {
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state);
+
+    }
+
+    /**
+    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
+    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
+    @private
+    */
+    addChatToSession(chat) {
+
+        // create the chat if it doesn't exist
+        this.session[chat.group] = this.session[chat.group] || {};
+
+        // check the chat exists within the global list but is not grouped
+        let existingChat = this.chatEngine.chats[chat.channel];
+
+        // if it exists
+        if (existingChat) {
+            // assign it to the group
+            this.session[chat.group][chat.channel] = existingChat;
+        } else {
+            // otherwise, try to recreate it with the server information
+            this.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
+
+            /**
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            * @event ChatEngine#$"."session"."chat"."join
+            */
+            this.trigger('$.session.chat.join', {
+                chat: this.session[chat.group][chat.channel]
+            });
+        }
+
+    }
+
+    /**
+    Removes {@link Chat} within this.session
+    @private
+    */
+    removeChatFromSession(chat) {
+
+        let targetChat = this.session[chat.group][chat.channel] || chat;
+
+        /**
+        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+        * @event ChatEngine#$"."session"."chat"."leave
+        */
+        this.trigger('$.session.chat.leave', {
+            chat: targetChat
+        });
+
+        // don't delete from chatengine.chats, because we can still get events from this chat
+        delete this.chatEngine.chats[chat.channel];
+        delete this.session[chat.group][chat.channel];
 
     }
 
