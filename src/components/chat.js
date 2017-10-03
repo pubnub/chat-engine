@@ -505,7 +505,7 @@ class Chat extends Emitter {
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
 
-        this.chatEngine.users[uuid].addChat(this, state);
+        this.chatEngine.users[uuid].assign(state);
 
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
@@ -602,6 +602,9 @@ class Chat extends Emitter {
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
             });
+
+
+        this.connected = false;
 
     }
 

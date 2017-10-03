@@ -40,24 +40,6 @@ class User extends Emitter {
          */
         this.state = {};
 
-        /**
-         * An object containing the Chats this {@link User} is currently in. The key of each item in the object is the {@link Chat.channel} and the value is the {@link Chat} object. Note that for privacy, this map will only contain {@link Chat}s that the client ({@link Me}) is also connected to.
-         *
-         * @readonly
-         * @type Object
-         * @example
-         *{
-                *    "globalChannel": {
-                *        channel: "globalChannel",
-                *        users: {
-                *            //...
-                *        },
-                *    },
-                *    // ...
-                * }
-         */
-        this.chats = {};
-
         const Chat = require('../components/chat');
 
         /**
@@ -128,20 +110,6 @@ class User extends Emitter {
      */
     assign(state) {
         this.update(state);
-    }
-
-    /**
-     adds a chat to this user
-
-     @private
-     */
-    addChat(chat, state) {
-
-        // store the chat in this user object
-        this.chats[chat.channel] = chat;
-
-        // updates the user's state in that chatroom
-        this.assign(state, chat);
     }
 
     /**

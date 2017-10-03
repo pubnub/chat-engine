@@ -170,28 +170,6 @@ describe('remote chat list', () => {
     });
 
 });
-// let chat2;
-
-// describe('myself-presence', function() {
-
-//     it('should be created', function(done) {
-
-//         chat2 = new ChatEngine.Chat(new Date() + 'chat');
-
-//         it('should get self as online event', function(done) {
-
-//             chat2.on('$.online.*', (event) => {
-//                 console.log(event);
-//             })
-
-//         });
-
-//         done();
-
-//     });
-
-
-// });
 
 let myChat;
 
