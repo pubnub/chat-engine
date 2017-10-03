@@ -77,7 +77,7 @@ class User extends Emitter {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
+        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, false, 'feed');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -98,7 +98,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
+        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, false, 'direct');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -114,20 +114,52 @@ class User extends Emitter {
     /**
      * @private
      * @param {Object} state The new state for the user
-     * @param {Chat} chat Chatroom to retrieve state from
      */
     update(state) {
+
         let oldState = this.state || {};
         this.state = Object.assign(oldState, state);
+
+        /**
+         * Broadcast that a {@link User} has changed state.
+         * @event ChatEngine#$"."state
+         * @param {Object} data The payload returned by the event
+         * @param {User} data.user The {@link User} that changed state
+         * @param {Object} data.state The new user state
+         * @example
+         * ChatEngine.on('$.state', (data) => {
+         *     console.log('User has changed state:', data.user, 'new state:', data.state);
+         * });
+         */
+
     }
 
     /**
-     this is only called from network updates
-
+    this is only called from network updates
+    stubbed out as this method is different for Me
      @private
      */
     assign(state) {
+
+        // store a reference of old state
+        let oldState = JSON.parse(JSON.stringify(this.state));
+
         this.update(state);
+
+        /**
+        * Fired when a {@link User} updates their state.
+        * @event User#$"."state
+        * @param {Object} data The payload object
+        * @param {User} data.user This {@link User}.
+        * @param {Object} data.state The new {@link User} state.
+        * @param {Object} data.oldState The previous state before updates.
+        */
+        this.trigger('$.state', {
+            user: this,
+            state: this.state,
+            oldState
+        });
+
     }
 
     /**
@@ -135,13 +167,40 @@ class User extends Emitter {
 
      @private
      */
-    addChat(chat, state) {
+    addChat(chat) {
 
         // store the chat in this user object
         this.chats[chat.channel] = chat;
 
-        // updates the user's state in that chatroom
-        this.assign(state, chat);
+        /**
+        * Fired when a {@link User} appears in a {@link Chat}
+        * @event User#$"."online
+        * @param {Object} data The payload object
+        * @param {User} data.user This {@link User}.
+        * @param {Chat} data.state The {@link Chat} the user was found in.
+        */
+        this.trigger('$.online', {
+            user: this,
+            chat
+        });
+
+    }
+
+    removeChat(chat) {
+
+        delete this.chats[chat.channel];
+
+        /**
+        * Fired when a {@link User} leaves a {@link Chat}
+        * @event User#$"."offline
+        * @param {User} data.user This {@link User}.
+        * @param {Chat} data.state The {@link Chat} the user left.
+        */
+        this.trigger('$.offline', {
+            user: this,
+            chat
+        });
+
     }
 
     /**

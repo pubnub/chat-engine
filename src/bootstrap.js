@@ -81,62 +81,6 @@ module.exports = (ceConfig, pnConfig) => {
     };
 
     /**
-    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
-    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
-    @private
-    */
-    ChatEngine.addChatToSession = (chat) => {
-
-        // create the chat if it doesn't exist
-        ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
-
-        // check the chat exists within the global list but is not grouped
-        let existingChat = ChatEngine.chats[chat.channel];
-
-        // if it exists
-        if (existingChat) {
-            // assign it to the group
-            ChatEngine.session[chat.group][chat.channel] = existingChat;
-        } else {
-            // otherwise, try to recreate it with the server information
-            ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
-
-            /**
-            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            * @event ChatEngine#$"."session"."chat"."join
-            */
-            ChatEngine._emit('$.session.chat.join', {
-                chat: ChatEngine.session[chat.group][chat.channel]
-            });
-        }
-
-    };
-
-
-    /**
-    Removes {@link Chat} within ChatEngine.session
-    @private
-    */
-    ChatEngine.removeChatFromSession = (chat) => {
-
-        let targetChat = ChatEngine.session[chat.group][chat.channel] || chat;
-
-        /**
-        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-        * @event ChatEngine#$"."session"."chat"."leave
-        */
-        ChatEngine._emit('$.session.chat.leave', {
-            chat: targetChat
-        });
-
-        // don't delete from chatengine.chats, because we can still get events from this chat
-        delete ChatEngine.chats[chat.channel];
-        delete ChatEngine.session[chat.group][chat.channel];
-
-    };
-
-    /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
@@ -156,14 +100,36 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
+            // create a new user that represents this client
+            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // create a new user that represents this client
-            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
             ChatEngine.me.update(state);
+            ChatEngine.me.feed.connect();
+            ChatEngine.me.direct.connect();
 
+            ChatEngine.me.direct.onAny(function(a,b) {
+                console.log('direct', a)
+            })
+            ChatEngine.me.feed.onAny(function(a,b) {
+                console.log('direct', a)
+            })
+
+            // these should be middleware
+            ChatEngine.me.direct.on('$.server.chat.created', (payload) => {
+                ChatEngine.me.serverAddChat(payload.chat);
+            });
+
+            ChatEngine.me.on('$.server.chat.deleted', (payload) => {
+
+                console.log('serve deleted chat')
+
+                ChatEngine.me.serverRemoveChat(payload.chat);
+
+            });
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
@@ -171,11 +137,10 @@ module.exports = (ceConfig, pnConfig) => {
             ChatEngine._emit('$.ready', {
                 me: ChatEngine.me
             });
-
             ChatEngine.ready = true;
 
             chatData.forEach((chatItem) => {
-                ChatEngine.addChatToSession(chatItem);
+                ChatEngine.me.serverAddChat(chatItem);
             });
 
             /**
@@ -282,6 +247,8 @@ module.exports = (ceConfig, pnConfig) => {
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
 
+                    console.log(error)
+
                     /**
                      * There was a problem logging in
                      * @event ChatEngine#$"."error"."session
@@ -341,19 +308,6 @@ module.exports = (ceConfig, pnConfig) => {
             }
 
         }
-    };
-
-    // add an object as a subobject under a namespoace
-    ChatEngine.addChild = (ob, childName, childOb) => {
-
-        // assign the new child object as a property of parent under the
-        // given namespace
-        ob[childName] = childOb;
-
-        // the new object can use ```this.parent``` to access
-        // the root class
-        childOb.parent = ob;
-
     };
 
     return ChatEngine;

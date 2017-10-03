@@ -80,7 +80,7 @@ class Emitter extends RootEmitter {
 
                 // attach the plugins to this class
                 // under their namespace
-                this.chatEngine.addChild(this, module.namespace, new module.extends[this.name]());
+                this.addChild(this, module.namespace, new module.extends[this.name]());
 
                 this[module.namespace].ChatEngine = this.chatEngine;
 
@@ -92,6 +92,20 @@ class Emitter extends RootEmitter {
 
             }
         };
+
+        // add an object as a subobject under a namespoace
+        this.addChild = (ob, childName, childOb) => {
+
+            // assign the new child object as a property of parent under the
+            // given namespace
+            ob[childName] = childOb;
+
+            // the new object can use ```this.parent``` to access
+            // the root class
+            childOb.parent = ob;
+
+        };
+
     }
 
 }

@@ -50,10 +50,6 @@ describe('connect', () => {
 
         ChatEngine.connect('ian', { works: true }, 'ian-authtoken');
 
-        ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation);
-        });
-
     });
 
 });
@@ -113,8 +109,12 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.on('$.session.chat.join', (payload) => {
-            done();
+        ChatEngine.on('$.session.chat.restore', (payload) => {
+
+            if (syncChat && payload.chat.channel == syncChat.channel) {
+                done();
+            }
+
         });
 
         // create a new chat within some other instance
@@ -141,12 +141,7 @@ describe('remote chat list', () => {
 
         ChatEngine.on('$.session.chat.leave', (payload) => {
 
-            setTimeout(() => {
-
-                assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                assert.isUndefined(ChatEngine.session.default[syncChat.channel]);
-
-            }, 1000);
+            assert.isUndefined(me.chats[syncChat.channel]);
 
             done();
         });
@@ -157,41 +152,10 @@ describe('remote chat list', () => {
 
         }, 1000);
 
-
     });
 
-    it('should be populated', (done) => {
-
-        assert.isObject(ChatEngine.session.global);
-        assert.isObject(ChatEngine.session.default);
-        assert.isObject(ChatEngine.session.fixed);
-        done();
-
-    });
 
 });
-// let chat2;
-
-// describe('myself-presence', function() {
-
-//     it('should be created', function(done) {
-
-//         chat2 = new ChatEngine.Chat(new Date() + 'chat');
-
-//         it('should get self as online event', function(done) {
-
-//             chat2.on('$.online.*', (event) => {
-//                 console.log(event);
-//             })
-
-//         });
-
-//         done();
-
-//     });
-
-
-// });
 
 let myChat;
 
@@ -260,6 +224,35 @@ describe('invite', () => {
         myChat.emit('message', {
             text: 'sup?'
         });
+
+    });
+
+    it('should have two users', (done) => {
+
+        assert.equal(Object.keys(myChat.users).length, 2);
+        done();
+
+    });
+
+    it('should get user state notifications', function (done) {
+
+        this.timeout(5000);
+
+        let lastUpdated = new Date().getTime();
+
+        myChat.users[yourChat.chatEngine.me.uuid].on('$.state', (payload) => {
+
+            assert.equal(payload.state.lastUpdated, lastUpdated);
+            done();
+        });
+
+        setTimeout(() => {
+
+            yourChat.chatEngine.me.update({
+                lastUpdated
+            });
+
+        }, 1000);
 
     });
 
