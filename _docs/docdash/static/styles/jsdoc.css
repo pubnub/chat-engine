@@ -160,6 +160,7 @@ nav {
   overflow: auto;
   position: fixed;
   height: 100%;
+  top: 0;
 }
 
 nav h3 {
