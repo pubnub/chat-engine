@@ -23,6 +23,8 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
+        this.session = {};
+
         this.direct.on('$.server.chat.created', (payload) => {
             this.addChatToSession(payload.chat);
         });
@@ -71,7 +73,7 @@ class Me extends User {
     addChatToSession(chat) {
 
         // create the chat if it doesn't exist
-        this.chatEngine.session[chat.group] = this.chatEngine.session[chat.group] || {};
+        this.session[chat.group] = this.session[chat.group] || {};
 
         // check the chat exists within the global list but is not grouped
         let existingChat = this.chatEngine.chats[chat.channel];
@@ -79,10 +81,10 @@ class Me extends User {
         // if it exists
         if (existingChat) {
             // assign it to the group
-            this.chatEngine.session[chat.group][chat.channel] = existingChat;
+            this.session[chat.group][chat.channel] = existingChat;
         } else {
             // otherwise, try to recreate it with the server information
-            this.chatEngine.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
+            this.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
 
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
@@ -90,19 +92,19 @@ class Me extends User {
             * @event ChatEngine#$"."session"."chat"."join
             */
             this.chatEngine._emit('$.session.chat.join', {
-                chat: this.chatEngine.session[chat.group][chat.channel]
+                chat: this.session[chat.group][chat.channel]
             });
         }
 
-    };
+    }
 
     /**
-    Removes {@link Chat} within this.chatEngine.session
+    Removes {@link Chat} within this.session
     @private
     */
-    removeChatFromSession(chat)  {
+    removeChatFromSession(chat) {
 
-        let targetChat = this.chatEngine.session[chat.group][chat.channel] || chat;
+        let targetChat = this.session[chat.group][chat.channel] || chat;
 
         /**
         * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
@@ -114,9 +116,9 @@ class Me extends User {
 
         // don't delete from chatengine.chats, because we can still get events from this chat
         delete this.chatEngine.chats[chat.channel];
-        delete this.chatEngine.session[chat.group][chat.channel];
+        delete this.session[chat.group][chat.channel];
 
-    };
+    }
 
 }
 

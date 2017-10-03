@@ -144,7 +144,7 @@ describe('remote chat list', () => {
             setTimeout(() => {
 
                 assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                assert.isUndefined(ChatEngine.session.default[syncChat.channel]);
+                assert.isUndefined(ChatEngine.me.session.default[syncChat.channel]);
 
             }, 1000);
 
@@ -162,9 +162,9 @@ describe('remote chat list', () => {
 
     it('should be populated', (done) => {
 
-        assert.isObject(ChatEngine.session.global);
-        assert.isObject(ChatEngine.session.default);
-        assert.isObject(ChatEngine.session.fixed);
+        assert.isObject(ChatEngine.me.session.global);
+        assert.isObject(ChatEngine.me.session.default);
+        assert.isObject(ChatEngine.me.session.fixed);
         done();
 
     });
