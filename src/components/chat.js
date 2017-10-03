@@ -44,8 +44,8 @@ class Chat extends Emitter {
             chanPrivString = 'private.';
         }
 
-        if (this.channel.indexOf(chatEngine.ceConfig.globalChannel) === -1) {
-            this.channel = [chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
+            this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
         /**
@@ -96,7 +96,7 @@ class Chat extends Emitter {
                  * There was a problem fetching the presence of this chat
                  * @event Chat#$"."error"."presence
                  */
-                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
+                this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
                     error: status.errorData,
                     errorText: status.errorData.response.text
                 });
@@ -133,7 +133,7 @@ class Chat extends Emitter {
             config.channel = this.events[event].channel;
 
             // run the PubNub history method for this event
-            chatEngine.pubnub.history(config, (status, response) => {
+            this.chatEngine.pubnub.history(config, (status, response) => {
 
                 if (status.error) {
 
@@ -141,7 +141,7 @@ class Chat extends Emitter {
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
+                    this.chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
                         errorText: status.errorData.response.text,
                         error: status.error,
                     });
@@ -228,18 +228,18 @@ class Chat extends Emitter {
 
             };
 
-            axios.post(chatEngine.ceConfig.endpoint + '/chat/invite', {
-                authKey: chatEngine.pnConfig.authKey,
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
+                authKey: this.chatEngine.pnConfig.authKey,
                 uuid: user.uuid,
-                myUUID: chatEngine.me.uuid,
-                authData: chatEngine.me.authData,
+                myUUID: this.chatEngine.me.uuid,
+                authData: this.chatEngine.me.authData,
                 chat: this.objectify()
             })
                 .then(() => {
                     complete();
                 })
                 .catch((error) => {
-                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                 });
 
         };
@@ -312,14 +312,14 @@ class Chat extends Emitter {
 
             if (!this.connected) {
 
-                if (!chatEngine.pubnub) {
-                    chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+                if (!this.chatEngine.pubnub) {
+                    this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
                 // this will trigger ready callbacks
 
                 // subscribe to the PubNub channel for this Chat
-                chatEngine.pubnub.subscribe({
+                this.chatEngine.pubnub.subscribe({
                     channels: [this.channel],
                     withPresence: true
                 });
@@ -335,33 +335,33 @@ class Chat extends Emitter {
 
             let createChat = () => {
 
-                axios.post(chatEngine.ceConfig.endpoint + '/chats', {
-                    globalChannel: chatEngine.ceConfig.globalChannel,
-                    authKey: chatEngine.pnConfig.authKey,
-                    uuid: chatEngine.pnConfig.uuid,
-                    authData: chatEngine.me.authData,
+                axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
+                    globalChannel: this.chatEngine.ceConfig.globalChannel,
+                    authKey: this.chatEngine.pnConfig.authKey,
+                    uuid: this.chatEngine.pnConfig.uuid,
+                    authData: this.chatEngine.me.authData,
                     chat: this.objectify()
                 })
                     .then(() => {
                         this.onPrep();
                     })
                     .catch((error) => {
-                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                        this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                     });
             };
 
-            axios.post(chatEngine.ceConfig.endpoint + '/chat/grant', {
-                globalChannel: chatEngine.ceConfig.globalChannel,
-                authKey: chatEngine.pnConfig.authKey,
-                uuid: chatEngine.pnConfig.uuid,
-                authData: chatEngine.me.authData,
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
                 chat: this.objectify()
             })
                 .then(() => {
                     createChat();
                 })
                 .catch((error) => {
-                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                 });
 
         };
@@ -383,7 +383,7 @@ class Chat extends Emitter {
             this.connect();
         }
 
-        chatEngine.chats[this.channel] = this;
+        this.chatEngine.chats[this.channel] = this;
 
     }
 

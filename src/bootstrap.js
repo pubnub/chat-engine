@@ -113,7 +113,6 @@ module.exports = (ceConfig, pnConfig) => {
 
     };
 
-
     /**
     Removes {@link Chat} within ChatEngine.session
     @private
