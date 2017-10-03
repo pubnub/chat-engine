@@ -1,44 +1,4 @@
-# Development
-
-## Cloning
-
-Clone repos (chat-engine and plugins).
-
-All repos should be siblings of one another. This is required for rendering docs
-properly.
-
-```
-chat-engine
-chat-engine-desktop-notifications
-chat-engine-emoji
-chat-engine-examples
-chat-engine-gravatar
-chat-engine-markdown
-chat-engine-marketing
-chat-engine-online-user-search
-chat-engine-plugin
-chat-engine-random-username
-chat-engine-tutorial
-chat-engine-typing-indicator
-chat-engine-unread-messages
-chat-engine-uploadcare
-```
-
-## Setting up environment
-
-```
-nvm use v6
-```
-
-run ```http-server``` from my ```/development``` directory which has all chat-engine repos:
-
-
-```cd chat-engine```
-
-```node server.js```
-
-load http://localhost:8080 in browser and navigate to /chat-engine-examples/jquery/kitchen-sink
-
+# Under Development
 
 ## Running Anything
 
@@ -52,13 +12,6 @@ Run ```gulp``` to compile, but you should probably run ```gulp watch``` to get c
 ## Running Tests
 
 Run ```gulp test```.
-
-## Releasing a patch (chat engine and plugins)
-
-```
-npm version patch && git push origin master --tags
-```
-
 
 # PubNub Chat Engine
 

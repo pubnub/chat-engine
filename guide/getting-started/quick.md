@@ -136,7 +136,7 @@ on every machine because state is synced between everybody.
 ```js
 lobby.on('message', (payload) => {
     console.log(payload.sender.uuid, 'sent a message', payload.data.text);
-    console.log('they are on team', payload.sender.state.team);
+    console.log('they are on team', payload.sender.state().team);
 });
 ```
 
