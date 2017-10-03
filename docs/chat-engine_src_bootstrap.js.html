@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Me - PubNub ChatEngine</title>
+    <title>chat-engine/src/bootstrap.js - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,949 +29,390 @@
 
 <div id="main">
     
-    <h1 class="page-title">Me</h1>
+    <h1 class="page-title">chat-engine/src/bootstrap.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
-    
-        <h2>
-        Me
-        </h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h4 class="name" id="Me">
-
-    <span class="type-signature"></span>new Me<span class="signature">(uuid)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_me.js.html">chat-engine/src/components/me.js</a>, <a href="chat-engine_src_components_me.js.html#line3">line 3</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Represents the client connection as a special <a href="User.html">User</a> with write permissions.
- Has the ability to update it's state on the network. An instance of
- <a href="Me.html">Me</a> is returned by the <code>ChatEngine.connect()</code>
- method.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>uuid</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The uuid of this user</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="User.html">User</a></li>
-    </ul>
-
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-
-<h4 class="name" id="chats">
-
-<span class="type-signature">(readonly) </span>chats<span class="type-signature"> :Object</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line59">line 59</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="User.html#chats">User#chats</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>An object containing the Chats this <a href="User.html">User</a> is currently in. The key of each item in the object is the Chat.channel and the value is the <a href="Chat.html">Chat</a> object. Note that for privacy, this map will only contain <a href="Chat.html">Chat</a>s that the client (<a href="Me.html">Me</a>) is also connected to.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Object</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>{
-   "globalChannel": {
-       channel: "globalChannel",
-       users: {
-           //...
-       },
-   },
-   // ...
-}</code></pre>
-
-
-
-        
-            
-
-<h4 class="name" id="direct">
-
-<span class="type-signature"></span>direct<span class="type-signature"> :<a href="Chat.html">Chat</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line101">line 101</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="User.html#direct">User#direct</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Direct is a private channel that anybody can publish to but only
-the user can subscribe to. Great for pushing notifications or
-inviting to other chats. Users will not be able to communicate
-with one another inside of this chat. Check out the
-<a href="Chat.html#invite">Chat#invite</a> method for private chats utilizing
-<a href="User.html#direct">User#direct</a>.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="Chat.html">Chat</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>// me
-me.direct.on('private-message', (payload) -> {
-    console.log(payload.sender.uuid, 'sent your a direct message');
-});
-
-// another instance
-them.direct.connect();
-them.direct.emit('private-message', {secret: 42});</code></pre>
-
-
-
-        
-            
-
-<h4 class="name" id="feed">
-
-<span class="type-signature"></span>feed<span class="type-signature"> :<a href="Chat.html">Chat</a></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line80">line 80</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="User.html#feed">User#feed</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Feed is a Chat that only streams things a User does, like
-'startTyping' or 'idle' events for example. Anybody can subscribe
-to a User's feed, but only the User can publish to it. Users will
-not be able to converse in this channel.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type"><a href="Chat.html">Chat</a></span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>// me
-me.feed.emit('update', 'I may be away from my computer right now');
-
-// another instance
-them.feed.connect();
-them.feed.on('update', (payload) => {})</code></pre>
-
-
-
-        
-            
-
-<h4 class="name" id="state">
-
-<span class="type-signature"></span>state<span class="type-signature"></span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line41">line 41</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="User.html#state">User#state</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Gets the user state. See <a href="Me.html#update">Me#update</a> for how to assign state values.</p>
-</div>
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>// State
-let state = user.state;</code></pre>
-
-
-
-        
-            
-
-<h4 class="name" id="uuid">
-
-<span class="type-signature">(readonly) </span>uuid<span class="type-signature"> :String</span></h4>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line31">line 31</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="User.html#uuid">User#uuid</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
-         Check out <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">the wikipedia page on UUIDs</a>.</p>
-</div>
-
-
-
-    <h5>Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">String</span>
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-
-        
-            
-            
-
-    
-    <h4 class="name" id="update">
-
-    <span class="type-signature"></span>update<span class="signature">(state, chat)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_me.js.html">chat-engine/src/components/me.js</a>, <a href="chat-engine_src_components_me.js.html#line56">line 56</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        User#update
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description">
-    <p>Update <a href="Me.html">Me</a>'s state in a <a href="Chat.html">Chat</a>. All other <a href="User.html">User</a>s
-will be notified of this change via <code>$.state</code>.
-Retrieve state at any time with <a href="User.html#state">User#state</a>.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>// update state
-me.update({value: true});</code></pre>
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>state</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The new state for <a href="Me.html">Me</a></p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>chat</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="Chat.html">Chat</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>An instance of the <a href="Chat.html">Chat</a> where state will be updated.
-Defaults to <code>ChatEngine.global</code>.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<h5>Fires:</h5>
-<ul>
-    <li>$.state</li>
-</ul>
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-
-    
-
-    
-        <h3 class="subsection-title">Events</h3>
-
-        
-            
-
-    
-    <h4 class="name" id="event:$%22.%22invite">
-
-    $.invite</h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine_src_components_chat.js.html">chat-engine/src/components/chat.js</a>, <a href="chat-engine_src_components_chat.js.html#line206">line 206</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const axios = require('axios');
+const PubNub = require('pubnub');
 
-    
-
-    
-
-    
-
-    
-    <dt class="tag-tutorial">Tutorials:</dt>
-    <dd class="tag-tutorial">
-        <ul>
-            <li><a href="tutorial-private.html">Private Chats</a></li>
-        </ul>
-    </dd>
-    
-
-    
-
-    
-</dl>
-
-
-
-
+const RootEmitter = require('./modules/root_emitter');
+const Chat = require('./components/chat');
+const Me = require('./components/me');
+const User = require('./components/user');
+
+/**
+ Provides the base Widget class...
+
+ @class ChatEngine
+ @extends RootEmitter
+ @return {ChatEngine} Returns an instance of {@link ChatEngine}
+ */
+module.exports = (ceConfig, pnConfig) => {
 
-<div class="description">
-    <p>Notifies <a href="Me.html">Me</a> that they've been invited to a new private <a href="Chat.html">Chat</a>.
-Fired by the <a href="Chat.html#invite">Chat#invite</a> method.</p>
-</div>
+    // Create the root ChatEngine object
+    let ChatEngine = new RootEmitter();
+
+    ChatEngine.ceConfig = ceConfig;
+    ChatEngine.pnConfig = pnConfig;
 
+    /**
+     * A map of all known {@link User}s in this instance of ChatEngine
+     * @memberof ChatEngine
+     */
+    ChatEngine.users = {};
+
+    /**
+     * A map of all known {@link Chat}s in this instance of ChatEngine
+     * @memberof ChatEngine
+     */
+    ChatEngine.chats = {};
+
+    /**
+     * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
+     * @member {Chat} global
+     * @memberof ChatEngine
+     */
+    ChatEngine.global = false;
+
+    /**
+     * This instance of ChatEngine represented as a special {@link User} know as {@link Me}
+     * @member {Me} me
+     * @memberof ChatEngine
+     */
+    ChatEngine.me = false;
+
+    /**
+     * An instance of PubNub, the networking infrastructure that powers the realtime communication between {@link User}s in {@link Chats}.
+     * @member {Object} pubnub
+     * @memberof ChatEngine
+     */
+    ChatEngine.pubnub = false;
+
+    /**
+     * Indicates if ChatEngine has fired the {@link ChatEngine#$"."ready} event
+     * @member {Object} ready
+     * @memberof ChatEngine
+     */
+    ChatEngine.ready = false;
 
+    /**
+    * A map of {@link Chat}s that this instance of ChatEngine is representing.
+    * @type {Object}
+    */
+    ChatEngine.session = {};
 
+    ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
+        if (ceConfig.throwErrors) {
+            // throw ceError;
+            throw ceError;
+        }
 
+        payload.ceError = ceError.toString();
 
+        self[cb](['$', 'error', key].join('.'), payload);
 
+    };
 
+    /**
+    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
+    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
+    @private
+    */
+    ChatEngine.addChatToSession = (chat) => {
 
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>me.direct.on('$.invite', (payload) => {
-   let privChat = new ChatEngine.Chat(payload.data.channel));
-});</code></pre>
-
-
-
-
-
-
-
+        // create the chat if it doesn't exist
+        ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
 
+        // check the chat exists within the global list but is not grouped
+        let existingChat = ChatEngine.chats[chat.channel];
 
+        // if it exists
+        if (existingChat) {
+            // assign it to the group
+            ChatEngine.session[chat.group][chat.channel] = existingChat;
+        } else {
+            // otherwise, try to recreate it with the server information
+            ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
 
-
-
-
-
-
-
-
-
-        
-    
-</article>
+            /**
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            * @event ChatEngine#$"."session"."chat"."join
+            */
+            ChatEngine._emit('$.session.chat.join', {
+                chat: ChatEngine.session[chat.group][chat.channel]
+            });
+        }
+
+    };
 
-</section>
+
+    /**
+    Removes {@link Chat} within ChatEngine.session
+    @private
+    */
+    ChatEngine.removeChatFromSession = (chat) => {
+
+        let targetChat = ChatEngine.session[chat.group][chat.channel] || chat;
+
+        /**
+        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+        * @event ChatEngine#$"."session"."chat"."leave
+        */
+        ChatEngine._emit('$.session.chat.leave', {
+            chat: targetChat
+        });
+
+        // don't delete from chatengine.chats, because we can still get events from this chat
+        delete ChatEngine.chats[chat.channel];
+        delete ChatEngine.session[chat.group][chat.channel];
+
+    };
+
+    /**
+     * Connect to realtime service and create instance of {@link Me}
+     * @method ChatEngine#connect
+     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
+     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
+     * * @param {Strung} authKey A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
+     * @param {Object} [authData] Additional data to send to the authentication endpoint. Not used by ChatEngine SDK.
+     * @fires $"."connected
+     */
+    ChatEngine.connect = (uuid, state = {}, authKey = false, authData) => {
+
+        // this creates a user known as Me and
+        // connects to the global chatroom
+
+        pnConfig.uuid = uuid;
+
+        let complete = (chatData) => {
+
+            ChatEngine.pubnub = new PubNub(pnConfig);
+
+            // create a new chat to use as global chat
+            // we don't do auth on this one because it's assumed to be done with the /auth request below
+            ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
+
+            // create a new instance of Me using input parameters
+            ChatEngine.global.createUser(pnConfig.uuid, state);
+
+
+            /**
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             */
+            ChatEngine.global.on('$.connected', () => {
+
+                // create a new user that represents this client
+                ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+
+                ChatEngine.me.update(state);
+
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
+                });
+
+                ChatEngine.ready = true;
+
+                chatData.forEach((chatItem) => {
+                    ChatEngine.addChatToSession(chatItem);
+                });
+            });
+
+            // chats.session =
+
+            /**
+             Fires when PubNub network connection changes
+
+             @private
+             @param {Object} statusEvent The response status
+             */
+            ChatEngine.pubnub.addListener({
+                status: (statusEvent) => {
+
+                    /**
+                     * SDK detected that network is online.
+                     * @event ChatEngine#$"."network"."up"."online
+                     */
+
+                    /**
+                     * SDK detected that network is down.
+                     * @event ChatEngine#$"."network"."down"."offline
+                     */
+
+                    /**
+                     * A subscribe event experienced an exception when running.
+                     * @event ChatEngine#$"."network"."down"."issue
+                     */
+
+                    /**
+                     * SDK was able to reconnect to pubnub.
+                     * @event ChatEngine#$"."network"."up"."reconnected
+                     */
+
+                    /**
+                     * SDK subscribed with a new mix of channels.
+                     * @event ChatEngine#$"."network"."up"."connected
+                     */
+
+                    /**
+                     * JSON parsing crashed.
+                     * @event ChatEngine#$"."network"."down"."malformed
+                     */
+
+                    /**
+                     * Server rejected the request.
+                     * @event ChatEngine#$"."network"."down"."badrequest
+                     */
+
+                    /**
+                     * If using decryption strategies and the decryption fails.
+                     * @event ChatEngine#$"."network"."down"."decryption
+                     */
+
+                    /**
+                     * Request timed out.
+                     * @event ChatEngine#$"."network"."down"."timeout
+                     */
+
+                    /**
+                     * PAM permission failure.
+                     * @event ChatEngine#$"."network"."down"."denied
+                     */
+
+                    // map the pubnub events into chat engine events
+                    let categories = {
+                        PNNetworkUpCategory: 'up.online',
+                        PNNetworkDownCategory: 'down.offline',
+                        PNNetworkIssuesCategory: 'down.issue',
+                        PNReconnectedCategory: 'up.reconnected',
+                        PNConnectedCategory: 'up.connected',
+                        PNAccessDeniedCategory: 'down.denied',
+                        PNMalformedResponseCategory: 'down.malformed',
+                        PNBadRequestCategory: 'down.badrequest',
+                        PNDecryptionErrorCategory: 'down.decryption',
+                        PNTimeoutCategory: 'down.timeout'
+                    };
+
+                    let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
+
+                    if (statusEvent.affectedChannels) {
+                        statusEvent.affectedChannels.forEach((channel) => {
+                            let chat = ChatEngine.chats[channel];
+
+                            if (chat) {
+                                // connected category tells us the chat is ready
+                                if (statusEvent.category === 'PNConnectedCategory') {
+                                    chat.onConnectionReady();
+                                }
+
+                                // trigger the network events
+                                chat.trigger(eventName, statusEvent);
+                            } else {
+                                ChatEngine._emit(eventName, statusEvent);
+                            }
+                        });
+                    } else {
+                        ChatEngine._emit(eventName, statusEvent);
+                    }
+                }
+            });
+        };
+
+        let getChats = () => {
+
+            axios.get(ceConfig.endpoint + '/chats?uuid=' + pnConfig.uuid)
+                .then((response) => { complete(response.data); })
+                .catch((error) => {
+
+                    /**
+                     * There was a problem logging in
+                     * @event ChatEngine#$"."error"."session
+                     */
+                    ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
+                        error
+                    });
+
+                });
+        };
+
+        pnConfig.authKey = authKey;
+
+        axios.post(ceConfig.endpoint + '/grant', {
+            uuid: pnConfig.uuid,
+            channel: ceConfig.globalChannel,
+            authData: ChatEngine.me.authData,
+            authKey: pnConfig.authKey
+        })
+            .then((response) => { getChats(response.data); })
+            .catch((error) => {
+
+                /**
+                 * There was a problem logging in
+                 * @event ChatEngine#$"."error"."auth
+                 */
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+            });
+
+    };
+
+    /**
+     * The {@link Chat} class.
+     * @member {Chat} Chat
+     * @memberof ChatEngine
+     * @see {@link Chat}
+     */
+    ChatEngine.Chat = class extends Chat {
+        constructor(...args) {
+            super(ChatEngine, ...args);
+        }
+    };
+
+    /**
+     * The {@link User} class.
+     * @member {User} User
+     * @memberof ChatEngine
+     * @see {@link User}
+     */
+    ChatEngine.User = class extends User {
+        constructor(...args) {
+
+            if (ChatEngine.me.uuid === args[0]) {
+                return ChatEngine.me;
+            } else {
+                super(ChatEngine, ...args);
+            }
+
+        }
+    };
+
+    // add an object as a subobject under a namespoace
+    ChatEngine.addChild = (ob, childName, childOb) => {
+
+        // assign the new child object as a property of parent under the
+        // given namespace
+        ob[childName] = childOb;
+
+        // the new object can use ```this.parent``` to access
+        // the root class
+        childOb.parent = ob;
+
+    };
+
+    return ChatEngine;
+
+};
+</code></pre>
+        </article>
+    </section>
 
 
 

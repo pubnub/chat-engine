@@ -100,38 +100,48 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
+            // create a new user that represents this client
+            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // create a new instance of Me using input parameters
-            ChatEngine.global.createUser(pnConfig.uuid, state);
+            ChatEngine.me.update(state);
+            ChatEngine.me.feed.connect();
+            ChatEngine.me.direct.connect();
 
+            ChatEngine.me.direct.onAny(function(a,b) {
+                console.log('direct', a)
+            })
+            ChatEngine.me.feed.onAny(function(a,b) {
+                console.log('direct', a)
+            })
 
+            // these should be middleware
+            ChatEngine.me.direct.on('$.server.chat.created', (payload) => {
+                ChatEngine.me.serverAddChat(payload.chat);
+            });
+
+            ChatEngine.me.on('$.server.chat.deleted', (payload) => {
+
+                console.log('serve deleted chat')
+
+                ChatEngine.me.serverRemoveChat(payload.chat);
+
+            });
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
              */
-            ChatEngine.global.on('$.connected', () => {
-
-                // create a new user that represents this client
-                ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
-
-                ChatEngine.me.update(state);
-
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.ready = true;
-
-                chatData.forEach((chatItem) => {
-                    ChatEngine.me.serverAddChat(chatItem);
-                });
-
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
             });
+            ChatEngine.ready = true;
 
-            // chats.session =
+            chatData.forEach((chatItem) => {
+                ChatEngine.me.serverAddChat(chatItem);
+            });
 
             /**
              Fires when PubNub network connection changes
@@ -236,6 +246,8 @@ module.exports = (ceConfig, pnConfig) => {
             axios.get(ceConfig.endpoint + '/chats?uuid=' + pnConfig.uuid)
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
+
+                    console.log(error)
 
                     /**
                      * There was a problem logging in

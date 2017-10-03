@@ -23,16 +23,7 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
-        // these should be middleware
-        this.direct.on('$.server.chat.created', (payload) => {
-            this.serverAddChat(payload.chat);
-        });
-
-        this.direct.on('$.server.chat.deleted', (payload) => {
-
-            this.serverRemoveChat(payload.chat);
-
-        });
+        console.log(this.direct)
 
     }
 
@@ -48,10 +39,10 @@ class Me extends User {
      * // update state
      * me.update({value: true});
      */
-    update(state, chat = this.chatEngine.global) {
+    update(state) {
 
         // run the root update function
-        super.update(state, chat);
+        super.update(state);
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state);

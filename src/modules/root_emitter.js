@@ -1,4 +1,4 @@
-
+// const User = require('../components/user');
 const waterfall = require('async/waterfall');
 
 // Allows us to create and bind to events. Everything in ChatEngine is an event
@@ -151,6 +151,8 @@ class RootEmitter {
                     payload.sender = this.chatEngine.users[payload.sender];
                     complete();
                 } else {
+
+                    const User = require('../components/user');
 
                     // the user doesn't exist, create it
                     payload.sender = new User(this.chatEngine, payload.sender);

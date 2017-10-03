@@ -36,7 +36,7 @@ class User extends Emitter {
          * @example
          *
          * // State
-         * let state = user.state();
+         * let state = user.state;
          */
         this.state = {};
 
@@ -58,6 +58,8 @@ class User extends Emitter {
          */
         this.chats = {};
 
+        const Chat = require('../components/chat');
+
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -74,10 +76,8 @@ class User extends Emitter {
          * them.feed.on('update', (payload) => {})
          */
 
-        const Chat = require('../components/chat');
-
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
+        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, false, 'feed');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -98,7 +98,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
+        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, false, 'direct');
 
         // if the user does not exist at all and we get enough
         // information to build the user

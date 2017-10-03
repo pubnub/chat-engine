@@ -80,7 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var bind = __webpack_require__(4);
+var bind = __webpack_require__(5);
 var isBuffer = __webpack_require__(21);
 
 /*global toString:true*/
@@ -387,10 +387,241 @@ module.exports = {
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(20);
+const axios = __webpack_require__(2);
+
+const Emitter = __webpack_require__(16);
+
+/**
+ This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
+ If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
+ @class
+ @extends Emitter
+ @param uuid
+ @param state
+ @param chat
+ */
+class User extends Emitter {
+
+    constructor(chatEngine, uuid, state = {}) {
+
+        super();
+
+        this.chatEngine = chatEngine;
+
+        this.name = 'User';
+
+        /**
+         The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
+         Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+
+         @readonly
+         @type String
+         */
+        this.uuid = uuid;
+
+        /**
+         * Gets the user state. See {@link Me#update} for how to assign state values.
+         * @return {Object} Returns a generic JSON object containing state information.
+         * @example
+         *
+         * // State
+         * let state = user.state;
+         */
+        this.state = {};
+
+        /**
+         * An object containing the Chats this {@link User} is currently in. The key of each item in the object is the {@link Chat.channel} and the value is the {@link Chat} object. Note that for privacy, this map will only contain {@link Chat}s that the client ({@link Me}) is also connected to.
+         *
+         * @readonly
+         * @type Object
+         * @example
+         *{
+                *    "globalChannel": {
+                *        channel: "globalChannel",
+                *        users: {
+                *            //...
+                *        },
+                *    },
+                *    // ...
+                * }
+         */
+        this.chats = {};
+
+        const Chat = __webpack_require__(4);
+
+        /**
+         * Feed is a Chat that only streams things a User does, like
+         * 'startTyping' or 'idle' events for example. Anybody can subscribe
+         * to a User's feed, but only the User can publish to it. Users will
+         * not be able to converse in this channel.
+         *
+         * @type Chat
+         * @example
+         * // me
+         * me.feed.emit('update', 'I may be away from my computer right now');
+         *
+         * // another instance
+         * them.feed.connect();
+         * them.feed.on('update', (payload) => {})
+         */
+
+        // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
+        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, false, 'feed');
+
+        /**
+         * Direct is a private channel that anybody can publish to but only
+         * the user can subscribe to. Great for pushing notifications or
+         * inviting to other chats. Users will not be able to communicate
+         * with one another inside of this chat. Check out the
+         * {@link Chat#invite} method for private chats utilizing
+         * {@link User#direct}.
+         *
+         * @type Chat
+         * @example
+         * // me
+         * me.direct.on('private-message', (payload) -> {
+                *     console.log(payload.sender.uuid, 'sent your a direct message');
+                * });
+         *
+         * // another instance
+         * them.direct.connect();
+         * them.direct.emit('private-message', {secret: 42});
+         */
+        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, false, 'direct');
+
+        // if the user does not exist at all and we get enough
+        // information to build the user
+        if (!chatEngine.users[uuid]) {
+            chatEngine.users[uuid] = this;
+        }
+
+        // update this user's state in it's created context
+        this.assign(state);
+
+    }
+
+    /**
+     * @private
+     * @param {Object} state The new state for the user
+     */
+    update(state) {
+
+        let oldState = this.state || {};
+        this.state = Object.assign(oldState, state);
+
+        /**
+         * Broadcast that a {@link User} has changed state.
+         * @event ChatEngine#$"."state
+         * @param {Object} data The payload returned by the event
+         * @param {User} data.user The {@link User} that changed state
+         * @param {Object} data.state The new user state
+         * @example
+         * ChatEngine.on('$.state', (data) => {
+         *     console.log('User has changed state:', data.user, 'new state:', data.state);
+         * });
+         */
+
+    }
+
+    /**
+    this is only called from network updates
+    stubbed out as this method is different for Me
+     @private
+     */
+    assign(state) {
+
+        // store a reference of old state
+        let oldState = JSON.parse(JSON.stringify(this.state));
+
+        this.update(state);
+
+        /**
+        * Fired when a {@link User} updates their state.
+        * @event User#$"."state
+        * @param {Object} data The payload object
+        * @param {User} data.user This {@link User}.
+        * @param {Object} data.state The new {@link User} state.
+        * @param {Object} data.oldState The previous state before updates.
+        */
+        this.trigger('$.state', {
+            user: this,
+            state: this.state,
+            oldState
+        });
+
+    }
+
+    /**
+     adds a chat to this user
+
+     @private
+     */
+    addChat(chat) {
+
+        // store the chat in this user object
+        this.chats[chat.channel] = chat;
+
+        /**
+        * Fired when a {@link User} appears in a {@link Chat}
+        * @event User#$"."online
+        * @param {Object} data The payload object
+        * @param {User} data.user This {@link User}.
+        * @param {Chat} data.state The {@link Chat} the user was found in.
+        */
+        this.trigger('$.online', {
+            user: this,
+            chat
+        });
+
+    }
+
+    removeChat(chat) {
+
+        delete this.chats[chat.channel];
+
+        /**
+        * Fired when a {@link User} leaves a {@link Chat}
+        * @event User#$"."offline
+        * @param {User} data.user This {@link User}.
+        * @param {Chat} data.state The {@link Chat} the user left.
+        */
+        this.trigger('$.offline', {
+            user: this,
+            chat
+        });
+
+    }
+
+    /**
+    Get stored user state from remote server.
+    @private
+    */
+    _getState(chat, callback) {
+        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
+        axios.get(url)
+            .then((response) => {
+                this.assign(response.data);
+                callback();
+            })
+            .catch(() => {
+                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+            });
+
+    }
+
+}
+
+module.exports = User;
+
 
 /***/ }),
 /* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(20);
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -413,10 +644,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(6);
+    adapter = __webpack_require__(7);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(6);
+    adapter = __webpack_require__(7);
   }
   return adapter;
 }
@@ -487,182 +718,675 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(1);
+const axios = __webpack_require__(2);
 
 const Emitter = __webpack_require__(16);
+const Event = __webpack_require__(17);
+const User = __webpack_require__(1);
 
 /**
- This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
- If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
- @class
+ This is the root {@link Chat} class that represents a chat room
+
+ @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
+ @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
+ @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
+ @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @extends Emitter
- @param uuid
- @param state
- @param chat
+ @fires Chat#$"."ready
+ @fires Chat#$"."state
+ @fires Chat#$"."online
+ @fires Chat#$"."offline
  */
-class User extends Emitter {
+class Chat extends Emitter {
 
-    constructor(chatEngine, uuid, state = {}) {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
 
-        super();
+        super(chatEngine);
 
         this.chatEngine = chatEngine;
 
-        this.name = 'User';
+        this.name = 'Chat';
 
         /**
-         The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
-         Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-
-         @readonly
-         @type String
-         */
-        this.uuid = uuid;
-
-        /**
-         * Gets the user state. See {@link Me#update} for how to assign state values.
-         * @return {Object} Returns a generic JSON object containing state information.
-         * @example
-         *
-         * // State
-         * let state = user.state();
-         */
-        this.state = {};
-
-        /**
-         * An object containing the Chats this {@link User} is currently in. The key of each item in the object is the {@link Chat.channel} and the value is the {@link Chat} object. Note that for privacy, this map will only contain {@link Chat}s that the client ({@link Me}) is also connected to.
-         *
+         * A string identifier for the Chat room.
+         * @type String
          * @readonly
-         * @type Object
-         * @example
-         *{
-                *    "globalChannel": {
-                *        channel: "globalChannel",
-                *        users: {
-                *            //...
-                *        },
-                *    },
-                *    // ...
-                * }
+         * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
-        this.chats = {};
+        this.channel = channel.toString();
 
-        /**
-         * Feed is a Chat that only streams things a User does, like
-         * 'startTyping' or 'idle' events for example. Anybody can subscribe
-         * to a User's feed, but only the User can publish to it. Users will
-         * not be able to converse in this channel.
-         *
-         * @type Chat
-         * @example
-         * // me
-         * me.feed.emit('update', 'I may be away from my computer right now');
-         *
-         * // another instance
-         * them.feed.connect();
-         * them.feed.on('update', (payload) => {})
-         */
+        // public.* has PubNub permissions for everyone to read and write
+        // private.* is totally locked down and users must be granted access one by one
+        let chanPrivString = 'public.';
 
-        const Chat = __webpack_require__(11);
-
-        // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
-
-        /**
-         * Direct is a private channel that anybody can publish to but only
-         * the user can subscribe to. Great for pushing notifications or
-         * inviting to other chats. Users will not be able to communicate
-         * with one another inside of this chat. Check out the
-         * {@link Chat#invite} method for private chats utilizing
-         * {@link User#direct}.
-         *
-         * @type Chat
-         * @example
-         * // me
-         * me.direct.on('private-message', (payload) -> {
-                *     console.log(payload.sender.uuid, 'sent your a direct message');
-                * });
-         *
-         * // another instance
-         * them.direct.connect();
-         * them.direct.emit('private-message', {secret: 42});
-         */
-        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
-
-        // if the user does not exist at all and we get enough
-        // information to build the user
-        if (!chatEngine.users[uuid]) {
-            chatEngine.users[uuid] = this;
+        if (needGrant) {
+            chanPrivString = 'private.';
         }
 
-        // update this user's state in it's created context
-        this.assign(state);
+        if (this.channel.indexOf(chatEngine.ceConfig.globalChannel) === -1) {
+            this.channel = [chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        }
 
-    }
+        /**
+        * Does this chat require new {@link User}s to be granted explicit access to this room?
+        * @type Boolean
+        * @readonly
+        */
+        this.isPrivate = needGrant;
 
-    /**
-     * @private
-     * @param {Object} state The new state for the user
-     * @param {Chat} chat Chatroom to retrieve state from
-     */
-    update(state) {
-        let oldState = this.state || {};
-        this.state = Object.assign(oldState, state);
-    }
+        /**
+        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+        * @type String
+        * @readonly
+        */
+        this.group = group;
 
-    /**
-     this is only called from network updates
+        /**
+         A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
+         Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
 
-     @private
-     */
-    assign(state) {
-        this.update(state);
-    }
+         @type Object
+         @readonly
+         */
+        this.users = {};
 
-    /**
-     adds a chat to this user
+        /**
+         A map of {@link Event} bound to this {@link Chat}
 
-     @private
-     */
-    addChat(chat, state) {
+         @private
+         @type Object
+         @readonly
+         */
+        this.events = {};
 
-        // store the chat in this user object
-        this.chats[chat.channel] = chat;
+        /**
+         Updates list of {@link User}s in this {@link Chat}
+         based on who is online now.
 
-        // updates the user's state in that chatroom
-        this.assign(state, chat);
-    }
+         @private
+         @param {Object} status The response status
+         @param {Object} response The response payload object
+         */
+        this.onHereNow = (status, response) => {
 
-    /**
-    Get stored user state from remote server.
-    @private
-    */
-    _getState(chat, callback) {
-        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
-        axios.get(url)
-            .then((response) => {
-                this.assign(response.data);
-                callback();
-            })
-            .catch(() => {
-                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+            if (status.error) {
+
+                /**
+                 * There was a problem fetching the presence of this chat
+                 * @event Chat#$"."error"."presence
+                 */
+                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
+                    error: status.errorData,
+                    errorText: status.errorData.response.text
+                });
+
+            } else {
+
+                // get the list of occupants in this channel
+                let occupants = response.channels[this.channel].occupants;
+
+                // format the userList for rltm.js standard
+                occupants.forEach((occupant) => {
+                    this.userUpdate(occupant.uuid, occupant.state);
+                });
+
+            }
+
+        };
+
+        /**
+         * Get messages that have been published to the network before this client was connected.
+         * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
+         * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
+         *
+         * @param {String} event The name of the event we're getting history for
+         * @param {Object} [config] The PubNub history config for this call
+         * @tutorial history
+         */
+        this.history = (event, config = {}) => {
+
+            // create the event if it does not exist
+            this.events[event] = this.events[event] || new Event(chatEngine, this, event);
+
+            // set the PubNub configured channel to this channel
+            config.channel = this.events[event].channel;
+
+            // run the PubNub history method for this event
+            chatEngine.pubnub.history(config, (status, response) => {
+
+                if (status.error) {
+
+                    console.log(status, response)
+
+                    /**
+                     * There was a problem fetching the history of this chat
+                     * @event Chat#$"."error"."history
+                     */
+                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
+                        errorText: status.errorData.response.text,
+                        error: status.error,
+                    });
+
+                } else {
+
+                    response.messages.forEach((message) => {
+
+                        if (message.entry.event === event) {
+
+                            /**
+                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                             * ```$.history.``` to distinguish it from the original live events.
+                             * @event Chat#$"."history"."*
+                             * @tutorial history
+                             */
+                            this.trigger(['$', 'history', event].join('.'), message.entry);
+
+                        }
+
+                    });
+
+                }
             });
+
+        };
+
+        /**
+        * Turns a {@link Chat} into a JSON representation.
+        * @return {Object}
+        */
+        this.objectify = () => {
+
+            return {
+                channel: this.channel,
+                group: this.group,
+                private: this.isPrivate
+            };
+
+        };
+
+        /**
+         * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
+         * @param {User} user The {@link User} to invite to this chatroom.
+         * @fires Me#event:$"."invite
+         * @example
+         * // one user running ChatEngine
+         * let secretChat = new ChatEngine.Chat('secret-channel');
+         * secretChat.invite(someoneElse);
+         *
+         * // someoneElse in another instance of ChatEngine
+         * me.direct.on('$.invite', (payload) => {
+                *     let secretChat = new ChatEngine.Chat(payload.data.channel);
+                * });
+         */
+        this.invite = (user) => {
+
+            let complete = () => {
+
+                let send = () => {
+
+                    /**
+                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                     * Fired by the {@link Chat#invite} method.
+                     * @event Me#$"."invite
+                     * @tutorial private
+                     * @example
+                     * me.direct.on('$.invite', (payload) => {
+                                  *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                                  * });
+                     */
+                    user.direct.emit('$.invite', {
+                        channel: this.channel
+                    });
+
+                };
+
+                if (!user.direct.connected) {
+                    user.direct.connect();
+                    user.direct.on('$.connected', send);
+                } else {
+                    send();
+                }
+
+            };
+
+            axios.post(chatEngine.ceConfig.endpoint + '/chat/invite', {
+                authKey: chatEngine.pnConfig.authKey,
+                uuid: user.uuid,
+                myUUID: chatEngine.me.uuid,
+                authData: chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    complete();
+                })
+                .catch((error) => {
+                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
+
+        };
+
+        /**
+         Keep track of {@link User}s in the room by subscribing to PubNub presence events.
+
+         @private
+         @param {Object} data The PubNub presence response for this event
+         */
+        this.onPresence = (presenceEvent) => {
+
+            // make sure channel matches this channel
+            if (this.channel === presenceEvent.channel) {
+
+                // someone joins channel
+                if (presenceEvent.action === 'join') {
+
+                    let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
+
+                    /**
+                     * Fired when a {@link User} has joined the room.
+                     *
+                     * @event Chat#$"."online"."join
+                     * @param {Object} data The payload returned by the event
+                     * @param {User} data.user The {@link User} that came online
+                     * @example
+                     * chat.on('$.join', (data) => {
+                                  *     console.log('User has joined the room!', data.user);
+                                  * });
+                     */
+
+                    // It's possible for PubNub to send us both a join and have the user appear in here_now
+                    // Avoid firing duplicate $.online events.
+                    if (!this.users[user.uuid]) {
+                        this.trigger('$.online.join', { user });
+                    }
+
+                }
+
+                // someone leaves channel
+                if (presenceEvent.action === 'leave') {
+                    this.userLeave(presenceEvent.uuid);
+                }
+
+                // someone timesout
+                if (presenceEvent.action === 'timeout') {
+                    this.userDisconnect(presenceEvent.uuid);
+                }
+
+                // someone's state is updated
+                if (presenceEvent.action === 'state-change') {
+                    this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+                }
+
+            }
+
+        };
+
+        /**
+         * Boolean value that indicates of the Chat is connected to the network
+         * @type {Boolean}
+         */
+        this.connected = false;
+
+        /**
+         * @private
+         */
+        this.onPrep = () => {
+
+            if (!this.connected) {
+
+                if (!chatEngine.pubnub) {
+                    chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+                }
+
+                // this will trigger ready callbacks
+
+                // subscribe to the PubNub channel for this Chat
+                chatEngine.pubnub.subscribe({
+                    channels: [this.channel],
+                    withPresence: true
+                });
+
+            }
+
+        };
+
+        /**
+         * @private
+         */
+        this.grant = () => {
+
+            let createChat = () => {
+
+                axios.post(chatEngine.ceConfig.endpoint + '/chats', {
+                    globalChannel: chatEngine.ceConfig.globalChannel,
+                    authKey: chatEngine.pnConfig.authKey,
+                    uuid: chatEngine.pnConfig.uuid,
+                    authData: chatEngine.me.authData,
+                    chat: this.objectify()
+                })
+                    .then(() => {
+                        this.onPrep();
+                    })
+                    .catch((error) => {
+                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                    });
+            };
+
+            axios.post(chatEngine.ceConfig.endpoint + '/chat/grant', {
+                globalChannel: chatEngine.ceConfig.globalChannel,
+                authKey: chatEngine.pnConfig.authKey,
+                uuid: chatEngine.pnConfig.uuid,
+                authData: chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    createChat();
+                })
+                .catch((error) => {
+                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
+
+        };
+
+        /**
+         * Connect to PubNub servers to initialize the chat.
+         * @example
+         * // create a new chatroom, but don't connect to it automatically
+         * let chat = new Chat('some-chat', false)
+         *
+         * // connect to the chat when we feel like it
+         * chat.connect();
+         */
+        this.connect = () => {
+            this.grant();
+            this.chatEngine.me.addChat(this);
+        };
+
+        if (autoConnect) {
+            this.connect();
+        }
+
+        this.chatEngine.chats[this.channel] = this;
+
+    }
+
+    /**
+     * Send events to other clients in this {@link Chat}.
+     * Events are trigger over the network  and all events are made
+     * on behalf of {@link Me}
+     *
+     * @param {String} event The event name
+     * @param {Object} data The event payload object
+     * @example
+     * chat.emit('custom-event', {value: true});
+     * chat.on('custom-event', (payload) => {
+          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
+          * });
+     */
+    emit(event, data) {
+
+        // create a standardized payload object
+        let payload = {
+            data, // the data supplied from params
+            sender: this.chatEngine.me.uuid, // my own uuid
+            chat: this, // an instance of this chat
+        };
+
+        // run the plugin queue to modify the event
+        this.runPluginQueue('emit', event, (next) => {
+            next(null, payload);
+        }, (err, pluginResponse) => {
+
+            // remove chat otherwise it would be serialized
+            // instead, it's rebuilt on the other end.
+            // see this.trigger
+            delete pluginResponse.chat;
+
+            // publish the event and data over the configured channel
+
+            // ensure the event exists within the global space
+            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+
+            this.events[event].publish(pluginResponse);
+
+        });
+
+    }
+
+    /**
+     Add a user to the {@link Chat}, creating it if it doesn't already exist.
+
+     @private
+     @param {String} uuid The user uuid
+     @param {Object} state The user initial state
+     @param {Boolean} trigger Force a trigger that this user is online
+     */
+    createUser(uuid, state) {
+
+        // Ensure that this user exists in the global list
+        // so we can reference it from here out
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+
+        this.chatEngine.users[uuid].addChat(this);
+
+        // trigger the join event over this chatroom
+        if (!this.users[uuid]) {
+
+            /**
+             * Broadcast that a {@link User} has come online. This is when
+             * the framework firsts learn of a user. This can be triggered
+             * by, ```$.join```, or other network events that
+             * notify the framework of a new user.
+             *
+             * @event Chat#$"."online"."here
+             * @param {Object} data The payload returned by the event
+             * @param {User} data.user The {@link User} that came online
+             * @example
+             * chat.on('$.online.here', (data) => {
+                      *     console.log('User has come online:', data.user);
+                      * });
+             */
+            this.trigger('$.online.here', {
+                user: this.chatEngine.users[uuid]
+            });
+
+        }
+
+        // store this user in the chatroom
+        this.users[uuid] = this.chatEngine.users[uuid];
+
+        // return the instance of this user
+        return this.chatEngine.users[uuid];
+
+    }
+
+    /**
+     * Update a user's state.
+     * @private
+     * @param {String} uuid The {@link User} uuid
+     * @param {Object} state State to update for the user
+     */
+    userUpdate(uuid, state) {
+
+        // ensure the user exists within the global space
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+
+        // if we don't know about this user
+        if (!this.users[uuid]) {
+            // do the whole join thing
+            this.createUser(uuid, state);
+        }
+
+        // update this user's state in this chatroom
+        this.users[uuid].assign(state);
+
+    }
+
+    /**
+     * Leave from the {@link Chat} on behalf of {@link Me}.
+     * @fires Chat#event:$"."offline"."leave
+     * @example
+     * chat.leave();
+     */
+    leave() {
+
+        // unsubscribe from the channel locally
+        this.chatEngine.pubnub.unsubscribe({
+            channels: [this.channel]
+        });
+
+        this.connected = false;
+
+        this.chatEngine.me.removeChat(this);
+
+        // delete the chat in the remote list
+        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
+            data: {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            } })
+            .then(() => {})
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            });
+
+    }
+
+    delete() {
+        delete this.chatEngine.chats[this.channel];
+    }
+
+    /**
+     Perform updates when a user has left the {@link Chat}.
+
+     @private
+     */
+    userLeave(uuid) {
+
+        // make sure this event is real, user may have already left
+        if (this.users[uuid]) {
+
+            // if a user leaves, trigger the event
+
+            /**
+             * Fired when a {@link User} intentionally leaves a {@link Chat}.
+             *
+             * @event Chat#$"."offline"."leave
+             * @param {Object} data The data payload from the event
+             * @param {User} user The {@link User} that has left the room
+             * @example
+             * chat.on('$.offline.leave', (data) => {
+                      *     console.log('User left the room manually:', data.user);
+                      * });
+             */
+            this.trigger('$.offline.leave', {
+                user: this.users[uuid]
+            });
+
+            // remove the user from the local list of users
+            delete this.users[uuid];
+
+            this.users[uuid].removeChat(this);
+
+            // we don't remove the user from the global list,
+            // because they may be online in other channels
+
+        } else {
+
+            // that user isn't in the user list
+            // we never knew about this user or they already left
+
+            // console.log('user already left');
+        }
+    }
+
+    /**
+     Fired when a user disconnects from the {@link Chat}
+
+     @private
+     @param {String} uuid The uuid of the {@link Chat} that left
+     */
+    userDisconnect(uuid) {
+
+        // make sure this event is real, user may have already left
+        if (this.users[uuid]) {
+
+            /**
+             * Fired specifically when a {@link User} looses network connection
+             * to the {@link Chat} involuntarily.
+             *
+             * @event Chat#$"."offline"."disconnect
+             * @param {Object} data The payload object
+             * @param {Object} data.user The {@link User} that disconnected
+             * @example
+             * chat.on('$.offline.disconnect', (data) => {
+                      *     console.log('User disconnected from the network:', data.user);
+                      * });
+             */
+
+            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
+        }
+
+    }
+
+    /**
+     Set the state for {@link Me} within this {@link User}.
+     Broadcasts the ```$.state``` event on other clients
+
+     @private
+     @param {Object} state The new state {@link Me} will have within this {@link User}
+     */
+    setState(state) {
+        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
+            // handle status, response
+        });
+    }
+
+    onConnectionReady() {
+
+        /**
+         * Broadcast that the {@link Chat} is connected to the network.
+         * @event Chat#$"."connected
+         * @example
+         * chat.on('$.connected', () => {
+                *     console.log('chat is ready to go!');
+                * });
+         */
+        this.trigger('$.connected');
+
+        this.connected = true;
+
+        // get a list of users online now
+        // ask PubNub for information about connected users in this channel
+        this.chatEngine.pubnub.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, this.onHereNow);
+
+        // listen to all PubNub events for this Chat
+        this.chatEngine.pubnub.addListener({
+            message: this.onMessage,
+            presence: this.onPresence
+        });
 
     }
 
 }
 
-module.exports = User;
+module.exports = Chat;
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -680,7 +1404,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -866,7 +1590,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -877,7 +1601,7 @@ var settle = __webpack_require__(24);
 var buildURL = __webpack_require__(26);
 var parseHeaders = __webpack_require__(27);
 var isURLSameOrigin = __webpack_require__(28);
-var createError = __webpack_require__(7);
+var createError = __webpack_require__(8);
 var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(29);
 
 module.exports = function xhrAdapter(config) {
@@ -1051,10 +1775,10 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1079,7 +1803,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1091,7 +1815,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1117,13 +1841,15 @@ module.exports = Cancel;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
+// const User = require('../components/user');
+const waterfall = __webpack_require__(39);
 
 // Allows us to create and bind to events. Everything in ChatEngine is an event
 // emitter
-const EventEmitter2 = __webpack_require__(39).EventEmitter2;
+const EventEmitter2 = __webpack_require__(64).EventEmitter2;
 
 /**
 * The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
@@ -1232,446 +1958,6 @@ class RootEmitter {
 
     }
 
-}
-
-module.exports = RootEmitter;
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-const waterfall = __webpack_require__(40);
-const axios = __webpack_require__(1);
-
-const Emitter = __webpack_require__(16);
-const Event = __webpack_require__(17);
-const User = __webpack_require__(3);
-
-/**
- This is the root {@link Chat} class that represents a chat room
-
- @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
- @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
- @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
- @extends Emitter
- @fires Chat#$"."ready
- @fires Chat#$"."state
- @fires Chat#$"."online
- @fires Chat#$"."offline
- */
-class Chat extends Emitter {
-
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
-
-        super(chatEngine);
-
-        this.chatEngine = chatEngine;
-
-        this.name = 'Chat';
-
-        /**
-         * A string identifier for the Chat room.
-         * @type String
-         * @readonly
-         * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
-         */
-        this.channel = channel.toString();
-
-        // public.* has PubNub permissions for everyone to read and write
-        // private.* is totally locked down and users must be granted access one by one
-        let chanPrivString = 'public.';
-
-        if (needGrant) {
-            chanPrivString = 'private.';
-        }
-
-        if (this.channel.indexOf(chatEngine.ceConfig.globalChannel) === -1) {
-            this.channel = [chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
-        }
-
-        /**
-        * Does this chat require new {@link User}s to be granted explicit access to this room?
-        * @type Boolean
-        * @readonly
-        */
-        this.isPrivate = needGrant;
-
-        /**
-        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
-        * @type String
-        * @readonly
-        */
-        this.group = group;
-
-        /**
-         A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
-         Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
-
-         @type Object
-         @readonly
-         */
-        this.users = {};
-
-        /**
-         A map of {@link Event} bound to this {@link Chat}
-
-         @private
-         @type Object
-         @readonly
-         */
-        this.events = {};
-
-        /**
-         Updates list of {@link User}s in this {@link Chat}
-         based on who is online now.
-
-         @private
-         @param {Object} status The response status
-         @param {Object} response The response payload object
-         */
-        this.onHereNow = (status, response) => {
-
-            if (status.error) {
-
-                /**
-                 * There was a problem fetching the presence of this chat
-                 * @event Chat#$"."error"."presence
-                 */
-                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
-                    error: status.errorData,
-                    errorText: status.errorData.response.text
-                });
-
-            } else {
-
-                // get the list of occupants in this channel
-                let occupants = response.channels[this.channel].occupants;
-
-                // format the userList for rltm.js standard
-                occupants.forEach((occupant) => {
-                    this.userUpdate(occupant.uuid, occupant.state);
-                });
-
-            }
-
-        };
-
-        /**
-         * Get messages that have been published to the network before this client was connected.
-         * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
-         * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
-         *
-         * @param {String} event The name of the event we're getting history for
-         * @param {Object} [config] The PubNub history config for this call
-         * @tutorial history
-         */
-        this.history = (event, config = {}) => {
-
-            // create the event if it does not exist
-            this.events[event] = this.events[event] || new Event(chatEngine, this, event);
-
-            // set the PubNub configured channel to this channel
-            config.channel = this.events[event].channel;
-
-            // run the PubNub history method for this event
-            chatEngine.pubnub.history(config, (status, response) => {
-
-                if (status.error) {
-
-                    /**
-                     * There was a problem fetching the history of this chat
-                     * @event Chat#$"."error"."history
-                     */
-                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
-                        errorText: status.errorData.response.text,
-                        error: status.error,
-                    });
-
-                } else {
-
-                    response.messages.forEach((message) => {
-
-                        if (message.entry.event === event) {
-
-                            /**
-                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                             * ```$.history.``` to distinguish it from the original live events.
-                             * @event Chat#$"."history"."*
-                             * @tutorial history
-                             */
-                            this.trigger(['$', 'history', event].join('.'), message.entry);
-
-                        }
-
-                    });
-
-                }
-            });
-
-        };
-
-        /**
-        * Turns a {@link Chat} into a JSON representation.
-        * @return {Object}
-        */
-        this.objectify = () => {
-
-            return {
-                channel: this.channel,
-                group: this.group,
-                private: this.isPrivate
-            };
-
-        };
-
-        /**
-         * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
-         * @param {User} user The {@link User} to invite to this chatroom.
-         * @fires Me#event:$"."invite
-         * @example
-         * // one user running ChatEngine
-         * let secretChat = new ChatEngine.Chat('secret-channel');
-         * secretChat.invite(someoneElse);
-         *
-         * // someoneElse in another instance of ChatEngine
-         * me.direct.on('$.invite', (payload) => {
-                *     let secretChat = new ChatEngine.Chat(payload.data.channel);
-                * });
-         */
-        this.invite = (user) => {
-
-            let complete = () => {
-
-                let send = () => {
-
-                    /**
-                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
-                     * Fired by the {@link Chat#invite} method.
-                     * @event Me#$"."invite
-                     * @tutorial private
-                     * @example
-                     * me.direct.on('$.invite', (payload) => {
-                                  *    let privChat = new ChatEngine.Chat(payload.data.channel));
-                                  * });
-                     */
-                    user.direct.emit('$.invite', {
-                        channel: this.channel
-                    });
-
-                };
-
-                if (!user.direct.connected) {
-                    user.direct.connect();
-                    user.direct.on('$.connected', send);
-                } else {
-                    send();
-                }
-
-            };
-
-            axios.post(chatEngine.ceConfig.endpoint + '/chat/invite', {
-                authKey: chatEngine.pnConfig.authKey,
-                uuid: user.uuid,
-                myUUID: chatEngine.me.uuid,
-                authData: chatEngine.me.authData,
-                chat: this.objectify()
-            })
-                .then(() => {
-                    complete();
-                })
-                .catch((error) => {
-                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
-
-        };
-
-        /**
-         Keep track of {@link User}s in the room by subscribing to PubNub presence events.
-
-         @private
-         @param {Object} data The PubNub presence response for this event
-         */
-        this.onPresence = (presenceEvent) => {
-
-            // make sure channel matches this channel
-            if (this.channel === presenceEvent.channel) {
-
-                // someone joins channel
-                if (presenceEvent.action === 'join') {
-
-                    let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
-
-                    /**
-                     * Fired when a {@link User} has joined the room.
-                     *
-                     * @event Chat#$"."online"."join
-                     * @param {Object} data The payload returned by the event
-                     * @param {User} data.user The {@link User} that came online
-                     * @example
-                     * chat.on('$.join', (data) => {
-                                  *     console.log('User has joined the room!', data.user);
-                                  * });
-                     */
-                    this.trigger('$.online.join', { user });
-
-                }
-
-                // someone leaves channel
-                if (presenceEvent.action === 'leave') {
-                    this.userLeave(presenceEvent.uuid);
-                }
-
-                // someone timesout
-                if (presenceEvent.action === 'timeout') {
-                    this.userDisconnect(presenceEvent.uuid);
-                }
-
-                // someone's state is updated
-                if (presenceEvent.action === 'state-change') {
-                    this.userUpdate(presenceEvent.uuid, presenceEvent.state);
-                }
-
-            }
-
-        };
-
-        /**
-         * Boolean value that indicates of the Chat is connected to the network
-         * @type {Boolean}
-         */
-        this.connected = false;
-
-        /**
-         * @private
-         */
-        this.onPrep = () => {
-
-            if (!this.connected) {
-
-                if (!chatEngine.pubnub) {
-                    chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-                }
-
-                // listen to all PubNub events for this Chat
-                chatEngine.pubnub.addListener({
-                    message: this.onMessage,
-                    presence: this.onPresence
-                });
-
-                // subscribe to the PubNub channel for this Chat
-                chatEngine.pubnub.subscribe({
-                    channels: [this.channel],
-                    withPresence: true
-                });
-
-            }
-
-        };
-
-        /**
-         * @private
-         */
-        this.grant = () => {
-
-            let createChat = () => {
-
-                axios.post(chatEngine.ceConfig.endpoint + '/chats', {
-                    globalChannel: chatEngine.ceConfig.globalChannel,
-                    authKey: chatEngine.pnConfig.authKey,
-                    uuid: chatEngine.pnConfig.uuid,
-                    authData: chatEngine.me.authData,
-                    chat: this.objectify()
-                })
-                    .then(() => {
-                        this.onPrep();
-                    })
-                    .catch((error) => {
-                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                    });
-            };
-
-            axios.post(chatEngine.ceConfig.endpoint + '/chat/grant', {
-                globalChannel: chatEngine.ceConfig.globalChannel,
-                authKey: chatEngine.pnConfig.authKey,
-                uuid: chatEngine.pnConfig.uuid,
-                authData: chatEngine.me.authData,
-                chat: this.objectify()
-            })
-                .then(() => {
-                    createChat();
-                })
-                .catch((error) => {
-                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
-
-        };
-
-        /**
-         * Connect to PubNub servers to initialize the chat.
-         * @example
-         * // create a new chatroom, but don't connect to it automatically
-         * let chat = new Chat('some-chat', false)
-         *
-         * // connect to the chat when we feel like it
-         * chat.connect();
-         */
-        this.connect = () => {
-            this.grant();
-        };
-
-        if (autoConnect) {
-            this.grant();
-        }
-
-        chatEngine.chats[this.channel] = this;
-
-    }
-
-    /**
-     * Send events to other clients in this {@link User}.
-     * Events are trigger over the network  and all events are made
-     * on behalf of {@link Me}
-     *
-     * @param {String} event The event name
-     * @param {Object} data The event payload object
-     * @example
-     * chat.emit('custom-event', {value: true});
-     * chat.on('custom-event', (payload) => {
-          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
-          * });
-     */
-    emit(event, data) {
-
-        // create a standardized payload object
-        let payload = {
-            data, // the data supplied from params
-            sender: this.chatEngine.me.uuid, // my own uuid
-            chat: this, // an instance of this chat
-        };
-
-        // run the plugin queue to modify the event
-        this.runPluginQueue('emit', event, (next) => {
-            next(null, payload);
-        }, (err, pluginResponse) => {
-
-            // remove chat otherwise it would be serialized
-            // instead, it's rebuilt on the other end.
-            // see this.trigger
-            delete pluginResponse.chat;
-
-            // publish the event and data over the configured channel
-
-            // ensure the event exists within the global space
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
-
-            this.events[event].publish(pluginResponse);
-
-        });
-
-    }
 
     /**
      Broadcasts an event locally to all listeners.
@@ -1699,7 +1985,7 @@ class Chat extends Emitter {
         if (typeof payload === 'object') {
 
             // restore chat in payload
-            if (!payload.chat) {
+            if (!payload.chat && this.name === 'Chat') {
                 payload.chat = this;
             }
 
@@ -1712,12 +1998,13 @@ class Chat extends Emitter {
                     complete();
                 } else {
 
+                    const User = __webpack_require__(1);
+
                     // the user doesn't exist, create it
                     payload.sender = new User(this.chatEngine, payload.sender);
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {
-                        console.log('state not set', payload.sender.state);
                         complete();
                     });
 
@@ -1736,193 +2023,8 @@ class Chat extends Emitter {
     }
 
     /**
-     Add a user to the {@link Chat}, creating it if it doesn't already exist.
-
-     @private
-     @param {String} uuid The user uuid
-     @param {Object} state The user initial state
-     @param {Boolean} trigger Force a trigger that this user is online
-     */
-    createUser(uuid, state) {
-
-        // Ensure that this user exists in the global list
-        // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
-
-        this.chatEngine.users[uuid].addChat(this, state);
-
-        // trigger the join event over this chatroom
-        if (!this.users[uuid]) {
-
-            /**
-             * Broadcast that a {@link User} has come online. This is when
-             * the framework firsts learn of a user. This can be triggered
-             * by, ```$.join```, or other network events that
-             * notify the framework of a new user.
-             *
-             * @event Chat#$"."online"."here
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
-             * @example
-             * chat.on('$.online.here', (data) => {
-                      *     console.log('User has come online:', data.user);
-                      * });
-             */
-            this.trigger('$.online.here', {
-                user: this.chatEngine.users[uuid]
-            });
-
-        }
-
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
-
-        // return the instance of this user
-        return this.chatEngine.users[uuid];
-
-    }
-
-    /**
-     * Update a user's state.
-     * @private
-     * @param {String} uuid The {@link User} uuid
-     * @param {Object} state State to update for the user
-     */
-    userUpdate(uuid, state) {
-
-        // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
-
-        // if we don't know about this user
-        if (!this.users[uuid]) {
-            // do the whole join thing
-            this.createUser(uuid, state);
-        }
-
-        // update this user's state in this chatroom
-        this.users[uuid].assign(state);
-
-        /**
-         * Broadcast that a {@link User} has changed state.
-         * @event ChatEngine#$"."state
-         * @param {Object} data The payload returned by the event
-         * @param {User} data.user The {@link User} that changed state
-         * @param {Object} data.state The new user state
-         * @example
-         * ChatEngine.on('$.state', (data) => {
-         *     console.log('User has changed state:', data.user, 'new state:', data.state);
-         * });
-         */
-        this.chatEngine._emit('$.state', {
-            user: this.users[uuid],
-            state: this.users[uuid].state
-        });
-
-    }
-
-    /**
-     * Leave from the {@link Chat} on behalf of {@link Me}.
-     * @fires Chat#event:$"."offline"."leave
-     * @example
-     * chat.leave();
-     */
-    leave() {
-
-        // unsubscribe from the channel locally
-        this.chatEngine.pubnub.unsubscribe({
-            channels: [this.channel]
-        });
-
-        // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
-            data: {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            } })
-            .then(() => {})
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-            });
-
-    }
-
-    /**
-     Perform updates when a user has left the {@link Chat}.
-
-     @private
-     */
-    userLeave(uuid) {
-
-        // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
-
-            // if a user leaves, trigger the event
-
-            /**
-             * Fired when a {@link User} intentionally leaves a {@link Chat}.
-             *
-             * @event Chat#$"."offline"."leave
-             * @param {Object} data The data payload from the event
-             * @param {User} user The {@link User} that has left the room
-             * @example
-             * chat.on('$.offline.leave', (data) => {
-                      *     console.log('User left the room manually:', data.user);
-                      * });
-             */
-            this.trigger('$.offline.leave', {
-                user: this.users[uuid]
-            });
-
-            // remove the user from the local list of users
-            delete this.users[uuid];
-
-            // we don't remove the user from the global list,
-            // because they may be online in other channels
-
-        } else {
-
-            // that user isn't in the user list
-            // we never knew about this user or they already left
-
-            // console.log('user already left');
-        }
-    }
-
-    /**
-     Fired when a user disconnects from the {@link Chat}
-
-     @private
-     @param {String} uuid The uuid of the {@link Chat} that left
-     */
-    userDisconnect(uuid) {
-
-        // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
-
-            /**
-             * Fired specifically when a {@link User} looses network connection
-             * to the {@link Chat} involuntarily.
-             *
-             * @event Chat#$"."offline"."disconnect
-             * @param {Object} data The {@link User} that disconnected
-             * @param {Object} data.user The {@link User} that disconnected
-             * @example
-             * chat.on('$.offline.disconnect', (data) => {
-                      *     console.log('User disconnected from the network:', data.user);
-                      * });
-             */
-
-            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
-        }
-
-    }
-
-    /**
      Load plugins and attach a queue of functions to execute before and
-     after events are trigger or received.
+     after events are f or received.
 
      @private
      @param {String} location Where in the middleeware the event should run (emit, trigger)
@@ -1956,48 +2058,9 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     Set the state for {@link Me} within this {@link User}.
-     Broadcasts the ```$.state``` event on other clients
-
-     @private
-     @param {Object} state The new state {@link Me} will have within this {@link User}
-     */
-    setState(state) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
-            // handle status, response
-        });
-    }
-
-    onConnectionReady() {
-
-        /**
-         * Broadcast that the {@link Chat} is connected to the network.
-         * @event Chat#$"."connected
-         * @example
-         * chat.on('$.connected', () => {
-                *     console.log('chat is ready to go!');
-                * });
-         */
-        this.connected = true;
-
-        // get a list of users online now
-        // ask PubNub for information about connected users in this channel
-        this.chatEngine.pubnub.hereNow({
-            channels: [this.channel],
-            includeUUIDs: true,
-            includeState: true
-        }, (status, response) => {
-            // trigger that SDK is ready before emitting online events
-            this.trigger('$.connected');
-            this.onHereNow(status, response);
-        });
-
-    }
-
 }
 
-module.exports = Chat;
+module.exports = RootEmitter;
 
 
 /***/ }),
@@ -2043,7 +2106,7 @@ module.exports = Symbol;
 /* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var freeGlobal = __webpack_require__(55);
+var freeGlobal = __webpack_require__(54);
 
 /** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -2095,7 +2158,7 @@ module.exports = isObject;
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const RootEmitter = __webpack_require__(10);
+const RootEmitter = __webpack_require__(11);
 const Event = __webpack_require__(17);
 
 /**
@@ -2177,7 +2240,7 @@ class Emitter extends RootEmitter {
 
                 // attach the plugins to this class
                 // under their namespace
-                this.chatEngine.addChild(this, module.namespace, new module.extends[this.name]());
+                this.addChild(this, module.namespace, new module.extends[this.name]());
 
                 this[module.namespace].ChatEngine = this.chatEngine;
 
@@ -2189,13 +2252,25 @@ class Emitter extends RootEmitter {
 
             }
         };
+
+        // add an object as a subobject under a namespoace
+        this.addChild = (ob, childName, childOb) => {
+
+            // assign the new child object as a property of parent under the
+            // given namespace
+            ob[childName] = childOb;
+
+            // the new object can use ```this.parent``` to access
+            // the root class
+            childOb.parent = ob;
+
+        };
+
     }
 
 }
 
 module.exports = Emitter;
-
-
 
 
 /***/ }),
@@ -2218,6 +2293,8 @@ class Event {
          */
         this.channel = chat.channel;
 
+        this.chatEngine = chatEngine;
+
         this.name = 'Event';
         /**
          Publishes the event over the PubNub network to the {@link Event} channel
@@ -2229,7 +2306,7 @@ class Event {
 
             m.event = event;
 
-            chatEngine.pubnub.publish({
+            this.chatEngine.pubnub.publish({
                 message: m,
                 channel: this.channel
             }, (status) => {
@@ -2241,7 +2318,7 @@ class Event {
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
                      */
-                    chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
+                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
                         errorText: status.errorData.response.text,
                         error: status.errorData,
                     });
@@ -2266,7 +2343,7 @@ class Event {
         };
 
         // call onMessage when PubNub receives an event
-        chatEngine.pubnub.addListener({
+        this.chatEngine.pubnub.addListener({
             message: this.onMessage
         });
 
@@ -2331,13 +2408,13 @@ module.exports = {
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(1);
+const axios = __webpack_require__(2);
 const PubNub = __webpack_require__(38);
 
-const RootEmitter = __webpack_require__(10);
-const Chat = __webpack_require__(11);
+const RootEmitter = __webpack_require__(11);
+const Chat = __webpack_require__(4);
 const Me = __webpack_require__(65);
-const User = __webpack_require__(3);
+const User = __webpack_require__(1);
 
 /**
  Provides the base Widget class...
@@ -2414,62 +2491,6 @@ module.exports = (ceConfig, pnConfig) => {
     };
 
     /**
-    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
-    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
-    @private
-    */
-    ChatEngine.addChatToSession = (chat) => {
-
-        // create the chat if it doesn't exist
-        ChatEngine.session[chat.group] = ChatEngine.session[chat.group] || {};
-
-        // check the chat exists within the global list but is not grouped
-        let existingChat = ChatEngine.chats[chat.channel];
-
-        // if it exists
-        if (existingChat) {
-            // assign it to the group
-            ChatEngine.session[chat.group][chat.channel] = existingChat;
-        } else {
-            // otherwise, try to recreate it with the server information
-            ChatEngine.session[chat.group][chat.channel] = new Chat(ChatEngine, chat.channel, chat.private, false, chat.group);
-
-            /**
-            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            * @event ChatEngine#$"."session"."chat"."join
-            */
-            ChatEngine._emit('$.session.chat.join', {
-                chat: ChatEngine.session[chat.group][chat.channel]
-            });
-        }
-
-    };
-
-
-    /**
-    Removes {@link Chat} within ChatEngine.session
-    @private
-    */
-    ChatEngine.removeChatFromSession = (chat) => {
-
-        let targetChat = ChatEngine.session[chat.group][chat.channel] || chat;
-
-        /**
-        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-        * @event ChatEngine#$"."session"."chat"."leave
-        */
-        ChatEngine._emit('$.session.chat.leave', {
-            chat: targetChat
-        });
-
-        // don't delete from chatengine.chats, because we can still get events from this chat
-        delete ChatEngine.chats[chat.channel];
-        delete ChatEngine.session[chat.group][chat.channel];
-
-    };
-
-    /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
@@ -2489,37 +2510,48 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
+            // create a new user that represents this client
+            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // create a new instance of Me using input parameters
-            ChatEngine.global.createUser(pnConfig.uuid, state);
+            ChatEngine.me.update(state);
+            ChatEngine.me.feed.connect();
+            ChatEngine.me.direct.connect();
 
+            ChatEngine.me.direct.onAny(function(a,b) {
+                console.log('direct', a)
+            })
+            ChatEngine.me.feed.onAny(function(a,b) {
+                console.log('direct', a)
+            })
 
+            // these should be middleware
+            ChatEngine.me.direct.on('$.server.chat.created', (payload) => {
+                ChatEngine.me.serverAddChat(payload.chat);
+            });
+
+            ChatEngine.me.on('$.server.chat.deleted', (payload) => {
+
+                console.log('serve deleted chat')
+
+                ChatEngine.me.serverRemoveChat(payload.chat);
+
+            });
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
              */
-            ChatEngine.global.on('$.connected', () => {
-
-                // create a new user that represents this client
-                ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
-
-                ChatEngine.me.update(state);
-
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.ready = true;
-
-                chatData.forEach((chatItem) => {
-                    ChatEngine.addChatToSession(chatItem);
-                });
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
             });
+            ChatEngine.ready = true;
 
-            // chats.session =
+            chatData.forEach((chatItem) => {
+                ChatEngine.me.serverAddChat(chatItem);
+            });
 
             /**
              Fires when PubNub network connection changes
@@ -2625,6 +2657,8 @@ module.exports = (ceConfig, pnConfig) => {
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
 
+                    console.log(error)
+
                     /**
                      * There was a problem logging in
                      * @event ChatEngine#$"."error"."session
@@ -2686,19 +2720,6 @@ module.exports = (ceConfig, pnConfig) => {
         }
     };
 
-    // add an object as a subobject under a namespoace
-    ChatEngine.addChild = (ob, childName, childOb) => {
-
-        // assign the new child object as a property of parent under the
-        // given namespace
-        ob[childName] = childOb;
-
-        // the new object can use ```this.parent``` to access
-        // the root class
-        childOb.parent = ob;
-
-    };
-
     return ChatEngine;
 
 };
@@ -2712,9 +2733,9 @@ module.exports = (ceConfig, pnConfig) => {
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(4);
+var bind = __webpack_require__(5);
 var Axios = __webpack_require__(22);
-var defaults = __webpack_require__(2);
+var defaults = __webpack_require__(3);
 
 /**
  * Create an instance of Axios
@@ -2747,9 +2768,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(9);
+axios.Cancel = __webpack_require__(10);
 axios.CancelToken = __webpack_require__(36);
-axios.isCancel = __webpack_require__(8);
+axios.isCancel = __webpack_require__(9);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -2797,7 +2818,7 @@ function isSlowBuffer (obj) {
 "use strict";
 
 
-var defaults = __webpack_require__(2);
+var defaults = __webpack_require__(3);
 var utils = __webpack_require__(0);
 var InterceptorManager = __webpack_require__(31);
 var dispatchRequest = __webpack_require__(32);
@@ -2909,7 +2930,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(7);
+var createError = __webpack_require__(8);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -3328,8 +3349,8 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(33);
-var isCancel = __webpack_require__(8);
-var defaults = __webpack_require__(2);
+var isCancel = __webpack_require__(9);
+var defaults = __webpack_require__(3);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -3481,7 +3502,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(9);
+var Cancel = __webpack_require__(10);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -3582,6 +3603,816 @@ null!=i&&(c.reverse=i.toString()),c}function h(e,t){var n={messages:[],startTime
 
 /***/ }),
 /* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+exports.default = function (tasks, callback) {
+    callback = (0, _once2.default)(callback || _noop2.default);
+    if (!(0, _isArray2.default)(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
+    if (!tasks.length) return callback();
+    var taskIndex = 0;
+
+    function nextTask(args) {
+        if (taskIndex === tasks.length) {
+            return callback.apply(null, [null].concat(args));
+        }
+
+        var taskCallback = (0, _onlyOnce2.default)((0, _baseRest2.default)(function (err, args) {
+            if (err) {
+                return callback.apply(null, [err].concat(args));
+            }
+            nextTask(args);
+        }));
+
+        args.push(taskCallback);
+
+        var task = tasks[taskIndex++];
+        task.apply(null, args);
+    }
+
+    nextTask([]);
+};
+
+var _isArray = __webpack_require__(40);
+
+var _isArray2 = _interopRequireDefault(_isArray);
+
+var _noop = __webpack_require__(41);
+
+var _noop2 = _interopRequireDefault(_noop);
+
+var _once = __webpack_require__(42);
+
+var _once2 = _interopRequireDefault(_once);
+
+var _baseRest = __webpack_require__(43);
+
+var _baseRest2 = _interopRequireDefault(_baseRest);
+
+var _onlyOnce = __webpack_require__(63);
+
+var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+module.exports = exports['default'];
+
+/**
+ * Runs the `tasks` array of functions in series, each passing their results to
+ * the next in the array. However, if any of the `tasks` pass an error to their
+ * own callback, the next function is not executed, and the main `callback` is
+ * immediately called with the error.
+ *
+ * @name waterfall
+ * @static
+ * @memberOf module:ControlFlow
+ * @method
+ * @category Control Flow
+ * @param {Array} tasks - An array of functions to run, each function is passed
+ * a `callback(err, result1, result2, ...)` it must call on completion. The
+ * first argument is an error (which can be `null`) and any further arguments
+ * will be passed as arguments in order to the next task.
+ * @param {Function} [callback] - An optional callback to run once all the
+ * functions have completed. This will be passed the results of the last task's
+ * callback. Invoked with (err, [results]).
+ * @returns undefined
+ * @example
+ *
+ * async.waterfall([
+ *     function(callback) {
+ *         callback(null, 'one', 'two');
+ *     },
+ *     function(arg1, arg2, callback) {
+ *         // arg1 now equals 'one' and arg2 now equals 'two'
+ *         callback(null, 'three');
+ *     },
+ *     function(arg1, callback) {
+ *         // arg1 now equals 'three'
+ *         callback(null, 'done');
+ *     }
+ * ], function (err, result) {
+ *     // result now equals 'done'
+ * });
+ *
+ * // Or, with named functions:
+ * async.waterfall([
+ *     myFirstFunction,
+ *     mySecondFunction,
+ *     myLastFunction,
+ * ], function (err, result) {
+ *     // result now equals 'done'
+ * });
+ * function myFirstFunction(callback) {
+ *     callback(null, 'one', 'two');
+ * }
+ * function mySecondFunction(arg1, arg2, callback) {
+ *     // arg1 now equals 'one' and arg2 now equals 'two'
+ *     callback(null, 'three');
+ * }
+ * function myLastFunction(arg1, callback) {
+ *     // arg1 now equals 'three'
+ *     callback(null, 'done');
+ * }
+ */
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports) {
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+module.exports = isArray;
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports) {
+
+/**
+ * This method returns `undefined`.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.3.0
+ * @category Util
+ * @example
+ *
+ * _.times(2, _.noop);
+ * // => [undefined, undefined]
+ */
+function noop() {
+  // No operation performed.
+}
+
+module.exports = noop;
+
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = once;
+function once(fn) {
+    return function () {
+        if (fn === null) return;
+        var callFn = fn;
+        fn = null;
+        callFn.apply(this, arguments);
+    };
+}
+module.exports = exports["default"];
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var identity = __webpack_require__(12),
+    overRest = __webpack_require__(44),
+    setToString = __webpack_require__(46);
+
+/**
+ * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+ *
+ * @private
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @returns {Function} Returns the new function.
+ */
+function baseRest(func, start) {
+  return setToString(overRest(func, start, identity), func + '');
+}
+
+module.exports = baseRest;
+
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var apply = __webpack_require__(45);
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeMax = Math.max;
+
+/**
+ * A specialized version of `baseRest` which transforms the rest array.
+ *
+ * @private
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @param {Function} transform The rest array transform.
+ * @returns {Function} Returns the new function.
+ */
+function overRest(func, start, transform) {
+  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+  return function() {
+    var args = arguments,
+        index = -1,
+        length = nativeMax(args.length - start, 0),
+        array = Array(length);
+
+    while (++index < length) {
+      array[index] = args[start + index];
+    }
+    index = -1;
+    var otherArgs = Array(start + 1);
+    while (++index < start) {
+      otherArgs[index] = args[index];
+    }
+    otherArgs[start] = transform(array);
+    return apply(func, this, otherArgs);
+  };
+}
+
+module.exports = overRest;
+
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports) {
+
+/**
+ * A faster alternative to `Function#apply`, this function invokes `func`
+ * with the `this` binding of `thisArg` and the arguments of `args`.
+ *
+ * @private
+ * @param {Function} func The function to invoke.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {Array} args The arguments to invoke `func` with.
+ * @returns {*} Returns the result of `func`.
+ */
+function apply(func, thisArg, args) {
+  switch (args.length) {
+    case 0: return func.call(thisArg);
+    case 1: return func.call(thisArg, args[0]);
+    case 2: return func.call(thisArg, args[0], args[1]);
+    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+  }
+  return func.apply(thisArg, args);
+}
+
+module.exports = apply;
+
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseSetToString = __webpack_require__(47),
+    shortOut = __webpack_require__(62);
+
+/**
+ * Sets the `toString` method of `func` to return `string`.
+ *
+ * @private
+ * @param {Function} func The function to modify.
+ * @param {Function} string The `toString` result.
+ * @returns {Function} Returns `func`.
+ */
+var setToString = shortOut(baseSetToString);
+
+module.exports = setToString;
+
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var constant = __webpack_require__(48),
+    defineProperty = __webpack_require__(49),
+    identity = __webpack_require__(12);
+
+/**
+ * The base implementation of `setToString` without support for hot loop shorting.
+ *
+ * @private
+ * @param {Function} func The function to modify.
+ * @param {Function} string The `toString` result.
+ * @returns {Function} Returns `func`.
+ */
+var baseSetToString = !defineProperty ? identity : function(func, string) {
+  return defineProperty(func, 'toString', {
+    'configurable': true,
+    'enumerable': false,
+    'value': constant(string),
+    'writable': true
+  });
+};
+
+module.exports = baseSetToString;
+
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports) {
+
+/**
+ * Creates a function that returns `value`.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Util
+ * @param {*} value The value to return from the new function.
+ * @returns {Function} Returns the new constant function.
+ * @example
+ *
+ * var objects = _.times(2, _.constant({ 'a': 1 }));
+ *
+ * console.log(objects);
+ * // => [{ 'a': 1 }, { 'a': 1 }]
+ *
+ * console.log(objects[0] === objects[1]);
+ * // => true
+ */
+function constant(value) {
+  return function() {
+    return value;
+  };
+}
+
+module.exports = constant;
+
+
+/***/ }),
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var getNative = __webpack_require__(50);
+
+var defineProperty = (function() {
+  try {
+    var func = getNative(Object, 'defineProperty');
+    func({}, '', {});
+    return func;
+  } catch (e) {}
+}());
+
+module.exports = defineProperty;
+
+
+/***/ }),
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseIsNative = __webpack_require__(51),
+    getValue = __webpack_require__(61);
+
+/**
+ * Gets the native function at `key` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the method to get.
+ * @returns {*} Returns the function if it's native, else `undefined`.
+ */
+function getNative(object, key) {
+  var value = getValue(object, key);
+  return baseIsNative(value) ? value : undefined;
+}
+
+module.exports = getNative;
+
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var isFunction = __webpack_require__(52),
+    isMasked = __webpack_require__(58),
+    isObject = __webpack_require__(15),
+    toSource = __webpack_require__(60);
+
+/**
+ * Used to match `RegExp`
+ * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
+ */
+var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+
+/** Used to detect host constructors (Safari). */
+var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+/** Used for built-in method references. */
+var funcProto = Function.prototype,
+    objectProto = Object.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = funcProto.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Used to detect if a method is native. */
+var reIsNative = RegExp('^' +
+  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
+  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+);
+
+/**
+ * The base implementation of `_.isNative` without bad shim checks.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a native function,
+ *  else `false`.
+ */
+function baseIsNative(value) {
+  if (!isObject(value) || isMasked(value)) {
+    return false;
+  }
+  var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+  return pattern.test(toSource(value));
+}
+
+module.exports = baseIsNative;
+
+
+/***/ }),
+/* 52 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var baseGetTag = __webpack_require__(53),
+    isObject = __webpack_require__(15);
+
+/** `Object#toString` result references. */
+var asyncTag = '[object AsyncFunction]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    proxyTag = '[object Proxy]';
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  if (!isObject(value)) {
+    return false;
+  }
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 9 which returns 'object' for typed arrays and other constructors.
+  var tag = baseGetTag(value);
+  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+}
+
+module.exports = isFunction;
+
+
+/***/ }),
+/* 53 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Symbol = __webpack_require__(13),
+    getRawTag = __webpack_require__(56),
+    objectToString = __webpack_require__(57);
+
+/** `Object#toString` result references. */
+var nullTag = '[object Null]',
+    undefinedTag = '[object Undefined]';
+
+/** Built-in value references. */
+var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+/**
+ * The base implementation of `getTag` without fallbacks for buggy environments.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+function baseGetTag(value) {
+  if (value == null) {
+    return value === undefined ? undefinedTag : nullTag;
+  }
+  value = Object(value);
+  return (symToStringTag && symToStringTag in value)
+    ? getRawTag(value)
+    : objectToString(value);
+}
+
+module.exports = baseGetTag;
+
+
+/***/ }),
+/* 54 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+
+module.exports = freeGlobal;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(55)))
+
+/***/ }),
+/* 55 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 56 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Symbol = __webpack_require__(13);
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/** Built-in value references. */
+var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+/**
+ * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the raw `toStringTag`.
+ */
+function getRawTag(value) {
+  var isOwn = hasOwnProperty.call(value, symToStringTag),
+      tag = value[symToStringTag];
+
+  try {
+    value[symToStringTag] = undefined;
+    var unmasked = true;
+  } catch (e) {}
+
+  var result = nativeObjectToString.call(value);
+  if (unmasked) {
+    if (isOwn) {
+      value[symToStringTag] = tag;
+    } else {
+      delete value[symToStringTag];
+    }
+  }
+  return result;
+}
+
+module.exports = getRawTag;
+
+
+/***/ }),
+/* 57 */
+/***/ (function(module, exports) {
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/**
+ * Converts `value` to a string using `Object.prototype.toString`.
+ *
+ * @private
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ */
+function objectToString(value) {
+  return nativeObjectToString.call(value);
+}
+
+module.exports = objectToString;
+
+
+/***/ }),
+/* 58 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var coreJsData = __webpack_require__(59);
+
+/** Used to detect methods masquerading as native. */
+var maskSrcKey = (function() {
+  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
+  return uid ? ('Symbol(src)_1.' + uid) : '';
+}());
+
+/**
+ * Checks if `func` has its source masked.
+ *
+ * @private
+ * @param {Function} func The function to check.
+ * @returns {boolean} Returns `true` if `func` is masked, else `false`.
+ */
+function isMasked(func) {
+  return !!maskSrcKey && (maskSrcKey in func);
+}
+
+module.exports = isMasked;
+
+
+/***/ }),
+/* 59 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var root = __webpack_require__(14);
+
+/** Used to detect overreaching core-js shims. */
+var coreJsData = root['__core-js_shared__'];
+
+module.exports = coreJsData;
+
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports) {
+
+/** Used for built-in method references. */
+var funcProto = Function.prototype;
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = funcProto.toString;
+
+/**
+ * Converts `func` to its source code.
+ *
+ * @private
+ * @param {Function} func The function to convert.
+ * @returns {string} Returns the source code.
+ */
+function toSource(func) {
+  if (func != null) {
+    try {
+      return funcToString.call(func);
+    } catch (e) {}
+    try {
+      return (func + '');
+    } catch (e) {}
+  }
+  return '';
+}
+
+module.exports = toSource;
+
+
+/***/ }),
+/* 61 */
+/***/ (function(module, exports) {
+
+/**
+ * Gets the value at `key` of `object`.
+ *
+ * @private
+ * @param {Object} [object] The object to query.
+ * @param {string} key The key of the property to get.
+ * @returns {*} Returns the property value.
+ */
+function getValue(object, key) {
+  return object == null ? undefined : object[key];
+}
+
+module.exports = getValue;
+
+
+/***/ }),
+/* 62 */
+/***/ (function(module, exports) {
+
+/** Used to detect hot functions by number of calls within a span of milliseconds. */
+var HOT_COUNT = 800,
+    HOT_SPAN = 16;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeNow = Date.now;
+
+/**
+ * Creates a function that'll short out and invoke `identity` instead
+ * of `func` when it's called `HOT_COUNT` or more times in `HOT_SPAN`
+ * milliseconds.
+ *
+ * @private
+ * @param {Function} func The function to restrict.
+ * @returns {Function} Returns the new shortable function.
+ */
+function shortOut(func) {
+  var count = 0,
+      lastCalled = 0;
+
+  return function() {
+    var stamp = nativeNow(),
+        remaining = HOT_SPAN - (stamp - lastCalled);
+
+    lastCalled = stamp;
+    if (remaining > 0) {
+      if (++count >= HOT_COUNT) {
+        return arguments[0];
+      }
+    } else {
+      count = 0;
+    }
+    return func.apply(undefined, arguments);
+  };
+}
+
+module.exports = shortOut;
+
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+exports.default = onlyOnce;
+function onlyOnce(fn) {
+    return function () {
+        if (fn === null) throw new Error("Callback was already called.");
+        var callFn = fn;
+        fn = null;
+        callFn.apply(this, arguments);
+    };
+}
+module.exports = exports["default"];
+
+/***/ }),
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -4310,820 +5141,11 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-exports.default = function (tasks, callback) {
-    callback = (0, _once2.default)(callback || _noop2.default);
-    if (!(0, _isArray2.default)(tasks)) return callback(new Error('First argument to waterfall must be an array of functions'));
-    if (!tasks.length) return callback();
-    var taskIndex = 0;
-
-    function nextTask(args) {
-        if (taskIndex === tasks.length) {
-            return callback.apply(null, [null].concat(args));
-        }
-
-        var taskCallback = (0, _onlyOnce2.default)((0, _baseRest2.default)(function (err, args) {
-            if (err) {
-                return callback.apply(null, [err].concat(args));
-            }
-            nextTask(args);
-        }));
-
-        args.push(taskCallback);
-
-        var task = tasks[taskIndex++];
-        task.apply(null, args);
-    }
-
-    nextTask([]);
-};
-
-var _isArray = __webpack_require__(41);
-
-var _isArray2 = _interopRequireDefault(_isArray);
-
-var _noop = __webpack_require__(42);
-
-var _noop2 = _interopRequireDefault(_noop);
-
-var _once = __webpack_require__(43);
-
-var _once2 = _interopRequireDefault(_once);
-
-var _baseRest = __webpack_require__(44);
-
-var _baseRest2 = _interopRequireDefault(_baseRest);
-
-var _onlyOnce = __webpack_require__(64);
-
-var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-module.exports = exports['default'];
-
-/**
- * Runs the `tasks` array of functions in series, each passing their results to
- * the next in the array. However, if any of the `tasks` pass an error to their
- * own callback, the next function is not executed, and the main `callback` is
- * immediately called with the error.
- *
- * @name waterfall
- * @static
- * @memberOf module:ControlFlow
- * @method
- * @category Control Flow
- * @param {Array} tasks - An array of functions to run, each function is passed
- * a `callback(err, result1, result2, ...)` it must call on completion. The
- * first argument is an error (which can be `null`) and any further arguments
- * will be passed as arguments in order to the next task.
- * @param {Function} [callback] - An optional callback to run once all the
- * functions have completed. This will be passed the results of the last task's
- * callback. Invoked with (err, [results]).
- * @returns undefined
- * @example
- *
- * async.waterfall([
- *     function(callback) {
- *         callback(null, 'one', 'two');
- *     },
- *     function(arg1, arg2, callback) {
- *         // arg1 now equals 'one' and arg2 now equals 'two'
- *         callback(null, 'three');
- *     },
- *     function(arg1, callback) {
- *         // arg1 now equals 'three'
- *         callback(null, 'done');
- *     }
- * ], function (err, result) {
- *     // result now equals 'done'
- * });
- *
- * // Or, with named functions:
- * async.waterfall([
- *     myFirstFunction,
- *     mySecondFunction,
- *     myLastFunction,
- * ], function (err, result) {
- *     // result now equals 'done'
- * });
- * function myFirstFunction(callback) {
- *     callback(null, 'one', 'two');
- * }
- * function mySecondFunction(arg1, arg2, callback) {
- *     // arg1 now equals 'one' and arg2 now equals 'two'
- *     callback(null, 'three');
- * }
- * function myLastFunction(arg1, callback) {
- *     // arg1 now equals 'three'
- *     callback(null, 'done');
- * }
- */
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports) {
-
-/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an array, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */
-var isArray = Array.isArray;
-
-module.exports = isArray;
-
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports) {
-
-/**
- * This method returns `undefined`.
- *
- * @static
- * @memberOf _
- * @since 2.3.0
- * @category Util
- * @example
- *
- * _.times(2, _.noop);
- * // => [undefined, undefined]
- */
-function noop() {
-  // No operation performed.
-}
-
-module.exports = noop;
-
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = once;
-function once(fn) {
-    return function () {
-        if (fn === null) return;
-        var callFn = fn;
-        fn = null;
-        callFn.apply(this, arguments);
-    };
-}
-module.exports = exports["default"];
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var identity = __webpack_require__(12),
-    overRest = __webpack_require__(45),
-    setToString = __webpack_require__(47);
-
-/**
- * The base implementation of `_.rest` which doesn't validate or coerce arguments.
- *
- * @private
- * @param {Function} func The function to apply a rest parameter to.
- * @param {number} [start=func.length-1] The start position of the rest parameter.
- * @returns {Function} Returns the new function.
- */
-function baseRest(func, start) {
-  return setToString(overRest(func, start, identity), func + '');
-}
-
-module.exports = baseRest;
-
-
-/***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var apply = __webpack_require__(46);
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeMax = Math.max;
-
-/**
- * A specialized version of `baseRest` which transforms the rest array.
- *
- * @private
- * @param {Function} func The function to apply a rest parameter to.
- * @param {number} [start=func.length-1] The start position of the rest parameter.
- * @param {Function} transform The rest array transform.
- * @returns {Function} Returns the new function.
- */
-function overRest(func, start, transform) {
-  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
-  return function() {
-    var args = arguments,
-        index = -1,
-        length = nativeMax(args.length - start, 0),
-        array = Array(length);
-
-    while (++index < length) {
-      array[index] = args[start + index];
-    }
-    index = -1;
-    var otherArgs = Array(start + 1);
-    while (++index < start) {
-      otherArgs[index] = args[index];
-    }
-    otherArgs[start] = transform(array);
-    return apply(func, this, otherArgs);
-  };
-}
-
-module.exports = overRest;
-
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports) {
-
-/**
- * A faster alternative to `Function#apply`, this function invokes `func`
- * with the `this` binding of `thisArg` and the arguments of `args`.
- *
- * @private
- * @param {Function} func The function to invoke.
- * @param {*} thisArg The `this` binding of `func`.
- * @param {Array} args The arguments to invoke `func` with.
- * @returns {*} Returns the result of `func`.
- */
-function apply(func, thisArg, args) {
-  switch (args.length) {
-    case 0: return func.call(thisArg);
-    case 1: return func.call(thisArg, args[0]);
-    case 2: return func.call(thisArg, args[0], args[1]);
-    case 3: return func.call(thisArg, args[0], args[1], args[2]);
-  }
-  return func.apply(thisArg, args);
-}
-
-module.exports = apply;
-
-
-/***/ }),
-/* 47 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var baseSetToString = __webpack_require__(48),
-    shortOut = __webpack_require__(63);
-
-/**
- * Sets the `toString` method of `func` to return `string`.
- *
- * @private
- * @param {Function} func The function to modify.
- * @param {Function} string The `toString` result.
- * @returns {Function} Returns `func`.
- */
-var setToString = shortOut(baseSetToString);
-
-module.exports = setToString;
-
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var constant = __webpack_require__(49),
-    defineProperty = __webpack_require__(50),
-    identity = __webpack_require__(12);
-
-/**
- * The base implementation of `setToString` without support for hot loop shorting.
- *
- * @private
- * @param {Function} func The function to modify.
- * @param {Function} string The `toString` result.
- * @returns {Function} Returns `func`.
- */
-var baseSetToString = !defineProperty ? identity : function(func, string) {
-  return defineProperty(func, 'toString', {
-    'configurable': true,
-    'enumerable': false,
-    'value': constant(string),
-    'writable': true
-  });
-};
-
-module.exports = baseSetToString;
-
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports) {
-
-/**
- * Creates a function that returns `value`.
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Util
- * @param {*} value The value to return from the new function.
- * @returns {Function} Returns the new constant function.
- * @example
- *
- * var objects = _.times(2, _.constant({ 'a': 1 }));
- *
- * console.log(objects);
- * // => [{ 'a': 1 }, { 'a': 1 }]
- *
- * console.log(objects[0] === objects[1]);
- * // => true
- */
-function constant(value) {
-  return function() {
-    return value;
-  };
-}
-
-module.exports = constant;
-
-
-/***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(51);
-
-var defineProperty = (function() {
-  try {
-    var func = getNative(Object, 'defineProperty');
-    func({}, '', {});
-    return func;
-  } catch (e) {}
-}());
-
-module.exports = defineProperty;
-
-
-/***/ }),
-/* 51 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var baseIsNative = __webpack_require__(52),
-    getValue = __webpack_require__(62);
-
-/**
- * Gets the native function at `key` of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {string} key The key of the method to get.
- * @returns {*} Returns the function if it's native, else `undefined`.
- */
-function getNative(object, key) {
-  var value = getValue(object, key);
-  return baseIsNative(value) ? value : undefined;
-}
-
-module.exports = getNative;
-
-
-/***/ }),
-/* 52 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var isFunction = __webpack_require__(53),
-    isMasked = __webpack_require__(59),
-    isObject = __webpack_require__(15),
-    toSource = __webpack_require__(61);
-
-/**
- * Used to match `RegExp`
- * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
- */
-var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-
-/** Used to detect host constructors (Safari). */
-var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-/** Used for built-in method references. */
-var funcProto = Function.prototype,
-    objectProto = Object.prototype;
-
-/** Used to resolve the decompiled source of functions. */
-var funcToString = funcProto.toString;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/** Used to detect if a method is native. */
-var reIsNative = RegExp('^' +
-  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
-  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-);
-
-/**
- * The base implementation of `_.isNative` without bad shim checks.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a native function,
- *  else `false`.
- */
-function baseIsNative(value) {
-  if (!isObject(value) || isMasked(value)) {
-    return false;
-  }
-  var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
-  return pattern.test(toSource(value));
-}
-
-module.exports = baseIsNative;
-
-
-/***/ }),
-/* 53 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var baseGetTag = __webpack_require__(54),
-    isObject = __webpack_require__(15);
-
-/** `Object#toString` result references. */
-var asyncTag = '[object AsyncFunction]',
-    funcTag = '[object Function]',
-    genTag = '[object GeneratorFunction]',
-    proxyTag = '[object Proxy]';
-
-/**
- * Checks if `value` is classified as a `Function` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a function, else `false`.
- * @example
- *
- * _.isFunction(_);
- * // => true
- *
- * _.isFunction(/abc/);
- * // => false
- */
-function isFunction(value) {
-  if (!isObject(value)) {
-    return false;
-  }
-  // The use of `Object#toString` avoids issues with the `typeof` operator
-  // in Safari 9 which returns 'object' for typed arrays and other constructors.
-  var tag = baseGetTag(value);
-  return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
-}
-
-module.exports = isFunction;
-
-
-/***/ }),
-/* 54 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Symbol = __webpack_require__(13),
-    getRawTag = __webpack_require__(57),
-    objectToString = __webpack_require__(58);
-
-/** `Object#toString` result references. */
-var nullTag = '[object Null]',
-    undefinedTag = '[object Undefined]';
-
-/** Built-in value references. */
-var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
-
-/**
- * The base implementation of `getTag` without fallbacks for buggy environments.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-function baseGetTag(value) {
-  if (value == null) {
-    return value === undefined ? undefinedTag : nullTag;
-  }
-  value = Object(value);
-  return (symToStringTag && symToStringTag in value)
-    ? getRawTag(value)
-    : objectToString(value);
-}
-
-module.exports = baseGetTag;
-
-
-/***/ }),
-/* 55 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-
-module.exports = freeGlobal;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56)))
-
-/***/ }),
-/* 56 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 57 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Symbol = __webpack_require__(13);
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var nativeObjectToString = objectProto.toString;
-
-/** Built-in value references. */
-var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
-
-/**
- * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the raw `toStringTag`.
- */
-function getRawTag(value) {
-  var isOwn = hasOwnProperty.call(value, symToStringTag),
-      tag = value[symToStringTag];
-
-  try {
-    value[symToStringTag] = undefined;
-    var unmasked = true;
-  } catch (e) {}
-
-  var result = nativeObjectToString.call(value);
-  if (unmasked) {
-    if (isOwn) {
-      value[symToStringTag] = tag;
-    } else {
-      delete value[symToStringTag];
-    }
-  }
-  return result;
-}
-
-module.exports = getRawTag;
-
-
-/***/ }),
-/* 58 */
-/***/ (function(module, exports) {
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var nativeObjectToString = objectProto.toString;
-
-/**
- * Converts `value` to a string using `Object.prototype.toString`.
- *
- * @private
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- */
-function objectToString(value) {
-  return nativeObjectToString.call(value);
-}
-
-module.exports = objectToString;
-
-
-/***/ }),
-/* 59 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var coreJsData = __webpack_require__(60);
-
-/** Used to detect methods masquerading as native. */
-var maskSrcKey = (function() {
-  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
-  return uid ? ('Symbol(src)_1.' + uid) : '';
-}());
-
-/**
- * Checks if `func` has its source masked.
- *
- * @private
- * @param {Function} func The function to check.
- * @returns {boolean} Returns `true` if `func` is masked, else `false`.
- */
-function isMasked(func) {
-  return !!maskSrcKey && (maskSrcKey in func);
-}
-
-module.exports = isMasked;
-
-
-/***/ }),
-/* 60 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var root = __webpack_require__(14);
-
-/** Used to detect overreaching core-js shims. */
-var coreJsData = root['__core-js_shared__'];
-
-module.exports = coreJsData;
-
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports) {
-
-/** Used for built-in method references. */
-var funcProto = Function.prototype;
-
-/** Used to resolve the decompiled source of functions. */
-var funcToString = funcProto.toString;
-
-/**
- * Converts `func` to its source code.
- *
- * @private
- * @param {Function} func The function to convert.
- * @returns {string} Returns the source code.
- */
-function toSource(func) {
-  if (func != null) {
-    try {
-      return funcToString.call(func);
-    } catch (e) {}
-    try {
-      return (func + '');
-    } catch (e) {}
-  }
-  return '';
-}
-
-module.exports = toSource;
-
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports) {
-
-/**
- * Gets the value at `key` of `object`.
- *
- * @private
- * @param {Object} [object] The object to query.
- * @param {string} key The key of the property to get.
- * @returns {*} Returns the property value.
- */
-function getValue(object, key) {
-  return object == null ? undefined : object[key];
-}
-
-module.exports = getValue;
-
-
-/***/ }),
-/* 63 */
-/***/ (function(module, exports) {
-
-/** Used to detect hot functions by number of calls within a span of milliseconds. */
-var HOT_COUNT = 800,
-    HOT_SPAN = 16;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeNow = Date.now;
-
-/**
- * Creates a function that'll short out and invoke `identity` instead
- * of `func` when it's called `HOT_COUNT` or more times in `HOT_SPAN`
- * milliseconds.
- *
- * @private
- * @param {Function} func The function to restrict.
- * @returns {Function} Returns the new shortable function.
- */
-function shortOut(func) {
-  var count = 0,
-      lastCalled = 0;
-
-  return function() {
-    var stamp = nativeNow(),
-        remaining = HOT_SPAN - (stamp - lastCalled);
-
-    lastCalled = stamp;
-    if (remaining > 0) {
-      if (++count >= HOT_COUNT) {
-        return arguments[0];
-      }
-    } else {
-      count = 0;
-    }
-    return func.apply(undefined, arguments);
-  };
-}
-
-module.exports = shortOut;
-
-
-/***/ }),
-/* 64 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-exports.default = onlyOnce;
-function onlyOnce(fn) {
-    return function () {
-        if (fn === null) throw new Error("Callback was already called.");
-        var callFn = fn;
-        fn = null;
-        callFn.apply(this, arguments);
-    };
-}
-module.exports = exports["default"];
-
-/***/ }),
 /* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const User = __webpack_require__(3);
+const User = __webpack_require__(1);
+const Chat = __webpack_require__(4);
 
 /**
  Represents the client connection as a special {@link User} with write permissions.
@@ -5147,23 +5169,8 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
-        this.direct.on('$.server.chat.created', (payload) => {
-            chatEngine.addChatToSession(payload.chat);
-        });
+        console.log(this.direct)
 
-
-        this.direct.on('$.server.chat.deleted', (payload) => {
-            chatEngine.removeChatFromSession(payload.chat);
-        });
-
-    }
-
-    // assign updates from network
-    assign(state) {
-        // we call "update" because calling "super.assign"
-        // will direct back to "this.update" which creates
-        // a loop of network updates
-        super.update(state);
     }
 
     /**
@@ -5173,18 +5180,75 @@ class Me extends User {
      * @param {Object} state The new state for {@link Me}
      * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
      * Defaults to ```ChatEngine.global```.
-     * @fires Chat#event:$"."state
+     * @fires User#event:$"."state
      * @example
      * // update state
      * me.update({value: true});
      */
-    update(state, chat = this.chatEngine.global) {
+    update(state) {
 
         // run the root update function
-        super.update(state, chat);
+        super.update(state);
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state);
+
+    }
+
+    // assign updates from network
+    assign(state) {
+        // we call "update" because calling "super.assign"
+        // will direct back to "this.update" which creates
+        // a loop of network updates
+        super.update(state);
+
+    }
+
+    /**
+    Stores {@link Chat} within ```Me.chats```.
+    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
+    @private
+    */
+    serverAddChat(chat) {
+
+        // check the chat exists within the global list but is not grouped
+        let theChat = this.chatEngine.chats[chat.channel] || new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
+
+        /**
+        * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+        * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+        * @event Me#$"."session"."chat"."restore
+        */
+        this.trigger('$.session.chat.restore', {
+            chat: theChat
+        });
+
+    }
+
+
+    /**
+    Removes {@link Chat} within Me.chats
+    @private
+    */
+    serverRemoveChat(chat) {
+
+        let targetChat = this.chatEngine.chats[chat.channel];
+
+        // if this is the same client that fired leave(), the chat would already
+        // be removed
+        if (targetChat) {
+
+            targetChat.leave();
+
+            /**
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+            * @event Me#$"."session"."chat"."leave
+            */
+            this.trigger('$.session.chat.leave', {
+                chat: targetChat
+            });
+
+        }
 
     }
 

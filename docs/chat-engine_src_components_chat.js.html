@@ -1,3 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>chat-engine/src/components/chat.js - PubNub ChatEngine</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Guides</h3><ul><li data-sidebar="getting-started"><a href="tutorial-getting-started.html">Get Started</a><ul><li data-sidebar="install"><a href="tutorial-install.html">Install ChatEngine</a></li><li data-sidebar="pubnub"><a href="tutorial-pubnub.html">Configure ChatEngine</a></li><li data-sidebar="quick"><a href="tutorial-quick.html">Quick Start Guide</a></li></ul></li><li data-sidebar="concepts"><a href="tutorial-concepts.html">Concepts</a><ul><li data-sidebar="me"><a href="tutorial-me_.html">Me</a></li><li data-sidebar="users"><a href="tutorial-users.html">Users and State</a></li><li data-sidebar="chats"><a href="tutorial-chats.html">Chats</a></li><li data-sidebar="events"><a href="tutorial-events.html">Events</a></li><li data-sidebar="namespaces"><a href="tutorial-namespaces.html">Namespaces</a></li><li data-sidebar="wildcard"><a href="tutorial-wildcard.html">Wildcards</a></li><li data-sidebar="payload"><a href="tutorial-payload.html">Event Payload</a></li><li data-sidebar="history"><a href="tutorial-history.html">History</a></li><li data-sidebar="globalChat"><a href="tutorial-globalChat.html">Global Chat</a></li><li data-sidebar="online-list"><a href="tutorial-online-list.html">Online List</a></li><li data-sidebar="auth"><a href="tutorial-auth.html">Authentication</a></li><li data-sidebar="privacy"><a href="tutorial-privacy.html">Privacy</a></li><li data-sidebar="private"><a href="tutorial-private.html">Private Chats</a></li><li data-sidebar="templating"><a href="tutorial-templating.html">Templating</a></li><li data-sidebar="errors"><a href="tutorial-errors.html">Errors</a></li><li data-sidebar="using"><a href="tutorial-using.html">Plugins</a></li><li data-sidebar="build"><a href="tutorial-build.html">Build a Plugin</a></li><li data-sidebar="functions"><a href="tutorial-functions.html">PubNub Functions</a></li><li data-sidebar="topology"><a href="tutorial-topology.html">PubNub Channel Topology</a></li></ul></li><li data-sidebar="angular"><a href="tutorial-angular.html">Angular</a><ul><li data-sidebar="ng-simple"><a href="tutorial-ng-simple.html">Angular Bootstrap</a></li><li data-sidebar="ng-flowtron"><a href="tutorial-ng-flowtron.html">Angular Desktop Chat</a></li></ul></li><li data-sidebar="jquery"><a href="tutorial-jquery.html">jQuery</a><ul><li data-sidebar="jq-simple"><a href="tutorial-jq-simple.html">jQuery Chat</a></li><li data-sidebar="jq-kitchen"><a href="tutorial-jq-kitchen.html">jQuery Kitchen Sink</a></li></ul></li><li data-sidebar="js"><a href="tutorial-js.html">Javascript</a><ul><li data-sidebar="chat"><a href="tutorial-chat_.html">JS Chat</a></li><li data-sidebar="friends"><a href="tutorial-friends.html">JS Friends List</a></li><li data-sidebar="online"><a href="tutorial-online.html">JS Online List</a></li><li data-sidebar="facebook"><a href="tutorial-facebook.html">JS Facebook Auth</a></li></ul></li><li data-sidebar="nodejs"><a href="tutorial-nodejs.html">NodeJS</a><ul><li data-sidebar="chatbot"><a href="tutorial-chatbot.html">NodeJS Chat Bot</a></li></ul></li><li data-sidebar="react"><a href="tutorial-react.html">React</a><ul><li data-sidebar="react-simple"><a href="tutorial-react-simple.html">React Web</a></li><li data-sidebar="react-native"><a href="tutorial-react-native.html">React Native</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatEngineCore">ChatEngineCore</a></li></ul><h3>Plugins</h3><ul><li data-sidebar="chat-engine-desktop-notifications"><a href="module-chat-engine-desktop-notifications.html">chat-engine-desktop-notifications</a></li><li data-sidebar="chat-engine-emoji"><a href="module-chat-engine-emoji.html">chat-engine-emoji</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-emoji.html#~parseEmoji">parseEmoji()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~render">render()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-gravatar"><a href="module-chat-engine-gravatar.html">chat-engine-gravatar</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-gravatar.html#~state%2522.%2522gravatar">state.gravatar</a></li></ul></ul></li><li data-sidebar="chat-engine-markdown"><a href="module-chat-engine-markdown.html">chat-engine-markdown</a></li><li data-sidebar="chat-engine-online-user-search"><a href="module-chat-engine-online-user-search.html">chat-engine-online-user-search</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-online-user-search.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-random-username"><a href="module-chat-engine-random-username.html">chat-engine-random-username</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-random-username.html#~state%2522.%2522username">state.username</a></li></ul></ul></li><li data-sidebar="chat-engine-typing-indicator"><a href="module-chat-engine-typing-indicator.html">chat-engine-typing-indicator</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522startTyping">typingindicator.startTyping()</a></li><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522stopTyping">typingindicator.stopTyping()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522startTyping">$typingIndiciator.startTyping</a></li><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522stopTyping">$typingIndiciator.stopTyping</a></li></ul></ul></li><li data-sidebar="chat-engine-unread-messages"><a href="module-chat-engine-unread-messages.html">chat-engine-unread-messages</a><ul><li><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadCount">unreadCount</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522isActive">unreadMessages.isActive</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522unreadCount">unreadMessages.unreadCount</a></li></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-unread-messages.html#~event:$unread">$unread</a></li></ul></ul></li><li data-sidebar="chat-engine-uploadcare"><a href="module-chat-engine-uploadcare.html">chat-engine-uploadcare</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-uploadcare.html#~uploadcare%2522.%2522bind">uploadcare.bind()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-uploadcare.html#~event:$uploadcare%2522.%2522upload">$uploadcare.upload</a></li></ul></ul></li></ul><h3>Reference</h3><ul><li data-sidebar="Chat"><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="Chat.html#channel">channel</a></li><li data-type='member'><a href="Chat.html#connected">connected</a></li><li data-type='member'><a href="Chat.html#group">group</a></li><li data-type='member'><a href="Chat.html#isPrivate">isPrivate</a></li><li data-type='member'><a href="Chat.html#users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="Chat.html#connect">connect()</a></li><li data-type='method'><a href="Chat.html#emit">emit()</a></li><li data-type='method'><a href="Chat.html#history">history()</a></li><li data-type='method'><a href="Chat.html#invite">invite()</a></li><li data-type='method'><a href="Chat.html#leave">leave()</a></li><li data-type='method'><a href="Chat.html#objectify">objectify()</a></li><li data-type='method'><a href="Chat.html#on">on()</a></li><li data-type='method'><a href="Chat.html#plugin">plugin()</a></li></ul><ul class='events'><li data-type='event'><a href="Chat.html#event:$%2522.%2522connected">$.connected</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522history">$.error.history</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522presence">$.error.presence</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522publish">$.error.publish</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522history%2522.%2522*">$.history.*</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect">$.offline.disconnect</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave">$.offline.leave</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522here">$.online.here</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522join">$.online.join</a></li></ul></li><li data-sidebar="ChatEngine"><a href="ChatEngine.html">ChatEngine</a><ul class='members'><li data-type='member'><a href="ChatEngine.html#.Chat">Chat</a></li><li data-type='member'><a href="ChatEngine.html#.chats">chats</a></li><li data-type='member'><a href="ChatEngine.html#.global">global</a></li><li data-type='member'><a href="ChatEngine.html#.me">me</a></li><li data-type='member'><a href="ChatEngine.html#.pubnub">pubnub</a></li><li data-type='member'><a href="ChatEngine.html#.ready">ready</a></li><li data-type='member'><a href="ChatEngine.html#.User">User</a></li><li data-type='member'><a href="ChatEngine.html#.users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="ChatEngine.html#connect">connect()</a></li><li data-type='method'><a href="ChatEngine.html#off">off()</a></li><li data-type='method'><a href="ChatEngine.html#on">on()</a></li><li data-type='method'><a href="ChatEngine.html#onAny">onAny()</a></li><li data-type='method'><a href="ChatEngine.html#once">once()</a></li></ul><ul class='events'><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522auth">$.error.auth</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522session">$.error.session</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522badrequest">$.network.down.badrequest</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522decryption">$.network.down.decryption</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522denied">$.network.down.denied</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522issue">$.network.down.issue</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522malformed">$.network.down.malformed</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522offline">$.network.down.offline</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522timeout">$.network.down.timeout</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522connected">$.network.up.connected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522online">$.network.up.online</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522reconnected">$.network.up.reconnected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522join">$.session.chat.join</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522leave">$.session.chat.leave</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522state">$.state</a></li></ul></li><li data-sidebar="Emitter"><a href="Emitter.html">Emitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="Emitter.html#off">off()</a></li><li data-type='method'><a href="Emitter.html#on">on()</a></li><li data-type='method'><a href="Emitter.html#onAny">onAny()</a></li><li data-type='method'><a href="Emitter.html#once">once()</a></li><li data-type='method'><a href="Emitter.html#plugin">plugin()</a></li></ul></li><li data-sidebar="Event"><a href="Event.html">Event</a><ul class='members'><li data-type='member'><a href="Event.html#channel">channel</a></li></ul></li><li data-sidebar="Me"><a href="Me.html">Me</a><ul class='members'><li data-type='member'><a href="Me.html#chats">chats</a></li><li data-type='member'><a href="Me.html#direct">direct</a></li><li data-type='member'><a href="Me.html#feed">feed</a></li><li data-type='member'><a href="Me.html#state">state</a></li><li data-type='member'><a href="Me.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="Me.html#update">update()</a></li></ul><ul class='events'><li data-type='event'><a href="Me.html#event:$%2522.%2522invite">$.invite</a></li></ul></li><li data-sidebar="RootEmitter"><a href="RootEmitter.html">RootEmitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="RootEmitter.html#off">off()</a></li><li data-type='method'><a href="RootEmitter.html#on">on()</a></li><li data-type='method'><a href="RootEmitter.html#onAny">onAny()</a></li><li data-type='method'><a href="RootEmitter.html#once">once()</a></li></ul></li><li data-sidebar="User"><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="User.html#chats">chats</a></li><li data-type='member'><a href="User.html#direct">direct</a></li><li data-type='member'><a href="User.html#feed">feed</a></li><li data-type='member'><a href="User.html#state">state</a></li><li data-type='member'><a href="User.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="User.html#on">on()</a></li><li data-type='method'><a href="User.html#plugin">plugin()</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">chat-engine/src/components/chat.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const waterfall = require('async/waterfall');
 const axios = require('axios');
 
 const Emitter = require('../modules/emitter');
@@ -136,8 +178,6 @@ class Chat extends Emitter {
 
                 if (status.error) {
 
-                    console.log(status, response)
-
                     /**
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
@@ -272,12 +312,7 @@ class Chat extends Emitter {
                                   *     console.log('User has joined the room!', data.user);
                                   * });
                      */
-
-                    // It's possible for PubNub to send us both a join and have the user appear in here_now
-                    // Avoid firing duplicate $.online events.
-                    if (!this.users[user.uuid]) {
-                        this.trigger('$.online.join', { user });
-                    }
+                    this.trigger('$.online.join', { user });
 
                 }
 
@@ -317,7 +352,11 @@ class Chat extends Emitter {
                     chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
-                // this will trigger ready callbacks
+                // listen to all PubNub events for this Chat
+                chatEngine.pubnub.addListener({
+                    message: this.onMessage,
+                    presence: this.onPresence
+                });
 
                 // subscribe to the PubNub channel for this Chat
                 chatEngine.pubnub.subscribe({
@@ -378,19 +417,18 @@ class Chat extends Emitter {
          */
         this.connect = () => {
             this.grant();
-            this.chatEngine.me.addChat(this);
         };
 
         if (autoConnect) {
-            this.connect();
+            this.grant();
         }
 
-        this.chatEngine.chats[this.channel] = this;
+        chatEngine.chats[this.channel] = this;
 
     }
 
     /**
-     * Send events to other clients in this {@link Chat}.
+     * Send events to other clients in this {@link User}.
      * Events are trigger over the network  and all events are made
      * on behalf of {@link Me}
      *
@@ -433,6 +471,67 @@ class Chat extends Emitter {
     }
 
     /**
+     Broadcasts an event locally to all listeners.
+
+     @private
+     @param {String} event The event name
+     @param {Object} payload The event payload object
+     */
+
+    trigger(event, payload) {
+
+        let complete = () => {
+
+            // let plugins modify the event
+            this.runPluginQueue('on', event, (next) => {
+                next(null, payload);
+            }, (err, pluginResponse) => {
+                // emit this event to any listener
+                this._emit(event, pluginResponse);
+            });
+
+        };
+
+        // this can be made into plugin
+        if (typeof payload === 'object') {
+
+            // restore chat in payload
+            if (!payload.chat) {
+                payload.chat = this;
+            }
+
+            // if we should try to restore the sender property
+            if (payload.sender) {
+
+                // this use already exists in memory
+                if (this.chatEngine.users[payload.sender]) {
+                    payload.sender = this.chatEngine.users[payload.sender];
+                    complete();
+                } else {
+
+                    // the user doesn't exist, create it
+                    payload.sender = new User(this.chatEngine, payload.sender);
+
+                    // try to get stored state from server
+                    payload.sender._getState(this, () => {
+                        complete();
+                    });
+
+                }
+
+            } else {
+                // there's no "sender" in this object, move on
+                complete();
+            }
+
+        } else {
+            // payload is not an object, we want nothing to do with it.
+            complete();
+        }
+
+    }
+
+    /**
      Add a user to the {@link Chat}, creating it if it doesn't already exist.
 
      @private
@@ -446,7 +545,7 @@ class Chat extends Emitter {
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
 
-        this.chatEngine.users[uuid].addChat(this);
+        this.chatEngine.users[uuid].addChat(this, state);
 
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
@@ -499,6 +598,22 @@ class Chat extends Emitter {
         // update this user's state in this chatroom
         this.users[uuid].assign(state);
 
+        /**
+         * Broadcast that a {@link User} has changed state.
+         * @event ChatEngine#$"."state
+         * @param {Object} data The payload returned by the event
+         * @param {User} data.user The {@link User} that changed state
+         * @param {Object} data.state The new user state
+         * @example
+         * ChatEngine.on('$.state', (data) => {
+         *     console.log('User has changed state:', data.user, 'new state:', data.state);
+         * });
+         */
+        this.chatEngine._emit('$.state', {
+            user: this.users[uuid],
+            state: this.users[uuid].state
+        });
+
     }
 
     /**
@@ -514,10 +629,6 @@ class Chat extends Emitter {
             channels: [this.channel]
         });
 
-        this.connected = false;
-
-        this.chatEngine.me.removeChat(this);
-
         // delete the chat in the remote list
         axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
             data: {
@@ -532,10 +643,6 @@ class Chat extends Emitter {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
             });
 
-    }
-
-    delete() {
-        delete this.chatEngine.chats[this.channel];
     }
 
     /**
@@ -568,8 +675,6 @@ class Chat extends Emitter {
             // remove the user from the local list of users
             delete this.users[uuid];
 
-            this.users[uuid].removeChat(this);
-
             // we don't remove the user from the global list,
             // because they may be online in other channels
 
@@ -598,7 +703,7 @@ class Chat extends Emitter {
              * to the {@link Chat} involuntarily.
              *
              * @event Chat#$"."offline"."disconnect
-             * @param {Object} data The payload object
+             * @param {Object} data The {@link User} that disconnected
              * @param {Object} data.user The {@link User} that disconnected
              * @example
              * chat.on('$.offline.disconnect', (data) => {
@@ -608,6 +713,42 @@ class Chat extends Emitter {
 
             this.trigger('$.offline.disconnect', { user: this.users[uuid] });
         }
+
+    }
+
+    /**
+     Load plugins and attach a queue of functions to execute before and
+     after events are trigger or received.
+
+     @private
+     @param {String} location Where in the middleeware the event should run (emit, trigger)
+     @param {String} event The event name
+     @param {String} first The first function to run before the plugins have run
+     @param {String} last The last function to run after the plugins have run
+     */
+    runPluginQueue(location, event, first, last) {
+
+        // this assembles a queue of functions to run as middleware
+        // event is a triggered event key
+        let pluginQueue = [];
+
+        // the first function is always required
+        pluginQueue.push(first);
+
+        // look through the configured plugins
+        this.plugins.forEach((pluginItem) => {
+            // if they have defined a function to run specifically
+            // for this event
+            if (pluginItem.middleware &amp;&amp; pluginItem.middleware[location] &amp;&amp; pluginItem.middleware[location][event]) {
+                // add the function to the queue
+                pluginQueue.push(pluginItem.middleware[location][event]);
+            }
+        });
+
+        // waterfall runs the functions in assigned order
+        // waiting for one to complete before moving to the next
+        // when it's done, the ```last``` parameter is called
+        waterfall(pluginQueue, last);
 
     }
 
@@ -634,8 +775,6 @@ class Chat extends Emitter {
                 *     console.log('chat is ready to go!');
                 * });
          */
-        this.trigger('$.connected');
-
         this.connected = true;
 
         // get a list of users online now
@@ -644,12 +783,10 @@ class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, this.onHereNow);
-
-        // listen to all PubNub events for this Chat
-        this.chatEngine.pubnub.addListener({
-            message: this.onMessage,
-            presence: this.onPresence
+        }, (status, response) => {
+            // trigger that SDK is ready before emitting online events
+            this.trigger('$.connected');
+            this.onHereNow(status, response);
         });
 
     }
@@ -657,3 +794,22 @@ class Chat extends Emitter {
 }
 
 module.exports = Chat;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.1</a> on Thu Sep 28 2017 17:25:44 GMT-0500 (CDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
