@@ -1949,7 +1949,6 @@ class Emitter extends RootEmitter {
          */
         this.plugins = [];
 
-
         // add an object as a subobject under a namespoace
         this.addChild = (ob, childName, childOb) => {
 

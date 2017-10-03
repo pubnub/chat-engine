@@ -67,7 +67,6 @@ class Emitter extends RootEmitter {
          */
         this.plugins = [];
 
-
         // add an object as a subobject under a namespoace
         this.addChild = (ob, childName, childOb) => {
 
@@ -106,6 +105,18 @@ class Emitter extends RootEmitter {
                 }
 
             }
+        };
+
+        this.bindProtoPlugins = () => {
+
+            if (this.chatEngine.protoPlugins[this.name]) {
+
+                this.chatEngine.protoPlugins[this.name].forEach((module) => {
+                    this.plugin(module);
+                });
+
+            }
+
         };
 
 

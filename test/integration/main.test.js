@@ -15,6 +15,40 @@ let ChatEngine;
 let ChatEngineYou;
 let globalChannel = 'thisistheglobalchannel-whatever' + new Date().getTime();
 
+let examplePlugin = (config) => {
+
+    class extension {
+        construct(options) {
+            this.parent.constructWorks = true;
+        }
+        newMethod () {
+            return true;
+        }
+    }
+
+    return {
+        namespace: 'testPlugin',
+        extends: {
+            Chat: extension
+        },
+        middleware: {
+            send: {
+                message: (payload, next) => {
+                    payload.send = true;
+                    next(null, payload);
+                }
+            },
+            broadcast: {
+                message: (payload, next) => {
+                    payload.broadcast = true;
+                    next(null, payload);
+                }
+            }
+        }
+    };
+
+};
+
 describe('config', () => {
 
     it('should be configured', () => {
@@ -99,6 +133,26 @@ describe('chat', () => {
         chat.emit('something', {
             text: 'hello world'
         });
+
+    });
+
+    it('should bind a plugin', () => {
+
+        chat.plugin(examplePlugin());
+
+        assert(chat.constructWorks, 'bound to construct');
+        assert(chat.testPlugin.newMethod(), 'new method added');
+
+    });
+
+    it('should bind a prototype plugin', () => {
+
+        ChatEngine.protoPlugin('Chat', examplePlugin());
+
+        let newChat = new ChatEngine.Chat('some-other-chat');
+
+        assert(newChat.constructWorks, 'bound to construct');
+        assert(newChat.testPlugin.newMethod(), 'new method added');
 
     });
 

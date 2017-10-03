@@ -80,6 +80,12 @@ module.exports = (ceConfig, pnConfig) => {
 
     };
 
+    ChatEngine.protoPlugins = {};
+    ChatEngine.protoPlugin = (className, plugin) => {
+        ChatEngine.protoPlugins[className] = ChatEngine.protoPlugins[className] || [];
+        ChatEngine.protoPlugins[className].push(plugin);
+    };
+
     /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect

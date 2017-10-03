@@ -33,6 +33,8 @@ class Me extends User {
             this.removeChatFromSession(payload.chat);
         });
 
+        this.bindProtoPlugins();
+
     }
 
     // assign updates from network
