@@ -160,7 +160,6 @@ nav {
   overflow: auto;
   position: fixed;
   height: 100%;
-  top: 0;
 }
 
 nav h3 {
@@ -598,7 +597,7 @@ span.param-type, .params td .param-type, .param-type dd {
   z-index: 1;
 }
 
-@media only screen and (max-width: 680px) {
+@media only screen and (min-width: 320px) and (max-width: 680px) {
   body {
     overflow-x: hidden;
   }
