@@ -271,7 +271,12 @@ class Chat extends Emitter {
                                   *     console.log('User has joined the room!', data.user);
                                   * });
                      */
-                    this.trigger('$.online.join', { user });
+
+                    // It's possible for PubNub to send us both a join and have the user appear in here_now
+                    // Avoid firing duplicate $.online events.
+                    if (!this.users[user.uuid]) {
+                        this.trigger('$.online.join', { user });
+                    }
 
                 }
 
@@ -311,11 +316,7 @@ class Chat extends Emitter {
                     chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
-                // listen to all PubNub events for this Chat
-                chatEngine.pubnub.addListener({
-                    message: this.onMessage,
-                    presence: this.onPresence
-                });
+                // this will trigger ready callbacks
 
                 // subscribe to the PubNub channel for this Chat
                 chatEngine.pubnub.subscribe({
@@ -379,7 +380,7 @@ class Chat extends Emitter {
         };
 
         if (autoConnect) {
-            this.grant();
+            this.connect();
         }
 
         chatEngine.chats[this.channel] = this;
@@ -734,6 +735,8 @@ class Chat extends Emitter {
                 *     console.log('chat is ready to go!');
                 * });
          */
+        this.trigger('$.connected');
+
         this.connected = true;
 
         // get a list of users online now
@@ -742,10 +745,12 @@ class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, (status, response) => {
-            // trigger that SDK is ready before emitting online events
-            this.trigger('$.connected');
-            this.onHereNow(status, response);
+        }, this.onHereNow);
+
+        // listen to all PubNub events for this Chat
+        this.chatEngine.pubnub.addListener({
+            message: this.onMessage,
+            presence: this.onPresence
         });
 
     }

@@ -14,6 +14,8 @@ class Event {
          */
         this.channel = chat.channel;
 
+        this.chatEngine = chatEngine;
+
         this.name = 'Event';
         /**
          Publishes the event over the PubNub network to the {@link Event} channel
@@ -25,7 +27,7 @@ class Event {
 
             m.event = event;
 
-            chatEngine.pubnub.publish({
+            this.chatEngine.pubnub.publish({
                 message: m,
                 channel: this.channel
             }, (status) => {
@@ -37,7 +39,7 @@ class Event {
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
                      */
-                    chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
+                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
                         errorText: status.errorData.response.text,
                         error: status.errorData,
                     });
@@ -62,7 +64,7 @@ class Event {
         };
 
         // call onMessage when PubNub receives an event
-        chatEngine.pubnub.addListener({
+        this.chatEngine.pubnub.addListener({
             message: this.onMessage
         });
 
