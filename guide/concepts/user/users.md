@@ -36,7 +36,7 @@ We can update the {@link User}'s state on the network with the {@link Me#update}
 me.update({color: getColor()});
 ```
 
-Then we can listen for the state event via:
+All state based methods (like {@link Me#update} and {@link Chat#event:$"."state} events) use {@link ChatEngine.global} by default.
 
 ```
 ChatEngine.global.on('$.state', (payload) => {
@@ -58,5 +58,15 @@ What if we want to get a {@link User}'s state some other time?
 let user = ChatEngine.global.users[0];
 
 // output the user's state
-console.log(user.state);
+console.log(user.state());
+```
+
+Until now we've only delt with state in the {@link ChatEngine#global}, but {@link User}s can have different states in different {@link Chat}s.
+
+```js
+let customStateChat = new ChatEngine.Chat('state-chat');
+customStateChat.on('$.state', (payload) {
+    // update is fired here
+});
+me.update({newState: true}, customStateChat);
 ```
