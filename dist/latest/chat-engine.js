@@ -493,10 +493,9 @@ module.exports = defaults;
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const waterfall = __webpack_require__(40);
 const axios = __webpack_require__(1);
 
-const Emitter = __webpack_require__(16);
+const Emitter = __webpack_require__(12);
 const Event = __webpack_require__(17);
 const User = __webpack_require__(4);
 
@@ -1114,42 +1113,6 @@ class Chat extends Emitter {
     }
 
     /**
-     Load plugins and attach a queue of functions to execute before and
-     after events are trigger or received.
-
-     @private
-     @param {String} location Where in the middleeware the event should run (emit, trigger)
-     @param {String} event The event name
-     @param {String} first The first function to run before the plugins have run
-     @param {String} last The last function to run after the plugins have run
-     */
-    runPluginQueue(location, event, first, last) {
-
-        // this assembles a queue of functions to run as middleware
-        // event is a triggered event key
-        let pluginQueue = [];
-
-        // the first function is always required
-        pluginQueue.push(first);
-
-        // look through the configured plugins
-        this.plugins.forEach((pluginItem) => {
-            // if they have defined a function to run specifically
-            // for this event
-            if (pluginItem.middleware && pluginItem.middleware[location] && pluginItem.middleware[location][event]) {
-                // add the function to the queue
-                pluginQueue.push(pluginItem.middleware[location][event]);
-            }
-        });
-
-        // waterfall runs the functions in assigned order
-        // waiting for one to complete before moving to the next
-        // when it's done, the ```last``` parameter is called
-        waterfall(pluginQueue, last);
-
-    }
-
-    /**
      Set the state for {@link Me} within this {@link User}.
      Broadcasts the ```$.state``` event on other clients
 
@@ -1203,7 +1166,7 @@ module.exports = Chat;
 
 const axios = __webpack_require__(1);
 
-const Emitter = __webpack_require__(16);
+const Emitter = __webpack_require__(12);
 
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
@@ -1915,99 +1878,9 @@ module.exports = RootEmitter;
 
 /***/ }),
 /* 12 */
-/***/ (function(module, exports) {
-
-/**
- * This method returns the first argument it receives.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Util
- * @param {*} value Any value.
- * @returns {*} Returns `value`.
- * @example
- *
- * var object = { 'a': 1 };
- *
- * console.log(_.identity(object) === object);
- * // => true
- */
-function identity(value) {
-  return value;
-}
-
-module.exports = identity;
-
-
-/***/ }),
-/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var root = __webpack_require__(14);
-
-/** Built-in value references. */
-var Symbol = root.Symbol;
-
-module.exports = Symbol;
-
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var freeGlobal = __webpack_require__(55);
-
-/** Detect free variable `self`. */
-var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-
-/** Used as a reference to the global object. */
-var root = freeGlobal || freeSelf || Function('return this')();
-
-module.exports = root;
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports) {
-
-/**
- * Checks if `value` is the
- * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
- * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an object, else `false`.
- * @example
- *
- * _.isObject({});
- * // => true
- *
- * _.isObject([1, 2, 3]);
- * // => true
- *
- * _.isObject(_.noop);
- * // => true
- *
- * _.isObject(null);
- * // => false
- */
-function isObject(value) {
-  var type = typeof value;
-  return value != null && (type == 'object' || type == 'function');
-}
-
-module.exports = isObject;
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
-
+const waterfall = __webpack_require__(40);
 const RootEmitter = __webpack_require__(11);
 const Event = __webpack_require__(17);
 
@@ -2076,6 +1949,20 @@ class Emitter extends RootEmitter {
          */
         this.plugins = [];
 
+
+        // add an object as a subobject under a namespoace
+        this.addChild = (ob, childName, childOb) => {
+
+            // assign the new child object as a property of parent under the
+            // given namespace
+            ob[childName] = childOb;
+
+            // the new object can use ```this.parent``` to access
+            // the root class
+            childOb.parent = ob;
+
+        };
+
         /**
          Binds a plugin to this object
          @param {Object} module The plugin module
@@ -2090,7 +1977,7 @@ class Emitter extends RootEmitter {
 
                 // attach the plugins to this class
                 // under their namespace
-                this.chatEngine.addChild(this, module.namespace, new module.extends[this.name]());
+                this.addChild(this, module.namespace, new module.extends[this.name]());
 
                 this[module.namespace].ChatEngine = this.chatEngine;
 
@@ -2102,11 +1989,201 @@ class Emitter extends RootEmitter {
 
             }
         };
+
+
+        /**
+         Broadcasts an event locally to all listeners.
+
+         @private
+         @param {String} event The event name
+         @param {Object} payload The event payload object
+         */
+
+        this.trigger = (event, payload) => {
+
+            let complete = () => {
+
+                // let plugins modify the event
+                this.runPluginQueue('on', event, (next) => {
+                    next(null, payload);
+                }, (err, pluginResponse) => {
+                    // emit this event to any listener
+                    this._emit(event, pluginResponse);
+                });
+
+            };
+
+            // this can be made into plugin
+            if (typeof payload === 'object') {
+
+                // restore chat in payload
+                if (!payload.chat) {
+                    payload.chat = this;
+                }
+
+                // if we should try to restore the sender property
+                if (payload.sender) {
+
+                    // this use already exists in memory
+                    if (this.chatEngine.users[payload.sender]) {
+                        payload.sender = this.chatEngine.users[payload.sender];
+                        complete();
+                    } else {
+
+                        // the user doesn't exist, create it
+                        payload.sender = new User(this.chatEngine, payload.sender);
+
+                        // try to get stored state from server
+                        payload.sender._getState(this, () => {
+                            complete();
+                        });
+
+                    }
+
+                } else {
+                    // there's no "sender" in this object, move on
+                    complete();
+                }
+
+            } else {
+                // payload is not an object, we want nothing to do with it.
+                complete();
+            }
+
+        };
+
+        /**
+         Load plugins and attach a queue of functions to execute before and
+         after events are trigger or received.
+
+         @private
+         @param {String} location Where in the middleeware the event should run (emit, trigger)
+         @param {String} event The event name
+         @param {String} first The first function to run before the plugins have run
+         @param {String} last The last function to run after the plugins have run
+         */
+        this.runPluginQueue = (location, event, first, last) => {
+
+            // this assembles a queue of functions to run as middleware
+            // event is a triggered event key
+            let pluginQueue = [];
+
+            // the first function is always required
+            pluginQueue.push(first);
+
+            // look through the configured plugins
+            this.plugins.forEach((pluginItem) => {
+                // if they have defined a function to run specifically
+                // for this event
+                if (pluginItem.middleware && pluginItem.middleware[location] && pluginItem.middleware[location][event]) {
+                    // add the function to the queue
+                    pluginQueue.push(pluginItem.middleware[location][event]);
+                }
+            });
+
+            // waterfall runs the functions in assigned order
+            // waiting for one to complete before moving to the next
+            // when it's done, the ```last``` parameter is called
+            waterfall(pluginQueue, last);
+
+        };
+
     }
 
 }
 
 module.exports = Emitter;
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
+/**
+ * This method returns the first argument it receives.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Util
+ * @param {*} value Any value.
+ * @returns {*} Returns `value`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ *
+ * console.log(_.identity(object) === object);
+ * // => true
+ */
+function identity(value) {
+  return value;
+}
+
+module.exports = identity;
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var root = __webpack_require__(15);
+
+/** Built-in value references. */
+var Symbol = root.Symbol;
+
+module.exports = Symbol;
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var freeGlobal = __webpack_require__(55);
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function('return this')();
+
+module.exports = root;
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return value != null && (type == 'object' || type == 'function');
+}
+
+module.exports = isObject;
 
 
 /***/ }),
@@ -2531,19 +2608,6 @@ module.exports = (ceConfig, pnConfig) => {
             }
 
         }
-    };
-
-    // add an object as a subobject under a namespoace
-    ChatEngine.addChild = (ob, childName, childOb) => {
-
-        // assign the new child object as a property of parent under the
-        // given namespace
-        ob[childName] = childOb;
-
-        // the new object can use ```this.parent``` to access
-        // the root class
-        childOb.parent = ob;
-
     };
 
     return ChatEngine;
@@ -4356,7 +4420,7 @@ module.exports = exports["default"];
 /* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var identity = __webpack_require__(12),
+var identity = __webpack_require__(13),
     overRest = __webpack_require__(45),
     setToString = __webpack_require__(47);
 
@@ -4470,7 +4534,7 @@ module.exports = setToString;
 
 var constant = __webpack_require__(49),
     defineProperty = __webpack_require__(50),
-    identity = __webpack_require__(12);
+    identity = __webpack_require__(13);
 
 /**
  * The base implementation of `setToString` without support for hot loop shorting.
@@ -4570,7 +4634,7 @@ module.exports = getNative;
 
 var isFunction = __webpack_require__(53),
     isMasked = __webpack_require__(59),
-    isObject = __webpack_require__(15),
+    isObject = __webpack_require__(16),
     toSource = __webpack_require__(61);
 
 /**
@@ -4622,7 +4686,7 @@ module.exports = baseIsNative;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(54),
-    isObject = __webpack_require__(15);
+    isObject = __webpack_require__(16);
 
 /** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]',
@@ -4664,7 +4728,7 @@ module.exports = isFunction;
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(13),
+var Symbol = __webpack_require__(14),
     getRawTag = __webpack_require__(57),
     objectToString = __webpack_require__(58);
 
@@ -4737,7 +4801,7 @@ module.exports = g;
 /* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(13);
+var Symbol = __webpack_require__(14);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -4843,7 +4907,7 @@ module.exports = isMasked;
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var root = __webpack_require__(14);
+var root = __webpack_require__(15);
 
 /** Used to detect overreaching core-js shims. */
 var coreJsData = root['__core-js_shared__'];
