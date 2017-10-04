@@ -70,9 +70,9 @@ The real time server component is provided by Socket.io or PubNub. PubNub Chat E
 
 Check out [the getting started guide](https://github.com/pubnub/chat-engine/tree/master/getting-started.md).
 
-# Full Docs
+#   Docs
 
-You can find the full docs on [the full documentation website](https://pubnub.github.io/chat-engine/docs/).
+You can find the full docs on [the full documentation website](https://chat-engine-docs.surge.sh/docs/).
 
 # Examples
 
