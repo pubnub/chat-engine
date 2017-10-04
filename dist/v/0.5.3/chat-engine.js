@@ -514,6 +514,8 @@ class User extends Emitter {
 
         this.chatEngine = chatEngine;
 
+        this.name = 'User';
+
         /**
          The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
          Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
@@ -1136,6 +1138,8 @@ class RootEmitter {
         */
         this.events = {};
 
+        this.name = 'RootEmitter';
+
         /**
         Create a new EventEmitter2 object for this class.
 
@@ -1265,6 +1269,8 @@ class Chat extends Emitter {
         super(chatEngine);
 
         this.chatEngine = chatEngine;
+
+        this.name = 'Chat';
 
         /**
          * A string identifier for the Chat room.
@@ -2105,6 +2111,8 @@ class Emitter extends RootEmitter {
 
         this.chatEngine = chatEngine;
 
+        this.name = 'Emitter';
+
         /**
          Emit events locally.
 
@@ -2164,15 +2172,12 @@ class Emitter extends RootEmitter {
             // add this plugin to a list of plugins for this object
             this.plugins.push(module);
 
-            // returns the name of this class
-            let className = this.constructor.name;
-
             // see if there are plugins to attach to this class
-            if (module.extends && module.extends[className]) {
+            if (module.extends && module.extends[this.name]) {
 
                 // attach the plugins to this class
                 // under their namespace
-                this.chatEngine.addChild(this, module.namespace, new module.extends[className]());
+                this.chatEngine.addChild(this, module.namespace, new module.extends[this.name]());
 
                 this[module.namespace].ChatEngine = this.chatEngine;
 
@@ -2211,6 +2216,7 @@ class Event {
          */
         this.channel = chat.channel;
 
+        this.name = 'Event';
         /**
          Publishes the event over the PubNub network to the {@link Event} channel
 
@@ -2466,7 +2472,7 @@ module.exports = (ceConfig, pnConfig) => {
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
      * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
-     * * @param {Strung} authKey A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
+     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
      * @param {Object} [authData] Additional data to send to the authentication endpoint. Not used by ChatEngine SDK.
      * @fires $"."connected
      */
@@ -2477,6 +2483,8 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.uuid = uuid;
 
+        pnConfig.authKey = authKey || pnConfig.uuid;
+
         let complete = (chatData) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
@@ -2485,13 +2493,8 @@ module.exports = (ceConfig, pnConfig) => {
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // create a new user that represents this client
-            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
-
             // create a new instance of Me using input parameters
             ChatEngine.global.createUser(pnConfig.uuid, state);
-
-            ChatEngine.me.update(state);
 
 
             /**
@@ -2499,6 +2502,11 @@ module.exports = (ceConfig, pnConfig) => {
              * @event ChatEngine#$"."ready
              */
             ChatEngine.global.on('$.connected', () => {
+
+                // create a new user that represents this client
+                ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+
+                ChatEngine.me.update(state);
 
                 ChatEngine._emit('$.ready', {
                     me: ChatEngine.me
@@ -2627,8 +2635,6 @@ module.exports = (ceConfig, pnConfig) => {
 
                 });
         };
-
-        pnConfig.authKey = authKey;
 
         axios.post(ceConfig.endpoint + '/grant', {
             uuid: pnConfig.uuid,
@@ -5133,6 +5139,8 @@ class Me extends User {
 
         // call the User constructor
         super(chatEngine, uuid);
+
+        this.name = 'Me';
 
         this.authData = authData;
         this.chatEngine = chatEngine;
