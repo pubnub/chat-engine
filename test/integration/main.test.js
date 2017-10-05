@@ -108,6 +108,8 @@ describe('history', () => {
 
     it('should get 50 messages', function (done) {
 
+        let count = 0;
+
         this.timeout(10000);
 
         let chatHistory = new ChatEngine.Chat('chat-history-2', false);
@@ -116,14 +118,14 @@ describe('history', () => {
 
             assert.equal(a.event, 'tester');
 
-            count++;
+            count += 1;
 
             if (count >= 50) {
                 done();
             }
 
         });
-        chatHistory.on('$.history.not-tester', (a) => {
+        chatHistory.on('$.history.not-tester', () => {
             assert.isNotOk('history returning wrong events');
         });
 
@@ -137,11 +139,9 @@ describe('history', () => {
                 text: 'hello world ' + i
             });
 
-            i++;
+            i += 1;
 
         }
-
-        let count = 0;
 
         chatHistory.history('tester', {
             max: 50,
@@ -151,6 +151,8 @@ describe('history', () => {
     });
     it('should get 200 messages', function (done) {
 
+        let count = 0;
+
         this.timeout(10000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
@@ -159,7 +161,7 @@ describe('history', () => {
 
             assert.equal(a.event, 'tester');
 
-            count++;
+            count += 1;
 
             if (count >= 200) {
                 done();
@@ -181,11 +183,9 @@ describe('history', () => {
                 text: 'hello world ' + i
             });
 
-            i++;
+            i += 1;
 
         }
-
-        let count = 0;
 
         chatHistory2.history('tester', {
             max: 200,
@@ -205,7 +205,7 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.on('$.session.chat.join', (payload) => {
+        ChatEngine.once('$.session.chat.join', (payload) => {
             done();
         });
 
