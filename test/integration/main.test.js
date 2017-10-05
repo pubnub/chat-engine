@@ -36,7 +36,7 @@ describe('config', () => {
 
 describe('connect', () => {
 
-    it('should be identified as new user', function (done) {
+    it('should be identified as new user', function beIdentified(done) {
 
         this.timeout(4000);
 
@@ -63,7 +63,7 @@ let chat;
 describe('chat', () => {
 
 
-    it('should get me as join event', function (done) {
+    it('should get me as join event', function getMe(done) {
 
         this.timeout(10000);
 
@@ -106,7 +106,7 @@ describe('chat', () => {
 
 describe('history', () => {
 
-    it('should get 50 messages', function (done) {
+    it('should get 50 messages', function get50(done) {
 
         let count = 0;
 
@@ -149,7 +149,7 @@ describe('history', () => {
         });
 
     });
-    it('should get 200 messages', function (done) {
+    it('should get 200 messages', function get200(done) {
 
         let count = 0;
 
@@ -169,7 +169,7 @@ describe('history', () => {
 
         });
 
-        chatHistory2.on('$.history.not-tester', (a) => {
+        chatHistory2.on('$.history.not-tester', () => {
             assert.isNotOk('history returning wrong events');
         });
 
@@ -200,12 +200,12 @@ let ChatEngineClone;
 let syncChat;
 describe('remote chat list', () => {
 
-    it('should be get notified of new chats', function (done) {
+    it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.once('$.session.chat.join', (payload) => {
+        ChatEngine.once('$.session.chat.join', () => {
             done();
         });
 
@@ -227,11 +227,11 @@ describe('remote chat list', () => {
 
     });
 
-    it('should keep delete in sync', function (done) {
+    it('should keep delete in sync', function deleteSync(done) {
 
         this.timeout(10000);
 
-        ChatEngine.on('$.session.chat.leave', (payload) => {
+        ChatEngine.on('$.session.chat.leave', () => {
 
             setTimeout(() => {
 
@@ -265,7 +265,6 @@ describe('remote chat list', () => {
 
 let myChat;
 
-let you;
 let yourChat;
 
 describe('invite', () => {
@@ -282,8 +281,7 @@ describe('invite', () => {
 
         ChatEngineYou.connect('stephen', { works: true }, 'stephen-authtoken');
 
-        ChatEngineYou.on('$.ready', (data) => {
-            you = data.me;
+        ChatEngineYou.on('$.ready', () => {
             done();
         });
 
@@ -318,7 +316,7 @@ describe('invite', () => {
 
     });
 
-    it('two users are able to talk to each other in private channel', function (done) {
+    it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
 
         this.timeout(5000);
 
@@ -347,10 +345,6 @@ describe('invite', () => {
 
                 done(new Error('This user should not be able to join', illegalAccessChat.channel));
 
-            });
-
-            illegalAccessChat.onAny((event, packet) => {
-                // console.log('illegal ---', event)
             });
 
             illegalAccessChat.once('$.error.publish', () => {
