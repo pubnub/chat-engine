@@ -13,7 +13,7 @@ describe('import', () => {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel = 'global';// + new Date().getTime();
+let globalChannel = 'global'; //  + new Date().getTime();
 
 describe('config', () => {
 
@@ -114,18 +114,26 @@ describe('history', () => {
 
         chatHistory.on('$.history.*', (a) => {
 
+            assert.equal(a.event, 'tester');
+
             count++;
 
             if (count >= 50) {
+
+                console.log(count)
+
                 done();
             }
 
         });
 
-        let i = 1;
+        let i = 0;
         while (i < 200) {
 
             chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('not-tester', {
                 text: 'hello world ' + i
             });
 
@@ -137,7 +145,7 @@ describe('history', () => {
 
         chatHistory.history('tester', {
             max: 50,
-            reverse: true
+            reverse: false
         });
 
     });
@@ -147,11 +155,16 @@ describe('history', () => {
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3');
 
-        chatHistory2.on('$.history.*', (a) => {
+        chatHistory2.on('$.history.tester', (a) => {
+
+            assert.equal(a.event, 'tester');
 
             count++;
 
             if (count >= 200) {
+
+                console.log(count)
+
                 done();
             }
 
@@ -163,6 +176,9 @@ describe('history', () => {
             chatHistory2.emit('tester', {
                 text: 'hello world ' + i
             });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
 
             i++;
 
@@ -172,7 +188,7 @@ describe('history', () => {
 
         chatHistory2.history('tester', {
             max: 200,
-            reverse: true
+            reverse: false
         });
 
     });

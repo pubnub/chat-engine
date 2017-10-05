@@ -48,8 +48,6 @@ class Chat extends Emitter {
             this.channel = [chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
-        console.log('my channel is ', this.channel)
-
         /**
         * Does this chat require new {@link User}s to be granted explicit access to this room?
         * @type Boolean
@@ -125,7 +123,7 @@ class Chat extends Emitter {
          * @return {[type]}            [description]
          * @private
          */
-        this._loopHistory = (args, callback) => {
+        this.pageHistory = (event, args, callback) => {
 
             if (args.max && args.max < 100) {
                 args.pagesize = args.max;
@@ -148,31 +146,35 @@ class Chat extends Emitter {
                 stringifiedTimeToken: true
             }, (status, response) => {
 
-
-                console.log(status, response)
                 if (status.error) {
 
                     /**
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
-                        errorText: status.errorData.response.text,
-                        error: status.error,
-                    });
+                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), status);
 
                 } else {
 
                     // holds the accumulation of resulting messages across all iterations
                     let results = args.results;
-                    // the retrieved messages from history for this iteration only
-                    let msgs = response.messages;
                     // timetoken of the first message in response
                     let firstTT = response.startTimeToken;
                     // timetoken of the last message in response
                     let lastTT = response.endTimeToken;
                     // if no max results specified, default to 500
                     args.max = !args.max ? 500 : args.max;
+
+                    let msgs = [];
+
+                    Object.keys(response.messages).forEach((key) => {
+
+                        if (response.messages[key]
+                            && response.messages[key].entry.event === event) {
+                            msgs.push(response.messages[key]);
+                        }
+
+                    });
 
                     if (msgs !== undefined && msgs.length > 0) {
 
@@ -186,6 +188,7 @@ class Chat extends Emitter {
                             // but concat to end of results if reverse true, otherwise prepend to begining of results
                             results = msgs.concat(results);
                         }
+
                     }
 
                     // show the total messages returned out of the max requested
@@ -194,16 +197,24 @@ class Chat extends Emitter {
                     // we keep asking for more messages if # messages returned by last request is the
                     // same at the pagesize AND we still have reached the total number of messages requested
                     // same as the opposit of !(msgs.length < pagesize || total == max)
-                    if (msgs.length === args.pagesize && results.length < args.max) {
-                        this._loopHistory({
+                    if (response.messages.length === args.pagesize && results.length < args.max) {
+
+                        this.pageHistory(event, {
                             channel: args.channel,
                             max: args.max,
                             reverse: args.reverse,
                             pagesize: args.pagesize,
                             startToken: args.reverse ? lastTT : firstTT,
-                            results
+                            event: args.event,
+                            results,
                         }, callback);
                     } else {
+
+                        // return exactly the number of results requested
+                        if (results.length > args.max) {
+                            results = results.splice(0, args.max);
+                        }
+
                         // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
                         // so invoke the callback to the original caller of getMessages providing the total message results
                         callback(results);
@@ -231,26 +242,21 @@ class Chat extends Emitter {
             // set the PubNub configured channel to this channel
             config.channel = this.events[event].channel;
 
-            this._loopHistory(config, (messages) => {
+            this.pageHistory(event, config, (messages) => {
 
                 if (messages) {
 
                     messages.forEach((message) => {
 
-                        if (message.entry.event === event) {
+                        let thisEvent = ['$', 'history', event].join('.');
 
-
-                            let thisEvent = ['$', 'history', event].join('.');
-
-                            /**
-                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                             * ```$.history.``` to distinguish it from the original live events.
-                             * @event Chat#$"."history"."*
-                             * @tutorial history
-                             */
-                            this.trigger(thisEvent, message.entry);
-
-                        }
+                        /**
+                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                         * ```$.history.``` to distinguish it from the original live events.
+                         * @event Chat#$"."history"."*
+                         * @tutorial history
+                         */
+                        this.trigger(thisEvent, message.entry);
 
                     });
 
