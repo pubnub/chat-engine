@@ -9,7 +9,7 @@ const User = require('../components/user');
  This is the root {@link Chat} class that represents a chat room
 
  @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
+ @param {Boolean} [needGrant=false] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @extends Emitter
@@ -20,7 +20,7 @@ const User = require('../components/user');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = false, autoConnect = true, group = 'default') {
 
         super(chatEngine);
 
@@ -47,6 +47,8 @@ class Chat extends Emitter {
         if (this.channel.indexOf(chatEngine.ceConfig.globalChannel) === -1) {
             this.channel = [chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
+
+        console.log('my channel is ', this.channel)
 
         /**
         * Does this chat require new {@link User}s to be granted explicit access to this room?
@@ -116,6 +118,103 @@ class Chat extends Emitter {
         };
 
         /**
+         * Call PubNub history in a loop.
+         * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
+         * @param  {[type]}   args     [description]
+         * @param  {Function} callback [description]
+         * @return {[type]}            [description]
+         * @private
+         */
+        this._loopHistory = (args, callback) => {
+
+            if (args.max && args.max < 100) {
+                args.pagesize = args.max;
+            } else {
+                args.pagesize = 100;
+            }
+
+            this.chatEngine.pubnub.history({
+                // search starting from this timetoken
+                // start: args.startToken,
+                channel: args.channel,
+                // false - search forwards through the timeline
+                // true - search backwards through the timeline
+                reverse: args.reverse,
+                // limit number of messages per request to this value; default/max=100
+                count: args.pagesize,
+                // include each returned message's publish timetoken
+                includeTimetoken: true,
+                // prevents JS from truncating 17 digit timetokens
+                stringifiedTimeToken: true
+            }, (status, response) => {
+
+
+                console.log(status, response)
+                if (status.error) {
+
+                    /**
+                     * There was a problem fetching the history of this chat
+                     * @event Chat#$"."error"."history
+                     */
+                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
+                        errorText: status.errorData.response.text,
+                        error: status.error,
+                    });
+
+                } else {
+
+                    // holds the accumulation of resulting messages across all iterations
+                    let results = args.results;
+                    // the retrieved messages from history for this iteration only
+                    let msgs = response.messages;
+                    // timetoken of the first message in response
+                    let firstTT = response.startTimeToken;
+                    // timetoken of the last message in response
+                    let lastTT = response.endTimeToken;
+                    // if no max results specified, default to 500
+                    args.max = !args.max ? 500 : args.max;
+
+                    if (msgs !== undefined && msgs.length > 0) {
+
+                        // first iteration, results is undefined, so initialize with first history results
+                        if (!results) {
+                            results = msgs;
+                        } else if (args.reverse) {
+                            // subsequent iterations, results has previous iterartions' results, so concat
+                            results = results.concat(msgs);
+                        } else {
+                            // but concat to end of results if reverse true, otherwise prepend to begining of results
+                            results = msgs.concat(results);
+                        }
+                    }
+
+                    // show the total messages returned out of the max requested
+                    // console.log('total    : ' + results.length + '/' + args.max);
+
+                    // we keep asking for more messages if # messages returned by last request is the
+                    // same at the pagesize AND we still have reached the total number of messages requested
+                    // same as the opposit of !(msgs.length < pagesize || total == max)
+                    if (msgs.length === args.pagesize && results.length < args.max) {
+                        this._loopHistory({
+                            channel: args.channel,
+                            max: args.max,
+                            reverse: args.reverse,
+                            pagesize: args.pagesize,
+                            startToken: args.reverse ? lastTT : firstTT,
+                            results
+                        }, callback);
+                    } else {
+                        // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
+                        // so invoke the callback to the original caller of getMessages providing the total message results
+                        callback(results);
+                    }
+
+                }
+
+            });
+        };
+
+        /**
          * Get messages that have been published to the network before this client was connected.
          * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
          * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
@@ -132,25 +231,16 @@ class Chat extends Emitter {
             // set the PubNub configured channel to this channel
             config.channel = this.events[event].channel;
 
-            // run the PubNub history method for this event
-            chatEngine.pubnub.history(config, (status, response) => {
+            this._loopHistory(config, (messages) => {
 
-                if (status.error) {
+                if (messages) {
 
-                    /**
-                     * There was a problem fetching the history of this chat
-                     * @event Chat#$"."error"."history
-                     */
-                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
-                        errorText: status.errorData.response.text,
-                        error: status.error,
-                    });
-
-                } else {
-
-                    response.messages.forEach((message) => {
+                    messages.forEach((message) => {
 
                         if (message.entry.event === event) {
+
+
+                            let thisEvent = ['$', 'history', event].join('.');
 
                             /**
                              * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
@@ -158,13 +248,14 @@ class Chat extends Emitter {
                              * @event Chat#$"."history"."*
                              * @tutorial history
                              */
-                            this.trigger(['$', 'history', event].join('.'), message.entry);
+                            this.trigger(thisEvent, message.entry);
 
                         }
 
                     });
 
                 }
+
             });
 
         };
