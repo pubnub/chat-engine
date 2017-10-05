@@ -207,7 +207,7 @@ class Chat extends Emitter {
                         // we've reached the end of history
 
                         // return exactly the number of results requested
-                        if (results.length > args.max) {
+                        if (results && results.length > args.max) {
                             results = results.splice(0, args.max);
                         }
 

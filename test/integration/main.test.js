@@ -13,7 +13,7 @@ describe('import', () => {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel = 'global' + new Date().getTime();
+let globalChannel = 'global'; //  + new Date().getTime();
 
 describe('config', () => {
 
@@ -112,7 +112,7 @@ describe('history', () => {
 
         let chatHistory = new ChatEngine.Chat('chat-history-2', false);
 
-        chatHistory.on('$.history.*', (a) => {
+        chatHistory.on('$.history.tester', (a) => {
 
             assert.equal(a.event, 'tester');
 
@@ -122,6 +122,9 @@ describe('history', () => {
                 done();
             }
 
+        });
+        chatHistory.on('$.history.not-tester', (a) => {
+            assert.isNotOk('history returning wrong events');
         });
 
         let i = 0;
@@ -162,6 +165,10 @@ describe('history', () => {
                 done();
             }
 
+        });
+
+        chatHistory2.on('$.history.not-tester', (a) => {
+            assert.isNotOk('history returning wrong events');
         });
 
         let i = 1;
