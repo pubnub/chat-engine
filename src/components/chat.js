@@ -122,11 +122,7 @@ class Chat extends Emitter {
          */
         this._pageHistory = (event, args, callback) => {
 
-            if (args.max && args.max < 100) {
-                args.pagesize = args.max;
-            } else {
-                args.pagesize = 100;
-            }
+            args.pagesize = args.pagesize || 100;
 
             this.chatEngine.pubnub.history({
                 // search starting from this timetoken
@@ -207,6 +203,8 @@ class Chat extends Emitter {
                         }, callback);
 
                     } else {
+
+                        // we've reached the end of history
 
                         // return exactly the number of results requested
                         if (results.length > args.max) {
