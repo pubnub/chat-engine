@@ -20,7 +20,7 @@ const User = require('../components/user');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = false, autoConnect = true, group = 'default') {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
 
         super(chatEngine);
 
@@ -96,10 +96,7 @@ class Chat extends Emitter {
                  * There was a problem fetching the presence of this chat
                  * @event Chat#$"."error"."presence
                  */
-                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
-                    error: status.errorData,
-                    errorText: status.errorData.response.text
-                });
+                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
 
             } else {
 
@@ -123,7 +120,7 @@ class Chat extends Emitter {
          * @return {[type]}            [description]
          * @private
          */
-        this.pageHistory = (event, args, callback) => {
+        this._pageHistory = (event, args, callback) => {
 
             if (args.max && args.max < 100) {
                 args.pagesize = args.max;
@@ -199,7 +196,7 @@ class Chat extends Emitter {
                     // same as the opposit of !(msgs.length < pagesize || total == max)
                     if (response.messages.length === args.pagesize && results.length < args.max) {
 
-                        this.pageHistory(event, {
+                        this._pageHistory(event, {
                             channel: args.channel,
                             max: args.max,
                             reverse: args.reverse,
@@ -208,6 +205,7 @@ class Chat extends Emitter {
                             event: args.event,
                             results,
                         }, callback);
+
                     } else {
 
                         // return exactly the number of results requested
@@ -242,7 +240,7 @@ class Chat extends Emitter {
             // set the PubNub configured channel to this channel
             config.channel = this.events[event].channel;
 
-            this.pageHistory(event, config, (messages) => {
+            this._pageHistory(event, config, (messages) => {
 
                 if (messages) {
 
