@@ -13,7 +13,7 @@ describe('import', () => {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel = 'global'; //  + new Date().getTime();
+let globalChannel = 'global' + new Date().getTime();
 
 describe('config', () => {
 
