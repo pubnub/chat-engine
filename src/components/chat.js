@@ -123,6 +123,7 @@ class Chat extends Emitter {
         this._pageHistory = (event, args, callback) => {
 
             args.pagesize = args.pagesize || 100;
+            args.countEmitted = args.countEmitted || 0;
 
             this.chatEngine.pubnub.history({
                 // search starting from this timetoken
@@ -150,7 +151,7 @@ class Chat extends Emitter {
                 } else {
 
                     // holds the accumulation of resulting messages across all iterations
-                    let results = args.results;
+                    let count = args.count || 0;
                     // timetoken of the first message in response
                     let firstTT = response.startTimeToken;
                     // timetoken of the last message in response
@@ -158,39 +159,34 @@ class Chat extends Emitter {
                     // if no max results specified, default to 500
                     args.max = !args.max ? 500 : args.max;
 
-                    let msgs = [];
-
                     Object.keys(response.messages).forEach((key) => {
 
                         if (response.messages[key]
                             && response.messages[key].entry.event === event) {
-                            msgs.push(response.messages[key]);
+
+                            let thisEvent = ['$', 'history', event].join('.');
+
+                            if (count < args.max) {
+
+                                /**
+                                 * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                                 * ```$.history.``` to distinguish it from the original live events.
+                                 * @event Chat#$"."history"."*
+                                 * @tutorial history
+                                 */
+                                this.trigger(thisEvent, response.messages[key].entry);
+                                count += 1;
+
+                            }
+
                         }
 
                     });
 
-                    if (msgs !== undefined && msgs.length > 0) {
-
-                        // first iteration, results is undefined, so initialize with first history results
-                        if (!results) {
-                            results = msgs;
-                        } else if (args.reverse) {
-                            // subsequent iterations, results has previous iterartions' results, so concat
-                            results = results.concat(msgs);
-                        } else {
-                            // but concat to end of results if reverse true, otherwise prepend to begining of results
-                            results = msgs.concat(results);
-                        }
-
-                    }
-
-                    // show the total messages returned out of the max requested
-                    // console.log('total    : ' + results.length + '/' + args.max);
-
                     // we keep asking for more messages if # messages returned by last request is the
                     // same at the pagesize AND we still have reached the total number of messages requested
                     // same as the opposit of !(msgs.length < pagesize || total == max)
-                    if (response.messages.length === args.pagesize && results.length < args.max) {
+                    if (response.messages.length === args.pagesize && count < args.max) {
 
                         this._pageHistory(event, {
                             channel: args.channel,
@@ -199,21 +195,14 @@ class Chat extends Emitter {
                             pagesize: args.pagesize,
                             startToken: args.reverse ? lastTT : firstTT,
                             event: args.event,
-                            results,
+                            count,
+                            countEmitted: args.countEmitted
                         }, callback);
 
                     } else {
-
-                        // we've reached the end of history
-
-                        // return exactly the number of results requested
-                        if (results && results.length > args.max) {
-                            results = results.splice(0, args.max);
-                        }
-
                         // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
                         // so invoke the callback to the original caller of getMessages providing the total message results
-                        callback(results);
+                        callback();
                     }
 
                 }
@@ -242,19 +231,6 @@ class Chat extends Emitter {
 
                 if (messages) {
 
-                    messages.forEach((message) => {
-
-                        let thisEvent = ['$', 'history', event].join('.');
-
-                        /**
-                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                         * ```$.history.``` to distinguish it from the original live events.
-                         * @event Chat#$"."history"."*
-                         * @tutorial history
-                         */
-                        this.trigger(thisEvent, message.entry);
-
-                    });
 
                 }
 
