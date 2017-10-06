@@ -1,6 +1,6 @@
 let api = new Client({
     debug: true,
-    endpoint: 'http://admin.bronze.ps.pn'
+    endpoint: 'http://admin.pubnub.com'
 });
 
 let Provision = (email, password, callback = function(){}, status = function(){}) => {
