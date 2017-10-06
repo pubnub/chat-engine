@@ -1,5 +1,5 @@
 const assert = require('chai').assert;
-const RootEmitter = require('../../../src/modules/root_emitter');
+const RootEmitter = require('../../src/modules/root_emitter');
 
 let instance = null;
 

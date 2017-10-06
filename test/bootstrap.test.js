@@ -15,7 +15,7 @@ const mock = {
     }
 };
 
-const Bootstrap = proxyquire('../../src/bootstrap', { axios: mock });
+const Bootstrap = proxyquire('../src/bootstrap', { axios: mock });
 
 describe('#bootstrap', () => {
     let chatEngineInstance = null;

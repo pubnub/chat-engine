@@ -1,6 +1,6 @@
 const assert = require('chai').assert;
-const Bootstrap = require('../../../src/bootstrap');
-const User = require('../../../src/components/user');
+const Bootstrap = require('../../src/bootstrap');
+const User = require('../../src/components/user');
 
 describe('#user', () => {
     let chatEngineInstance = null;

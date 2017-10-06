@@ -1,7 +1,7 @@
 const assert = require('chai').assert;
 const sinon = require('sinon');
-const Bootstrap = require('../../../src/bootstrap');
-const Emitter = require('../../../src/modules/emitter');
+const Bootstrap = require('../../src/bootstrap');
+const Emitter = require('../../src/modules/emitter');
 
 describe('#emitter', () => {
     let emitterInstance = null;

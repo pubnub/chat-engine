@@ -1,7 +1,7 @@
 const assert = require('chai').assert;
 const sinon = require('sinon');
-const Bootstrap = require('../../../src/bootstrap');
-const Chat = require('../../../src/components/chat');
+const Bootstrap = require('../../src/bootstrap');
+const Chat = require('../../src/components/chat');
 
 describe('#chat', () => {
 

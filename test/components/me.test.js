@@ -1,7 +1,7 @@
 const assert = require('chai').assert;
 const sinon = require('sinon');
-const Bootstrap = require('../../../src/bootstrap');
-const Me = require('../../../src/components/me');
+const Bootstrap = require('../../src/bootstrap');
+const Me = require('../../src/components/me');
 
 describe('#me', () => {
     let chatEngineInstance = null;
