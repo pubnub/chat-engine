@@ -1,4 +1,5 @@
 const User = require('./user');
+const Chat = require('./chat');
 
 /**
  Represents the client connection as a special {@link User} with write permissions.
@@ -22,13 +23,17 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
+        this.session = {};
+
         this.direct.on('$.server.chat.created', (payload) => {
-            chatEngine.addChatToSession(payload.chat);
+            this.addChatToSession(payload.chat);
         });
 
         this.direct.on('$.server.chat.deleted', (payload) => {
-            chatEngine.removeChatFromSession(payload.chat);
+            this.removeChatFromSession(payload.chat);
         });
+
+        this.bindProtoPlugins();
 
     }
 
@@ -59,6 +64,61 @@ class Me extends User {
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state);
+
+    }
+
+    /**
+    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
+    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
+    @private
+    */
+    addChatToSession(chat) {
+
+        // create the chat if it doesn't exist
+        this.session[chat.group] = this.session[chat.group] || {};
+
+        // check the chat exists within the global list but is not grouped
+        let existingChat = this.chatEngine.chats[chat.channel];
+
+        // if it exists
+        if (existingChat) {
+            // assign it to the group
+            this.session[chat.group][chat.channel] = existingChat;
+        } else {
+            // otherwise, try to recreate it with the server information
+            this.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
+
+            /**
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            * @event ChatEngine#$"."session"."chat"."join
+            */
+            this.trigger('$.session.chat.join', {
+                chat: this.session[chat.group][chat.channel]
+            });
+        }
+
+    }
+
+    /**
+    Removes {@link Chat} within this.session
+    @private
+    */
+    removeChatFromSession(chat) {
+
+        let targetChat = this.session[chat.group][chat.channel] || chat;
+
+        /**
+        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+        * @event ChatEngine#$"."session"."chat"."leave
+        */
+        this.trigger('$.session.chat.leave', {
+            chat: targetChat
+        });
+
+        // don't delete from chatengine.chats, because we can still get events from this chat
+        delete this.chatEngine.chats[chat.channel];
+        delete this.session[chat.group][chat.channel];
 
     }
 
