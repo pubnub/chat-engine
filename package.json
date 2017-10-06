@@ -37,6 +37,7 @@
     "gulp-uglify": "^2.0.0",
     "jsdoc": "^3.5.5",
     "mocha": "^3.1.2",
+    "proxyquire": "^1.8.0",
     "run-sequence": "^2.2.0",
     "sinon": "^4.0.0",
     "stats-webpack-plugin": "^0.6.1",

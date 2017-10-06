@@ -106,19 +106,25 @@ class Me extends User {
     */
     removeChatFromSession(chat) {
 
-        let targetChat = this.session[chat.group][chat.channel] || chat;
+        if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
 
-        /**
-        * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-        * @event ChatEngine#$"."session"."chat"."leave
-        */
-        this.trigger('$.session.chat.leave', {
-            chat: targetChat
-        });
+            let targetChat = this.session[chat.group][chat.channel] || chat;
 
-        // don't delete from chatengine.chats, because we can still get events from this chat
-        delete this.chatEngine.chats[chat.channel];
-        delete this.session[chat.group][chat.channel];
+            /**
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+            * @event ChatEngine#$"."session"."chat"."leave
+            */
+            this.trigger('$.session.chat.leave', {
+                chat: targetChat
+            });
+
+            // don't delete from chatengine.chats, because we can still get events from this chat
+            delete this.chatEngine.chats[chat.channel];
+            delete this.session[chat.group][chat.channel];
+
+        } else {
+            this.chatEngine.throwError(this, 'trigger', 'removeChat', new Error('Trying to remove a chat from session, but chat or group does not exist.'));
+        }
 
     }
 
