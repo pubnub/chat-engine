@@ -39,6 +39,8 @@ describe('#me', () => {
 
     it('remove a chat from session', (done) => {
 
+        me.direct._emit('$.server.chat.created', { chat: { group: 'default', channel: 'test' } });
+
         chatEngineInstance.on('$.session.chat.leave', (payload) => {
             assert.isObject(payload.chat, 'was successfully remove');
             done();
