@@ -20,16 +20,15 @@ describe('#chat', () => {
         };
 
         chatInstance = new Chat(chatEngineInstance);
-
     });
 
-    it('should be instanced', (done) => {
+    it('create chat', (done) => {
         chatEngineInstance.connect();
         assert.isObject(chatInstance, 'was successfully created');
         done();
     });
 
-    it('broadcast connection status', (done) => {
+    it('connect chat', (done) => {
         chatInstance.on('$.connected', () => {
             done();
         });
@@ -38,7 +37,7 @@ describe('#chat', () => {
         chatEngineInstance.pubnub.hereNow.args[0][1]({ error: false }, { channels: { [chatInstance.channel]: { occupants: [{ uuid: 'user123', state: { state: 'active' } }] } } });
     });
 
-    it('broadcast disconnection', (done) => {
+    it('disconnect chat', (done) => {
         chatInstance.users.user1 = {};
 
         chatInstance.on('$.offline.disconnect', () => {
@@ -48,14 +47,31 @@ describe('#chat', () => {
         chatInstance.userDisconnect('user1');
     });
 
-    it('broadcast a leaving the chat', (done) => {
-        chatInstance.users.user1 = {};
+    it('user join to chat', (done) => {
+        chatInstance.on('$.online.here', () => {
+            done();
+        });
 
+        chatInstance.createUser('user2', { state: 'active' });
+    });
+
+    it('user leave the chat', (done) => {
+        chatInstance.users.user1 = {};
         chatInstance.on('$.offline.leave', () => {
             done();
         });
 
         chatInstance.userLeave('user1');
+    });
+
+    it('update state', (done) => {
+        chatEngineInstance.on('$.state', (obj) => {
+            assert(obj.user.uuid === 'user2', 'was updated to the right user');
+            assert.deepEqual(obj.state, { state: 'not disturb' }, 'was updated the state correctly');
+            done();
+        });
+
+        chatInstance.userUpdate('user2', { state: 'not disturb' });
     });
 
     it('update occupancies', (done) => {

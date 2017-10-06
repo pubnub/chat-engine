@@ -6,7 +6,6 @@ const Chat = require('../../../src/components/chat');
 
 
 describe('#event', () => {
-
     let chatEngineInstance = null;
     let chat = null;
     let event = null;
