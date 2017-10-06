@@ -1,7 +1,7 @@
 /**
  Represents an event that may be emitted or subscribed to.
  */
-class Event {
+module.exports = class Event {
 
     constructor(chatEngine, chat, event) {
 
@@ -35,14 +35,12 @@ class Event {
                 if (status.statusCode === 200) {
                     chat.trigger('$.publish.success');
                 } else {
+
                     /**
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
                      */
-                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), {
-                        errorText: status.errorData.response.text,
-                        error: status.errorData,
-                    });
+                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
                 }
 
             });
@@ -70,6 +68,4 @@ class Event {
 
     }
 
-}
-
-module.exports = Event;
+};

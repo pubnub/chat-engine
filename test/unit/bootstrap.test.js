@@ -19,7 +19,6 @@ const Bootstrap = proxyquire('../../src/bootstrap', { axios: mock });
 
 describe('#bootstrap', () => {
     let chatEngineInstance = null;
-    let testChat = null;
 
     beforeEach(() => {
         chatEngineInstance = Bootstrap({ globalChannel: 'common' }, { publishKey: 'demo', subscribeKey: 'demo' });

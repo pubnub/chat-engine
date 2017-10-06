@@ -7,7 +7,7 @@ const EventEmitter2 = require('eventemitter2').EventEmitter2;
 * The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
 * ```this.on()```, ```this.emit()```, etc.
 */
-class RootEmitter {
+module.exports = class RootEmitter {
 
     constructor() {
 
@@ -110,6 +110,4 @@ class RootEmitter {
 
     }
 
-}
-
-module.exports = RootEmitter;
+};
