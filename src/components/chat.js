@@ -447,9 +447,6 @@ class Chat extends Emitter {
 
         this.chatEngine.users[uuid].assign(state);
 
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
-
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
 
@@ -467,11 +464,15 @@ class Chat extends Emitter {
                       *     console.log('User has come online:', data.user);
                       * });
              */
+
             this.trigger('$.online.here', {
                 user: this.chatEngine.users[uuid]
             });
 
         }
+
+        // store this user in the chatroom
+        this.users[uuid] = this.chatEngine.users[uuid];
 
         // return the instance of this user
         return this.chatEngine.users[uuid];

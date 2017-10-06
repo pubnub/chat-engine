@@ -27,20 +27,24 @@ describe('#me', () => {
     });
 
     it('add chat to session', (done) => {
+
         chatEngineInstance.on('$.session.chat.join', (payload) => {
             assert.isObject(payload.chat, 'was successfully created');
             done();
         });
 
         me.direct._emit('$.server.chat.created', { chat: { group: 'default', channel: 'test' } });
+
     });
 
     it('remove a chat from session', (done) => {
+
         chatEngineInstance.on('$.session.chat.leave', (payload) => {
             assert.isObject(payload.chat, 'was successfully remove');
             done();
         });
 
         me.direct._emit('$.server.chat.deleted', { chat: { group: 'default', channel: 'test' } });
+
     });
 });
