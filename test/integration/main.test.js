@@ -15,6 +15,40 @@ let ChatEngine;
 let ChatEngineYou;
 let globalChannel = 'thisistheglobalchannel-whatever' + new Date().getTime();
 
+let examplePlugin = (config) => {
+
+    class extension {
+        construct(options) {
+            this.parent.constructWorks = true;
+        }
+        newMethod () {
+            return true;
+        }
+    }
+
+    return {
+        namespace: 'testPlugin',
+        extends: {
+            Chat: extension
+        },
+        middleware: {
+            send: {
+                message: (payload, next) => {
+                    payload.send = true;
+                    next(null, payload);
+                }
+            },
+            broadcast: {
+                message: (payload, next) => {
+                    payload.broadcast = true;
+                    next(null, payload);
+                }
+            }
+        }
+    };
+
+};
+
 describe('config', () => {
 
     it('should be configured', () => {
@@ -102,6 +136,26 @@ describe('chat', () => {
 
     });
 
+    it('should bind a plugin', () => {
+
+        chat.plugin(examplePlugin());
+
+        assert(chat.constructWorks, 'bound to construct');
+        assert(chat.testPlugin.newMethod(), 'new method added');
+
+    });
+
+    it('should bind a prototype plugin', () => {
+
+        ChatEngine.protoPlugin('Chat', examplePlugin());
+
+        let newChat = new ChatEngine.Chat('some-other-chat');
+
+        assert(newChat.constructWorks, 'bound to construct');
+        assert(newChat.testPlugin.newMethod(), 'new method added');
+
+    });
+
 });
 
 let ChatEngineClone;
@@ -113,7 +167,7 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.on('$.session.chat.join', (payload) => {
+        ChatEngine.me.on('$.session.chat.join', (payload) => {
             done();
         });
 
@@ -139,12 +193,12 @@ describe('remote chat list', () => {
 
         this.timeout(10000);
 
-        ChatEngine.on('$.session.chat.leave', (payload) => {
+        ChatEngine.me.on('$.session.chat.leave', (payload) => {
 
             setTimeout(() => {
 
                 assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                assert.isUndefined(ChatEngine.session.default[syncChat.channel]);
+                assert.isUndefined(ChatEngine.me.session.default[syncChat.channel]);
 
             }, 1000);
 
@@ -162,36 +216,14 @@ describe('remote chat list', () => {
 
     it('should be populated', (done) => {
 
-        assert.isObject(ChatEngine.session.global);
-        assert.isObject(ChatEngine.session.default);
-        assert.isObject(ChatEngine.session.fixed);
+        assert.isObject(ChatEngine.me.session.global);
+        assert.isObject(ChatEngine.me.session.default);
+        assert.isObject(ChatEngine.me.session.fixed);
         done();
 
     });
 
 });
-// let chat2;
-
-// describe('myself-presence', function() {
-
-//     it('should be created', function(done) {
-
-//         chat2 = new ChatEngine.Chat(new Date() + 'chat');
-
-//         it('should get self as online event', function(done) {
-
-//             chat2.on('$.online.*', (event) => {
-//                 console.log(event);
-//             })
-
-//         });
-
-//         done();
-
-//     });
-
-
-// });
 
 let myChat;
 
