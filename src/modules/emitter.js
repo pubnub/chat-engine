@@ -1,13 +1,14 @@
 const waterfall = require('async/waterfall');
 const RootEmitter = require('./root_emitter');
 const Event = require('../components/event');
+// const User = require('../components/user');
 
 /**
  An ChatEngine generic emitter that supports plugins and forwards
  events to the root emitter.
  @extends RootEmitter
  */
-class Emitter extends RootEmitter {
+module.exports = class Emitter extends RootEmitter {
 
     constructor(chatEngine) {
 
@@ -159,6 +160,8 @@ class Emitter extends RootEmitter {
                         complete();
                     } else {
 
+                        let User = require('../components/user');
+
                         // the user doesn't exist, create it
                         payload.sender = new User(this.chatEngine, payload.sender);
 
@@ -219,6 +222,4 @@ class Emitter extends RootEmitter {
 
     }
 
-}
-
-module.exports = Emitter;
+};

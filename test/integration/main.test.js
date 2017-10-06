@@ -15,14 +15,14 @@ let ChatEngine;
 let ChatEngineYou;
 let globalChannel = 'global'; //  + new Date().getTime();
 
-let examplePlugin = (config) => {
+let examplePlugin = () => {
 
     class extension {
-        construct(options) {
+        construct() {
             this.parent.constructWorks = true;
         }
-        newMethod () {
-            return true;
+        newMethod() {
+            return this.parent.constructWorks;
         }
     }
 
@@ -260,7 +260,7 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.me.once('$.session.chat.join', (payload) => {
+        ChatEngine.me.once('$.session.chat.join', () => {
             done();
         });
 
@@ -286,7 +286,7 @@ describe('remote chat list', () => {
 
         this.timeout(10000);
 
-        ChatEngine.me.once('$.session.chat.leave', (payload) => {
+        ChatEngine.me.once('$.session.chat.leave', () => {
 
             setTimeout(() => {
 

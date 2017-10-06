@@ -11,7 +11,7 @@ const Emitter = require('../modules/emitter');
  @param state
  @param chat
  */
-class User extends Emitter {
+module.exports = class User extends Emitter {
 
     constructor(chatEngine, uuid, state = {}) {
 
@@ -131,6 +131,4 @@ class User extends Emitter {
 
     }
 
-}
-
-module.exports = User;
+};

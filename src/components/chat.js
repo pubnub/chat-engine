@@ -17,7 +17,7 @@ const User = require('../components/user');
  @fires Chat#$"."online
  @fires Chat#$"."offline
  */
-class Chat extends Emitter {
+module.exports = class Chat extends Emitter {
 
     constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
 
@@ -725,6 +725,4 @@ class Chat extends Emitter {
 
     }
 
-}
-
-module.exports = Chat;
+};

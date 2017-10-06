@@ -1,7 +1,7 @@
 /**
  Represents an event that may be emitted or subscribed to.
  */
-class Event {
+module.exports = class Event {
 
     constructor(chatEngine, chat, event) {
 
@@ -68,6 +68,4 @@ class Event {
 
     }
 
-}
-
-module.exports = Event;
+};
