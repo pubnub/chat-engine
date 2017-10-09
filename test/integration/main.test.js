@@ -181,7 +181,7 @@ describe('history', () => {
 
         let history = chatHistory.history({
             event: 'tester',
-            max: 50,
+            limit: 50,
             reverse: false
         }).on('tester', (a) => {
 
@@ -220,7 +220,7 @@ describe('history', () => {
 
         let history = chatHistory2.history({
             event: 'tester',
-            max: 200,
+            limit: 200,
             reverse: false
         }).on('tester', (a) => {
 
@@ -234,7 +234,7 @@ describe('history', () => {
 
         }).onAny((event) => {
             console.log(event)
-        })
+        });
 
     });
 

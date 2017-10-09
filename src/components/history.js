@@ -23,7 +23,7 @@ module.exports = class History extends Emitter {
         this.reverse = config.reverse || false;
         this.pageSize = config.pageSize || 100;
 
-        this.max = config.max || 50;
+        this.limit = config.limit || 50;
 
         this.startToken = this.reverse ? this.lastTT : this.firstTT;
 
@@ -119,7 +119,7 @@ module.exports = class History extends Emitter {
 
                 Object.keys(response.messages).forEach((key) => {
 
-                    if (response.messages[key] && response.messages[key].entry.event === event && this.needleCount < this.max) {
+                    if (response.messages[key] && response.messages[key].entry.event === event && this.needleCount < this.limit) {
 
                         /**
                          * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
@@ -134,7 +134,7 @@ module.exports = class History extends Emitter {
 
                 });
 
-                if (this.needleCount < this.max) {
+                if (this.needleCount < this.limit) {
                     this.find(event);
                 } else {
                     this.finish();
