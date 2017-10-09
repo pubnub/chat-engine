@@ -185,8 +185,6 @@ describe('history', () => {
             reverse: false
         }).on('tester', (a) => {
 
-            console.log(count)
-
             assert.equal(a.event, 'tester');
 
             count += 1;
@@ -198,50 +196,47 @@ describe('history', () => {
         });
 
     });
-    // it('should get 200 messages', function get200(done) {
+    it('should get 200 messages', function get200(done) {
 
-    //     let count = 0;
+        let count = 0;
 
-    //     this.timeout(10000);
+        this.timeout(10000);
 
-    //     let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
-    //     chatHistory2.on('$.history.tester', (a) => {
+        let i = 1;
+        while (i < 200) {
 
-    //         assert.equal(a.event, 'tester');
+            chatHistory2.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
 
-    //         count += 1;
+            i += 1;
 
-    //         if (count >= 200) {
-    //             done();
-    //         }
+        }
 
-    //     });
+        let history = chatHistory2.history({
+            event: 'tester',
+            max: 200,
+            reverse: false
+        }).on('tester', (a) => {
 
-    //     chatHistory2.on('$.history.not-tester', () => {
-    //         assert.isNotOk('history returning wrong events');
-    //     });
+            assert.equal(a.event, 'tester');
 
-    //     let i = 1;
-    //     while (i < 200) {
+            count += 1;
 
-    //         chatHistory2.emit('tester', {
-    //             text: 'hello world ' + i
-    //         });
-    //         chatHistory2.emit('not-tester', {
-    //             text: 'hello world ' + i
-    //         });
+            if (count >= 200) {
+                done();
+            }
 
-    //         i += 1;
+        }).onAny((event) => {
+            console.log(event)
+        })
 
-    //     }
-
-    //     chatHistory2.history('tester', {
-    //         max: 200,
-    //         reverse: false
-    //     });
-
-    // });
+    });
 
 });
 

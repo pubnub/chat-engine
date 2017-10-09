@@ -33,6 +33,8 @@ module.exports = class Emitter extends RootEmitter {
             // emit the event from the object that created it
             this.emitter.emit(event, data);
 
+            return this;
+
         };
 
         /**
@@ -59,6 +61,8 @@ module.exports = class Emitter extends RootEmitter {
 
             // call the private _on property
             this._on(event, cb);
+
+            return this;
 
         };
 
