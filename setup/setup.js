@@ -3,7 +3,7 @@ let api = new Client({
     endpoint: 'https://admin.pubnub.com'
 });
 
-let Provision = (email, password, callback = function() {}, status = function() {}, choice = function() {}) => {
+let Provision = (email, password, callback = function() {}, status = function() {}) => {
 
     status('Logging user in...');
 
