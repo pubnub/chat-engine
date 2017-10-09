@@ -53,6 +53,8 @@ module.exports = class History extends Emitter {
 
             this.startToken = this.reverse ? this.lastTT : this.firstTT;
 
+            console.log('start token', this.startToken)
+
             this.chatEngine.pubnub.history({
                 // search starting from this timetoken
                 // start: args.startToken,
@@ -65,8 +67,9 @@ module.exports = class History extends Emitter {
                 // include each returned message's publish timetoken
                 includeTimetoken: true,
                 // prevents JS from truncating 17 digit timetokens
-                stringifiedTimeToken: true,
-                startToken: this.startToken
+                stringifiedTimeToken: true
+                ,
+                start: this.startToken
             }, (status, response) => {
 
                 this.trigger('$.history.page.response');
@@ -85,6 +88,10 @@ module.exports = class History extends Emitter {
                     this.firstTT = response.startTimeToken;
                     // timetoken of the last message in response
                     this.lastTT = response.endTimeToken;
+
+                    // console.log(response)
+
+                    console.log(this.firstTT, this.lastTT)
 
                     pageDone(response);
 
@@ -133,7 +140,7 @@ module.exports = class History extends Emitter {
 
                 Object.keys(response.messages).forEach((key) => {
 
-                    if (response.messages[key] && response.messages[key].entry.event === event && this.needleCount < this.limit) {
+                    if (response.messages[key] && this.needleCount < this.limit) {
 
                         /**
                          * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
@@ -161,14 +168,52 @@ module.exports = class History extends Emitter {
 
         };
 
-        this.between = (start, end) => {
+        this.between = (start, end = new Date()) => {
+
+            console.log('between called')
+
+            this.startToken = start.getTime();
+
+            let overTime = false;
+
+            this.page((response) => {
+
+                Object.keys(response.messages).forEach((key) => {
+
+                    if (response.messages[key] && this.needleCount < this.limit
+                        && new Date(response.messages[key].timetoken/1e4).getTime() < end.getTime()
+                        && new Date(response.messages[key].timetoken/1e4).getTime() > this.startToken) {
+
+                        /**
+                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                         * ```$.history.``` to distinguish it from the original live events.
+                         * @event Chat#$"."history"."*
+                         * @tutorial history
+                         */
+                        this.needleCount += 1;
+
+                        this.trigger(response.messages[key].entry.event, response.messages[key].entry);
+
+                    }
+
+                });
+
+                if (this.needleCount < this.limit) {
+                    this.between(start, end);
+                } else {
+                    this.finish();
+                }
+
+            }, this.finish);
+
+            return this;
 
         };
 
         if (config.event) {
             this.find(config.event);
         } else {
-            this.between();
+            this.between(config.start, config.end);
         }
 
     }

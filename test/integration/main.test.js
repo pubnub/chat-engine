@@ -158,6 +158,7 @@ let chat;
 
 // });
 
+let chatHistory;
 describe('history', () => {
 
     it('should get 50 messages', function get50(done) {
@@ -166,7 +167,7 @@ describe('history', () => {
 
         this.timeout(10000);
 
-        let chatHistory = new ChatEngine.Chat('chat-history-2' + new Date().getTime(), false);
+        chatHistory = new ChatEngine.Chat('chat-history-2' + new Date().getTime(), false);
 
         let i = 0;
         while (i < 50) {
@@ -181,20 +182,26 @@ describe('history', () => {
 
         let history = chatHistory.history({
             event: 'tester',
-            limit: 50
+            limit: 50,
+            reverse: true
         }).on('tester', (a) => {
 
-            console.log('payload', a.data.text)
 
             assert.equal(a.event, 'tester');
 
             count += 1;
+
+            console.log(count)
 
             if (count >= 50) {
                 done();
             }
 
         });
+
+        history.onAny((a,b) => {
+            console.log(a)
+        })
 
     });
     // it('should get 200 messages', function get200(done) {
@@ -240,47 +247,28 @@ describe('history', () => {
 
     // });
 
-    // it('should get messages within last 20 second', function get200(done) {
 
-    //     let count = 0;
+    it('should get messages in last 20 seconds', function get50(done) {
 
-    //     this.timeout(10000);
+        let count = 0;
 
-    //     let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+        let history = chatHistory.history({
+            limit: 5,
+            start: new Date(),
+            reverse: true
+        }).on('tester', (a) => {
 
-    //     let i = 1;
-    //     while (i < 200) {
+            assert.equal(a.event, 'tester');
 
-    //         chatHistory2.emit('tester', {
-    //             text: 'hello world ' + i
-    //         });
-    //         chatHistory2.emit('not-tester', {
-    //             text: 'hello world ' + i
-    //         });
+            count += 1;
 
-    //         i += 1;
+            if (count >= 5) {
+                done();
+            }
 
-    //     }
+        });
 
-    //     let history = chatHistory2.history({
-    //         event: 'tester',
-    //         limit: 200,
-    //         reverse: false
-    //     }).on('tester', (a) => {
-
-    //         assert.equal(a.event, 'tester');
-
-    //         count += 1;
-
-    //         if (count >= 200) {
-    //             done();
-    //         }
-
-    //     }).onAny((event) => {
-    //         console.log(event)
-    //     });
-
-    // });
+    });
 
 });
 
