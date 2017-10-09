@@ -1,9 +1,9 @@
 let api = new Client({
-    debug: true,
+    debug: false,
     endpoint: 'https://admin.pubnub.com'
 });
 
-let Provision = (email, password, callback = function(){}, status = function(){}, choice = function(){}) => {
+let Provision = (email, password, callback = function() {}, status = function() {}, choice = function() {}) => {
 
     status('Logging user in...');
 
@@ -12,67 +12,63 @@ let Provision = (email, password, callback = function(){}, status = function(){}
         password: password
     }, (err, response) => {
 
-        if(err) {
+        if (err) {
             return callback('Incorrect email or password. Reset your password <a href="https://admin.pubnub.com/#/forgot-password/">here</a>.');
         }
 
         status('Getting user accounts...');
 
         let login = response.result;
-        console.log(login.user.id);
 
-        api.request('get', ['api','accounts'], { 
-            data: { 
-                user_id: login.user.id 
+        api.request('get', ['api', 'accounts'], {
+            data: {
+                user_id: login.user.id
             }
-        }, function (err, response) {
-            if(err) {
+        }, function(err, response) {
+
+            if (err) {
                 return callback('Could not get PubNub accounts. Please contact support@pubnub.com.');
             }
 
             let account = response.result.accounts[0];
-            console.log(account.id);
 
             status('Using account ' + account.properties.company + ', if this is incorrent deploy manually or log in as another user');
             status('Creating new PubNub app...');
 
-            api.request('post', ['api','apps'], {
-                data:{
+            api.request('post', ['api', 'apps'], {
+                data: {
                     name: 'ChatEngine App',
                     owner_id: account.id,
                     properties: {}
                 }
-            }, function (err, response) {
+            }, function(err, response) {
 
-                if(err) {
+                if (err) {
                     return callback('Could not create new PubNub app. Please contact support@pubnub.com.');
                 }
 
                 let app = response.result;
-                console.log(app);
 
                 status('Getting PubNub keys...');
 
-                api.request('get',['api','apps'], {
+                api.request('get', ['api', 'apps'], {
                     data: {
                         owner_id: account.id
                     }
-                }, function (err, response) {
+                }, function(err, response) {
 
-                    if(err) {
+                    if (err) {
                         return callback('Could not get PubNub keys. Please contact support@pubnub.com.');
                     }
 
                     let apps = response.result;
                     let key;
 
-                    for (item of apps){
-                        if (item.id == app.id){
+                    for (item of apps) {
+                        if (item.id == app.id) {
                             key = item.keys[0]
                         }
                     }
-
-                    console.log(key);
 
                     status('Enabling PubNub features...');
 
@@ -91,37 +87,92 @@ let Provision = (email, password, callback = function(){}, status = function(){}
                     key.properties.wildcardsubscribe = 1;
 
                     api.request('put', ['api', 'keys', key.id], {
-                        data: key 
-                    }, function (err, response) {
+                        data: key
+                    }, function(err, response) {
 
-                        if(err) {
-                            callback('Could not enable PubNub features. Please contact support@pubnub.com.')
+                        if (err) {
+                            callback('Could not enable PubNub features. Please contact support@pubnub.com.');
                         }
 
                         status('Creating new PubNub Function...');
 
-                        api.request('post',['api','v1','blocks','key',key.id,'block'], {
+                        api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block'], {
                             data: {
-                                name:'ChatEngine Function',
+                                name: 'ChatEngine Function',
                                 key_id: key.id
                             }
-                        }, function (err, response) {
-                            if(err){
-                                callback('Could not create new PubNub Function. Please contact support@pubnub.com.')
-                            }
-                            let block = response.payload;
-                            
-                            status('Creating new Event Handlers...');
+                        }, function(err, response) {
 
-                            api.request('post',['api','v1','blocks','key',key.id,'event_handler'], {
-                                data: {
-                                    key_id: key.id,
-                                    block_id: block.id,
-                                    type: 'js',
-                                    event: 'js-after-publish',
-                                    channel: 'global',
-                                    
-                                }
+                            if (err) {
+                                callback('Could not create new PubNub Function. Please contact support@pubnub.com.');
+                            }
+
+                            let block = response.payload;
+
+                            status('Creating new after-presence Event Handler...');
+
+                            $.get('functions/state-to-kv.js', function(code) {
+
+                                api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
+                                    data: {
+                                        key_id: key.id,
+                                        block_id: block.id,
+                                        type: 'js',
+                                        event: 'js-after-presence',
+                                        channels: 'global',
+                                        name: 'state-to-kv',
+                                        code: code,
+                                        output: 'output-0.5823105682419438'
+                                    }
+                                }, function(err, response) {
+
+                                    if (err) {
+                                        callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
+                                    }
+
+                                    status('Creating new after-publish Event Handler...');
+
+                                    $.get('functions/get-kv-state.js', function(code) {
+
+                                        api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
+                                            data: {
+                                                key_id: key.id,
+                                                block_id: block.id,
+                                                type: 'js',
+                                                event: 'js-after-publish',
+                                                channels: 'global',
+                                                name: 'get-kv-state',
+                                                code: code,
+                                                output: 'output-0.5823105682419438'
+                                            }
+                                        }, function(err, response) {
+
+                                            if (err) {
+                                                callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
+                                            }
+
+                                            status('Starting Pubnub Function...');
+
+                                            api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
+                                                data: {
+                                                    block_id: block.id,
+                                                    key_id: key.id,
+                                                    action: 'start'
+                                                }
+                                            }, function(err, response) {
+
+                                                if (err) {
+                                                    callback('Could not start PubNub Function. Please contact support@pubnub.com.');
+                                                }
+
+                                                status('Done!');
+
+                                                callback(null, { pub: key.publish_key, sub: key.subscribe_key });
+                                            });
+                                        });
+                                    }, 'text');
+                                });
+                            }, 'text');
                         });
                     });
                 });
@@ -129,7 +180,7 @@ let Provision = (email, password, callback = function(){}, status = function(){}
         });
     });
 }
-        /*
+/*
         let session = body.result;
 
          api.request('post', ['api', 'apps'], {

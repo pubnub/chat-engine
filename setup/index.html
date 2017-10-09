@@ -146,8 +146,11 @@
                 let output = "";
                 output += "// Make sure to import ChatEngine first!\n";
                 output += "ChatEngine = ChatEngineCore.create({\n";
-                output += "    publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',\n";
-                output += "    subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe'\n";
+                output += "    publishKey: '" + data.pub + "',\n";
+                output += "    subscribeKey: '" + data.sub + "'\n";
+                output += "}, {\n";
+                output += "    globalChannel: 'global',\n";
+                output += "    endpoint: 'http://localhost:3000/insecure'\n";
                 output += "});\n";
 
                 $('#code').text(output);
