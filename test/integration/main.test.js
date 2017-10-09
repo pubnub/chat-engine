@@ -147,7 +147,7 @@ describe('chat', () => {
 
     it('should bind a prototype plugin', () => {
 
-        ChatEngine.protoPlugin('Chat', examplePlugin());
+        ChatEngine.proto('Chat', examplePlugin());
 
         let newChat = new ChatEngine.Chat('some-other-chat');
 
