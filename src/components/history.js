@@ -25,9 +25,19 @@ module.exports = class History extends Emitter {
 
         this.limit = config.limit || 50;
 
-        this.startToken = this.reverse ? this.lastTT : this.firstTT;
-
         this.needleCount = 0;
+
+        this.sortHistory = (messages, desc) => {
+
+            messages.sort((a, b) => {
+                let e1 = desc ? b : a;
+                let e2 = desc ? a : b;
+                return parseInt(e1.timetoken, 10) - parseInt(e2.timetoken, 10);
+            });
+
+            return messages;
+
+        };
 
         /**
          * Call PubNub history in a loop.
@@ -40,6 +50,8 @@ module.exports = class History extends Emitter {
         this.page = (pageDone, allDone) => {
 
             this.trigger('$.history.page.request');
+
+            this.startToken = this.reverse ? this.lastTT : this.firstTT;
 
             this.chatEngine.pubnub.history({
                 // search starting from this timetoken
@@ -75,6 +87,8 @@ module.exports = class History extends Emitter {
                     this.lastTT = response.endTimeToken;
 
                     pageDone(response);
+
+                    response.messages = this.sortHistory(response.messages);
 
                     // we keep asking for more messages if # messages returned by last request is the
                     // same at the pagesize AND we still have reached the total number of messages requested
@@ -128,6 +142,7 @@ module.exports = class History extends Emitter {
                          * @tutorial history
                          */
                         this.needleCount += 1;
+
                         this.trigger(response.messages[key].entry.event, response.messages[key].entry);
 
                     }
@@ -146,8 +161,14 @@ module.exports = class History extends Emitter {
 
         };
 
+        this.between = (start, end) => {
+
+        };
+
         if (config.event) {
             this.find(config.event);
+        } else {
+            this.between();
         }
 
     }
