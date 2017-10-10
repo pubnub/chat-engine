@@ -59,7 +59,7 @@ describe('config', () => {
         }, {
             endpoint: 'http://localhost:3000/insecure',
             globalChannel,
-            throwErrors: false
+            throwErrors: true
         });
 
         assert.isOk(ChatEngine);
@@ -167,7 +167,7 @@ describe('history', () => {
 
         this.timeout(10000);
 
-        chatHistory = new ChatEngine.Chat('chat-history-7', false);
+        chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
         let i = 0;
         while (i < 50) {
@@ -188,10 +188,8 @@ describe('history', () => {
 
         let history = chatHistory.history({
             event: 'tester',
-            limit: 50,
-            reverse: true
+            limit: 50
         }).on('tester', (a) => {
-
 
             assert.equal(a.event, 'tester');
 
@@ -202,73 +200,60 @@ describe('history', () => {
             done();
         });
 
-        history.onAny((a,b) => {
-            console.log(a)
-        })
+    });
+    it('should get 200 messages', function get200(done) {
+
+        let count = 0;
+
+        this.timeout(10000);
+
+        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+
+        let i = 1;
+        while (i < 200) {
+
+            chatHistory2.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
+
+            i += 1;
+
+        }
+
+        let history = chatHistory2.history({
+            event: 'tester',
+            limit: 200
+        }).on('tester', (a, b) => {
+
+            assert.equal(a.event, 'tester');
+            count += 1;
+
+        }).on('$.history.finish', () => {
+            assert.equal(count, 200, 'correct # of results')
+            done();
+        });
 
     });
-    // it('should get 200 messages', function get200(done) {
 
-    //     let count = 0;
+    it('should get messages without event', function get50(done) {
 
-    //     this.timeout(10000);
-
-    //     let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
-
-    //     let i = 1;
-    //     while (i < 200) {
-
-    //         chatHistory2.emit('tester', {
-    //             text: 'hello world ' + i
-    //         });
-    //         chatHistory2.emit('not-tester', {
-    //             text: 'hello world ' + i
-    //         });
-
-    //         i += 1;
-
-    //     }
-
-    //     let history = chatHistory2.history({
-    //         event: 'tester',
-    //         limit: 200
-    //     }).on('tester', (a, b) => {
-
-    //         assert.equal(a.event, 'tester');
-
-    //         console.log(b)
-
-    //         count += 1;
-
-    //         if (count >= 200) {
-    //             done();
-    //         }
-
-    //     }).onAny((event, payload) => {
-    //         console.log(event);
-    //     });
-
-    // });
-
-
-    it('should get messages in last 20 seconds', function get50(done) {
+        this.timeout(10000);
 
         let count = 0;
 
         let history = chatHistory.history({
-            limit: 5,
-            start: new Date(),
-            reverse: true
+            limit: 5
         }).on('tester', (a) => {
 
             assert.equal(a.event, 'tester');
-
             count += 1;
 
-            if (count >= 5) {
-                done();
-            }
-
+        }).on('$.history.finish', () => {
+            console.log('done')
+            done();
         });
 
     });

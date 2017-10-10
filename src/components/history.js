@@ -48,13 +48,15 @@ module.exports = class History extends Emitter {
          * @return {[type]}            [description]
          * @private
          */
-        this.page = (pageDone, allDone) => {
+        this.page = (pageDone) => {
 
             this.trigger('$.history.page.request');
 
             this.startToken = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.chatEngine.pubnub.history(this.config, (status, response) => {
+
+                // console.log(status, response)
 
                 this.trigger('$.history.page.response');
 
@@ -64,7 +66,7 @@ module.exports = class History extends Emitter {
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), status);
+                    this.chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
 
                 } else {
 
@@ -72,10 +74,6 @@ module.exports = class History extends Emitter {
                     this.firstTT = response.startTimeToken;
                     // timetoken of the last message in response
                     this.lastTT = response.endTimeToken;
-
-                    // console.log(response)
-
-                    console.log(this.firstTT, this.lastTT)
 
                     response.messages = this.sortHistory(response.messages);
 
@@ -97,26 +95,36 @@ module.exports = class History extends Emitter {
         */
 
         this.needleCount = 0;
-        this.find = () => {
 
-            this.trigger('$.history.start');
+        this.triggerHistory = (response, key) => {
+
+            this.needleCount += 1;
+            this.trigger(response.messages[key].entry.event, response.messages[key].entry);
+
+        };
+
+        this.find = () => {
 
             this.page((response) => {
 
                 Object.keys(response.messages).forEach((key) => {
 
-                    if (response.messages[key].entry.event === this.config.event && this.needleCount < this.config.limit) {
+                    if (this.config.event) {
 
-                        /**
-                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                         * ```$.history.``` to distinguish it from the original live events.
-                         * @event Chat#$"."history"."*
-                         * @tutorial history
-                         */
-                        this.needleCount += 1;
+                        if (response.messages[key].entry.event === this.config.event && this.needleCount < this.config.limit) {
 
-                        this.trigger(response.messages[key].entry.event, response.messages[key].entry);
+                            /**
+                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                             * ```$.history.``` to distinguish it from the original live events.
+                             * @event Chat#$"."history"."*
+                             * @tutorial history
+                             */
+                            this.triggerHistory(response, key);
 
+                        }
+
+                    } else {
+                        this.triggerHistory(response, key);
                     }
 
                 });
@@ -133,6 +141,7 @@ module.exports = class History extends Emitter {
 
         };
 
+        this.trigger('$.history.start');
         this.find();
 
     }
