@@ -5086,7 +5086,7 @@ module.exports = class History extends Emitter {
 
             this.trigger('$.history.page.request');
 
-            this.startToken = this.config.reverse ? this.lastTT : this.firstTT;
+            this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.chatEngine.pubnub.history(this.config, (status, response) => {
 
@@ -5139,6 +5139,10 @@ module.exports = class History extends Emitter {
 
             this.page((response) => {
 
+                if (!this.config.reverse) {
+                    response.messages.reverse()
+                }
+
                 Object.keys(response.messages).forEach((key) => {
 
                     if (this.config.event) {
@@ -5161,7 +5165,10 @@ module.exports = class History extends Emitter {
 
                 });
 
-                if (response.messages && response.messages.length == this.config.count && this.needleCount < this.config.limit) {
+                if (
+                    response.messages &&
+                    response.messages.length === this.config.count &&
+                    this.needleCount < this.config.limit) {
                     this.find();
                 } else {
                     this.trigger('$.history.finish');
