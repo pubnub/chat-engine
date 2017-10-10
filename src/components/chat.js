@@ -3,7 +3,7 @@ const axios = require('axios');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
 const User = require('../components/user');
-const History = require('../components/history');
+const Search = require('../components/search');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -577,8 +577,8 @@ module.exports = class Chat extends Emitter {
         });
     }
 
-    history(config) {
-        return new History(this.chatEngine, this, config);
+    search(config) {
+        return new Search(this.chatEngine, this, config);
     }
 
     onConnectionReady() {

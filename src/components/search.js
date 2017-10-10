@@ -9,7 +9,7 @@ const Event = require('../components/event');
  @param state
  @param chat
  */
-module.exports = class History extends Emitter {
+module.exports = class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {
 
@@ -17,7 +17,7 @@ module.exports = class History extends Emitter {
 
         this.chatEngine = chatEngine;
 
-        this.name = 'History';
+        this.name = 'Search';
         this.chat = chat;
 
         this.config = config;
@@ -55,13 +55,13 @@ module.exports = class History extends Emitter {
          */
         this.page = (pageDone) => {
 
-            this.trigger('$.history.page.request');
+            this.trigger('$.search.page.request');
 
             this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.chatEngine.pubnub.history(this.config, (status, response) => {
 
-                this.trigger('$.history.page.response');
+                this.trigger('$.search.page.response');
 
                 if (status.error) {
 
@@ -69,7 +69,7 @@ module.exports = class History extends Emitter {
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    this.chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
+                    this.chatEngine.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
 
                 } else {
 
@@ -142,7 +142,7 @@ module.exports = class History extends Emitter {
                     this.needleCount < this.config.limit) {
                     this.find();
                 } else {
-                    this.trigger('$.history.finish');
+                    this.trigger('$.search.finish');
                 }
 
             });
@@ -151,7 +151,7 @@ module.exports = class History extends Emitter {
 
         };
 
-        this.trigger('$.history.start');
+        this.trigger('$.search.start');
         this.find();
 
     }
