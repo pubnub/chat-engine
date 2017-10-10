@@ -20,10 +20,11 @@ module.exports = class History extends Emitter {
         this.name = 'History';
         this.chat = chat;
 
-        this.reverse = config.reverse || false;
-        this.pageSize = config.pageSize || 100;
-
-        this.limit = config.limit || 50;
+        this.config = config;
+        this.config.event = config.event;
+        this.config.channel = this.chat.channel;
+        this.config.includeTimetoken = true;
+        this.config.stringifiedTimeToken = true;
 
         this.needleCount = 0;
 
@@ -51,24 +52,9 @@ module.exports = class History extends Emitter {
 
             this.trigger('$.history.page.request');
 
-            this.startToken = this.reverse ? this.lastTT : this.firstTT;
+            this.startToken = this.config.reverse ? this.lastTT : this.firstTT;
 
-            this.chatEngine.pubnub.history({
-                // search starting from this timetoken
-                // start: args.startToken,
-                channel: this.chat.channel,
-                // false - search forwards through the timeline
-                // true - search backwards through the timeline
-                reverse: this.reverse,
-                // limit number of messages per request to this value; default/max=100
-                count: this.pagesize,
-                // include each returned message's publish timetoken
-                includeTimetoken: true,
-                // prevents JS from truncating 17 digit timetokens
-                stringifiedTimeToken: true
-                ,
-                start: this.startToken
-            }, (status, response) => {
+            this.chatEngine.pubnub.history(this.config, (status, response) => {
 
                 this.trigger('$.history.page.response');
 
@@ -91,21 +77,9 @@ module.exports = class History extends Emitter {
 
                     console.log(this.firstTT, this.lastTT)
 
-                    pageDone(response);
-
                     response.messages = this.sortHistory(response.messages);
 
-                    // we keep asking for more messages if # messages returned by last request is the
-                    // same at the pagesize AND we still have reached the total number of messages requested
-                    // same as the opposit of !(msgs.length < pagesize || total == max)
-                    if (response.messages.length < this.pagesize) {
-
-                        // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
-                        // so invoke the callback to the original caller of getMessages providing the total message results
-                        allDone(response);
-                        this.trigger('$.history.page.last');
-
-                    }
+                    pageDone(response);
 
                 }
 
@@ -123,22 +97,15 @@ module.exports = class History extends Emitter {
         */
 
         this.needleCount = 0;
+        this.find = () => {
 
-        this.start = () => {
             this.trigger('$.history.start');
-        };
-
-        this.finish = () => {
-            this.trigger('$.history.finish');
-        };
-
-        this.find = (event) => {
 
             this.page((response) => {
 
                 Object.keys(response.messages).forEach((key) => {
 
-                    if (response.messages[key].entry.event == event && this.needleCount < this.limit) {
+                    if (response.messages[key].entry.event === this.config.event && this.needleCount < this.config.limit) {
 
                         /**
                          * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
@@ -154,10 +121,10 @@ module.exports = class History extends Emitter {
 
                 });
 
-                if (this.needleCount < this.limit) {
-                    this.find(event);
+                if (response.messages && response.messages.length && this.needleCount < this.config.limit) {
+                    this.find();
                 } else {
-                    this.finish();
+                    this.trigger('$.history.finish');
                 }
 
             });
@@ -166,51 +133,7 @@ module.exports = class History extends Emitter {
 
         };
 
-        this.between = (start, end = new Date()) => {
-
-            this.startToken = start.getTime();
-
-            let overTime = false;
-
-            this.page((response) => {
-
-                Object.keys(response.messages).forEach((key) => {
-
-                    if (response.messages[key] && this.needleCount < this.limit
-                        && new Date(response.messages[key].timetoken/1e4).getTime() < end.getTime()
-                        && new Date(response.messages[key].timetoken/1e4).getTime() > this.startToken) {
-
-                        /**
-                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                         * ```$.history.``` to distinguish it from the original live events.
-                         * @event Chat#$"."history"."*
-                         * @tutorial history
-                         */
-                        this.needleCount += 1;
-
-                        this.trigger(response.messages[key].entry.event, response.messages[key].entry);
-
-                    }
-
-                });
-
-                if (this.needleCount < this.limit) {
-                    this.between(start, end);
-                } else {
-                    this.finish();
-                }
-
-            });
-
-            return this;
-
-        };
-
-        if (config.event) {
-            this.find(config.event);
-        } else {
-            this.between(config.start, config.end);
-        }
+        this.find();
 
     }
 
