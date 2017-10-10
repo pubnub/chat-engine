@@ -167,12 +167,18 @@ describe('history', () => {
 
         this.timeout(10000);
 
-        chatHistory = new ChatEngine.Chat('chat-history-2' + new Date().getTime(), false);
+        chatHistory = new ChatEngine.Chat('chat-history-7', false);
 
         let i = 0;
         while (i < 50) {
 
             chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('poop', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('nothng', {
                 text: 'hello world ' + i
             });
 
@@ -191,12 +197,9 @@ describe('history', () => {
 
             count += 1;
 
-            console.log(count)
-
-            if (count >= 50) {
-                done();
-            }
-
+        }).on('$.history.finish', () => {
+            assert.equal(count, 50, 'correct # of results')
+            done();
         });
 
         history.onAny((a,b) => {

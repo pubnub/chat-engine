@@ -53,8 +53,6 @@ module.exports = class History extends Emitter {
 
             this.startToken = this.reverse ? this.lastTT : this.firstTT;
 
-            console.log('start token', this.startToken)
-
             this.chatEngine.pubnub.history({
                 // search starting from this timetoken
                 // start: args.startToken,
@@ -140,7 +138,7 @@ module.exports = class History extends Emitter {
 
                 Object.keys(response.messages).forEach((key) => {
 
-                    if (response.messages[key] && this.needleCount < this.limit) {
+                    if (response.messages[key].entry.event == event && this.needleCount < this.limit) {
 
                         /**
                          * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
@@ -162,15 +160,13 @@ module.exports = class History extends Emitter {
                     this.finish();
                 }
 
-            }, this.finish);
+            });
 
             return this;
 
         };
 
         this.between = (start, end = new Date()) => {
-
-            console.log('between called')
 
             this.startToken = start.getTime();
 
@@ -204,7 +200,7 @@ module.exports = class History extends Emitter {
                     this.finish();
                 }
 
-            }, this.finish);
+            });
 
             return this;
 
