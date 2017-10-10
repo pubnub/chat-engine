@@ -503,6 +503,10 @@ module.exports = class User extends Emitter {
         this.update(state);
     }
 
+    _hasState() {
+        return Object.keys(this.state).length > 0;
+    }
+
     /**
     Get stored user state from remote server.
     @private
@@ -1424,7 +1428,7 @@ module.exports = class Emitter extends RootEmitter {
                 if (payload.sender) {
 
                     // this use already exists in memory
-                    if (this.chatEngine.users[payload.sender]) {
+                    if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._hasState()) {
                         payload.sender = this.chatEngine.users[payload.sender];
                         complete();
                     } else {
@@ -5296,7 +5300,7 @@ module.exports = class Search extends Emitter {
             };
         };
 
-        let userFilter = (user) => {
+        let senderFilter = (user) => {
             return {
                 middleware: {
                     on: {
@@ -5322,14 +5326,22 @@ module.exports = class Search extends Emitter {
         this.needleCount = 0;
         this.triggerHistory = (message, cb) => {
 
-            this.trigger(message.entry.event, message.entry, (reject, payload) => {
+            console.log(this.needleCount)
 
-                if (!reject) {
-                    this.needleCount += 1;
-                }
-                cb();
+            if (this.needleCount < this.config.limit) {
 
-            });
+                this.trigger(message.entry.event, message.entry, (reject, payload) => {
+
+                    if (!reject) {
+                        this.needleCount += 1;
+                    }
+                    cb();
+
+                });
+
+            } else {
+                cb()
+            }
 
         };
 
@@ -5341,23 +5353,7 @@ module.exports = class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                eachSeries(response.messages, (message, done) => {
-
-                    if (this.needleCount < this.config.limit) {
-
-                        /**
-                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                         * ```$.history.``` to distinguish it from the original live events.
-                         * @event Chat#$"."history"."*
-                         * @tutorial history
-                         */
-                        this.triggerHistory(message, done);
-
-                    } else {
-                        done();
-                    }
-
-                }, (err) => {
+                eachSeries(response.messages, this.triggerHistory, (err) => {
 
                     if (
                         response.messages &&
@@ -5380,8 +5376,8 @@ module.exports = class Search extends Emitter {
             this.plugin(eventFilter(this.config.event));
         }
 
-        if(this.config.user) {
-            this.plugin(userFilter(this.config.user));
+        if(this.config.sender) {
+            this.plugin(senderFilter(this.config.sender));
         }
 
         this.trigger('$.search.start');

@@ -169,7 +169,7 @@ module.exports = class Emitter extends RootEmitter {
                 if (payload.sender) {
 
                     // this use already exists in memory
-                    if (this.chatEngine.users[payload.sender]) {
+                    if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._hasState()) {
                         payload.sender = this.chatEngine.users[payload.sender];
                         complete();
                     } else {

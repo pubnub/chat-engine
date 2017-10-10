@@ -114,6 +114,10 @@ module.exports = class User extends Emitter {
         this.update(state);
     }
 
+    _hasState() {
+        return Object.keys(this.state).length > 0;
+    }
+
     /**
     Get stored user state from remote server.
     @private

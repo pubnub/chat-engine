@@ -101,7 +101,7 @@ module.exports = class Search extends Emitter {
             };
         };
 
-        let userFilter = (user) => {
+        let senderFilter = (user) => {
             return {
                 middleware: {
                     on: {
@@ -127,14 +127,22 @@ module.exports = class Search extends Emitter {
         this.needleCount = 0;
         this.triggerHistory = (message, cb) => {
 
-            this.trigger(message.entry.event, message.entry, (reject, payload) => {
+            console.log(this.needleCount)
 
-                if (!reject) {
-                    this.needleCount += 1;
-                }
-                cb();
+            if (this.needleCount < this.config.limit) {
 
-            });
+                this.trigger(message.entry.event, message.entry, (reject, payload) => {
+
+                    if (!reject) {
+                        this.needleCount += 1;
+                    }
+                    cb();
+
+                });
+
+            } else {
+                cb()
+            }
 
         };
 
@@ -146,23 +154,7 @@ module.exports = class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                eachSeries(response.messages, (message, done) => {
-
-                    if (this.needleCount < this.config.limit) {
-
-                        /**
-                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                         * ```$.history.``` to distinguish it from the original live events.
-                         * @event Chat#$"."history"."*
-                         * @tutorial history
-                         */
-                        this.triggerHistory(message, done);
-
-                    } else {
-                        done();
-                    }
-
-                }, (err) => {
+                eachSeries(response.messages, this.triggerHistory, (err) => {
 
                     if (
                         response.messages &&
@@ -185,8 +177,8 @@ module.exports = class Search extends Emitter {
             this.plugin(eventFilter(this.config.event));
         }
 
-        if(this.config.user) {
-            this.plugin(userFilter(this.config.user));
+        if(this.config.sender) {
+            this.plugin(senderFilter(this.config.sender));
         }
 
         this.trigger('$.search.start');
