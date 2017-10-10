@@ -133,7 +133,7 @@ module.exports = class Emitter extends RootEmitter {
          @param {Object} payload The event payload object
          */
 
-        this.trigger = (event, payload) => {
+        this.trigger = (event, payload, done = () => {}) => {
 
             let complete = () => {
 
@@ -143,6 +143,7 @@ module.exports = class Emitter extends RootEmitter {
                 }, (err, pluginResponse) => {
                     // emit this event to any listener
                     this._emit(event, pluginResponse);
+                    done();
                 });
 
             };

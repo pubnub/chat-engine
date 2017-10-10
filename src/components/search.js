@@ -1,5 +1,6 @@
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
+const eachSeries = require('async/eachSeries');
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
  If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
@@ -27,6 +28,9 @@ module.exports = class Search extends Emitter {
         this.config.includeTimetoken = true;
         this.config.stringifiedTimeToken = true;
         this.config.count = this.config.count || 100;
+        this.config.filter = (done) => {
+            done(true);
+        };
 
         this.needleCount = 0;
 
@@ -99,10 +103,14 @@ module.exports = class Search extends Emitter {
 
         this.needleCount = 0;
 
-        this.triggerHistory = (response, key) => {
+        this.triggerHistory = (message, cb) => {
+
+            console.log('triggerhistory called', message)
 
             this.needleCount += 1;
-            this.trigger(response.messages[key].entry.event, response.messages[key].entry);
+
+            console.log('trigger', message.entry.data);
+            this.trigger(message.entry.event, message.entry, cb);
 
         };
 
@@ -111,14 +119,18 @@ module.exports = class Search extends Emitter {
             this.page((response) => {
 
                 if (!this.config.reverse) {
-                    response.messages.reverse()
+                    response.messages.reverse();
                 }
 
-                Object.keys(response.messages).forEach((key) => {
+                console.log(response.messages)
+
+                eachSeries(response.messages, (message, done) => {
+
+                    console.log(message)
 
                     if (this.config.event) {
 
-                        if (response.messages[key].entry.event === this.config.event && this.needleCount < this.config.limit) {
+                        if (message.entry.event === this.config.event && this.needleCount < this.config.limit) {
 
                             /**
                              * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
@@ -126,24 +138,28 @@ module.exports = class Search extends Emitter {
                              * @event Chat#$"."history"."*
                              * @tutorial history
                              */
-                            this.triggerHistory(response, key);
+                            this.triggerHistory(message, done);
 
+                        } else {
+                            done();
                         }
 
                     } else {
-                        this.triggerHistory(response, key);
+                        this.triggerHistory(message, done);
+                    }
+
+                }, (err) => {
+
+                    if (
+                        response.messages &&
+                        response.messages.length === this.config.count &&
+                        this.needleCount < this.config.limit) {
+                        this.find();
+                    } else {
+                        this.trigger('$.search.finish');
                     }
 
                 });
-
-                if (
-                    response.messages &&
-                    response.messages.length === this.config.count &&
-                    this.needleCount < this.config.limit) {
-                    this.find();
-                } else {
-                    this.trigger('$.search.finish');
-                }
 
             });
 
