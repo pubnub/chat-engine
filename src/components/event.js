@@ -36,8 +36,6 @@ module.exports = class Event {
                     chat.trigger('$.publish.success');
                 } else {
 
-                    console.log(status)
-
                     /**
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
