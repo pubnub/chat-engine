@@ -28,9 +28,6 @@ module.exports = class Search extends Emitter {
         this.config.includeTimetoken = true;
         this.config.stringifiedTimeToken = true;
         this.config.count = this.config.count || 100;
-        this.config.filter = (done) => {
-            done(true);
-        };
 
         this.needleCount = 0;
 
@@ -91,6 +88,33 @@ module.exports = class Search extends Emitter {
             });
         };
 
+        let eventFilter = (event) => {
+            return {
+                middleware: {
+                    on: {
+                        '*': (payload, next) => {
+                            let matches = payload && payload.event && payload.event === event;
+                            next(!matches, payload);
+                        }
+                    }
+                }
+            };
+        };
+
+        let userFilter = (user) => {
+            return {
+                middleware: {
+                    on: {
+                        '*': (payload, next) => {
+
+                            let matches = payload && payload.sender && payload.sender.uuid === user.uuid;
+                            next(!matches, payload);
+                        }
+                    }
+                }
+            };
+        };
+
         /**
         * Get messages that have been published to the network before this client was connected.
         * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
@@ -100,13 +124,17 @@ module.exports = class Search extends Emitter {
         * @param {Object} [config] The PubNub history config for this call
         * @tutorial history
         */
-
         this.needleCount = 0;
-
         this.triggerHistory = (message, cb) => {
 
-            this.needleCount += 1;
-            this.trigger(message.entry.event, message.entry, cb);
+            this.trigger(message.entry.event, message.entry, (reject, payload) => {
+
+                if (!reject) {
+                    this.needleCount += 1;
+                }
+                cb();
+
+            });
 
         };
 
@@ -120,24 +148,18 @@ module.exports = class Search extends Emitter {
 
                 eachSeries(response.messages, (message, done) => {
 
-                    if (this.config.event) {
+                    if (this.needleCount < this.config.limit) {
 
-                        if (message.entry.event === this.config.event && this.needleCount < this.config.limit) {
-
-                            /**
-                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                             * ```$.history.``` to distinguish it from the original live events.
-                             * @event Chat#$"."history"."*
-                             * @tutorial history
-                             */
-                            this.triggerHistory(message, done);
-
-                        } else {
-                            done();
-                        }
+                        /**
+                         * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                         * ```$.history.``` to distinguish it from the original live events.
+                         * @event Chat#$"."history"."*
+                         * @tutorial history
+                         */
+                        this.triggerHistory(message, done);
 
                     } else {
-                        this.triggerHistory(message, done);
+                        done();
                     }
 
                 }, (err) => {
@@ -158,6 +180,14 @@ module.exports = class Search extends Emitter {
             return this;
 
         };
+
+        if(this.config.event) {
+            this.plugin(eventFilter(this.config.event));
+        }
+
+        if(this.config.user) {
+            this.plugin(userFilter(this.config.user));
+        }
 
         this.trigger('$.search.start');
         this.find();

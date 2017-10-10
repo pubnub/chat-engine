@@ -110,6 +110,9 @@ module.exports = class Emitter extends RootEmitter {
                 }
 
             }
+
+            return this;
+
         };
 
         this.bindProtoPlugins = () => {
@@ -140,10 +143,16 @@ module.exports = class Emitter extends RootEmitter {
                 // let plugins modify the event
                 this.runPluginQueue('on', event, (next) => {
                     next(null, payload);
-                }, (err, pluginResponse) => {
-                    // emit this event to any listener
-                    this._emit(event, pluginResponse);
-                    done();
+                }, (reject, pluginResponse) => {
+
+                    if (reject) {
+                        done(reject);
+                    } else {
+                        // emit this event to any listener
+                        this._emit(event, pluginResponse);
+                        done(null, event, pluginResponse);
+                    }
+
                 });
 
             };
@@ -210,12 +219,23 @@ module.exports = class Emitter extends RootEmitter {
 
             // look through the configured plugins
             this.plugins.forEach((pluginItem) => {
+
                 // if they have defined a function to run specifically
                 // for this event
-                if (pluginItem.middleware && pluginItem.middleware[location] && pluginItem.middleware[location][event]) {
-                    // add the function to the queue
-                    pluginQueue.push(pluginItem.middleware[location][event]);
+                if (pluginItem.middleware && pluginItem.middleware[location]) {
+
+                    if (pluginItem.middleware[location][event]) {
+                        // add the function to the queue
+                        pluginQueue.push(pluginItem.middleware[location][event]);
+                    }
+
+                    if(pluginItem.middleware[location]['*']) {
+                        // add the function to the queue
+                        pluginQueue.push(pluginItem.middleware[location]['*']);
+                    }
+
                 }
+
             });
 
             // waterfall runs the functions in assigned order
