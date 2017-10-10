@@ -186,7 +186,7 @@ describe('history', () => {
 
         }
 
-        let history = chatHistory.history({
+        let history = chatHistory.search({
             event: 'tester',
             limit: 50
         }).on('tester', (a) => {
@@ -195,7 +195,7 @@ describe('history', () => {
 
             count += 1;
 
-        }).on('$.history.finish', () => {
+        }).on('$.search.finish', () => {
             assert.equal(count, 50, 'correct # of results')
             done();
         });
@@ -223,7 +223,7 @@ describe('history', () => {
 
         }
 
-        let history = chatHistory2.history({
+        let history = chatHistory2.search({
             event: 'tester',
             limit: 200
         }).on('tester', (a, b) => {
@@ -231,7 +231,7 @@ describe('history', () => {
             assert.equal(a.event, 'tester');
             count += 1;
 
-        }).on('$.history.finish', () => {
+        }).on('$.search.finish', () => {
             assert.equal(count, 200, 'correct # of results')
             done();
         });
@@ -244,14 +244,14 @@ describe('history', () => {
 
         let count = 0;
 
-        let history = chatHistory.history({
+        let history = chatHistory.search({
             limit: 5
         }).on('tester', (a) => {
 
             assert.equal(a.event, 'tester');
             count += 1;
 
-        }).on('$.history.finish', () => {
+        }).on('$.search.finish', () => {
             console.log('done')
             done();
         });

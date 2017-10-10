@@ -105,11 +105,7 @@ module.exports = class Search extends Emitter {
 
         this.triggerHistory = (message, cb) => {
 
-            console.log('triggerhistory called', message)
-
             this.needleCount += 1;
-
-            console.log('trigger', message.entry.data);
             this.trigger(message.entry.event, message.entry, cb);
 
         };
@@ -122,11 +118,7 @@ module.exports = class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                console.log(response.messages)
-
                 eachSeries(response.messages, (message, done) => {
-
-                    console.log(message)
 
                     if (this.config.event) {
 
