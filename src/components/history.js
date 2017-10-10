@@ -22,11 +22,16 @@ module.exports = class History extends Emitter {
 
         this.config = config;
         this.config.event = config.event;
+        this.config.limit = config.limit || 20;
         this.config.channel = this.chat.channel;
         this.config.includeTimetoken = true;
         this.config.stringifiedTimeToken = true;
+        this.config.count = this.config.count || 100;
 
         this.needleCount = 0;
+
+        this.firstTT = 0;
+        this.lastTT = 0;
 
         this.sortHistory = (messages, desc) => {
 
@@ -55,8 +60,6 @@ module.exports = class History extends Emitter {
             this.startToken = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.chatEngine.pubnub.history(this.config, (status, response) => {
-
-                // console.log(status, response)
 
                 this.trigger('$.history.page.response');
 
@@ -129,7 +132,7 @@ module.exports = class History extends Emitter {
 
                 });
 
-                if (response.messages && response.messages.length && this.needleCount < this.config.limit) {
+                if (response.messages && response.messages.length == this.config.count && this.needleCount < this.config.limit) {
                     this.find();
                 } else {
                     this.trigger('$.history.finish');
