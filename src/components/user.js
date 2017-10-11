@@ -11,7 +11,7 @@ const Emitter = require('../modules/emitter');
  @param state
  @param chat
  */
-class User extends Emitter {
+module.exports = class User extends Emitter {
 
     constructor(chatEngine, uuid, state = {}) {
 
@@ -39,24 +39,6 @@ class User extends Emitter {
          * let state = user.state;
          */
         this.state = {};
-
-        /**
-         * An object containing the Chats this {@link User} is currently in. The key of each item in the object is the {@link Chat.channel} and the value is the {@link Chat} object. Note that for privacy, this map will only contain {@link Chat}s that the client ({@link Me}) is also connected to.
-         *
-         * @readonly
-         * @type Object
-         * @example
-         *{
-                *    "globalChannel": {
-                *        channel: "globalChannel",
-                *        users: {
-                *            //...
-                *        },
-                *    },
-                *    // ...
-                * }
-         */
-        this.chats = {};
 
         const Chat = require('../components/chat');
 
@@ -109,6 +91,8 @@ class User extends Emitter {
         // update this user's state in it's created context
         this.assign(state);
 
+        this.bindProtoPlugins();
+
     }
 
     /**
@@ -131,20 +115,6 @@ class User extends Emitter {
     }
 
     /**
-     adds a chat to this user
-
-     @private
-     */
-    addChat(chat, state) {
-
-        // store the chat in this user object
-        this.chats[chat.channel] = chat;
-
-        // updates the user's state in that chatroom
-        this.assign(state, chat);
-    }
-
-    /**
     Get stored user state from remote server.
     @private
     */
@@ -161,6 +131,4 @@ class User extends Emitter {
 
     }
 
-}
-
-module.exports = User;
+};

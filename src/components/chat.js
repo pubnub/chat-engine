@@ -1,4 +1,3 @@
-const waterfall = require('async/waterfall');
 const axios = require('axios');
 
 const Emitter = require('../modules/emitter');
@@ -18,7 +17,7 @@ const User = require('../components/user');
  @fires Chat#$"."online
  @fires Chat#$"."offline
  */
-class Chat extends Emitter {
+module.exports = class Chat extends Emitter {
 
     constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
 
@@ -44,8 +43,8 @@ class Chat extends Emitter {
             chanPrivString = 'private.';
         }
 
-        if (this.channel.indexOf(chatEngine.ceConfig.globalChannel) === -1) {
-            this.channel = [chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
+            this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
         /**
@@ -96,10 +95,7 @@ class Chat extends Emitter {
                  * There was a problem fetching the presence of this chat
                  * @event Chat#$"."error"."presence
                  */
-                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), {
-                    error: status.errorData,
-                    errorText: status.errorData.response.text
-                });
+                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
 
             } else {
 
@@ -116,6 +112,104 @@ class Chat extends Emitter {
         };
 
         /**
+         * Call PubNub history in a loop.
+         * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
+         * @param  {[type]}   args     [description]
+         * @param  {Function} callback [description]
+         * @return {[type]}            [description]
+         * @private
+         */
+        this._pageHistory = (event, args, callback) => {
+
+            args.pagesize = args.pagesize || 100;
+            args.countEmitted = args.countEmitted || 0;
+
+            this.chatEngine.pubnub.history({
+                // search starting from this timetoken
+                // start: args.startToken,
+                channel: args.channel,
+                // false - search forwards through the timeline
+                // true - search backwards through the timeline
+                reverse: args.reverse,
+                // limit number of messages per request to this value; default/max=100
+                count: args.pagesize,
+                // include each returned message's publish timetoken
+                includeTimetoken: true,
+                // prevents JS from truncating 17 digit timetokens
+                stringifiedTimeToken: true
+            }, (status, response) => {
+
+                if (status.error) {
+
+                    /**
+                     * There was a problem fetching the history of this chat
+                     * @event Chat#$"."error"."history
+                     */
+                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), status);
+
+                } else {
+
+                    // holds the accumulation of resulting messages across all iterations
+                    let count = args.count || 0;
+                    // timetoken of the first message in response
+                    let firstTT = response.startTimeToken;
+                    // timetoken of the last message in response
+                    let lastTT = response.endTimeToken;
+                    // if no max results specified, default to 500
+                    args.max = !args.max ? 500 : args.max;
+
+                    Object.keys(response.messages).forEach((key) => {
+
+                        if (response.messages[key]
+                            && response.messages[key].entry.event === event) {
+
+                            let thisEvent = ['$', 'history', event].join('.');
+
+                            if (count < args.max) {
+
+                                /**
+                                 * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                                 * ```$.history.``` to distinguish it from the original live events.
+                                 * @event Chat#$"."history"."*
+                                 * @tutorial history
+                                 */
+                                this.trigger(thisEvent, response.messages[key].entry);
+                                count += 1;
+
+                            }
+
+                        }
+
+                    });
+
+                    // we keep asking for more messages if # messages returned by last request is the
+                    // same at the pagesize AND we still have reached the total number of messages requested
+                    // same as the opposit of !(msgs.length < pagesize || total == max)
+                    if (response.messages.length === args.pagesize && count < args.max) {
+
+                        this._pageHistory(event, {
+                            channel: args.channel,
+                            max: args.max,
+                            reverse: args.reverse,
+                            pagesize: args.pagesize,
+                            startToken: args.reverse ? lastTT : firstTT,
+                            event: args.event,
+                            count,
+                            countEmitted: args.countEmitted
+                        }, callback);
+
+                    } else {
+                        // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
+                        // so invoke the callback to the original caller of getMessages providing the total message results
+                        callback();
+                    }
+
+                }
+
+            });
+        };
+
+        /**
          * Get messages that have been published to the network before this client was connected.
          * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
          * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
@@ -124,7 +218,7 @@ class Chat extends Emitter {
          * @param {Object} [config] The PubNub history config for this call
          * @tutorial history
          */
-        this.history = (event, config = {}) => {
+        this.history = (event, config = {}, done = () => {}) => {
 
             // create the event if it does not exist
             this.events[event] = this.events[event] || new Event(chatEngine, this, event);
@@ -132,40 +226,7 @@ class Chat extends Emitter {
             // set the PubNub configured channel to this channel
             config.channel = this.events[event].channel;
 
-            // run the PubNub history method for this event
-            chatEngine.pubnub.history(config, (status, response) => {
-
-                if (status.error) {
-
-                    /**
-                     * There was a problem fetching the history of this chat
-                     * @event Chat#$"."error"."history
-                     */
-                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), {
-                        errorText: status.errorData.response.text,
-                        error: status.error,
-                    });
-
-                } else {
-
-                    response.messages.forEach((message) => {
-
-                        if (message.entry.event === event) {
-
-                            /**
-                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                             * ```$.history.``` to distinguish it from the original live events.
-                             * @event Chat#$"."history"."*
-                             * @tutorial history
-                             */
-                            this.trigger(['$', 'history', event].join('.'), message.entry);
-
-                        }
-
-                    });
-
-                }
-            });
+            this._pageHistory(event, config, done);
 
         };
 
@@ -228,18 +289,18 @@ class Chat extends Emitter {
 
             };
 
-            axios.post(chatEngine.ceConfig.endpoint + '/chat/invite', {
-                authKey: chatEngine.pnConfig.authKey,
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
+                authKey: this.chatEngine.pnConfig.authKey,
                 uuid: user.uuid,
-                myUUID: chatEngine.me.uuid,
-                authData: chatEngine.me.authData,
+                myUUID: this.chatEngine.me.uuid,
+                authData: this.chatEngine.me.authData,
                 chat: this.objectify()
             })
                 .then(() => {
                     complete();
                 })
                 .catch((error) => {
-                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                 });
 
         };
@@ -312,14 +373,14 @@ class Chat extends Emitter {
 
             if (!this.connected) {
 
-                if (!chatEngine.pubnub) {
-                    chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+                if (!this.chatEngine.pubnub) {
+                    this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
                 // this will trigger ready callbacks
 
                 // subscribe to the PubNub channel for this Chat
-                chatEngine.pubnub.subscribe({
+                this.chatEngine.pubnub.subscribe({
                     channels: [this.channel],
                     withPresence: true
                 });
@@ -335,33 +396,33 @@ class Chat extends Emitter {
 
             let createChat = () => {
 
-                axios.post(chatEngine.ceConfig.endpoint + '/chats', {
-                    globalChannel: chatEngine.ceConfig.globalChannel,
-                    authKey: chatEngine.pnConfig.authKey,
-                    uuid: chatEngine.pnConfig.uuid,
-                    authData: chatEngine.me.authData,
+                axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
+                    globalChannel: this.chatEngine.ceConfig.globalChannel,
+                    authKey: this.chatEngine.pnConfig.authKey,
+                    uuid: this.chatEngine.pnConfig.uuid,
+                    authData: this.chatEngine.me.authData,
                     chat: this.objectify()
                 })
                     .then(() => {
                         this.onPrep();
                     })
                     .catch((error) => {
-                        chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                        this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                     });
             };
 
-            axios.post(chatEngine.ceConfig.endpoint + '/chat/grant', {
-                globalChannel: chatEngine.ceConfig.globalChannel,
-                authKey: chatEngine.pnConfig.authKey,
-                uuid: chatEngine.pnConfig.uuid,
-                authData: chatEngine.me.authData,
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
                 chat: this.objectify()
             })
                 .then(() => {
                     createChat();
                 })
                 .catch((error) => {
-                    chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
                 });
 
         };
@@ -383,7 +444,9 @@ class Chat extends Emitter {
             this.connect();
         }
 
-        chatEngine.chats[this.channel] = this;
+        this.chatEngine.chats[this.channel] = this;
+
+        this.bindProtoPlugins();
 
     }
 
@@ -431,67 +494,6 @@ class Chat extends Emitter {
     }
 
     /**
-     Broadcasts an event locally to all listeners.
-
-     @private
-     @param {String} event The event name
-     @param {Object} payload The event payload object
-     */
-
-    trigger(event, payload) {
-
-        let complete = () => {
-
-            // let plugins modify the event
-            this.runPluginQueue('on', event, (next) => {
-                next(null, payload);
-            }, (err, pluginResponse) => {
-                // emit this event to any listener
-                this._emit(event, pluginResponse);
-            });
-
-        };
-
-        // this can be made into plugin
-        if (typeof payload === 'object') {
-
-            // restore chat in payload
-            if (!payload.chat) {
-                payload.chat = this;
-            }
-
-            // if we should try to restore the sender property
-            if (payload.sender) {
-
-                // this use already exists in memory
-                if (this.chatEngine.users[payload.sender]) {
-                    payload.sender = this.chatEngine.users[payload.sender];
-                    complete();
-                } else {
-
-                    // the user doesn't exist, create it
-                    payload.sender = new User(this.chatEngine, payload.sender);
-
-                    // try to get stored state from server
-                    payload.sender._getState(this, () => {
-                        complete();
-                    });
-
-                }
-
-            } else {
-                // there's no "sender" in this object, move on
-                complete();
-            }
-
-        } else {
-            // payload is not an object, we want nothing to do with it.
-            complete();
-        }
-
-    }
-
-    /**
      Add a user to the {@link Chat}, creating it if it doesn't already exist.
 
      @private
@@ -505,7 +507,7 @@ class Chat extends Emitter {
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
 
-        this.chatEngine.users[uuid].addChat(this, state);
+        this.chatEngine.users[uuid].assign(state);
 
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
@@ -524,6 +526,7 @@ class Chat extends Emitter {
                       *     console.log('User has come online:', data.user);
                       * });
              */
+
             this.trigger('$.online.here', {
                 user: this.chatEngine.users[uuid]
             });
@@ -603,6 +606,9 @@ class Chat extends Emitter {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
             });
 
+
+        this.connected = false;
+
     }
 
     /**
@@ -677,42 +683,6 @@ class Chat extends Emitter {
     }
 
     /**
-     Load plugins and attach a queue of functions to execute before and
-     after events are trigger or received.
-
-     @private
-     @param {String} location Where in the middleeware the event should run (emit, trigger)
-     @param {String} event The event name
-     @param {String} first The first function to run before the plugins have run
-     @param {String} last The last function to run after the plugins have run
-     */
-    runPluginQueue(location, event, first, last) {
-
-        // this assembles a queue of functions to run as middleware
-        // event is a triggered event key
-        let pluginQueue = [];
-
-        // the first function is always required
-        pluginQueue.push(first);
-
-        // look through the configured plugins
-        this.plugins.forEach((pluginItem) => {
-            // if they have defined a function to run specifically
-            // for this event
-            if (pluginItem.middleware && pluginItem.middleware[location] && pluginItem.middleware[location][event]) {
-                // add the function to the queue
-                pluginQueue.push(pluginItem.middleware[location][event]);
-            }
-        });
-
-        // waterfall runs the functions in assigned order
-        // waiting for one to complete before moving to the next
-        // when it's done, the ```last``` parameter is called
-        waterfall(pluginQueue, last);
-
-    }
-
-    /**
      Set the state for {@link Me} within this {@link User}.
      Broadcasts the ```$.state``` event on other clients
 
@@ -755,6 +725,4 @@ class Chat extends Emitter {
 
     }
 
-}
-
-module.exports = Chat;
+};
