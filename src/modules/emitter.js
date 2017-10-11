@@ -229,7 +229,7 @@ module.exports = class Emitter extends RootEmitter {
                         pluginQueue.push(pluginItem.middleware[location][event]);
                     }
 
-                    if(pluginItem.middleware[location]['*']) {
+                    if (pluginItem.middleware[location]['*']) {
                         // add the function to the queue
                         pluginQueue.push(pluginItem.middleware[location]['*']);
                     }
