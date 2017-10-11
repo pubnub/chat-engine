@@ -21,7 +21,7 @@ let Client = function (options) {
 
     options = options || {};
 
-    self.endpoint = options.endpoint || 'https://portal1.gold.aws-pdx-3.ps.pn';
+    self.endpoint = options.endpoint || 'https://admin.pubnub.com';
 
     self.session = false;
 
