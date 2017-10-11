@@ -1601,8 +1601,6 @@ module.exports = class Event {
                     chat.trigger('$.publish.success');
                 } else {
 
-                    console.log(status)
-
                     /**
                      * There was a problem publishing over the PubNub network.
                      * @event Chat#$"."error"."publish
@@ -5255,13 +5253,13 @@ module.exports = class Search extends Emitter {
          */
         this.page = (pageDone) => {
 
-            this.trigger('$.search.page.request');
+            this._emit('$.search.page.request');
 
             this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.chatEngine.pubnub.history(this.config, (status, response) => {
 
-                this.trigger('$.search.page.response');
+                this._emit('$.search.page.response');
 
                 if (status.error) {
 
@@ -5305,7 +5303,6 @@ module.exports = class Search extends Emitter {
                 middleware: {
                     on: {
                         '*': (payload, next) => {
-
                             let matches = payload && payload.sender && payload.sender.uuid === user.uuid;
                             next(!matches, payload);
                         }
@@ -5325,8 +5322,6 @@ module.exports = class Search extends Emitter {
         */
         this.needleCount = 0;
         this.triggerHistory = (message, cb) => {
-
-            console.log(this.needleCount)
 
             if (this.needleCount < this.config.limit) {
 
@@ -5361,7 +5356,7 @@ module.exports = class Search extends Emitter {
                         this.needleCount < this.config.limit) {
                         this.find();
                     } else {
-                        this.trigger('$.search.finish');
+                        this._emit('$.search.finish');
                     }
 
                 });
@@ -5380,7 +5375,7 @@ module.exports = class Search extends Emitter {
             this.plugin(senderFilter(this.config.sender));
         }
 
-        this.trigger('$.search.start');
+        this._emit('$.search.start');
         this.find();
 
     }

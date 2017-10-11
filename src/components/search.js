@@ -1,5 +1,4 @@
 const Emitter = require('../modules/emitter');
-const Event = require('../components/event');
 const eachSeries = require('async/eachSeries');
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
@@ -128,7 +127,7 @@ module.exports = class Search extends Emitter {
 
             if (this.needleCount < this.config.limit) {
 
-                this.trigger(message.entry.event, message.entry, (reject, payload) => {
+                this.trigger(message.entry.event, message.entry, (reject) => {
 
                     if (!reject) {
                         this.needleCount += 1;
@@ -138,7 +137,7 @@ module.exports = class Search extends Emitter {
                 });
 
             } else {
-                cb()
+                cb();
             }
 
         };
@@ -151,7 +150,7 @@ module.exports = class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                eachSeries(response.messages, this.triggerHistory, (err) => {
+                eachSeries(response.messages, this.triggerHistory, () => {
 
                     if (
                         response.messages &&
@@ -170,11 +169,11 @@ module.exports = class Search extends Emitter {
 
         };
 
-        if(this.config.event) {
+        if (this.config.event) {
             this.plugin(eventFilter(this.config.event));
         }
 
-        if(this.config.sender) {
+        if (this.config.sender) {
             this.plugin(senderFilter(this.config.sender));
         }
 
