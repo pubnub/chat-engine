@@ -128,6 +128,9 @@
 
             $('#provision').hide();
             $('#load').show();
+            $('#error').hide();
+            $('#status').empty();
+
             Provision($('#email').val(), $('#password').val(), function(err, data) {
 
               if(err) {
@@ -135,13 +138,12 @@
                 $('#load').hide();
                 $('#provision').show();
 
-                console.log(err)
-
                 $('#error-out').html(err);
                 $('#error').show();
+
               } else {
 
-              $('#load').hide();
+                $('#load').hide();
 
                 let output = "";
                 output += "// Make sure to import ChatEngine first!\n";
