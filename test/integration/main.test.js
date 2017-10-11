@@ -243,7 +243,7 @@ describe('history', () => {
         this.timeout(10000);
 
         chatHistory.search({
-            limit: 5
+            limit: 10
         }).on('tester', (a) => {
 
             assert.equal(a.event, 'tester');
