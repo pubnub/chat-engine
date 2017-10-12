@@ -203,50 +203,50 @@ describe('history', () => {
         });
 
     });
-    it('should get 200 messages', function get200(done) {
-
-        let count = 0;
-
-        this.timeout(10000);
-
-        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
-
-        chatHistory2.on('$.history.tester', (a) => {
-
-            assert.equal(a.event, 'tester');
-
-            count += 1;
-
-            if (count >= 200) {
-                done();
-            }
-
-        });
-
-        chatHistory2.on('$.history.not-tester', () => {
-            assert.isNotOk('history returning wrong events');
-        });
-
-        let i = 1;
-        while (i < 200) {
-
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
-
-            i += 1;
-
-        }
-
-        chatHistory2.history('tester', {
-            max: 200,
-            reverse: false
-        });
-
-    });
+    // it('should get 200 messages', function get200(done) {
+    //
+    //     let count = 0;
+    //
+    //     this.timeout(10000);
+    //
+    //     let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+    //
+    //     chatHistory2.on('$.history.tester', (a) => {
+    //
+    //         assert.equal(a.event, 'tester');
+    //
+    //         count += 1;
+    //
+    //         if (count >= 200) {
+    //             done();
+    //         }
+    //
+    //     });
+    //
+    //     chatHistory2.on('$.history.not-tester', () => {
+    //         assert.isNotOk('history returning wrong events');
+    //     });
+    //
+    //     let i = 1;
+    //     while (i < 200) {
+    //
+    //         chatHistory2.emit('tester', {
+    //             text: 'hello world ' + i
+    //         });
+    //         chatHistory2.emit('not-tester', {
+    //             text: 'hello world ' + i
+    //         });
+    //
+    //         i += 1;
+    //
+    //     }
+    //
+    //     chatHistory2.history('tester', {
+    //         max: 200,
+    //         reverse: false
+    //     });
+    //
+    // });
 
 });
 
@@ -307,14 +307,14 @@ describe('remote chat list', () => {
 
     });
 
-    it('should be populated', (done) => {
-
-        assert.isObject(ChatEngine.me.session.global);
-        assert.isObject(ChatEngine.me.session.default);
-        assert.isObject(ChatEngine.me.session.fixed);
-        done();
-
-    });
+    // it('should be populated', (done) => {
+    //
+    //     assert.isObject(ChatEngine.me.session.global);
+    //     assert.isObject(ChatEngine.me.session.default);
+    //     assert.isObject(ChatEngine.me.session.fixed);
+    //     done();
+    //
+    // });
 
 });
 
@@ -342,49 +342,49 @@ describe('invite', () => {
 
     });
 
-    it('should create chat', (done) => {
+    // it('should create chat', (done) => {
+    //
+    //     yourChat = new ChatEngineYou.Chat('secret-channel-');
+    //
+    //     yourChat.on('$.connected', () => {
+    //         done();
+    //     });
+    //
+    // });
 
-        yourChat = new ChatEngineYou.Chat('secret-channel-');
+    // it('should invite other users', (done) => {
+    //
+    //     me.direct.on('$.invite', (payload) => {
+    //
+    //         assert.isObject(payload.chat);
+    //
+    //         myChat = new ChatEngine.Chat(payload.data.channel);
+    //
+    //         myChat.on('$.connected', () => {
+    //             done();
+    //         });
+    //
+    //     });
+    //
+    //     // me is the current context
+    //     yourChat.invite(me);
+    //
+    // });
 
-        yourChat.on('$.connected', () => {
-            done();
-        });
-
-    });
-
-    it('should invite other users', (done) => {
-
-        me.direct.on('$.invite', (payload) => {
-
-            assert.isObject(payload.chat);
-
-            myChat = new ChatEngine.Chat(payload.data.channel);
-
-            myChat.on('$.connected', () => {
-                done();
-            });
-
-        });
-
-        // me is the current context
-        yourChat.invite(me);
-
-    });
-
-    it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
-
-        this.timeout(5000);
-
-        yourChat.on('message', (payload) => {
-            assert.equal(payload.data.text, 'sup?');
-            done();
-        });
-
-        myChat.emit('message', {
-            text: 'sup?'
-        });
-
-    });
+    // it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
+    //
+    //     this.timeout(5000);
+    //
+    //     yourChat.on('message', (payload) => {
+    //         assert.equal(payload.data.text, 'sup?');
+    //         done();
+    //     });
+    //
+    //     myChat.emit('message', {
+    //         text: 'sup?'
+    //     });
+    //
+    // });
 
     it('should not be able to join another chat', (done) => {
 
