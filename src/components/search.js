@@ -1,13 +1,15 @@
 const Emitter = require('../modules/emitter');
 const eachSeries = require('async/eachSeries');
 /**
- This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
- If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
- @class
+ This is our Search class which allows one to search the backlog of messages.
+ Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
+
+ Not recommended to be constructed on it's own. Instead, call {@link Chat#search}.
+
  @extends Emitter
- @param uuid
- @param state
+ @param chatEngine
  @param chat
+ @param config
  */
 module.exports = class Search extends Emitter {
 
@@ -17,9 +19,25 @@ module.exports = class Search extends Emitter {
 
         this.chatEngine = chatEngine;
 
+        /**
+        Handy property to identify what this class is.
+        @type String
+        */
         this.name = 'Search';
+
+        /**
+        The {@link Chat} we'll be searching
+        @type Chat
+        */
         this.chat = chat;
 
+        /**
+        @property {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
+        @property {String} [config.event] The {@link Event} to search for.
+        @property {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
+        @property {Number} [config.start=0] The timetoken to begin searching between.
+        @property {Number} [config.end=0] The timetoken to end searching between.
+        */
         this.config = config;
         this.config.event = config.event;
         this.config.limit = config.limit || 20;
@@ -33,6 +51,11 @@ module.exports = class Search extends Emitter {
         this.firstTT = 0;
         this.lastTT = 0;
 
+        this.firstPage = true;
+
+        /**
+        * @private
+        */
         this.sortHistory = (messages, desc) => {
 
             messages.sort((a, b) => {
@@ -55,12 +78,25 @@ module.exports = class Search extends Emitter {
          */
         this.page = (pageDone) => {
 
+            /**
+             * Requesting another page from PubNub History
+             * @event Search#$"."page"."request
+             */
             this._emit('$.search.page.request');
 
-            this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
+            // only set start if this is the first call and the user hasn't set it themselves
+            if (this.firstPage && !this.config.start) {
+                this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
+            }
+
+            this.firstPage = false;
 
             this.chatEngine.pubnub.history(this.config, (status, response) => {
 
+                /**
+                 * PubNub History returned a response
+                 * @event Search#$"."page"."response
+                 */
                 this._emit('$.search.page.response');
 
                 if (status.error) {
@@ -114,15 +150,13 @@ module.exports = class Search extends Emitter {
         };
 
         /**
-        * Get messages that have been published to the network before this client was connected.
-        * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
-        * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
-        *
-        * @param {String} event The name of the event we're getting history for
-        * @param {Object} [config] The PubNub history config for this call
-        * @tutorial history
+        Increments when results that satisfy filters are found.
         */
         this.needleCount = 0;
+
+        /**
+         * @private
+         */
         this.triggerHistory = (message, cb) => {
 
             if (this.needleCount < this.config.limit) {
@@ -142,6 +176,9 @@ module.exports = class Search extends Emitter {
 
         };
 
+        /**
+         * @private
+         */
         this.find = () => {
 
             this.page((response) => {
@@ -158,6 +195,11 @@ module.exports = class Search extends Emitter {
                         this.needleCount < this.config.limit) {
                         this.find();
                     } else {
+
+                        /**
+                         * Search has returned all results or reached the end of history.
+                         * @event Search#$"."finish
+                         */
                         this._emit('$.search.finish');
                     }
 
@@ -177,6 +219,10 @@ module.exports = class Search extends Emitter {
             this.plugin(senderFilter(this.config.sender));
         }
 
+        /**
+         * Search has started.
+         * @event Search#$"."start
+         */
         this._emit('$.search.start');
         this.find();
 

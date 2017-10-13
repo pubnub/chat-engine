@@ -1,5 +1,4 @@
 const ChatEngineCore = require('../../src/index.js');
-
 const assert = require('chai').assert;
 
 describe('import', () => {
@@ -13,7 +12,7 @@ describe('import', () => {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel = 'global'; //  + new Date().getTime();
+let globalChannel = 'global';
 
 let examplePlugin = () => {
 
