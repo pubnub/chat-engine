@@ -47,8 +47,10 @@ gulp.task('pre-test', () => {
         .pipe(istanbul.hookRequire());
 });
 
-gulp.task('test', (done) => {
-    runSequence('pre-test', 'run_tests', 'validate', done);
+gulp.task('test', () => {
+    runSequence('pre-test', 'run_tests', 'validate', () => {
+        process.exit();
+    });
 });
 
 gulp.task('watch', () => {
