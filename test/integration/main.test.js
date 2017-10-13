@@ -240,19 +240,19 @@ describe('history', () => {
             assert.isNotOk('history returning wrong events');
         });
 
-        let i = 0;
-        while (i < 200) {
+        // let i = 0;
+        // while (i < 200) {
 
-            chatHistory.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     chatHistory.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-            i += 1;
+        //     i += 1;
 
-        }
+        // }
 
         chatHistory.history('tester', {
             max: 50,
@@ -284,19 +284,19 @@ describe('history', () => {
             assert.isNotOk('history returning wrong events');
         });
 
-        let i = 1;
-        while (i < 200) {
+        // let i = 1;
+        // while (i < 200) {
 
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     chatHistory2.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory2.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-            i += 1;
+        //     i += 1;
 
-        }
+        // }
 
         chatHistory2.history('tester', {
             max: 200,
@@ -443,7 +443,9 @@ describe('invite', () => {
 
     });
 
-    it('should not be able to join another chat', (done) => {
+    it('should not be able to join another chat', function dontJoin(done) {
+
+        this.timeout(10000);
 
         let targetChan = 'super-secret-channel-';
 
