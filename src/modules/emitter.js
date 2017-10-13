@@ -28,10 +28,7 @@ module.exports = class Emitter extends RootEmitter {
 
             // all events are forwarded to ChatEngine object
             // so you can globally bind to events with ChatEngine.on()
-            if (typeof data === 'object' && !data.source) {
-                data.source = this;
-                this.chatEngine._emit(event, data);
-            }
+            this.chatEngine._emit(event, data, this);
 
 
             // emit the event from the object that created it
