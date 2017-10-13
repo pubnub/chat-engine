@@ -416,7 +416,7 @@ describe('invite', () => {
 
 
 let createdEventChat;
-describe('created and delete', () => {
+describe('created event', () => {
 
     it('should notify chatengine on create', (done) => {
 
