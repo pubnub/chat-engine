@@ -3,7 +3,6 @@ const packageJSON = require('./package.json');
 const eslint = require('gulp-eslint');
 const mocha = require('gulp-mocha');
 const istanbul = require('gulp-istanbul');
-const shell = require('gulp-shell');
 const isparta = require('isparta');
 const runSequence = require('run-sequence');
 const webpack = require('webpack-stream');
