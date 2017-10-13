@@ -428,18 +428,4 @@ describe('created and delete', () => {
 
     });
 
-    it('should notify chatengine on delete and cleanup events', (done) => {
-
-        ChatEngine.once('$.chat.deleted', (data) => {
-            createdEventChat.emit('test');
-            done();
-        });
-
-        createdEventChat.delete();
-
-        createdEventChat.onAny(() => {
-            assert.isNotOk('should not be responding to events anymore');
-        });
-
-    });
 });

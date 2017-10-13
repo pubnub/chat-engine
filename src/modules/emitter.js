@@ -226,17 +226,6 @@ module.exports = class Emitter extends RootEmitter {
             this.trigger(['$', this.name.toLowerCase(), 'created'], data);
         };
 
-        this.onDeleted = () => {
-            let data = {};
-            data[this.name.toLowerCase()] = this;
-            this.trigger(['$', this.name.toLowerCase(), 'deleted'], data);
-        };
-
-        this.delete = () => {
-            this.emitter.removeAllListeners();
-            this.onDeleted();
-        };
-
         this.onConstructed = () => {
 
             this.bindProtoPlugins();
