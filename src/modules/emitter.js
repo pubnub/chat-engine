@@ -227,6 +227,7 @@ module.exports = class Emitter extends RootEmitter {
         this.onConstructed = () => {
 
             this.bindProtoPlugins();
+            this.trigger('$.created');
 
         };
 
