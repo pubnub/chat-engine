@@ -30,18 +30,10 @@ gulp.task('lint_tests', [], () => {
         .pipe(eslint.failAfterError());
 });
 
-gulp.task('unit_tests', () => {
-    return gulp.src(['test/unit/**/*.test.js'], { read: false })
+gulp.task('run_tests', () => {
+    return gulp.src(['test/unit/**/*.test.js', 'test/integration/**/*.test.js'], { read: false })
         .pipe(mocha({ reporter: 'spec' }))
-        .pipe(istanbul.writeReports())
-        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } }));
-});
-
-gulp.task('integration_tests', () => {
-    return gulp.src(['test/integration/**/*.test.js'], { read: false })
-        .pipe(mocha({ reporter: 'spec' }))
-        .pipe(istanbul.writeReports())
-        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } }));
+        .pipe(istanbul.writeReports());
 });
 
 gulp.task('default', ['compile']);
@@ -54,8 +46,10 @@ gulp.task('pre-test', () => {
         .pipe(istanbul.hookRequire());
 });
 
-gulp.task('test', (done) => {
-    runSequence('pre-test', 'unit_tests', 'integration_tests', 'validate', done);
+gulp.task('test', () => {
+    runSequence('pre-test', 'run_tests', 'validate', () => {
+        process.exit();
+    });
 });
 
 gulp.task('watch', () => {
