@@ -3,9 +3,11 @@ const packageJSON = require('./package.json');
 const eslint = require('gulp-eslint');
 const mocha = require('gulp-mocha');
 const istanbul = require('gulp-istanbul');
+const shell = require('gulp-shell');
 const isparta = require('isparta');
 const runSequence = require('run-sequence');
 const webpack = require('webpack-stream');
+const exec = require('child_process').exec;
 
 // task
 gulp.task('compile', () => {
@@ -40,6 +42,14 @@ gulp.task('default', ['compile']);
 
 gulp.task('validate', ['lint_code', 'lint_tests']);
 
+gulp.task('serve', (cb) => {
+  exec('node server.js', (err) => {
+    if (err) return cb(err);
+    cb();
+  });
+  cb();
+});
+
 gulp.task('pre-test', () => {
     return gulp.src(['src/**/*.js'])
         .pipe(istanbul({ instrumenter: isparta.Instrumenter, includeAllSources: true }))
@@ -47,7 +57,7 @@ gulp.task('pre-test', () => {
 });
 
 gulp.task('test', (done) => {
-    runSequence('pre-test', 'run_tests', 'validate', done);
+    runSequence('serve', 'pre-test', 'run_tests', 'validate', done);
 });
 
 gulp.task('watch', () => {
