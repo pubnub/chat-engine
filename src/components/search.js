@@ -31,13 +31,6 @@ module.exports = class Search extends Emitter {
         */
         this.chat = chat;
 
-        /**
-        @property {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
-        @property {String} [config.event] The {@link Event} to search for.
-        @property {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
-        @property {Number} [config.start=0] The timetoken to begin searching between.
-        @property {Number} [config.end=0] The timetoken to end searching between.
-        */
         this.config = config;
         this.config.event = config.event;
         this.config.limit = config.limit || 20;
