@@ -33,7 +33,7 @@ module.exports = class Me extends User {
             this.removeChatFromSession(payload.chat);
         });
 
-        this.bindProtoPlugins();
+        this.onConstructed();
 
     }
 

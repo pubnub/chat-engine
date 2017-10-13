@@ -446,7 +446,7 @@ module.exports = class Chat extends Emitter {
 
         this.chatEngine.chats[this.channel] = this;
 
-        this.bindProtoPlugins();
+        this.onConstructed();
 
     }
 

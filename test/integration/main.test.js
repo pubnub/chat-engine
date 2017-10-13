@@ -413,3 +413,33 @@ describe('invite', () => {
     });
 
 });
+
+
+let createdEventChat;
+describe('created and delete', () => {
+
+    it('should notify chatengine on create', (done) => {
+
+        ChatEngine.once('$.chat.created', (data) => {
+            done();
+        });
+
+        createdEventChat = new ChatEngine.Chat('this-is-only-a-test');
+
+    });
+
+    it('should notify chatengine on delete and cleanup events', (done) => {
+
+        ChatEngine.once('$.chat.deleted', (data) => {
+            createdEventChat.emit('test');
+            done();
+        });
+
+        createdEventChat.delete();
+
+        createdEventChat.onAny(() => {
+            assert.isNotOk('should not be responding to events anymore');
+        });
+
+    });
+});
