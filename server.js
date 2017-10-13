@@ -1,7 +1,7 @@
 // TODO: refactoring for PN FUNCTIONS, not completed
 
 export default (request, response) => { 
-    const kvstore = require('kvstore');
+    const kvdb = require('kvstore');
     const xhr = require('xhr');
     const pubnub = require('pubnub');
 
@@ -75,10 +75,12 @@ export default (request, response) => {
                 return response.send("Internal Server Error");
             } else {
                 console.log("Global Grant Successful");
+                response.status = 200;
+                return response.send();
             }
         })
         .catch( ( err ) => {
-            console.log("PAM Issue: ", err);
+            console.log("PAM Error: ", err);
             response.status = 500;
             return response.send("Internal Server Error");
         });
@@ -96,21 +98,25 @@ export default (request, response) => {
 
         let key = ['authed', channel].join(':');
 
-        db[key] = db[key] || [];
+        // db[key] = db[key] || [];
+        kvdb.get(key).then( ( retrievedKey ) => {
+            record = retrievedKey ? retrievedKey : [];
+
+        });
 
         let newChannels = [channel, channel + '-pnpres'];
 
-        console.log('!!!!', channel, key, db[key])
+        console.log('!!!!', channel, key, record)
 
         console.log('forceAuth?', forceAuth)
-        console.log('in list of permissions?', (db[key].indexOf(uuid) > -1));
+        console.log('in list of permissions?', (record.indexOf(uuid) > -1));
         console.log('auth key?',  authKey)
-        console.log('people permitted in that room', db[key])
+        console.log('people permitted in that room', record)
         console.log(channel)
 
-        if(forceAuth || !db[key].length || (db[key].indexOf(uuid) > -1 && authKey)) {
+        if(forceAuth || !record.length || (record.indexOf(uuid) > -1 && authKey)) {
 
-        // if(!db[key].length || forceAuth || (db[key].indexOf(uuid) > -1 && authKey)) {
+        // if(!record.length || forceAuth || (record.indexOf(uuid) > -1 && authKey)) {
 
             console.log('new grant for', uuid, authKey, 'access on channel', channel)
 
@@ -121,23 +127,48 @@ export default (request, response) => {
                 ttl: 0,
                 authKeys: [authKey]
             }).then( ( status ) => {
-
                 console.log('uuid', uuid, 'granted access to', key, 'with authkey', authKey)
 
-                if(db[key].indexOf(uuid) == -1) {
-                    db[key].push(uuid);
+                if ( !status.message || status.message !== "Success" ) {
+                    console.log("PAM Issue: ", status.message);
+                    response.status = 500;
+                }
+                else {
+                    console.log("Global Grant Successful");
+                    response.status = 200;
                 }
 
-            }).then(( status ) => {
-                console.log('chat finished auth')
-                response.status = 200;
-                return response.send();
+                if(record.indexOf(uuid) === -1) {
+                    record.push(uuid);
+                }
+
+                return kvdb.set( key, record, 0 );
+            }).then(( storeError ) => {
+                if ( storeError ) {
+                    console.log('KVStore error: ', storeError);
+                    response.status = 500;
+                    return response.send('Internal Server Error');
+                }
+                else {
+                    return response.send();
+                }
             });
 
-        } else {
-            console.log('unauthorized for that chan');
-            response.status = 401;
-            return response.send();
+        }
+        else {
+            kvdb.set( key, record, 0 )
+            .then( () => {
+                if ( storeError ) {
+                    console.log('KVStore error: ', storeError);
+                    response.status = 500;
+                    return response.send('Internal Server Error');
+                }
+                else {
+                    console.log('unauthorized for that chan');
+                    response.status = 401;
+                    return response.send('Unauthorized');
+                }
+            });
         }
 
     }
@@ -146,7 +177,7 @@ export default (request, response) => {
     routes['/insecure/grant']['POST'] = function () {
 
         console.log('doing global grant')
-        globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
+        return globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
 
     };
 
@@ -307,7 +338,7 @@ export default (request, response) => {
         if(request.body.authKey == 'open-sesame') {
 
             // grants everybody!
-            globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
+            return globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
 
         } else {
             response.status = 401;
