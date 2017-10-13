@@ -2,6 +2,8 @@ const gulp = require('gulp');
 const packageJSON = require('./package.json');
 const eslint = require('gulp-eslint');
 const mocha = require('gulp-mocha');
+const istanbul = require('gulp-istanbul');
+const isparta = require('isparta');
 const runSequence = require('run-sequence');
 const webpack = require('webpack-stream');
 
@@ -30,20 +32,30 @@ gulp.task('lint_tests', [], () => {
 
 gulp.task('unit_tests', () => {
     return gulp.src(['test/unit/**/*.test.js'], { read: false })
-        .pipe(mocha({ reporter: 'spec' }));
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports())
+        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } }));
 });
 
 gulp.task('integration_tests', () => {
     return gulp.src(['test/integration/**/*.test.js'], { read: false })
-        .pipe(mocha({ reporter: 'spec' }));
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports())
+        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } }));
 });
 
 gulp.task('default', ['compile']);
 
 gulp.task('validate', ['lint_code', 'lint_tests']);
 
+gulp.task('pre-test', () => {
+    return gulp.src(['src/**/*.js'])
+        .pipe(istanbul({ instrumenter: isparta.Instrumenter, includeAllSources: true }))
+        .pipe(istanbul.hookRequire());
+});
+
 gulp.task('test', (done) => {
-    runSequence('unit_tests', 'integration_tests', 'validate', done);
+    runSequence('pre-test', 'unit_tests', 'integration_tests', 'validate', done);
 });
 
 gulp.task('watch', () => {

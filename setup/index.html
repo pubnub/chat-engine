@@ -99,12 +99,12 @@
 
           <div class="form-group">
             <label for="email">PubNub Email:</label>
-            <input type="email" class="form-control" id="email" placeholder="Email" value="ian+pubnubgarbage@meetjennings.com">
+            <input type="email" class="form-control" id="email" placeholder="Email">
           </div>
 
           <div class="form-group">
             <label for="password">PubNub Password:</label>
-            <input type="password" class="form-control" id="password" placeholder="Password" value="Mrgarbageis#1!">
+            <input type="password" class="form-control" id="password" placeholder="Password">
           </div>
 
           <button type="submit" class="btn btn-default">Create Keys</button>
@@ -128,6 +128,9 @@
 
             $('#provision').hide();
             $('#load').show();
+            $('#error').hide();
+            $('#status').empty();
+
             Provision($('#email').val(), $('#password').val(), function(err, data) {
 
               if(err) {
@@ -135,19 +138,21 @@
                 $('#load').hide();
                 $('#provision').show();
 
-                console.log(err)
-
                 $('#error-out').html(err);
                 $('#error').show();
+
               } else {
 
-              $('#load').hide();
+                $('#load').hide();
 
                 let output = "";
                 output += "// Make sure to import ChatEngine first!\n";
                 output += "ChatEngine = ChatEngineCore.create({\n";
-                output += "    publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',\n";
-                output += "    subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe'\n";
+                output += "    publishKey: '" + data.pub + "',\n";
+                output += "    subscribeKey: '" + data.sub + "'\n";
+                output += "}, {\n";
+                output += "    globalChannel: 'global',\n";
+                output += "    endpoint: 'http://localhost:3000/insecure'\n";
                 output += "});\n";
 
                 $('#code').text(output);

@@ -80,7 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var bind = __webpack_require__(10);
+var bind = __webpack_require__(9);
 var isBuffer = __webpack_require__(32);
 
 /*global toString:true*/
@@ -557,10 +557,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(12);
+    adapter = __webpack_require__(11);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(12);
+    adapter = __webpack_require__(11);
   }
   return adapter;
 }
@@ -631,7 +631,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 4 */
@@ -640,7 +640,7 @@ module.exports = defaults;
 const axios = __webpack_require__(2);
 
 const Emitter = __webpack_require__(5);
-const Event = __webpack_require__(8);
+const Event = __webpack_require__(25);
 const User = __webpack_require__(1);
 const Search = __webpack_require__(69);
 
@@ -1258,8 +1258,8 @@ module.exports = class Chat extends Emitter {
 /***/ (function(module, exports, __webpack_require__) {
 
 const waterfall = __webpack_require__(51);
-const RootEmitter = __webpack_require__(16);
-const Event = __webpack_require__(8);
+const RootEmitter = __webpack_require__(15);
+const Event = __webpack_require__(25);
 // const User = require('../components/user');
 
 /**
@@ -1488,7 +1488,7 @@ module.exports = class Emitter extends RootEmitter {
                         pluginQueue.push(pluginItem.middleware[location][event]);
                     }
 
-                    if(pluginItem.middleware[location]['*']) {
+                    if (pluginItem.middleware[location]['*']) {
                         // add the function to the queue
                         pluginQueue.push(pluginItem.middleware[location]['*']);
                     }
@@ -1513,7 +1513,7 @@ module.exports = class Emitter extends RootEmitter {
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(22),
+var Symbol = __webpack_require__(21),
     getRawTag = __webpack_require__(62),
     objectToString = __webpack_require__(63);
 
@@ -1548,7 +1548,7 @@ module.exports = baseGetTag;
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var freeGlobal = __webpack_require__(23);
+var freeGlobal = __webpack_require__(22);
 
 /** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -1561,83 +1561,6 @@ module.exports = root;
 
 /***/ }),
 /* 8 */
-/***/ (function(module, exports) {
-
-/**
- Represents an event that may be emitted or subscribed to.
- */
-module.exports = class Event {
-
-    constructor(chatEngine, chat, event) {
-
-        /**
-         Events are always a property of a {@link Chat}. Responsible for
-         listening to specific events and firing events when they occur.
-         @readonly
-         @type String
-         @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
-         */
-        this.channel = chat.channel;
-
-        this.chatEngine = chatEngine;
-
-        this.name = 'Event';
-        /**
-         Publishes the event over the PubNub network to the {@link Event} channel
-
-         @private
-         @param {Object} data The event payload object
-         */
-        this.publish = (m) => {
-
-            m.event = event;
-
-            this.chatEngine.pubnub.publish({
-                message: m,
-                channel: this.channel
-            }, (status) => {
-
-                if (status.statusCode === 200) {
-                    chat.trigger('$.publish.success');
-                } else {
-
-                    /**
-                     * There was a problem publishing over the PubNub network.
-                     * @event Chat#$"."error"."publish
-                     */
-                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
-                }
-
-            });
-
-        };
-
-        /**
-         Forwards events to the Chat that registered the event {@link Chat}
-
-         @private
-         @param {Object} data The event payload object
-         */
-        this.onMessage = (m) => {
-
-            if (this.channel === m.channel && m.message.event === event) {
-                chat.trigger(m.message.event, m.message);
-            }
-
-        };
-
-        // call onMessage when PubNub receives an event
-        this.chatEngine.pubnub.addListener({
-            message: this.onMessage
-        });
-
-    }
-
-};
-
-
-/***/ }),
-/* 9 */
 /***/ (function(module, exports) {
 
 /**
@@ -1672,7 +1595,7 @@ module.exports = isObjectLike;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1690,7 +1613,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1876,7 +1799,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1887,7 +1810,7 @@ var settle = __webpack_require__(35);
 var buildURL = __webpack_require__(37);
 var parseHeaders = __webpack_require__(38);
 var isURLSameOrigin = __webpack_require__(39);
-var createError = __webpack_require__(13);
+var createError = __webpack_require__(12);
 var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(40);
 
 module.exports = function xhrAdapter(config) {
@@ -2061,10 +1984,10 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2089,7 +2012,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2101,7 +2024,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2127,7 +2050,7 @@ module.exports = Cancel;
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -2274,7 +2197,7 @@ module.exports = class RootEmitter {
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports) {
 
 /**
@@ -2306,7 +2229,7 @@ module.exports = isArray;
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports) {
 
 /**
@@ -2329,7 +2252,7 @@ module.exports = noop;
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2350,7 +2273,7 @@ function once(fn) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 /**
@@ -2377,11 +2300,11 @@ module.exports = identity;
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(6),
-    isObject = __webpack_require__(24);
+    isObject = __webpack_require__(23);
 
 /** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]',
@@ -2420,7 +2343,7 @@ module.exports = isFunction;
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var root = __webpack_require__(7);
@@ -2432,7 +2355,7 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -2443,7 +2366,7 @@ module.exports = freeGlobal;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(61)))
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports) {
 
 /**
@@ -2480,7 +2403,7 @@ module.exports = isObject;
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2501,10 +2424,87 @@ function onlyOnce(fn) {
 module.exports = exports["default"];
 
 /***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+/**
+ Represents an event that may be emitted or subscribed to.
+ */
+module.exports = class Event {
+
+    constructor(chatEngine, chat, event) {
+
+        /**
+         Events are always a property of a {@link Chat}. Responsible for
+         listening to specific events and firing events when they occur.
+         @readonly
+         @type String
+         @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+         */
+        this.channel = chat.channel;
+
+        this.chatEngine = chatEngine;
+
+        this.name = 'Event';
+        /**
+         Publishes the event over the PubNub network to the {@link Event} channel
+
+         @private
+         @param {Object} data The event payload object
+         */
+        this.publish = (m) => {
+
+            m.event = event;
+
+            this.chatEngine.pubnub.publish({
+                message: m,
+                channel: this.channel
+            }, (status) => {
+
+                if (status.statusCode === 200) {
+                    chat.trigger('$.publish.success');
+                } else {
+
+                    /**
+                     * There was a problem publishing over the PubNub network.
+                     * @event Chat#$"."error"."publish
+                     */
+                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
+                }
+
+            });
+
+        };
+
+        /**
+         Forwards events to the Chat that registered the event {@link Chat}
+
+         @private
+         @param {Object} data The event payload object
+         */
+        this.onMessage = (m) => {
+
+            if (this.channel === m.channel && m.message.event === event) {
+                chat.trigger(m.message.event, m.message);
+            }
+
+        };
+
+        // call onMessage when PubNub receives an event
+        this.chatEngine.pubnub.addListener({
+            message: this.onMessage
+        });
+
+    }
+
+};
+
+
+/***/ }),
 /* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isFunction = __webpack_require__(21),
+var isFunction = __webpack_require__(20),
     isLength = __webpack_require__(27);
 
 /**
@@ -2665,7 +2665,7 @@ module.exports = {
 const axios = __webpack_require__(2);
 const PubNub = __webpack_require__(49);
 
-const RootEmitter = __webpack_require__(16);
+const RootEmitter = __webpack_require__(15);
 const Chat = __webpack_require__(4);
 const Me = __webpack_require__(94);
 const User = __webpack_require__(1);
@@ -2970,7 +2970,7 @@ module.exports = (ceConfig, pnConfig) => {
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(10);
+var bind = __webpack_require__(9);
 var Axios = __webpack_require__(33);
 var defaults = __webpack_require__(3);
 
@@ -3005,9 +3005,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(15);
+axios.Cancel = __webpack_require__(14);
 axios.CancelToken = __webpack_require__(47);
-axios.isCancel = __webpack_require__(14);
+axios.isCancel = __webpack_require__(13);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -3167,7 +3167,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(13);
+var createError = __webpack_require__(12);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -3586,7 +3586,7 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(44);
-var isCancel = __webpack_require__(14);
+var isCancel = __webpack_require__(13);
 var defaults = __webpack_require__(3);
 
 /**
@@ -3739,7 +3739,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(15);
+var Cancel = __webpack_require__(14);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -4605,15 +4605,15 @@ exports.default = function (tasks, callback) {
     nextTask([]);
 };
 
-var _isArray = __webpack_require__(17);
+var _isArray = __webpack_require__(16);
 
 var _isArray2 = _interopRequireDefault(_isArray);
 
-var _noop = __webpack_require__(18);
+var _noop = __webpack_require__(17);
 
 var _noop2 = _interopRequireDefault(_noop);
 
-var _once = __webpack_require__(19);
+var _once = __webpack_require__(18);
 
 var _once2 = _interopRequireDefault(_once);
 
@@ -4621,7 +4621,7 @@ var _baseRest = __webpack_require__(52);
 
 var _baseRest2 = _interopRequireDefault(_baseRest);
 
-var _onlyOnce = __webpack_require__(25);
+var _onlyOnce = __webpack_require__(24);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
@@ -4691,7 +4691,7 @@ module.exports = exports['default'];
 /* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var identity = __webpack_require__(20),
+var identity = __webpack_require__(19),
     overRest = __webpack_require__(53),
     setToString = __webpack_require__(55);
 
@@ -4805,7 +4805,7 @@ module.exports = setToString;
 
 var constant = __webpack_require__(57),
     defineProperty = __webpack_require__(58),
-    identity = __webpack_require__(20);
+    identity = __webpack_require__(19);
 
 /**
  * The base implementation of `setToString` without support for hot loop shorting.
@@ -4903,9 +4903,9 @@ module.exports = getNative;
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isFunction = __webpack_require__(21),
+var isFunction = __webpack_require__(20),
     isMasked = __webpack_require__(64),
-    isObject = __webpack_require__(24),
+    isObject = __webpack_require__(23),
     toSource = __webpack_require__(66);
 
 /**
@@ -4983,7 +4983,7 @@ module.exports = g;
 /* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(22);
+var Symbol = __webpack_require__(21);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -5196,7 +5196,6 @@ module.exports = shortOut;
 /***/ (function(module, exports, __webpack_require__) {
 
 const Emitter = __webpack_require__(5);
-const Event = __webpack_require__(8);
 const eachSeries = __webpack_require__(70);
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
@@ -5325,7 +5324,7 @@ module.exports = class Search extends Emitter {
 
             if (this.needleCount < this.config.limit) {
 
-                this.trigger(message.entry.event, message.entry, (reject, payload) => {
+                this.trigger(message.entry.event, message.entry, (reject) => {
 
                     if (!reject) {
                         this.needleCount += 1;
@@ -5335,7 +5334,7 @@ module.exports = class Search extends Emitter {
                 });
 
             } else {
-                cb()
+                cb();
             }
 
         };
@@ -5348,7 +5347,7 @@ module.exports = class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                eachSeries(response.messages, this.triggerHistory, (err) => {
+                eachSeries(response.messages, this.triggerHistory, () => {
 
                     if (
                         response.messages &&
@@ -5367,11 +5366,11 @@ module.exports = class Search extends Emitter {
 
         };
 
-        if(this.config.event) {
+        if (this.config.event) {
             this.plugin(eventFilter(this.config.event));
         }
 
-        if(this.config.sender) {
+        if (this.config.sender) {
             this.plugin(senderFilter(this.config.sender));
         }
 
@@ -5487,11 +5486,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = _eachOfLimit;
 
-var _noop = __webpack_require__(18);
+var _noop = __webpack_require__(17);
 
 var _noop2 = _interopRequireDefault(_noop);
 
-var _once = __webpack_require__(19);
+var _once = __webpack_require__(18);
 
 var _once2 = _interopRequireDefault(_once);
 
@@ -5499,7 +5498,7 @@ var _iterator = __webpack_require__(73);
 
 var _iterator2 = _interopRequireDefault(_iterator);
 
-var _onlyOnce = __webpack_require__(25);
+var _onlyOnce = __webpack_require__(24);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
@@ -5684,7 +5683,7 @@ module.exports = keys;
 
 var baseTimes = __webpack_require__(77),
     isArguments = __webpack_require__(78),
-    isArray = __webpack_require__(17),
+    isArray = __webpack_require__(16),
     isBuffer = __webpack_require__(80),
     isIndex = __webpack_require__(82),
     isTypedArray = __webpack_require__(83);
@@ -5764,7 +5763,7 @@ module.exports = baseTimes;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIsArguments = __webpack_require__(79),
-    isObjectLike = __webpack_require__(9);
+    isObjectLike = __webpack_require__(8);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -5806,7 +5805,7 @@ module.exports = isArguments;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(6),
-    isObjectLike = __webpack_require__(9);
+    isObjectLike = __webpack_require__(8);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]';
@@ -5961,7 +5960,7 @@ module.exports = isTypedArray;
 
 var baseGetTag = __webpack_require__(6),
     isLength = __webpack_require__(27),
-    isObjectLike = __webpack_require__(9);
+    isObjectLike = __webpack_require__(8);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -6045,7 +6044,7 @@ module.exports = baseUnary;
 /* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(23);
+/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(22);
 
 /** Detect free variable `exports`. */
 var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
