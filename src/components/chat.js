@@ -604,11 +604,12 @@ module.exports = class Chat extends Emitter {
             .then(() => {})
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-                this.trigger('$.chat.left', { chat: this });
             });
 
 
         this.connected = false;
+
+        this.trigger('$.disconnected');
 
     }
 

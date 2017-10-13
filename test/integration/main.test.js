@@ -318,6 +318,46 @@ describe('remote chat list', () => {
 
 });
 
+
+let createdEventChat;
+let createdEventChat2;
+describe('join event', () => {
+
+    it('should notify chatengine on create', function join(done) {
+
+        this.timeout(4000);
+
+        ChatEngine.on('$.connected', (data) => {
+
+            assert.isObject(data.source);
+            if (data.source.channel === createdEventChat.channel) {
+                done();
+            }
+        });
+
+        createdEventChat = new ChatEngine.Chat('this-is-only-a-test');
+
+    });
+
+    it('should notify chatengine on leave', function leave(done) {
+
+        ChatEngine.once('$.disconnected', (data) => {
+            assert.isObject(data.source);
+            if (data.source.channel === createdEventChat2.channel) {
+                done();
+            }
+        });
+
+        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2');
+
+        createdEventChat2.on('$.connected', () => {
+            createdEventChat2.leave();
+        });
+
+    });
+
+});
+
 let myChat;
 
 let yourChat;
@@ -409,22 +449,6 @@ describe('invite', () => {
             illegalAccessChat.emit('message', 'test');
 
         });
-
-    });
-
-});
-
-
-let createdEventChat;
-describe('created event', () => {
-
-    it('should notify chatengine on create', (done) => {
-
-        ChatEngine.once('$.chat.created', (data) => {
-            done();
-        });
-
-        createdEventChat = new ChatEngine.Chat('this-is-only-a-test');
 
     });
 

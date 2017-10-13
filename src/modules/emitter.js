@@ -24,11 +24,15 @@ module.exports = class Emitter extends RootEmitter {
          @private
          @param {String} event The event payload object
          */
-        this._emit = (event, data) => {
+        this._emit = (event, data = {}) => {
 
             // all events are forwarded to ChatEngine object
             // so you can globally bind to events with ChatEngine.on()
-            this.chatEngine._emit(event, data);
+            if (typeof data === 'object' && !data.source) {
+                data.source = this;
+                this.chatEngine._emit(event, data);
+            }
+
 
             // emit the event from the object that created it
             this.emitter.emit(event, data);
@@ -220,16 +224,9 @@ module.exports = class Emitter extends RootEmitter {
 
         };
 
-        this.onCreated = () => {
-            let data = {};
-            data[this.name.toLowerCase()] = this;
-            this.trigger(['$', this.name.toLowerCase(), 'created'], data);
-        };
-
         this.onConstructed = () => {
 
             this.bindProtoPlugins();
-            this.onCreated();
 
         };
 

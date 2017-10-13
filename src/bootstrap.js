@@ -207,6 +207,7 @@ module.exports = (ceConfig, pnConfig) => {
 
                     if (statusEvent.affectedChannels) {
                         statusEvent.affectedChannels.forEach((channel) => {
+
                             let chat = ChatEngine.chats[channel];
 
                             if (chat) {
@@ -217,6 +218,7 @@ module.exports = (ceConfig, pnConfig) => {
 
                                 // trigger the network events
                                 chat.trigger(eventName, statusEvent);
+
                             } else {
                                 ChatEngine._emit(eventName, statusEvent);
                             }
