@@ -97,7 +97,7 @@ describe('connect', () => {
 
         this.timeout(4000);
 
-        ChatEngine.on('$.created', (data, source) => {
+        ChatEngine.on('$.created.chat', (data, source) => {
 
             assert.isObject(source);
 
@@ -180,7 +180,7 @@ describe('chat', () => {
 
     it('should get message', (done) => {
 
-        chat.on('something', (payload) => {
+        chat.once('something', (payload) => {
 
             assert.isObject(payload);
             done();
