@@ -113,7 +113,7 @@ module.exports = (ceConfig, pnConfig) => {
             ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
             // create a new user that represents this client
-            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+            ChatEngine.me = new ChatEngine.Me(pnConfig.uuid, authData);
             ChatEngine.me.update(state);
 
             /**
@@ -266,6 +266,19 @@ module.exports = (ceConfig, pnConfig) => {
     };
 
     /**
+     * The {@link Me} class.
+     * @member {Me} Me
+     * @memberof ChatEngine
+     * @see {@link Me}
+     */
+    ChatEngine.Me = class extends Me {
+        constructor(...args) {
+            super(ChatEngine, ...args);
+            this.onConstructed();
+        }
+    };
+
+    /**
      * The {@link Chat} class.
      * @member {Chat} Chat
      * @memberof ChatEngine
@@ -274,6 +287,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.Chat = class extends Chat {
         constructor(...args) {
             super(ChatEngine, ...args);
+            this.onConstructed();
         }
     };
 
@@ -290,6 +304,7 @@ module.exports = (ceConfig, pnConfig) => {
                 return ChatEngine.me;
             } else {
                 super(ChatEngine, ...args);
+                this.onConstructed();
             }
 
         }

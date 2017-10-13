@@ -33,8 +33,6 @@ module.exports = class Me extends User {
             this.removeChatFromSession(payload.chat);
         });
 
-        this.onConstructed();
-
     }
 
     // assign updates from network

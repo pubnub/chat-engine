@@ -43,6 +43,7 @@ describe('#bootstrap', () => {
     });
 
     it('connect', (done) => {
+
         chatEngineInstance.on('$.ready', (data) => {
             assert(data.me.uuid === 'user1', 'was assigned uuid to me');
             done();
