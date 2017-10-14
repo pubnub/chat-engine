@@ -87,7 +87,6 @@ describe('connect', () => {
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
         });
-
     });
 
 });
@@ -107,16 +106,20 @@ describe('chat', () => {
             assert(p.user.uuid === ChatEngine.me.uuid, 'this online event is me');
             done();
         });
+    });
 
+    it('should get the list of chats', (done) => {
+        const chats = ChatEngine.listOfChats();
+        assert(chats.length >= 1, 'return the list of chats for the user');
+        assert(chats[0].name === 'chat-teser', 'get the name of the chat expected');
+        done();
     });
 
     it('should get ready callback', (done) => {
 
         let chat2 = new ChatEngine.Chat('chat2');
         chat2.on('$.connected', () => {
-
             done();
-
         });
 
     });
@@ -124,16 +127,13 @@ describe('chat', () => {
     it('should get message', (done) => {
 
         chat.on('something', (payload) => {
-
             assert.isObject(payload);
             done();
-
         });
 
         chat.emit('something', {
             text: 'hello world'
         });
-
     });
 
     it('should bind a plugin', () => {
@@ -142,7 +142,6 @@ describe('chat', () => {
 
         assert(chat.constructWorks, 'bound to construct');
         assert(chat.testPlugin.newMethod(), 'new method added');
-
     });
 
     it('should bind a prototype plugin', () => {
@@ -153,7 +152,6 @@ describe('chat', () => {
 
         assert(newChat.constructWorks, 'bound to construct');
         assert(newChat.testPlugin.newMethod(), 'new method added');
-
     });
 
 });
@@ -201,8 +199,8 @@ describe('history', () => {
             max: 50,
             reverse: false
         });
-
     });
+
     it('should get 200 messages', function get200(done) {
 
         let count = 0;
@@ -238,14 +236,12 @@ describe('history', () => {
             });
 
             i += 1;
-
         }
 
         chatHistory2.history('tester', {
             max: 200,
             reverse: false
         });
-
     });
 
 });
@@ -279,7 +275,6 @@ describe('remote chat list', () => {
         ChatEngineClone.on('$.ready', () => {
             syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
         });
-
     });
 
     it('should keep delete in sync', function deleteSync(done) {
@@ -303,8 +298,6 @@ describe('remote chat list', () => {
             syncChat.leave();
 
         }, 1000);
-
-
     });
 
     it('should be populated', (done) => {
@@ -313,9 +306,7 @@ describe('remote chat list', () => {
         assert.isObject(ChatEngine.me.session.default);
         // assert.isObject(ChatEngine.me.session.fixed);
         done();
-
     });
-
 });
 
 let myChat;
@@ -339,7 +330,6 @@ describe('invite', () => {
         ChatEngineYou.on('$.ready', () => {
             done();
         });
-
     });
 
     it('should create chat', (done) => {
@@ -349,7 +339,6 @@ describe('invite', () => {
         yourChat.on('$.connected', () => {
             done();
         });
-
     });
 
     it('should invite other users', (done) => {
@@ -363,7 +352,6 @@ describe('invite', () => {
             myChat.on('$.connected', () => {
                 done();
             });
-
         });
 
         // me is the current context
@@ -383,7 +371,6 @@ describe('invite', () => {
         myChat.emit('message', {
             text: 'sup?'
         });
-
     });
 
     it('should not be able to join another chat', (done) => {
@@ -409,7 +396,5 @@ describe('invite', () => {
             illegalAccessChat.emit('message', 'test');
 
         });
-
     });
-
 });

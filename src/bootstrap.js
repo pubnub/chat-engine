@@ -293,6 +293,24 @@ module.exports = (ceConfig, pnConfig) => {
         }
     };
 
+    ChatEngine.listOfChats = () => {
+        let chats = [];
+
+        Object.keys(ChatEngine.chats).forEach((key) => {
+            const params = key.split('#');
+
+            if (params.includes('chat') && (params.includes('private.') || params.includes('public.'))) {
+                chats.push({
+                    name: params[params.length - 1],
+                    isPrivate: ChatEngine.chats[key].isPrivate,
+                    chat: ChatEngine.chats[key]
+                });
+            }
+        });
+
+        return chats;
+    };
+
     return ChatEngine;
 
 };
