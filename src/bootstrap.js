@@ -104,17 +104,6 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.authKey = authKey || pnConfig.uuid;
 
-        let buildMe = () => {
-
-            // create a new user that represents this client
-            let me = new Me(ChatEngine, pnConfig.uuid, authData);
-            me.update(state);
-            me.onConstructed();
-
-            return me;
-
-        };
-
         let complete = (chatData) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
@@ -123,7 +112,10 @@ module.exports = (ceConfig, pnConfig) => {
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
 
-            ChatEngine.me = buildMe();
+            // build the current user
+            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
+            ChatEngine.me.update(state);
+            ChatEngine.me.onConstructed();
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
