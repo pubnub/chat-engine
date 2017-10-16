@@ -167,7 +167,7 @@ describe('chat', () => {
 
     });
 
-    it('should get ready callback', function getReadyCallback (done) {
+    it('should get ready callback', function getReadyCallback(done) {
 
         this.timeout(5000);
 
