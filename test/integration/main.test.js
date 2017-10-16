@@ -62,6 +62,10 @@ describe('config', () => {
             throwErrors: false
         });
 
+        ChatEngine.on('$.created.chat', (data, source) => {
+            console.log(data, source.channel)
+        });
+
         assert.isOk(ChatEngine);
 
     });
@@ -168,6 +172,8 @@ describe('chat', () => {
     });
 
     it('should get ready callback', (done) => {
+
+        this.setTimeout(5000);
 
         let chat2 = new ChatEngine.Chat('chat2');
         chat2.on('$.connected', () => {
