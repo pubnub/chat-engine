@@ -1,5 +1,3 @@
-// TODO: refactoring for PN FUNCTIONS, not completed
-
 export default (request, response) => { 
     const kvdb = require('kvstore');
     const xhr = require('xhr');
@@ -92,89 +90,88 @@ export default (request, response) => {
       return response.send('Hello World!');
     };
 
-    let db = {};
-
     let authUser = (uuid, authKey, channel, forceAuth) => {
 
         let key = ['authed', channel].join(':');
 
-        // db[key] = db[key] || [];
-        kvdb.get(key).then( ( retrievedKey ) => {
-            record = retrievedKey ? retrievedKey : [];
+        return kvdb.get(key).then( ( retrievedKey ) => {
+            record = retrievedKey || [];
 
+            let newChannels = [channel, channel + '-pnpres'];
+
+            console.log('!!!!', channel, key, record)
+
+            console.log('forceAuth?', forceAuth)
+            console.log('in list of permissions?', (record.indexOf(uuid) > -1));
+            console.log('auth key?',  authKey)
+            console.log('people permitted in that room', record)
+            console.log(channel)
+
+            if(forceAuth || !record.length || (record.indexOf(uuid) > -1 && authKey)) {
+
+            // if(!record.length || forceAuth || (record.indexOf(uuid) > -1 && authKey)) {
+
+                console.log('new grant for', uuid, authKey, 'access on channel', channel)
+
+                pubnub.grant({
+                    channels: newChannels,
+                    read: true, // false to disallow
+                    write: true,
+                    ttl: 0,
+                    authKeys: [authKey]
+                }).then( ( status ) => {
+                    console.log('uuid', uuid, 'granted access to', key, 'with authkey', authKey)
+
+                    if ( !status.message || status.message !== "Success" ) {
+                        console.log("PAM Issue: ", status.message);
+                        response.status = 500;
+                    }
+                    else {
+                        console.log("Global Grant Successful");
+                        response.status = 200;
+                    }
+
+                    if(record.indexOf(uuid) === -1) {
+                        record.push(uuid);
+                    }
+
+                    return kvdb.set( key, record, 0 );
+                }).then(( storeError ) => {
+                    if ( storeError ) {
+                        console.log('KVStore error: ', storeError);
+                        response.status = 500;
+                        return response.send('Internal Server Error');
+                    }
+                    else {
+                        return response.send();
+                    }
+                });
+
+            }
+            else {
+                kvdb.set( key, record, 0 )
+                .then( ( storeError ) => {
+                    if ( storeError ) {
+                        console.log('KVStore error: ', storeError);
+                        response.status = 500;
+                        return response.send('Internal Server Error');
+                    }
+                    else {
+                        console.log('unauthorized for that chan');
+                        response.status = 401;
+                        return response.send('Unauthorized');
+                    }
+                });
+            }
         });
-
-        let newChannels = [channel, channel + '-pnpres'];
-
-        console.log('!!!!', channel, key, record)
-
-        console.log('forceAuth?', forceAuth)
-        console.log('in list of permissions?', (record.indexOf(uuid) > -1));
-        console.log('auth key?',  authKey)
-        console.log('people permitted in that room', record)
-        console.log(channel)
-
-        if(forceAuth || !record.length || (record.indexOf(uuid) > -1 && authKey)) {
-
-        // if(!record.length || forceAuth || (record.indexOf(uuid) > -1 && authKey)) {
-
-            console.log('new grant for', uuid, authKey, 'access on channel', channel)
-
-            pubnub.grant({
-                channels: newChannels,
-                read: true, // false to disallow
-                write: true,
-                ttl: 0,
-                authKeys: [authKey]
-            }).then( ( status ) => {
-                console.log('uuid', uuid, 'granted access to', key, 'with authkey', authKey)
-
-                if ( !status.message || status.message !== "Success" ) {
-                    console.log("PAM Issue: ", status.message);
-                    response.status = 500;
-                }
-                else {
-                    console.log("Global Grant Successful");
-                    response.status = 200;
-                }
-
-                if(record.indexOf(uuid) === -1) {
-                    record.push(uuid);
-                }
-
-                return kvdb.set( key, record, 0 );
-            }).then(( storeError ) => {
-                if ( storeError ) {
-                    console.log('KVStore error: ', storeError);
-                    response.status = 500;
-                    return response.send('Internal Server Error');
-                }
-                else {
-                    return response.send();
-                }
-            });
-
-        }
-        else {
-            kvdb.set( key, record, 0 )
-            .then( () => {
-                if ( storeError ) {
-                    console.log('KVStore error: ', storeError);
-                    response.status = 500;
-                    return response.send('Internal Server Error');
-                }
-                else {
-                    console.log('unauthorized for that chan');
-                    response.status = 401;
-                    return response.send('Unauthorized');
-                }
-            });
-        }
-
     }
 
     routes['/insecure/grant'] = {};
     routes['/insecure/grant']['POST'] = function () {
+        if ( !request.params.channel || !request.params.uuid || !request.params.authKey) {
+            response.status = 422;
+            return response.send('Missing "uuid" from request parameters'); 
+        }
 
         console.log('doing global grant')
         return globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
@@ -184,130 +181,145 @@ export default (request, response) => {
     // we logged in, grant
     routes['/insecure/chats'] = {};
     routes['/insecure/chats']['GET'] = function () {
+        if ( !request.params.uuid ) {
+            response.status = 422;
+            return response.send('Missing "uuid" from request parameters'); 
+        }
 
-        let fixed = [
-            {
-                channel: 'Main',
-                private: false,
-                group: 'fixed'
-            },
-            {
-                channel: 'Support',
-                private: false,
-                group: 'fixed'
-            },
-            {
-                channel: 'Docs',
-                private: false,
-                group: 'fixed'
-            },
-            {
-                channel: 'Foolery',
-                private: false,
-                group: 'fixed'
-            },
-        ];
+        let key = ['session', request.params.uuid].join(':');
+        return kvdb.get(key).then( ( myPublicChats ) => {
+            myPublicChats = myPublicChats || [];
+            let fixed = [
+                {
+                    channel: 'Main',
+                    private: false,
+                    group: 'fixed'
+                },
+                {
+                    channel: 'Support',
+                    private: false,
+                    group: 'fixed'
+                },
+                {
+                    channel: 'Docs',
+                    private: false,
+                    group: 'fixed'
+                },
+                {
+                    channel: 'Foolery',
+                    private: false,
+                    group: 'fixed'
+                },
+            ];
 
-        console.log('uuid found as', request.query.uuid)
+            console.log('uuid found as', request.params.uuid);
 
-        key2 = ['session', request.query.uuid].join(':');
-        let myPublicChats = db[key2] || [];
+            let chats = fixed.concat(myPublicChats);
 
-        let chats = fixed.concat(myPublicChats);
+            console.log('my chats found as', chats)
 
-        console.log('my chats found as', chats)
-
-        response.status = 200;
-        return response.send(chats);
-
+            response.status = 200;
+            return response.send(chats);
+        });
     };
 
     // new chat
     routes['/insecure/chats']['POST'] = function () {
-
-        // if the client says this is public, add them to the list of public chats for this user
-
-        // logic goes here to tell if user can create this specific chat
-        console.log('new chat created on behalf of ', request.body.uuid, request.body.authKey, 'for channel', request.body.chat.channel, 'privatE?', request.body.chat.private);
-
-        let newChan = [request.body.globalChannel, 'user', request.body.uuid, 'write.', 'direct'].join('#');
-
-        pubnub.publish({
-            channel: newChan,
-            message: {
-                event: '$.server.chat.created',
-                chat: request.body.chat
-            }
-        });
+        if ( !request.body.uuid || !request.body.chat || !request.body.chat.channel) {
+            response.status = 422;
+            return response.send('Missing property from request body'); 
+        }
 
         let key = ['session', request.body.uuid].join(':');
-        db[key] = db[key] || [];
+        let newChannel = [request.body.globalChannel, 'user', request.body.uuid, 'write.', 'direct'].join('#');
+        return kvdb.get(key).then( ( chats ) => {
+            chats = chats || [];
+            // if the client says this is public, add them to the list of public chats for this user
 
-        let found = false;
+            // logic goes here to tell if user can create this specific chat
+            console.log('new chat created on behalf of ', request.body.uuid, request.body.authKey, 'for channel', request.body.chat.channel, 'privatE?', request.body.chat.private);
 
-        if(!db[key]) {
-            db[key] = [];
-        }
-
-        db[key].forEach((chat) => {
-            if(!found & chat.channel == request.body.chat.channel) {
-                found = true;
+            let indexInChats = chats.findIndex( chat => chat.channel === request.body.chat.channel );
+            if ( indexInChats === -1 ) {
+                chats.push(request.body.chat);
             }
-        })
 
-        if(!found) {
-            db[key].push(request.body.chat);
-        }
+            return kvdb.set( key, chats, 0 );
 
-        response.status = 200;
-        return response.send();
+        }).then(( storeError ) => {
+            if ( storeError ) {
+                console.log('KVStore error: ', storeError);
+                response.status = 500;
+                return response.send('Internal Server Error');
+            }
+            else {
+                pubnub.publish({
+                    channel: newChannel,
+                    message: {
+                        event: '$.server.chat.created',
+                        chat: request.body.chat
+                    }
+                });
 
+                response.status = 200;
+                return response.send();
+            }
+        });
     };
 
     routes['/insecure/chats']['DELETE'] = function () {
-
-        console.log(request.body)
-
-        console.log('chat deleted on behalf of ', request.body.uuid, request.body.authKey, 'for channel', request.body.chat.channel, 'privatE?', request.body.chat.private);
-
-        let newChan = [request.body.globalChannel, 'user', request.body.uuid, 'write.', 'direct'].join('#');
+        if ( !request.body.uuid || !request.body.globalChannel || !request.body.chat || !request.body.chat.channel) {
+            response.status = 422;
+            return response.send('Missing property from request body'); 
+        }
 
         let key = ['session', request.body.uuid].join(':');
-        db[key] = db[key] || [];
+        let channelToDelete = [request.body.globalChannel, 'user', request.body.uuid, 'write.', 'direct'].join('#');
 
-        db[key].forEach((chat, index) => {
+        return kvdb.get(key).then( ( chats ) => {
+            chats = chats || [];
 
-            if(chat.channel == request.body.chat.channel) {
+            let indexInChats = chats.findIndex( chat => chat.channel === request.body.chat.channel );
+            if ( indexInChats !== -1 ) {
+                chats.splice(indexInChats, 1);
+            }
+            else {
+                response.status = 422;
+                return response.send('Requested resource unavailable or does not exist');
+            }
 
-                console.log('FOUND FOUND FOUND')
-
-                db[key].splice(index, 1);
-
+        }).then( ( storeError ) => {
+            if ( storeError ) {
+                console.log('KVStore error: ', storeError);
+                response.status = 500;
+                return response.send('Internal Server Error');
+            }
+            else {
                 pubnub.publish({
-                    channel: newChan,
+                    channel: channelToDelete,
                     message: {
                         event: '$.server.chat.deleted',
                         chat: request.body.chat
                     }
-                }, function(a,b) {
-                    console.log(a,b)
                 });
 
+                response.status = 200;
+                return response.send();
             }
-
         });
-
-        response.status = 200;
-        return response.send();
-
     };
 
     routes['/insecure/chats/grant'] = {};
     routes['/insecure/chats/grant']['POST'] = function () {
 
-        if(request.body.chat.private) {
+        if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
+            response.status = 422;
+            return response.send('Missing property from request body'); 
+        }
 
-            authUser(request.body.uuid, request.body.authKey, request.body.chat.channel, false);
+        if ( request.body.chat.private ) {
+
+            return authUser(request.body.uuid, request.body.authKey, request.body.chat.channel, false);
 
         } else {
             response.status = 200;
@@ -322,10 +334,13 @@ export default (request, response) => {
         // you can only invite if you're in the channel
         // grants the user permission in the channel
 
-        let key = ['authed', request.body.chat.channel].join(':');
+        if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
+            response.status = 422;
+            return response.send('Missing property from request body'); 
+        }
 
         // grants, grants, grants, grants, grants grants, grants everybody!
-        authUser(request.body.uuid, db['authkeys:' + request.body.uuid], request.body.chat.channel, true);
+        return authUser(request.body.uuid, db['authkeys:' + request.body.uuid], request.body.chat.channel, true);
 
     };
 
@@ -335,7 +350,12 @@ export default (request, response) => {
     routes['/test'] = {};
     routes['/test']['POST'] = function () {
 
-        if(request.body.authKey == 'open-sesame') {
+        if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
+            response.status = 422;
+            return response.send('Missing property from request body'); 
+        }
+
+        if(request.body.authKey === 'open-sesame') {
 
             // grants everybody!
             return globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
