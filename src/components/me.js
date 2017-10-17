@@ -1,5 +1,4 @@
 const User = require('./user');
-const Chat = require('./chat');
 
 /**
  Represents the client connection as a special {@link User} with write permissions.
@@ -84,7 +83,7 @@ module.exports = class Me extends User {
             this.session[chat.group][chat.channel] = existingChat;
         } else {
             // otherwise, try to recreate it with the server information
-            this.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
+            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.group);
 
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
