@@ -719,7 +719,6 @@ module.exports = class Chat extends Emitter {
 
         // listen to all PubNub events for this Chat
         this.chatEngine.pubnub.addListener({
-            message: this.onMessage,
             presence: this.onPresence
         });
 
