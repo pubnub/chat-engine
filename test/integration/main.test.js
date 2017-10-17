@@ -260,7 +260,9 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.me.once('$.session.chat.join', () => {
+        ChatEngine.me.once('$.session.chat.join', (data) => {
+            console.log(data)
+            assert.equal(data.chat.meta.works, true);
             done();
         });
 
@@ -277,7 +279,7 @@ describe('remote chat list', () => {
         ChatEngineClone.connect('ian', { works: true }, 'ian-authtoken');
 
         ChatEngineClone.on('$.ready', () => {
-            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
+            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true, null, {works: true});
         });
 
     });
