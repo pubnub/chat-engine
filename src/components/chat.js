@@ -19,7 +19,7 @@ const User = require('../components/user');
  */
 module.exports = class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default', meta = {}) {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}, group = 'default') {
 
         super(chatEngine);
 

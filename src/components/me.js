@@ -86,7 +86,7 @@ module.exports = class Me extends User {
             this.session[chat.group][chat.channel] = existingChat;
         } else {
             // otherwise, try to recreate it with the server information
-            this.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group, chat.meta);
+            this.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.meta, chat.group);
 
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.

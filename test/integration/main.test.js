@@ -279,7 +279,7 @@ describe('remote chat list', () => {
         ChatEngineClone.connect('ian', { works: true }, 'ian-authtoken');
 
         ChatEngineClone.on('$.ready', () => {
-            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true, null, {works: true});
+            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true, { works: true });
         });
 
     });
