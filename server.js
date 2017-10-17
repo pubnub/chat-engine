@@ -7,7 +7,7 @@ export default (request, response) => {
     response.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE";
 
-    let routes = {};
+    let controllers = {};
 
     let reset = function() {
         pubnub.grant({
@@ -84,8 +84,8 @@ export default (request, response) => {
         });
     }
 
-    routes['/index'] = {};
-    routes['/index']['GET'] = function () {
+    controllers['/index'] = {};
+    controllers['/index']['GET'] = function () {
       response.status = 200;
       return response.send('Hello World!');
     };
@@ -166,8 +166,8 @@ export default (request, response) => {
         });
     }
 
-    routes['/insecure/grant'] = {};
-    routes['/insecure/grant']['POST'] = function () {
+    controllers['/insecure/grant'] = {};
+    controllers['/insecure/grant']['POST'] = function () {
         if ( !request.params.channel || !request.params.uuid || !request.params.authKey) {
             response.status = 422;
             return response.send('Missing "uuid" from request parameters'); 
@@ -179,8 +179,8 @@ export default (request, response) => {
     };
 
     // we logged in, grant
-    routes['/insecure/chats'] = {};
-    routes['/insecure/chats']['GET'] = function () {
+    controllers['/insecure/chats'] = {};
+    controllers['/insecure/chats']['GET'] = function () {
         if ( !request.params.uuid ) {
             response.status = 422;
             return response.send('Missing "uuid" from request parameters'); 
@@ -224,7 +224,7 @@ export default (request, response) => {
     };
 
     // new chat
-    routes['/insecure/chats']['POST'] = function () {
+    controllers['/insecure/chats']['POST'] = function () {
         if ( !request.body.uuid || !request.body.chat || !request.body.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
@@ -267,7 +267,7 @@ export default (request, response) => {
         });
     };
 
-    routes['/insecure/chats']['DELETE'] = function () {
+    controllers['/insecure/chats']['DELETE'] = function () {
         if ( !request.body.uuid || !request.body.globalChannel || !request.body.chat || !request.body.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
@@ -309,8 +309,8 @@ export default (request, response) => {
         });
     };
 
-    routes['/insecure/chats/grant'] = {};
-    routes['/insecure/chats/grant']['POST'] = function () {
+    controllers['/insecure/chats/grant'] = {};
+    controllers['/insecure/chats/grant']['POST'] = function () {
 
         if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
             response.status = 422;
@@ -328,8 +328,8 @@ export default (request, response) => {
 
     };
 
-    routes['/insecure/chat/invite'] = {};
-    routes['/insecure/chat/invite']['POST'] = function () {
+    controllers['/insecure/chat/invite'] = {};
+    controllers['/insecure/chat/invite']['POST'] = function () {
 
         // you can only invite if you're in the channel
         // grants the user permission in the channel
@@ -347,8 +347,8 @@ export default (request, response) => {
     // uuids are permitted in channels
     // authKey is what is used to grant
     // server should make sure that uuid or other auth params match authKey for security
-    routes['/test'] = {};
-    routes['/test']['POST'] = function () {
+    controllers['/test'] = {};
+    controllers['/test']['POST'] = function () {
 
         if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
             response.status = 422;
@@ -371,16 +371,16 @@ export default (request, response) => {
     reset();
 
     // Choose route based on request.params and request.method
-    // Execute the controller function in the routes object
+    // Execute the controller function in the controllers object
     const route = request.params.route;
     const method = request.method.toUpperCase();
 
     // GET request with empty route returns the homepage
     // If a requested route or method for a route does not exist, return 404
     if ( !route && method === 'GET' ) {
-        return routes['/index']['GET']();
-    } else if ( routes[route] && routes[route][method] ) {
-        return routes[route][method]();
+        return controllers['/index']['GET']();
+    } else if ( controllers[route] && controllers[route][method] ) {
+        return controllers[route][method]();
     } else {
         response.status = 404;
         return response.send();
