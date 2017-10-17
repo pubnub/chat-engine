@@ -446,8 +446,6 @@ module.exports = class Chat extends Emitter {
 
         this.chatEngine.chats[this.channel] = this;
 
-        this.bindProtoPlugins();
-
     }
 
     /**
@@ -608,6 +606,8 @@ module.exports = class Chat extends Emitter {
 
 
         this.connected = false;
+
+        this.trigger('$.disconnected');
 
     }
 
