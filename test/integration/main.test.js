@@ -260,7 +260,8 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         // first instance looking or new chats
-        ChatEngine.me.once('$.session.chat.join', () => {
+        ChatEngine.me.once('$.session.chat.join', (data) => {
+            assert.equal(data.chat.meta.works, true);
             done();
         });
 
@@ -277,7 +278,7 @@ describe('remote chat list', () => {
         ChatEngineClone.connect('ian', { works: true }, 'ian-authtoken');
 
         ChatEngineClone.on('$.ready', () => {
-            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
+            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true, { works: true });
         });
 
     });
@@ -361,7 +362,11 @@ describe('invite', () => {
             myChat = new ChatEngine.Chat(payload.data.channel);
 
             myChat.on('$.connected', () => {
-                done();
+
+                myChat.emit('message', {
+                    text: 'sup?'
+                });
+
             });
 
         });
@@ -369,22 +374,13 @@ describe('invite', () => {
         // me is the current context
         yourChat.invite(me);
 
-    });
-
-    it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
-
-        this.timeout(5000);
-
         yourChat.on('message', (payload) => {
             assert.equal(payload.data.text, 'sup?');
             done();
         });
 
-        myChat.emit('message', {
-            text: 'sup?'
-        });
-
     });
+
 
     it('should not be able to join another chat', (done) => {
 

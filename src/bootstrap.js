@@ -110,7 +110,7 @@ module.exports = (ceConfig, pnConfig) => {
 
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
+            ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, null, 'global');
 
             // create a new user that represents this client
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);

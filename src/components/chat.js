@@ -19,7 +19,7 @@ const User = require('../components/user');
  */
 module.exports = class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}, group = 'default') {
 
         super(chatEngine);
 
@@ -60,6 +60,8 @@ module.exports = class Chat extends Emitter {
         * @readonly
         */
         this.group = group;
+
+        this.meta = meta;
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -239,7 +241,8 @@ module.exports = class Chat extends Emitter {
             return {
                 channel: this.channel,
                 group: this.group,
-                private: this.isPrivate
+                private: this.isPrivate,
+                meta: this.meta
             };
 
         };
