@@ -24,11 +24,12 @@ module.exports = class Emitter extends RootEmitter {
          @private
          @param {String} event The event payload object
          */
-        this._emit = (event, data) => {
+        this._emit = (event, data = {}) => {
 
             // all events are forwarded to ChatEngine object
             // so you can globally bind to events with ChatEngine.on()
-            this.chatEngine._emit(event, data);
+            this.chatEngine._emit(event, data, this);
+
 
             // emit the event from the object that created it
             this.emitter.emit(event, data);
@@ -242,6 +243,13 @@ module.exports = class Emitter extends RootEmitter {
             // waiting for one to complete before moving to the next
             // when it's done, the ```last``` parameter is called
             waterfall(pluginQueue, last);
+
+        };
+
+        this.onConstructed = () => {
+
+            this.bindProtoPlugins();
+            this.trigger(['$', 'created', this.name.toLowerCase()].join('.'));
 
         };
 

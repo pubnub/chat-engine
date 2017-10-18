@@ -67,6 +67,8 @@ describe('config', () => {
 
 });
 
+let createdEventChat1;
+let createdEventChat2;
 describe('connect', () => {
 
     it('should be identified as new user', function beIdentified(done) {
@@ -85,6 +87,61 @@ describe('connect', () => {
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
+        });
+
+    });
+
+
+    it('should notify chatengine on created', function join(done) {
+
+        this.timeout(4000);
+
+        ChatEngine.on('$.created.chat', (data, source) => {
+
+            assert.isObject(source);
+
+            if (source.channel === 'global#chat#private.#this-is-only-a-test-3') {
+                done();
+            }
+
+        });
+
+        setTimeout(() => {
+            let a = new ChatEngine.Chat('this-is-only-a-test-3');
+            a.leave();
+        }, 1000);
+
+    });
+
+    it('should notify chatengine on connected', function join(done) {
+
+        this.timeout(4000);
+
+        ChatEngine.on('$.connected', (data, source) => {
+
+            assert.isObject(source);
+            if (source.channel === createdEventChat1.channel) {
+                done();
+            }
+        });
+
+        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test');
+
+    });
+
+    it('should notify chatengine on disconnected', (done) => {
+
+        ChatEngine.once('$.disconnected', (data, source) => {
+            assert.isObject(source);
+            if (source.channel === createdEventChat2.channel) {
+                done();
+            }
+        });
+
+        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2');
+
+        createdEventChat2.on('$.connected', () => {
+            createdEventChat2.leave();
         });
 
     });
@@ -109,7 +166,9 @@ describe('chat', () => {
 
     });
 
-    it('should get ready callback', (done) => {
+    it('should get ready callback', function getReadyCallback(done) {
+
+        this.timeout(5000);
 
         let chat2 = new ChatEngine.Chat('chat2');
         chat2.on('$.connected', () => {
@@ -122,7 +181,7 @@ describe('chat', () => {
 
     it('should get message', (done) => {
 
-        chat.on('something', (payload) => {
+        chat.once('something', (payload) => {
 
             assert.isObject(payload);
             done();
@@ -168,23 +227,6 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        // let i = 0;
-        // while (i < 50) {
-
-        //     chatHistory.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory.emit('poop', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory.emit('nothng', {
-        //         text: 'hello world ' + i
-        //     });
-
-        //     i += 1;
-
-        // }
-
         chatHistory.search({
             event: 'tester',
             limit: 50
@@ -207,20 +249,6 @@ describe('history', () => {
         this.timeout(10000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
-
-        // let i = 1;
-        // while (i < 200) {
-
-        //     chatHistory2.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory2.emit('not-tester', {
-        //         text: 'hello world ' + i
-        //     });
-
-        //     i += 1;
-
-        // }
 
         chatHistory2.search({
             event: 'tester',
@@ -316,7 +344,7 @@ describe('remote chat list', () => {
 
         assert.isObject(ChatEngine.me.session.global);
         assert.isObject(ChatEngine.me.session.default);
-        assert.isObject(ChatEngine.me.session.fixed);
+        // assert.isObject(ChatEngine.me.session.fixed);
         done();
 
     });
@@ -391,7 +419,9 @@ describe('invite', () => {
 
     });
 
-    it('should not be able to join another chat', (done) => {
+    it('should not be able to join another chat', function dontJoin(done) {
+
+        this.timeout(10000);
 
         let targetChan = 'super-secret-channel-';
 

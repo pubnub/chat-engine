@@ -110,11 +110,12 @@ module.exports = (ceConfig, pnConfig) => {
 
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
+            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
 
-            // create a new user that represents this client
+            // build the current user
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
             ChatEngine.me.update(state);
+            ChatEngine.me.onConstructed();
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
@@ -207,6 +208,7 @@ module.exports = (ceConfig, pnConfig) => {
 
                     if (statusEvent.affectedChannels) {
                         statusEvent.affectedChannels.forEach((channel) => {
+
                             let chat = ChatEngine.chats[channel];
 
                             if (chat) {
@@ -217,6 +219,7 @@ module.exports = (ceConfig, pnConfig) => {
 
                                 // trigger the network events
                                 chat.trigger(eventName, statusEvent);
+
                             } else {
                                 ChatEngine._emit(eventName, statusEvent);
                             }
@@ -272,6 +275,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.Chat = class extends Chat {
         constructor(...args) {
             super(ChatEngine, ...args);
+            this.onConstructed();
         }
     };
 
@@ -288,6 +292,7 @@ module.exports = (ceConfig, pnConfig) => {
                 return ChatEngine.me;
             } else {
                 super(ChatEngine, ...args);
+                this.onConstructed();
             }
 
         }
