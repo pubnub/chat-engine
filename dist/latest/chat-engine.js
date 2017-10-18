@@ -2622,7 +2622,9 @@ module.exports = (ceConfig, pnConfig) => {
 
         let getChats = () => {
 
-            axios.get(ceConfig.endpoint + '/chats?uuid=' + pnConfig.uuid)
+            let qsDelimiter = ceConfig.endpoint.indexOf('?') === -1 ? '?' : '&';
+            let route = ceConfig.endpoint + '/chats' + qsDelimiter + 'uuid=' + pnConfig.uuid;
+            axios.get(route)
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
 
