@@ -69,7 +69,14 @@ module.exports = class RootEmitter {
         *     console.log('event.a or event.b was fired').;
         * })
         */
-        this.on = this.emitter.on.bind(this.emitter);
+        this.on = (event, callback) => {
+
+            // emit the event from the object that created it
+            this.emitter.on(event, callback);
+
+            return this;
+
+        };
 
         /**
         * Stop a callback from listening to an event.
@@ -83,7 +90,14 @@ module.exports = class RootEmitter {
         * // ...
         * object.off('event', callback);
         */
-        this.off = this.emitter.off.bind(this.emitter);
+        this.off = (event, callback) => {
+
+            // emit the event from the object that created it
+            this.emitter.off(event, callback);
+
+            return this;
+
+        };
 
         /**
         * Listen for any event on this object and fire a callback when it's emitted
@@ -94,7 +108,14 @@ module.exports = class RootEmitter {
         *     console.log('All events trigger this.');
         * });
         */
-        this.onAny = this.emitter.onAny.bind(this.emitter);
+        this.onAny = (event, callback) => {
+
+            // emit the event from the object that created it
+            this.emitter.onAny(event, callback);
+
+            return this;
+
+        };
 
         /**
         * Listen for an event and only fire the callback a single time
@@ -106,7 +127,14 @@ module.exports = class RootEmitter {
         *     console.log('This is only fired once!');
         * });
         */
-        this.once = this.emitter.once.bind(this.emitter);
+        this.once = (event, callback) => {
+
+            // emit the event from the object that created it
+            this.emitter.once(event, callback);
+
+            return this;
+
+        };
 
     }
 

@@ -1,5 +1,4 @@
 const ChatEngineCore = require('../../src/index.js');
-
 const assert = require('chai').assert;
 
 describe('import', () => {
@@ -13,7 +12,7 @@ describe('import', () => {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel = 'global'; //  + new Date().getTime();
+let globalChannel = 'global';
 
 let examplePlugin = () => {
 
@@ -206,7 +205,7 @@ describe('chat', () => {
 
     it('should bind a prototype plugin', () => {
 
-        ChatEngine.protoPlugin('Chat', examplePlugin());
+        ChatEngine.proto('Chat', examplePlugin());
 
         let newChat = new ChatEngine.Chat('some-other-chat');
 
@@ -217,6 +216,7 @@ describe('chat', () => {
 
 });
 
+let chatHistory;
 describe('history', () => {
 
     it('should get 50 messages', function get50(done) {
@@ -225,40 +225,20 @@ describe('history', () => {
 
         this.timeout(10000);
 
-        let chatHistory = new ChatEngine.Chat('chat-history-2', false);
+        chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        chatHistory.on('$.history.tester', (a) => {
+        chatHistory.search({
+            event: 'tester',
+            limit: 50
+        }).on('tester', (a) => {
 
             assert.equal(a.event, 'tester');
 
             count += 1;
 
-            if (count >= 50) {
-                done();
-            }
-
-        });
-        chatHistory.on('$.history.not-tester', () => {
-            assert.isNotOk('history returning wrong events');
-        });
-
-        // let i = 0;
-        // while (i < 200) {
-
-        //     chatHistory.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory.emit('not-tester', {
-        //         text: 'hello world ' + i
-        //     });
-
-        //     i += 1;
-
-        // }
-
-        chatHistory.history('tester', {
-            max: 50,
-            reverse: false
+        }).on('$.search.finish', () => {
+            assert.equal(count, 50, 'correct # of results');
+            done();
         });
 
     });
@@ -270,39 +250,33 @@ describe('history', () => {
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
-        chatHistory2.on('$.history.tester', (a) => {
+        chatHistory2.search({
+            event: 'tester',
+            limit: 200
+        }).on('tester', (a) => {
+
+            assert.equal(a.event, 'tester');
+            count += 1;
+
+        }).on('$.search.finish', () => {
+            assert.equal(count, 200, 'correct # of results');
+            done();
+        });
+
+    });
+
+    it('should get messages without event', function get50(done) {
+
+        this.timeout(10000);
+
+        chatHistory.search({
+            limit: 10
+        }).on('tester', (a) => {
 
             assert.equal(a.event, 'tester');
 
-            count += 1;
-
-            if (count >= 200) {
-                done();
-            }
-
-        });
-
-        chatHistory2.on('$.history.not-tester', () => {
-            assert.isNotOk('history returning wrong events');
-        });
-
-        // let i = 1;
-        // while (i < 200) {
-
-        //     chatHistory2.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory2.emit('not-tester', {
-        //         text: 'hello world ' + i
-        //     });
-
-        //     i += 1;
-
-        // }
-
-        chatHistory2.history('tester', {
-            max: 200,
-            reverse: false
+        }).on('$.search.finish', () => {
+            done();
         });
 
     });

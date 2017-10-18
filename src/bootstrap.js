@@ -81,7 +81,7 @@ module.exports = (ceConfig, pnConfig) => {
     };
 
     ChatEngine.protoPlugins = {};
-    ChatEngine.protoPlugin = (className, plugin) => {
+    ChatEngine.proto = (className, plugin) => {
         ChatEngine.protoPlugins[className] = ChatEngine.protoPlugins[className] || [];
         ChatEngine.protoPlugins[className].push(plugin);
     };

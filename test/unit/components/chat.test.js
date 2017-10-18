@@ -91,14 +91,17 @@ describe('#chat', () => {
 
     describe('history', () => {
         it('fetches history', (done) => {
+
             chatEngineInstance.connect();
 
-            chatInstance.on('$.history.ev1', (msg) => {
+            let history = chatInstance.search({
+                event: 'ev1'
+            });
+            history.on('ev1', (msg) => {
                 assert(msg.payload === 'hi', 'got the expected value');
                 done();
             });
 
-            chatInstance.history('ev1');
             chatEngineInstance.pubnub.history.args[0][1]({ error: false }, { messages: [{ entry: { event: 'ev1', payload: 'hi' } }] });
 
         });
