@@ -3,6 +3,7 @@ const axios = require('axios');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
 const User = require('../components/user');
+const Search = require('../components/search');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -683,6 +684,34 @@ module.exports = class Chat extends Emitter {
         this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
             // handle status, response
         });
+    }
+
+    /**
+     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
+     which will emit all old events unless ```config.event``` is supplied.
+     @param {Object} [config] The search configuration object.
+     @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
+     @param {Event} [config.event] The {@link Event} to search for.
+     @param {User} [config.sender] The {@link User} who sent the message.
+     @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
+     @param {Number} [config.start=0] The timetoken to begin searching between.
+     @param {Number} [config.end=0] The timetoken to end searching between.
+     @param {Boolean} [config.reverse=false] Search oldest messages first.
+     @return {@link History}
+     @example
+    chat.search({
+        event: 'my-custom-event',
+        sender: ChatEngine.me,
+        limit: 20
+    }).on('my-custom-event', (a) => {
+        console.log('this is an old event!');
+    }).on('$.search.finish', () => {
+        assert.equal(count, 50, 'correct # of results');
+        done();
+    });
+     */
+    search(config) {
+        return new Search(this.chatEngine, this, config);
     }
 
     onConnectionReady() {

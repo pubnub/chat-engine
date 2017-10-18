@@ -39,6 +39,8 @@ module.exports = class Emitter extends RootEmitter {
             // emit the event from the object that created it
             this.emitter.emit(event, data);
 
+            return this;
+
         };
 
         /**
@@ -65,6 +67,8 @@ module.exports = class Emitter extends RootEmitter {
 
             // call the private _on property
             this._on(event, cb);
+
+            return this;
 
         };
 
@@ -108,6 +112,9 @@ module.exports = class Emitter extends RootEmitter {
             }
 
         }
+
+        return this;
+
     }
 
     bindProtoPlugins() {
@@ -124,21 +131,27 @@ module.exports = class Emitter extends RootEmitter {
 
     /**
      Broadcasts an event locally to all listeners.
-
      @private
      @param {String} event The event name
      @param {Object} payload The event payload object
      */
-    trigger(event, payload) {
+    trigger(event, payload, done = () => {}) {
 
         let complete = () => {
 
             // let plugins modify the event
             this.runPluginQueue('on', event, (next) => {
                 next(null, payload);
-            }, (err, pluginResponse) => {
-                // emit this event to any listener
-                this._emit(event, pluginResponse);
+            }, (reject, pluginResponse) => {
+
+                if (reject) {
+                    done(reject);
+                } else {
+                    // emit this event to any listener
+                    this._emit(event, pluginResponse);
+                    done(null, event, pluginResponse);
+                }
+
             });
 
         };
@@ -155,7 +168,7 @@ module.exports = class Emitter extends RootEmitter {
             if (payload.sender) {
 
                 // this use already exists in memory
-                if (this.chatEngine.users[payload.sender]) {
+                if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._hasState()) {
                     payload.sender = this.chatEngine.users[payload.sender];
                     complete();
                 } else {
@@ -181,7 +194,6 @@ module.exports = class Emitter extends RootEmitter {
             // payload is not an object, we want nothing to do with it.
             complete();
         }
-
     }
 
     /**
@@ -205,12 +217,23 @@ module.exports = class Emitter extends RootEmitter {
 
         // look through the configured plugins
         this.plugins.forEach((pluginItem) => {
+
             // if they have defined a function to run specifically
             // for this event
-            if (pluginItem.middleware && pluginItem.middleware[location] && pluginItem.middleware[location][event]) {
-                // add the function to the queue
-                pluginQueue.push(pluginItem.middleware[location][event]);
+            if (pluginItem.middleware && pluginItem.middleware[location]) {
+
+                if (pluginItem.middleware[location][event]) {
+                    // add the function to the queue
+                    pluginQueue.push(pluginItem.middleware[location][event]);
+                }
+
+                if (pluginItem.middleware[location]['*']) {
+                    // add the function to the queue
+                    pluginQueue.push(pluginItem.middleware[location]['*']);
+                }
+
             }
+
         });
 
         // waterfall runs the functions in assigned order
