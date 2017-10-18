@@ -71,374 +71,10 @@ module.exports = class Chat extends Emitter {
         this.users = {};
 
         /**
-         A map of {@link Event} bound to this {@link Chat}
-
-         @private
-         @type Object
-         @readonly
-         */
-        this.events = {};
-
-        /**
-         Updates list of {@link User}s in this {@link Chat}
-         based on who is online now.
-
-         @private
-         @param {Object} status The response status
-         @param {Object} response The response payload object
-         */
-        this.onHereNow = (status, response) => {
-
-            if (status.error) {
-
-                /**
-                 * There was a problem fetching the presence of this chat
-                 * @event Chat#$"."error"."presence
-                 */
-                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
-
-            } else {
-
-                // get the list of occupants in this channel
-                let occupants = response.channels[this.channel].occupants;
-
-                // format the userList for rltm.js standard
-                occupants.forEach((occupant) => {
-                    this.userUpdate(occupant.uuid, occupant.state);
-                });
-
-            }
-
-        };
-
-        /**
-         * Call PubNub history in a loop.
-         * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
-         * @param  {[type]}   args     [description]
-         * @param  {Function} callback [description]
-         * @return {[type]}            [description]
-         * @private
-         */
-        this._pageHistory = (event, args, callback) => {
-
-            args.pagesize = args.pagesize || 100;
-            args.countEmitted = args.countEmitted || 0;
-
-            this.chatEngine.pubnub.history({
-                // search starting from this timetoken
-                // start: args.startToken,
-                channel: args.channel,
-                // false - search forwards through the timeline
-                // true - search backwards through the timeline
-                reverse: args.reverse,
-                // limit number of messages per request to this value; default/max=100
-                count: args.pagesize,
-                // include each returned message's publish timetoken
-                includeTimetoken: true,
-                // prevents JS from truncating 17 digit timetokens
-                stringifiedTimeToken: true
-            }, (status, response) => {
-
-                if (status.error) {
-
-                    /**
-                     * There was a problem fetching the history of this chat
-                     * @event Chat#$"."error"."history
-                     */
-                    chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), status);
-
-                } else {
-
-                    // holds the accumulation of resulting messages across all iterations
-                    let count = args.count || 0;
-                    // timetoken of the first message in response
-                    let firstTT = response.startTimeToken;
-                    // timetoken of the last message in response
-                    let lastTT = response.endTimeToken;
-                    // if no max results specified, default to 500
-                    args.max = !args.max ? 500 : args.max;
-
-                    Object.keys(response.messages).forEach((key) => {
-
-                        if (response.messages[key]
-                            && response.messages[key].entry.event === event) {
-
-                            let thisEvent = ['$', 'history', event].join('.');
-
-                            if (count < args.max) {
-
-                                /**
-                                 * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                                 * ```$.history.``` to distinguish it from the original live events.
-                                 * @event Chat#$"."history"."*
-                                 * @tutorial history
-                                 */
-                                this.trigger(thisEvent, response.messages[key].entry);
-                                count += 1;
-
-                            }
-
-                        }
-
-                    });
-
-                    // we keep asking for more messages if # messages returned by last request is the
-                    // same at the pagesize AND we still have reached the total number of messages requested
-                    // same as the opposit of !(msgs.length < pagesize || total == max)
-                    if (response.messages.length === args.pagesize && count < args.max) {
-
-                        this._pageHistory(event, {
-                            channel: args.channel,
-                            max: args.max,
-                            reverse: args.reverse,
-                            pagesize: args.pagesize,
-                            startToken: args.reverse ? lastTT : firstTT,
-                            event: args.event,
-                            count,
-                            countEmitted: args.countEmitted
-                        }, callback);
-
-                    } else {
-                        // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
-                        // so invoke the callback to the original caller of getMessages providing the total message results
-                        callback();
-                    }
-
-                }
-
-            });
-        };
-
-        /**
-         * Get messages that have been published to the network before this client was connected.
-         * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
-         * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
-         *
-         * @param {String} event The name of the event we're getting history for
-         * @param {Object} [config] The PubNub history config for this call
-         * @tutorial history
-         */
-        this.history = (event, config = {}, done = () => {}) => {
-
-            // create the event if it does not exist
-            this.events[event] = this.events[event] || new Event(chatEngine, this, event);
-
-            // set the PubNub configured channel to this channel
-            config.channel = this.events[event].channel;
-
-            this._pageHistory(event, config, done);
-
-        };
-
-        /**
-        * Turns a {@link Chat} into a JSON representation.
-        * @return {Object}
-        */
-        this.objectify = () => {
-
-            return {
-                channel: this.channel,
-                group: this.group,
-                private: this.isPrivate
-            };
-
-        };
-
-        /**
-         * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
-         * @param {User} user The {@link User} to invite to this chatroom.
-         * @fires Me#event:$"."invite
-         * @example
-         * // one user running ChatEngine
-         * let secretChat = new ChatEngine.Chat('secret-channel');
-         * secretChat.invite(someoneElse);
-         *
-         * // someoneElse in another instance of ChatEngine
-         * me.direct.on('$.invite', (payload) => {
-                *     let secretChat = new ChatEngine.Chat(payload.data.channel);
-                * });
-         */
-        this.invite = (user) => {
-
-            let complete = () => {
-
-                let send = () => {
-
-                    /**
-                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
-                     * Fired by the {@link Chat#invite} method.
-                     * @event Me#$"."invite
-                     * @tutorial private
-                     * @example
-                     * me.direct.on('$.invite', (payload) => {
-                                  *    let privChat = new ChatEngine.Chat(payload.data.channel));
-                                  * });
-                     */
-                    user.direct.emit('$.invite', {
-                        channel: this.channel
-                    });
-
-                };
-
-                if (!user.direct.connected) {
-                    user.direct.connect();
-                    user.direct.on('$.connected', send);
-                } else {
-                    send();
-                }
-
-            };
-
-            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: user.uuid,
-                myUUID: this.chatEngine.me.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            })
-                .then(() => {
-                    complete();
-                })
-                .catch((error) => {
-                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
-
-        };
-
-        /**
-         Keep track of {@link User}s in the room by subscribing to PubNub presence events.
-
-         @private
-         @param {Object} data The PubNub presence response for this event
-         */
-        this.onPresence = (presenceEvent) => {
-
-            // make sure channel matches this channel
-            if (this.channel === presenceEvent.channel) {
-
-                // someone joins channel
-                if (presenceEvent.action === 'join') {
-
-                    let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
-
-                    /**
-                     * Fired when a {@link User} has joined the room.
-                     *
-                     * @event Chat#$"."online"."join
-                     * @param {Object} data The payload returned by the event
-                     * @param {User} data.user The {@link User} that came online
-                     * @example
-                     * chat.on('$.join', (data) => {
-                                  *     console.log('User has joined the room!', data.user);
-                                  * });
-                     */
-
-                    // It's possible for PubNub to send us both a join and have the user appear in here_now
-                    // Avoid firing duplicate $.online events.
-                    if (!this.users[user.uuid]) {
-                        this.trigger('$.online.join', { user });
-                    }
-
-                }
-
-                // someone leaves channel
-                if (presenceEvent.action === 'leave') {
-                    this.userLeave(presenceEvent.uuid);
-                }
-
-                // someone timesout
-                if (presenceEvent.action === 'timeout') {
-                    this.userDisconnect(presenceEvent.uuid);
-                }
-
-                // someone's state is updated
-                if (presenceEvent.action === 'state-change') {
-                    this.userUpdate(presenceEvent.uuid, presenceEvent.state);
-                }
-
-            }
-
-        };
-
-        /**
          * Boolean value that indicates of the Chat is connected to the network
          * @type {Boolean}
          */
         this.connected = false;
-
-        /**
-         * @private
-         */
-        this.onPrep = () => {
-
-            if (!this.connected) {
-
-                if (!this.chatEngine.pubnub) {
-                    this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-                }
-
-                // this will trigger ready callbacks
-
-                // subscribe to the PubNub channel for this Chat
-                this.chatEngine.pubnub.subscribe({
-                    channels: [this.channel],
-                    withPresence: true
-                });
-
-            }
-
-        };
-
-        /**
-         * @private
-         */
-        this.grant = () => {
-
-            let createChat = () => {
-
-                axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
-                    globalChannel: this.chatEngine.ceConfig.globalChannel,
-                    authKey: this.chatEngine.pnConfig.authKey,
-                    uuid: this.chatEngine.pnConfig.uuid,
-                    authData: this.chatEngine.me.authData,
-                    chat: this.objectify()
-                })
-                    .then(() => {
-                        this.onPrep();
-                    })
-                    .catch((error) => {
-                        this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                    });
-            };
-
-            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            })
-                .then(() => {
-                    createChat();
-                })
-                .catch((error) => {
-                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
-
-        };
-
-        /**
-         * Connect to PubNub servers to initialize the chat.
-         * @example
-         * // create a new chatroom, but don't connect to it automatically
-         * let chat = new Chat('some-chat', false)
-         *
-         * // connect to the chat when we feel like it
-         * chat.connect();
-         */
-        this.connect = () => {
-            this.grant();
-        };
 
         if (autoConnect) {
             this.connect();
@@ -446,6 +82,360 @@ module.exports = class Chat extends Emitter {
 
         this.chatEngine.chats[this.channel] = this;
 
+    }
+    /**
+     Updates list of {@link User}s in this {@link Chat}
+     based on who is online now.
+
+     @private
+     @param {Object} status The response status
+     @param {Object} response The response payload object
+     */
+    onHereNow(status, response) {
+
+        if (status.error) {
+
+            /**
+             * There was a problem fetching the presence of this chat
+             * @event Chat#$"."error"."presence
+             */
+            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
+
+        } else {
+
+            // get the list of occupants in this channel
+            let occupants = response.channels[this.channel].occupants;
+
+            // format the userList for rltm.js standard
+            occupants.forEach((occupant) => {
+                this.userUpdate(occupant.uuid, occupant.state);
+            });
+
+        }
+
+    }
+
+    /**
+     * Call PubNub history in a loop.
+     * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
+     * @param  {[type]}   args     [description]
+     * @param  {Function} callback [description]
+     * @return {[type]}            [description]
+     * @private
+     */
+    _pageHistory(event, args, callback) {
+
+        args.pagesize = args.pagesize || 100;
+        args.countEmitted = args.countEmitted || 0;
+
+        this.chatEngine.pubnub.history({
+            // search starting from this timetoken
+            // start: args.startToken,
+            channel: args.channel,
+            // false - search forwards through the timeline
+            // true - search backwards through the timeline
+            reverse: args.reverse,
+            // limit number of messages per request to this value; default/max=100
+            count: args.pagesize,
+            // include each returned message's publish timetoken
+            includeTimetoken: true,
+            // prevents JS from truncating 17 digit timetokens
+            stringifiedTimeToken: true
+        }, (status, response) => {
+
+            if (status.error) {
+
+                /**
+                 * There was a problem fetching the history of this chat
+                 * @event Chat#$"."error"."history
+                 */
+                this.chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), status);
+
+            } else {
+
+                // holds the accumulation of resulting messages across all iterations
+                let count = args.count || 0;
+                // timetoken of the first message in response
+                let firstTT = response.startTimeToken;
+                // timetoken of the last message in response
+                let lastTT = response.endTimeToken;
+                // if no max results specified, default to 500
+                args.max = !args.max ? 500 : args.max;
+
+                Object.keys(response.messages).forEach((key) => {
+
+                    if (response.messages[key]
+                        && response.messages[key].entry.event === event) {
+
+                        let thisEvent = ['$', 'history', event].join('.');
+
+                        if (count < args.max) {
+
+                            /**
+                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
+                             * ```$.history.``` to distinguish it from the original live events.
+                             * @event Chat#$"."history"."*
+                             * @tutorial history
+                             */
+                            this.trigger(thisEvent, response.messages[key].entry);
+                            count += 1;
+
+                        }
+
+                    }
+
+                });
+
+                // we keep asking for more messages if # messages returned by last request is the
+                // same at the pagesize AND we still have reached the total number of messages requested
+                // same as the opposit of !(msgs.length < pagesize || total == max)
+                if (response.messages.length === args.pagesize && count < args.max) {
+
+                    this._pageHistory(event, {
+                        channel: args.channel,
+                        max: args.max,
+                        reverse: args.reverse,
+                        pagesize: args.pagesize,
+                        startToken: args.reverse ? lastTT : firstTT,
+                        event: args.event,
+                        count,
+                        countEmitted: args.countEmitted
+                    }, callback);
+
+                } else {
+                    // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
+                    // so invoke the callback to the original caller of getMessages providing the total message results
+                    callback();
+                }
+
+            }
+
+        });
+    }
+
+    /**
+     * Get messages that have been published to the network before this client was connected.
+     * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
+     * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
+     *
+     * @param {String} event The name of the event we're getting history for
+     * @param {Object} [config] The PubNub history config for this call
+     * @tutorial history
+     */
+    history(event, config = {}, done = () => {}) {
+
+        // create the event if it does not exist
+        this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+
+        // set the PubNub configured channel to this channel
+        config.channel = this.events[event].channel;
+
+        this._pageHistory(event, config, done);
+
+    }
+
+    /**
+    * Turns a {@link Chat} into a JSON representation.
+    * @return {Object}
+    */
+    objectify() {
+
+        return {
+            channel: this.channel,
+            group: this.group,
+            private: this.isPrivate
+        };
+
+    }
+
+    /**
+     * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
+     * @param {User} user The {@link User} to invite to this chatroom.
+     * @fires Me#event:$"."invite
+     * @example
+     * // one user running ChatEngine
+     * let secretChat = new ChatEngine.Chat('secret-channel');
+     * secretChat.invite(someoneElse);
+     *
+     * // someoneElse in another instance of ChatEngine
+     * me.direct.on('$.invite', (payload) => {
+            *     let secretChat = new ChatEngine.Chat(payload.data.channel);
+            * });
+     */
+    invite(user) {
+
+        let complete = () => {
+
+            let send = () => {
+
+                /**
+                 * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                 * Fired by the {@link Chat#invite} method.
+                 * @event Me#$"."invite
+                 * @tutorial private
+                 * @example
+                 * me.direct.on('$.invite', (payload) => {
+                              *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                              * });
+                 */
+                user.direct.emit('$.invite', {
+                    channel: this.channel
+                });
+
+            };
+
+            if (!user.direct.connected) {
+                user.direct.connect();
+                user.direct.on('$.connected', send);
+            } else {
+                send();
+            }
+
+        };
+
+        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
+            authKey: this.chatEngine.pnConfig.authKey,
+            uuid: user.uuid,
+            myUUID: this.chatEngine.me.uuid,
+            authData: this.chatEngine.me.authData,
+            chat: this.objectify()
+        })
+            .then(() => {
+                complete();
+            })
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            });
+
+    }
+
+    /**
+     Keep track of {@link User}s in the room by subscribing to PubNub presence events.
+
+     @private
+     @param {Object} data The PubNub presence response for this event
+     */
+    onPresence(presenceEvent) {
+
+        // make sure channel matches this channel
+        if (this.channel === presenceEvent.channel) {
+
+            // someone joins channel
+            if (presenceEvent.action === 'join') {
+
+                let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
+
+                /**
+                 * Fired when a {@link User} has joined the room.
+                 *
+                 * @event Chat#$"."online"."join
+                 * @param {Object} data The payload returned by the event
+                 * @param {User} data.user The {@link User} that came online
+                 * @example
+                 * chat.on('$.join', (data) => {
+                              *     console.log('User has joined the room!', data.user);
+                              * });
+                 */
+
+                // It's possible for PubNub to send us both a join and have the user appear in here_now
+                // Avoid firing duplicate $.online events.
+                if (!this.users[user.uuid]) {
+                    this.trigger('$.online.join', { user });
+                }
+
+            }
+
+            // someone leaves channel
+            if (presenceEvent.action === 'leave') {
+                this.userLeave(presenceEvent.uuid);
+            }
+
+            // someone timesout
+            if (presenceEvent.action === 'timeout') {
+                this.userDisconnect(presenceEvent.uuid);
+            }
+
+            // someone's state is updated
+            if (presenceEvent.action === 'state-change') {
+                this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+            }
+
+        }
+
+    }
+
+    /**
+     * @private
+     */
+    onPrep() {
+
+        if (!this.connected) {
+
+            if (!this.chatEngine.pubnub) {
+                this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+            }
+
+            // this will trigger ready callbacks
+
+            // subscribe to the PubNub channel for this Chat
+            this.chatEngine.pubnub.subscribe({
+                channels: [this.channel],
+                withPresence: true
+            });
+
+        }
+
+    }
+
+    /**
+     * @private
+     */
+    grant() {
+
+        let createChat = () => {
+
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    this.onPrep();
+                })
+                .catch((error) => {
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
+        };
+
+        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
+            globalChannel: this.chatEngine.ceConfig.globalChannel,
+            authKey: this.chatEngine.pnConfig.authKey,
+            uuid: this.chatEngine.pnConfig.uuid,
+            authData: this.chatEngine.me.authData,
+            chat: this.objectify()
+        })
+            .then(() => {
+                createChat();
+            })
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            });
+
+    }
+
+    /**
+     * Connect to PubNub servers to initialize the chat.
+     * @example
+     * // create a new chatroom, but don't connect to it automatically
+     * let chat = new Chat('some-chat', false)
+     *
+     * // connect to the chat when we feel like it
+     * chat.connect();
+     */
+    connect() {
+        this.grant();
     }
 
     /**
@@ -715,12 +705,11 @@ module.exports = class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, this.onHereNow);
+        }, this.onHereNow.bind(this));
 
         // listen to all PubNub events for this Chat
         this.chatEngine.pubnub.addListener({
-            message: this.onMessage,
-            presence: this.onPresence
+            presence: this.onPresence.bind(this)
         });
 
     }
