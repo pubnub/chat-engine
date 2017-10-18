@@ -7,9 +7,12 @@ export default (request, response) => {
     response.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE";
 
+    const requestBody = JSON.parse(request.body);
+
     let controllers = {};
 
     let reset = function() {
+        if ( isReset ) return;
         pubnub.grant({
             read: false,
             write: false,
@@ -23,11 +26,11 @@ export default (request, response) => {
                 console.log("All PAM permissions successfully reset.");
             }
         });
+
+        isReset = true;
     }
 
     let globalGrant = function(gChan, myUUID, myAuthKey) {
-
-        console.log('granting global access for', myUUID, 'permissions on ', gChan, 'for uuid', myUUID, 'with auth key', myAuthKey)
 
         let chanMeRW = [
             gChan,
@@ -72,7 +75,6 @@ export default (request, response) => {
                 response.status = 500;
                 return response.send("Internal Server Error");
             } else {
-                console.log("Global Grant Successful");
                 response.status = 200;
                 return response.send();
             }
@@ -95,39 +97,25 @@ export default (request, response) => {
         let key = ['authed', channel].join(':');
 
         return kvdb.get(key).then( ( retrievedKey ) => {
-            record = retrievedKey || [];
+            let record = retrievedKey || [];
 
             let newChannels = [channel, channel + '-pnpres'];
 
-            console.log('!!!!', channel, key, record)
-
-            console.log('forceAuth?', forceAuth)
-            console.log('in list of permissions?', (record.indexOf(uuid) > -1));
-            console.log('auth key?',  authKey)
-            console.log('people permitted in that room', record)
-            console.log(channel)
-
             if(forceAuth || !record.length || (record.indexOf(uuid) > -1 && authKey)) {
 
-            // if(!record.length || forceAuth || (record.indexOf(uuid) > -1 && authKey)) {
-
-                console.log('new grant for', uuid, authKey, 'access on channel', channel)
-
-                pubnub.grant({
+                return pubnub.grant({
                     channels: newChannels,
                     read: true, // false to disallow
                     write: true,
                     ttl: 0,
                     authKeys: [authKey]
                 }).then( ( status ) => {
-                    console.log('uuid', uuid, 'granted access to', key, 'with authkey', authKey)
 
                     if ( !status.message || status.message !== "Success" ) {
                         console.log("PAM Issue: ", status.message);
                         response.status = 500;
                     }
                     else {
-                        console.log("Global Grant Successful");
                         response.status = 200;
                     }
 
@@ -149,18 +137,16 @@ export default (request, response) => {
 
             }
             else {
-                kvdb.set( key, record, 0 )
+                return kvdb.set( key, record, 0 )
                 .then( ( storeError ) => {
                     if ( storeError ) {
                         console.log('KVStore error: ', storeError);
                         response.status = 500;
                         return response.send('Internal Server Error');
                     }
-                    else {
-                        console.log('unauthorized for that chan');
-                        response.status = 401;
-                        return response.send('Unauthorized');
-                    }
+
+                    response.status = 200;
+                    return response.send();
                 });
             }
         });
@@ -168,13 +154,12 @@ export default (request, response) => {
 
     controllers['/insecure/grant'] = {};
     controllers['/insecure/grant']['POST'] = function () {
-        if ( !request.params.channel || !request.params.uuid || !request.params.authKey) {
+        if ( !requestBody.channel || !requestBody.uuid || !requestBody.authKey) {
             response.status = 422;
-            return response.send('Missing "uuid" from request parameters'); 
+            return response.send('Missing property from request parameters'); 
         }
 
-        console.log('doing global grant')
-        return globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
+        return globalGrant(requestBody.channel, requestBody.uuid, requestBody.authKey);
 
     };
 
@@ -212,11 +197,7 @@ export default (request, response) => {
                 },
             ];
 
-            console.log('uuid found as', request.params.uuid);
-
             let chats = fixed.concat(myPublicChats);
-
-            console.log('my chats found as', chats)
 
             response.status = 200;
             return response.send(chats);
@@ -225,23 +206,22 @@ export default (request, response) => {
 
     // new chat
     controllers['/insecure/chats']['POST'] = function () {
-        if ( !request.body.uuid || !request.body.chat || !request.body.chat.channel) {
+        if ( !requestBody.uuid || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
         }
 
-        let key = ['session', request.body.uuid].join(':');
-        let newChannel = [request.body.globalChannel, 'user', request.body.uuid, 'write.', 'direct'].join('#');
+        let key = ['session', requestBody.uuid].join(':');
+        let newChannel = [requestBody.globalChannel, 'user', requestBody.uuid, 'write.', 'direct'].join('#');
         return kvdb.get(key).then( ( chats ) => {
             chats = chats || [];
             // if the client says this is public, add them to the list of public chats for this user
 
             // logic goes here to tell if user can create this specific chat
-            console.log('new chat created on behalf of ', request.body.uuid, request.body.authKey, 'for channel', request.body.chat.channel, 'privatE?', request.body.chat.private);
 
-            let indexInChats = chats.findIndex( chat => chat.channel === request.body.chat.channel );
+            let indexInChats = chats.findIndex( chat => chat.channel === requestBody.chat.channel );
             if ( indexInChats === -1 ) {
-                chats.push(request.body.chat);
+                chats.push(requestBody.chat);
             }
 
             return kvdb.set( key, chats, 0 );
@@ -257,7 +237,7 @@ export default (request, response) => {
                     channel: newChannel,
                     message: {
                         event: '$.server.chat.created',
-                        chat: request.body.chat
+                        chat: requestBody.chat
                     }
                 });
 
@@ -268,18 +248,18 @@ export default (request, response) => {
     };
 
     controllers['/insecure/chats']['DELETE'] = function () {
-        if ( !request.body.uuid || !request.body.globalChannel || !request.body.chat || !request.body.chat.channel) {
+        if ( !requestBody.uuid || !requestBody.globalChannel || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
         }
 
-        let key = ['session', request.body.uuid].join(':');
-        let channelToDelete = [request.body.globalChannel, 'user', request.body.uuid, 'write.', 'direct'].join('#');
+        let key = ['session', requestBody.uuid].join(':');
+        let channelToDelete = [requestBody.globalChannel, 'user', requestBody.uuid, 'write.', 'direct'].join('#');
 
         return kvdb.get(key).then( ( chats ) => {
             chats = chats || [];
 
-            let indexInChats = chats.findIndex( chat => chat.channel === request.body.chat.channel );
+            let indexInChats = chats.findIndex( chat => chat.channel === requestBody.chat.channel );
             if ( indexInChats !== -1 ) {
                 chats.splice(indexInChats, 1);
             }
@@ -299,7 +279,7 @@ export default (request, response) => {
                     channel: channelToDelete,
                     message: {
                         event: '$.server.chat.deleted',
-                        chat: request.body.chat
+                        chat: requestBody.chat
                     }
                 });
 
@@ -309,17 +289,17 @@ export default (request, response) => {
         });
     };
 
-    controllers['/insecure/chats/grant'] = {};
-    controllers['/insecure/chats/grant']['POST'] = function () {
+    controllers['/insecure/chat/grant'] = {};
+    controllers['/insecure/chat/grant']['POST'] = function () {
 
-        if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
+        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
         }
 
-        if ( request.body.chat.private ) {
+        if ( requestBody.chat.private ) {
 
-            return authUser(request.body.uuid, request.body.authKey, request.body.chat.channel, false);
+            return authUser(requestBody.uuid, requestBody.authKey, requestBody.chat.channel, false);
 
         } else {
             response.status = 200;
@@ -334,13 +314,13 @@ export default (request, response) => {
         // you can only invite if you're in the channel
         // grants the user permission in the channel
 
-        if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
+        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
         }
 
         // grants, grants, grants, grants, grants grants, grants everybody!
-        return authUser(request.body.uuid, db['authkeys:' + request.body.uuid], request.body.chat.channel, true);
+        return authUser(requestBody.uuid, db['authkeys:' + requestBody.uuid], requestBody.chat.channel, true);
 
     };
 
@@ -350,15 +330,15 @@ export default (request, response) => {
     controllers['/test'] = {};
     controllers['/test']['POST'] = function () {
 
-        if ( !request.body.uuid || !request.body.authKey || !request.body.chat || !request.body.chat.channel) {
+        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
         }
 
-        if(request.body.authKey === 'open-sesame') {
+        if(requestBody.authKey === 'open-sesame') {
 
             // grants everybody!
-            return globalGrant(request.body.channel, request.body.uuid, request.body.authKey);
+            return globalGrant(requestBody.channel, requestBody.uuid, requestBody.authKey);
 
         } else {
             response.status = 401;
@@ -368,7 +348,7 @@ export default (request, response) => {
     };
 
     // Reset all PAM permissions
-    reset();
+    // reset();
 
     // Choose route based on request.params and request.method
     // Execute the controller function in the controllers object
