@@ -22,6 +22,10 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
+        /**
+         * Stores a map of {@link Chat} objects that this {@link Me} has joined across all clients.
+         * @type {Object}
+         */
         this.session = {};
 
         this.direct.on('$.server.chat.created', (payload) => {
@@ -88,7 +92,7 @@ class Me extends User {
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
             * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            * @event ChatEngine#$"."session"."chat"."join
+            * @event Me#$"."session"."chat"."join
             */
             this.trigger('$.session.chat.join', {
                 chat: this.session[chat.group][chat.channel]
@@ -109,7 +113,7 @@ class Me extends User {
 
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-            * @event ChatEngine#$"."session"."chat"."leave
+            * @event Me#$"."session"."chat"."leave
             */
             this.trigger('$.session.chat.leave', {
                 chat: targetChat
