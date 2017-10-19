@@ -6,12 +6,13 @@ const eachSeries = require('async/eachSeries');
 
  Not recommended to be constructed on it's own. Instead, call {@link Chat#search}.
 
+ @class Search
  @extends Emitter
  @param chatEngine
  @param chat
  @param config
  */
-module.exports = class Search extends Emitter {
+class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {
 
@@ -222,3 +223,5 @@ module.exports = class Search extends Emitter {
     }
 
 };
+
+module.exports = Search;

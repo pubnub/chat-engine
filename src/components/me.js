@@ -10,7 +10,7 @@ const User = require('./user');
  @param {String} uuid The uuid of this user
  @extends User
  */
-module.exports = class Me extends User {
+class Me extends User {
 
     constructor(chatEngine, uuid, authData) {
 
@@ -126,3 +126,5 @@ module.exports = class Me extends User {
     }
 
 };
+
+module.exports = Me;

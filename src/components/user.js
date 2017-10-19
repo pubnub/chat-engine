@@ -1,17 +1,15 @@
 const axios = require('axios');
-
 const Emitter = require('../modules/emitter');
 
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
  If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
- @class
+ @class User
  @extends Emitter
  @param uuid
  @param state
- @param chat
  */
-module.exports = class User extends Emitter {
+class User extends Emitter {
 
     constructor(chatEngine, uuid, state = {}) {
 
@@ -132,3 +130,4 @@ module.exports = class User extends Emitter {
     }
 
 };
+module.exports = User;
