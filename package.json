@@ -34,6 +34,7 @@
     "gulp": "^3.9.1",
     "gulp-eslint": "^4.0.0",
     "gulp-istanbul": "^1.1.2",
+    "gulp-jsdoc3": "^1.0.1",
     "gulp-mocha": "^3.0.1",
     "gulp-uglify": "^2.0.0",
     "isparta": "^4.0.0",
