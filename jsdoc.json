@@ -1,14 +1,14 @@
 {
     "opts": {
-        "template": "./_docs/docdash",  // same as -t templates/default
-        "destination": "./docs/",          // same as -d ./out/
-        "recurse": true,                  // same as -r
-        "tutorials": "./guide/", // same as -u path/to/tutorials
+        "template": "./_docs/docdash",
+        "destination": "./docs/",
+        "recurse": true,
+        "tutorials": "./guide/",
         "readme": "./README.md"
     },
     "docdash": {
-        "static": true,  // Display the static members inside the navbar
-        "sort": true     // Sort the methods in the navbar
+        "static": true,
+        "sort": true
     },
     "tags": {
         "allowUnknownTags": true,

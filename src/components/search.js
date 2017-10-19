@@ -65,9 +65,6 @@ class Search extends Emitter {
         /**
          * Call PubNub history in a loop.
          * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
-         * @param  {[type]}   args     [description]
-         * @param  {Function} callback [description]
-         * @return {[type]}            [description]
          * @private
          */
         this.page = (pageDone) => {

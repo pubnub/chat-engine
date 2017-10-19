@@ -6,12 +6,14 @@ const istanbul = require('gulp-istanbul');
 const isparta = require('isparta');
 const runSequence = require('run-sequence');
 const webpack = require('webpack-stream');
+const jsdoc = require('gulp-jsdoc3');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
 
 // task
 gulp.task('compile', () => {
+    runSequence('docs');
     return gulp.src('src/index.js')
         .pipe(webpack(require('./webpack.config.js')))
         .pipe(gulp.dest('./dist/latest/'))
@@ -53,6 +55,12 @@ gulp.task('test', () => {
     runSequence('pre-test', 'run_tests', 'validate', () => {
         process.exit();
     });
+});
+
+gulp.task('docs', (cb) => {
+    let config = require('./jsdoc.json');
+    gulp.src(sourceFiles, { read: false })
+        .pipe(jsdoc(config, cb));
 });
 
 gulp.task('watch', () => {
