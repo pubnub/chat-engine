@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>modules/emitter.js - PubNub ChatEngine</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Guides</h3><ul><li data-sidebar="getting-started"><a href="tutorial-getting-started.html">Get Started</a><ul><li data-sidebar="install"><a href="tutorial-install.html">Install ChatEngine</a></li><li data-sidebar="pubnub"><a href="tutorial-pubnub.html">Configure ChatEngine</a></li><li data-sidebar="quick"><a href="tutorial-quick.html">Quick Start Guide</a></li></ul></li><li data-sidebar="concepts"><a href="tutorial-concepts.html">Concepts</a><ul><li data-sidebar="me"><a href="tutorial-me_.html">Me</a></li><li data-sidebar="users"><a href="tutorial-users.html">Users and State</a></li><li data-sidebar="chats"><a href="tutorial-chats.html">Chats</a></li><li data-sidebar="events"><a href="tutorial-events.html">Events</a></li><li data-sidebar="namespaces"><a href="tutorial-namespaces.html">Namespaces</a></li><li data-sidebar="wildcard"><a href="tutorial-wildcard.html">Wildcards</a></li><li data-sidebar="payload"><a href="tutorial-payload.html">Event Payload</a></li><li data-sidebar="history"><a href="tutorial-history.html">History</a></li><li data-sidebar="globalChat"><a href="tutorial-globalChat.html">Global Chat</a></li><li data-sidebar="online-list"><a href="tutorial-online-list.html">Online List</a></li><li data-sidebar="auth"><a href="tutorial-auth.html">Authentication</a></li><li data-sidebar="privacy"><a href="tutorial-privacy.html">Privacy</a></li><li data-sidebar="private"><a href="tutorial-private.html">Private Chats</a></li><li data-sidebar="templating"><a href="tutorial-templating.html">Templating</a></li><li data-sidebar="errors"><a href="tutorial-errors.html">Errors</a></li><li data-sidebar="using"><a href="tutorial-using.html">Plugins</a></li><li data-sidebar="build"><a href="tutorial-build.html">Build a Plugin</a></li><li data-sidebar="functions"><a href="tutorial-functions.html">PubNub Functions</a></li><li data-sidebar="topology"><a href="tutorial-topology.html">PubNub Channel Topology</a></li></ul></li><li data-sidebar="angular"><a href="tutorial-angular.html">Angular</a><ul><li data-sidebar="ng-simple"><a href="tutorial-ng-simple.html">Angular Bootstrap</a></li><li data-sidebar="ng-flowtron"><a href="tutorial-ng-flowtron.html">Angular Desktop Chat</a></li></ul></li><li data-sidebar="jquery"><a href="tutorial-jquery.html">jQuery</a><ul><li data-sidebar="jq-simple"><a href="tutorial-jq-simple.html">jQuery Chat</a></li><li data-sidebar="jq-kitchen"><a href="tutorial-jq-kitchen.html">jQuery Kitchen Sink</a></li></ul></li><li data-sidebar="js"><a href="tutorial-js.html">Javascript</a><ul><li data-sidebar="chat"><a href="tutorial-chat_.html">JS Chat</a></li><li data-sidebar="friends"><a href="tutorial-friends.html">JS Friends List</a></li><li data-sidebar="online"><a href="tutorial-online.html">JS Online List</a></li><li data-sidebar="facebook"><a href="tutorial-facebook.html">JS Facebook Auth</a></li></ul></li><li data-sidebar="nodejs"><a href="tutorial-nodejs.html">NodeJS</a><ul><li data-sidebar="chatbot"><a href="tutorial-chatbot.html">NodeJS Chat Bot</a></li></ul></li><li data-sidebar="react"><a href="tutorial-react.html">React</a><ul><li data-sidebar="react-simple"><a href="tutorial-react-simple.html">React Web</a></li><li data-sidebar="react-native"><a href="tutorial-react-native.html">React Native</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatEngineCore">ChatEngineCore</a></li></ul><h3>Reference</h3><ul><li data-sidebar="Chat"><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="Chat.html#channel">channel</a></li><li data-type='member'><a href="Chat.html#connected">connected</a></li><li data-type='member'><a href="Chat.html#group">group</a></li><li data-type='member'><a href="Chat.html#isPrivate">isPrivate</a></li><li data-type='member'><a href="Chat.html#users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="Chat.html#connect">connect()</a></li><li data-type='method'><a href="Chat.html#emit">emit()</a></li><li data-type='method'><a href="Chat.html#invite">invite()</a></li><li data-type='method'><a href="Chat.html#leave">leave()</a></li><li data-type='method'><a href="Chat.html#objectify">objectify()</a></li><li data-type='method'><a href="Chat.html#search">search()</a></li></ul><ul class='events'><li data-type='event'><a href="Chat.html#event:$%2522.%2522connected">$.connected</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522history">$.error.history</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522presence">$.error.presence</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522publish">$.error.publish</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect">$.offline.disconnect</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave">$.offline.leave</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522here">$.online.here</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522join">$.online.join</a></li></ul></li><li data-sidebar="ChatEngine"><a href="ChatEngine.html">ChatEngine</a><ul class='members'><li data-type='member'><a href="ChatEngine.html#.Chat">Chat</a></li><li data-type='member'><a href="ChatEngine.html#.chats">chats</a></li><li data-type='member'><a href="ChatEngine.html#.global">global</a></li><li data-type='member'><a href="ChatEngine.html#.me">me</a></li><li data-type='member'><a href="ChatEngine.html#.pubnub">pubnub</a></li><li data-type='member'><a href="ChatEngine.html#.ready">ready</a></li><li data-type='member'><a href="ChatEngine.html#.User">User</a></li><li data-type='member'><a href="ChatEngine.html#.users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="ChatEngine.html#connect">connect()</a></li></ul><ul class='events'><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522auth">$.error.auth</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522session">$.error.session</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522badrequest">$.network.down.badrequest</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522decryption">$.network.down.decryption</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522denied">$.network.down.denied</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522issue">$.network.down.issue</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522malformed">$.network.down.malformed</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522offline">$.network.down.offline</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522timeout">$.network.down.timeout</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522connected">$.network.up.connected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522online">$.network.up.online</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522reconnected">$.network.up.reconnected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522state">$.state</a></li></ul></li><li data-sidebar="Emitter"><a href="Emitter.html">Emitter</a><ul class='members'></ul></li><li data-sidebar="Event"><a href="Event.html">Event</a><ul class='members'><li data-type='member'><a href="Event.html#channel">channel</a></li></ul></li><li data-sidebar="Me"><a href="Me.html">Me</a><ul class='members'><li data-type='member'><a href="Me.html#direct">direct</a></li><li data-type='member'><a href="Me.html#feed">feed</a></li><li data-type='member'><a href="Me.html#session">session</a></li><li data-type='member'><a href="Me.html#state">state</a></li><li data-type='member'><a href="Me.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="Me.html#update">update()</a></li></ul><ul class='events'><li data-type='event'><a href="Me.html#event:$%2522.%2522invite">$.invite</a></li><li data-type='event'><a href="Me.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522join">$.session.chat.join</a></li><li data-type='event'><a href="Me.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522leave">$.session.chat.leave</a></li></ul></li><li data-sidebar="RootEmitter"><a href="RootEmitter.html">RootEmitter</a><ul class='members'></ul></li><li data-sidebar="Search"><a href="Search.html">Search</a><ul class='members'><li data-type='member'><a href="Search.html#chat">chat</a></li><li data-type='member'><a href="Search.html#name">name</a></li><li data-type='member'><a href="Search.html#needleCount">needleCount</a></li></ul><ul class='events'><li data-type='event'><a href="Search.html#event:$%2522.%2522finish">$.finish</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522page%2522.%2522request">$.page.request</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522page%2522.%2522response">$.page.response</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522start">$.start</a></li></ul></li><li data-sidebar="User"><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="User.html#direct">direct</a></li><li data-type='member'><a href="User.html#feed">feed</a></li><li data-type='member'><a href="User.html#state">state</a></li><li data-type='member'><a href="User.html#uuid">uuid</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">modules/emitter.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const waterfall = require('async/waterfall');
+const RootEmitter = require('./root_emitter');
+const Event = require('../components/event');
+// const User = require('../components/user');
+
+/**
+ An ChatEngine generic emitter that supports plugins and forwards
+ events to the root emitter.
+ @class Emitter
+ @extends RootEmitter
+ */
+module.exports = class Emitter extends RootEmitter {
+
+    constructor(chatEngine) {
+
+        super();
+
+        this.chatEngine = chatEngine;
+
+        this.name = 'Emitter';
+
+        /**
+         Stores a list of plugins bound to this object
+         @private
+         */
+        this.plugins = [];
+
+        /**
+         Emit events locally.
+
+         @private
+         @param {String} event The event payload object
+         */
+        this._emit = (event, data = {}) => {
+
+            // all events are forwarded to ChatEngine object
+            // so you can globally bind to events with ChatEngine.on()
+            this.chatEngine._emit(event, data, this);
+
+            // emit the event from the object that created it
+            this.emitter.emit(event, data);
+
+            return this;
+
+        };
+
+        /**
+         * Listen for a specific event and fire a callback when it's emitted. Supports wildcard matching.
+         * @method
+         * @param {String} event The event name
+         * @param {Function} cb The function to run when the event is emitted
+         * @example
+         *
+         * // Get notified whenever someone joins the room
+         * object.on('event', (payload) => {
+                *     console.log('event was fired').
+                * })
+         *
+         * // Get notified of event.a and event.b
+         * object.on('event.*', (payload) => {
+                *     console.log('event.a or event.b was fired').;
+                * })
+         */
+        this.on = (event, cb) => {
+
+            // keep track of all events on this emitter
+            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+
+            // call the private _on property
+            this._on(event, cb);
+
+            return this;
+
+        };
+
+    }
+
+    // add an object as a subobject under a namespoace
+    addChild(childName, childOb) {
+
+        // assign the new child object as a property of parent under the
+        // given namespace
+        this[childName] = childOb;
+
+        // the new object can use ```this.parent``` to access
+        // the root class
+        childOb.parent = this;
+
+    }
+
+    /**
+     Binds a plugin to this object
+     @param {Object} module The plugin module
+     */
+    plugin(module) {
+
+        // add this plugin to a list of plugins for this object
+        this.plugins.push(module);
+
+        // see if there are plugins to attach to this class
+        if (module.extends &amp;&amp; module.extends[this.name]) {
+
+            // attach the plugins to this class
+            // under their namespace
+            this.addChild(module.namespace, new module.extends[this.name]());
+
+            this[module.namespace].ChatEngine = this.chatEngine;
+
+            // if the plugin has a special construct function
+            // run it
+            if (this[module.namespace].construct) {
+                this[module.namespace].construct();
+            }
+
+        }
+
+        return this;
+
+    }
+
+    bindProtoPlugins() {
+
+        if (this.chatEngine.protoPlugins[this.name]) {
+
+            this.chatEngine.protoPlugins[this.name].forEach((module) => {
+                this.plugin(module);
+            });
+
+        }
+
+    }
+
+    /**
+     Broadcasts an event locally to all listeners.
+     @private
+     @param {String} event The event name
+     @param {Object} payload The event payload object
+     */
+    trigger(event, payload, done = () => {}) {
+
+        let complete = () => {
+
+            // let plugins modify the event
+            this.runPluginQueue('on', event, (next) => {
+                next(null, payload);
+            }, (reject, pluginResponse) => {
+
+                if (reject) {
+                    done(reject);
+                } else {
+                    // emit this event to any listener
+                    this._emit(event, pluginResponse);
+                    done(null, event, pluginResponse);
+                }
+
+            });
+
+        };
+
+        // this can be made into plugin
+        if (typeof payload === 'object') {
+
+            // restore chat in payload
+            if (!payload.chat) {
+                payload.chat = this;
+            }
+
+            // if we should try to restore the sender property
+            if (payload.sender) {
+
+                // this use already exists in memory
+                if (this.chatEngine.users[payload.sender] &amp;&amp; this.chatEngine.users[payload.sender]._hasState()) {
+                    payload.sender = this.chatEngine.users[payload.sender];
+                    complete();
+                } else {
+
+                    let User = require('../components/user');
+
+                    // the user doesn't exist, create it
+                    payload.sender = new User(this.chatEngine, payload.sender);
+
+                    // try to get stored state from server
+                    payload.sender._getState(this, () => {
+                        complete();
+                    });
+
+                }
+
+            } else {
+                // there's no "sender" in this object, move on
+                complete();
+            }
+
+        } else {
+            // payload is not an object, we want nothing to do with it.
+            complete();
+        }
+    }
+
+    /**
+     Load plugins and attach a queue of functions to execute before and
+     after events are trigger or received.
+
+     @private
+     @param {String} location Where in the middleeware the event should run (emit, trigger)
+     @param {String} event The event name
+     @param {String} first The first function to run before the plugins have run
+     @param {String} last The last function to run after the plugins have run
+     */
+    runPluginQueue(location, event, first, last) {
+
+        // this assembles a queue of functions to run as middleware
+        // event is a triggered event key
+        let pluginQueue = [];
+
+        // the first function is always required
+        pluginQueue.push(first);
+
+        // look through the configured plugins
+        this.plugins.forEach((pluginItem) => {
+
+            // if they have defined a function to run specifically
+            // for this event
+            if (pluginItem.middleware &amp;&amp; pluginItem.middleware[location]) {
+
+                if (pluginItem.middleware[location][event]) {
+                    // add the function to the queue
+                    pluginQueue.push(pluginItem.middleware[location][event]);
+                }
+
+                if (pluginItem.middleware[location]['*']) {
+                    // add the function to the queue
+                    pluginQueue.push(pluginItem.middleware[location]['*']);
+                }
+
+            }
+
+        });
+
+        // waterfall runs the functions in assigned order
+        // waiting for one to complete before moving to the next
+        // when it's done, the ```last``` parameter is called
+        waterfall(pluginQueue, last);
+
+    }
+
+    onConstructed() {
+
+        this.bindProtoPlugins();
+        this.trigger(['$', 'created', this.name.toLowerCase()].join('.'));
+
+    }
+
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Thu Oct 19 2017 19:08:48 GMT-0500 (CDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

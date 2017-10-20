@@ -12,6 +12,16 @@ const path = require('path');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
+let pluginFiles = [
+    '../chat-engine-uploadcare/src/plugin.js',
+    '../chat-engine-typing-indicator/src/plugin.js',
+    '../chat-engine-desktop-notifications/src/plugin.js',
+    '../chat-engine-emoji/src/plugin.js',
+    '../chat-engine-random-username/src/plugin.js',
+    '../chat-engine-unread-messages/src/plugin.js',
+    '../chat-engine-gravatar/src/plugin.js',
+    '../chat-engine-markdown/src/plugin.js',
+    '../chat-engine-online-user-search/src/plugin.js'];
 
 // task
 gulp.task('compile', () => {
@@ -61,7 +71,7 @@ gulp.task('test', () => {
 
 gulp.task('docs', (cb) => {
     let config = require('./jsdoc.json');
-    gulp.src(sourceFiles, { read: false })
+    gulp.src(sourceFiles.concat(pluginFiles), { read: false })
         .pipe(jsdoc(config, cb));
 });
 

@@ -14,27 +14,6 @@
         "allowUnknownTags": true,
         "dictionaries": ["jsdoc","closure"]
     },
-    "source": {
-        "include": [
-            "src/index.js",
-            "src/bootstrap.js",
-            "src/components/chat.js",
-            "src/components/event.js",
-            "src/components/me.js",
-            "src/components/user.js",
-            "src/modules/emitter.js",
-            "src/modules/root_emitter.js",
-            "../chat-engine-uploadcare/src/plugin.js",
-            "../chat-engine-typing-indicator/src/plugin.js",
-            "../chat-engine-desktop-notifications/src/plugin.js",
-            "../chat-engine-emoji/src/plugin.js",
-            "../chat-engine-random-username/src/plugin.js",
-            "../chat-engine-unread-messages/src/plugin.js",
-            "../chat-engine-gravatar/src/plugin.js",
-            "../chat-engine-markdown/src/plugin.js",
-            "../chat-engine-online-user-search/src/plugin.js"
-        ]
-    },
     "plugins": [
         "plugins/markdown",
         "./_docs/doc_plugins/ceextend.js",
