@@ -25,7 +25,6 @@ let pluginFiles = [
 
 // task
 gulp.task('compile', () => {
-    runSequence('docs');
     return gulp.src('src/index.js')
         .pipe(webpack(require('./webpack.config.js')))
         .pipe(gulp.dest('./dist/latest/'))
@@ -69,18 +68,24 @@ gulp.task('test', () => {
     });
 });
 
-gulp.task('docs', (cb) => {
-    let config = require('./jsdoc.json');
-    gulp.src(sourceFiles.concat(pluginFiles), { read: false })
-        .pipe(jsdoc(config, cb));
-});
-
 gulp.task('watch', () => {
     runSequence('compile');
     gulp.watch(sourceFiles, ['compile']);
 });
 
+gulp.task('compile_docs', (cb) => {
+    let config = require('./jsdoc.json');
+    gulp.src(sourceFiles.concat(pluginFiles), { read: false })
+        .pipe(jsdoc(config, cb));
+});
+
+gulp.task('watch_docs', (cb) => {
+    gulp.watch(sourceFiles, ['compile_docs']);
+});
+
 gulp.task('serve_docs', () => {
+
+    runSequence('compile_docs');
 
     let server = httpServer.createServer({
         root: path.join(__dirname, 'docs'),
@@ -97,5 +102,5 @@ gulp.task('serve_docs', () => {
 
 gulp.task('docs_dev', () => {
     runSequence('serve_docs');
-    runSequence('watch');
+    runSequence('watch_docs');
 });
