@@ -275,6 +275,15 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.Chat = class extends Chat {
         constructor(...args) {
             super(ChatEngine, ...args);
+
+            /**
+            Fired when a {@link Chat} has been created within ChatEngine.
+            @event ChatEngine#$"."created"."chat
+            @example
+            ChatEngine.on('$.created.chat', (data, chat) => {
+                console.log('Chat was created', chat);
+            });
+            */
             this.onConstructed();
         }
     };
@@ -292,6 +301,15 @@ module.exports = (ceConfig, pnConfig) => {
                 return ChatEngine.me;
             } else {
                 super(ChatEngine, ...args);
+
+                /**
+                Fired when a {@link User} has been created within ChatEngine.
+                @event ChatEngine#$"."created"."user
+                @example
+                ChatEngine.on('$.created.user', (data, user) => {
+                    console.log('Chat was created', user);
+                });
+                */
                 this.onConstructed();
             }
 

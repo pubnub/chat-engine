@@ -46,6 +46,11 @@ class Chat extends Emitter {
             chanPrivString = 'private.';
         }
 
+        /**
+        * The PubNub channel this Chat communicates over.
+        * @type String
+        * @readonly
+        */
         if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
@@ -625,6 +630,6 @@ class Chat extends Emitter {
 
     }
 
-};
+}
 
 module.exports = Chat;
