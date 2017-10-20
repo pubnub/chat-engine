@@ -18,5 +18,10 @@
         "plugins/markdown",
         "./_docs/doc_plugins/ceextend.js",
         "./_docs/doc_plugins/ceplugin.js"
-    ]
+    ],
+    "templates": {
+        "default": {
+            "includeDate": false
+        }
+    }
 }
