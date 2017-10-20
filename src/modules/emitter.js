@@ -9,7 +9,7 @@ const Event = require('../components/event');
  @class Emitter
  @extends RootEmitter
  */
-module.exports = class Emitter extends RootEmitter {
+class Emitter extends RootEmitter {
 
     constructor(chatEngine) {
 
@@ -251,4 +251,6 @@ module.exports = class Emitter extends RootEmitter {
 
     }
 
-};
+}
+
+module.exports = Emitter;

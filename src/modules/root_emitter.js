@@ -8,7 +8,7 @@ const EventEmitter2 = require('eventemitter2').EventEmitter2;
 * ```this.on()```, ```this.emit()```, etc.
 * @class RootEmitter
 */
-module.exports = class RootEmitter {
+class RootEmitter {
 
     constructor() {
 
@@ -140,3 +140,4 @@ module.exports = class RootEmitter {
     }
 
 };
+module.exports = RootEmitter;

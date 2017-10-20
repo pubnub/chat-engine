@@ -7,8 +7,10 @@ const User = require('./user');
  method.
 
  @class Me
- @param {String} uuid The uuid of this user
  @extends User
+ @extends Emitter
+ @extends RootEmitter
+ @param {String} uuid The uuid of this user
  */
 class Me extends User {
 

@@ -786,6 +786,7 @@ exports.publish = function(taffyData, opts, tutorials) {
         }
 
         var myClasses = helper.find(classes, {longname: longname});
+
         if (myClasses.length) {
             generate('Class', myClasses[0].name, myClasses, helper.longnameToUrl[longname]);
         }

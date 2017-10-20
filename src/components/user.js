@@ -6,6 +6,7 @@ const Emitter = require('../modules/emitter');
  If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
  @class User
  @extends Emitter
+ @extends RootEmitter
  @param uuid
  @param state
  */

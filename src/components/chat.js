@@ -14,6 +14,7 @@ const Search = require('../components/search');
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @class Chat
  @extends Emitter
+ @extends RootEmitter
  @fires Chat#$"."ready
  @fires Chat#$"."state
  @fires Chat#$"."online

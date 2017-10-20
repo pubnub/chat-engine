@@ -395,6 +395,7 @@ const Emitter = __webpack_require__(4);
  If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
  @class User
  @extends Emitter
+ @extends RootEmitter
  @param uuid
  @param state
  */
@@ -643,7 +644,7 @@ const Event = __webpack_require__(24);
  @class Emitter
  @extends RootEmitter
  */
-module.exports = class Emitter extends RootEmitter {
+class Emitter extends RootEmitter {
 
     constructor(chatEngine) {
 
@@ -885,7 +886,9 @@ module.exports = class Emitter extends RootEmitter {
 
     }
 
-};
+}
+
+module.exports = Emitter;
 
 
 /***/ }),
@@ -1442,7 +1445,7 @@ const EventEmitter2 = __webpack_require__(49).EventEmitter2;
 * ```this.on()```, ```this.emit()```, etc.
 * @class RootEmitter
 */
-module.exports = class RootEmitter {
+class RootEmitter {
 
     constructor() {
 
@@ -1574,6 +1577,7 @@ module.exports = class RootEmitter {
     }
 
 };
+module.exports = RootEmitter;
 
 
 /***/ }),
@@ -3981,6 +3985,7 @@ const Search = __webpack_require__(69);
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @class Chat
  @extends Emitter
+ @extends RootEmitter
  @fires Chat#$"."ready
  @fires Chat#$"."state
  @fires Chat#$"."online
@@ -5234,6 +5239,7 @@ const eachSeries = __webpack_require__(70);
 
  @class Search
  @extends Emitter
+ @extends RootEmitter
  @param chatEngine
  @param chat
  @param config
@@ -6294,8 +6300,10 @@ const User = __webpack_require__(1);
  method.
 
  @class Me
- @param {String} uuid The uuid of this user
  @extends User
+ @extends Emitter
+ @extends RootEmitter
+ @param {String} uuid The uuid of this user
  */
 class Me extends User {
 

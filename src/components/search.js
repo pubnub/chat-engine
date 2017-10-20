@@ -8,6 +8,7 @@ const eachSeries = require('async/eachSeries');
 
  @class Search
  @extends Emitter
+ @extends RootEmitter
  @param chatEngine
  @param chat
  @param config
