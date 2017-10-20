@@ -70,7 +70,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 28);
+/******/ 	return __webpack_require__(__webpack_require__.s = 29);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -80,8 +80,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var bind = __webpack_require__(8);
-var isBuffer = __webpack_require__(31);
+var bind = __webpack_require__(9);
+var isBuffer = __webpack_require__(32);
 
 /*global toString:true*/
 
@@ -388,18 +388,19 @@ module.exports = {
 /***/ (function(module, exports, __webpack_require__) {
 
 const axios = __webpack_require__(2);
-const Emitter = __webpack_require__(4);
+
+const Emitter = __webpack_require__(5);
 
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
  If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
- @class User
+ @class
  @extends Emitter
- @extends RootEmitter
  @param uuid
  @param state
+ @param chat
  */
-class User extends Emitter {
+module.exports = class User extends Emitter {
 
     constructor(chatEngine, uuid, state = {}) {
 
@@ -428,6 +429,8 @@ class User extends Emitter {
          */
         this.state = {};
 
+        const Chat = __webpack_require__(4);
+
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -445,7 +448,7 @@ class User extends Emitter {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
+        this.feed = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -466,7 +469,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
+        this.direct = new Chat(chatEngine, [chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -476,6 +479,8 @@ class User extends Emitter {
 
         // update this user's state in it's created context
         this.assign(state);
+
+        this.bindProtoPlugins();
 
     }
 
@@ -520,14 +525,13 @@ class User extends Emitter {
     }
 
 };
-module.exports = User;
 
 
 /***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(30);
+module.exports = __webpack_require__(31);
 
 /***/ }),
 /* 3 */
@@ -537,7 +541,7 @@ module.exports = __webpack_require__(30);
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(33);
+var normalizeHeaderName = __webpack_require__(34);
 
 var DEFAULT_CONTENT_TYPE = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -553,10 +557,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(10);
+    adapter = __webpack_require__(11);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(10);
+    adapter = __webpack_require__(11);
   }
   return adapter;
 }
@@ -627,24 +631,643 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
+const axios = __webpack_require__(2);
+
+const Emitter = __webpack_require__(5);
+const Event = __webpack_require__(25);
+const User = __webpack_require__(1);
+const Search = __webpack_require__(69);
+
+/**
+ This is the root {@link Chat} class that represents a chat room
+
+ @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
+ @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
+ @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
+ @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+ @extends Emitter
+ @fires Chat#$"."ready
+ @fires Chat#$"."state
+ @fires Chat#$"."online
+ @fires Chat#$"."offline
+ */
+module.exports = class Chat extends Emitter {
+
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
+
+        super(chatEngine);
+
+        this.chatEngine = chatEngine;
+
+        this.name = 'Chat';
+
+        /**
+         * A string identifier for the Chat room.
+         * @type String
+         * @readonly
+         * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+         */
+        this.channel = channel.toString();
+
+        // public.* has PubNub permissions for everyone to read and write
+        // private.* is totally locked down and users must be granted access one by one
+        let chanPrivString = 'public.';
+
+        if (needGrant) {
+            chanPrivString = 'private.';
+        }
+
+        if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
+            this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        }
+
+        /**
+        * Does this chat require new {@link User}s to be granted explicit access to this room?
+        * @type Boolean
+        * @readonly
+        */
+        this.isPrivate = needGrant;
+
+        /**
+        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+        * @type String
+        * @readonly
+        */
+        this.group = group;
+
+        /**
+         A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
+         Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
+
+         @type Object
+         @readonly
+         */
+        this.users = {};
+
+        /**
+         A map of {@link Event} bound to this {@link Chat}
+
+         @private
+         @type Object
+         @readonly
+         */
+        this.events = {};
+
+        /**
+         Updates list of {@link User}s in this {@link Chat}
+         based on who is online now.
+
+         @private
+         @param {Object} status The response status
+         @param {Object} response The response payload object
+         */
+        this.onHereNow = (status, response) => {
+
+            if (status.error) {
+
+                /**
+                 * There was a problem fetching the presence of this chat
+                 * @event Chat#$"."error"."presence
+                 */
+                chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
+
+            } else {
+
+                // get the list of occupants in this channel
+                let occupants = response.channels[this.channel].occupants;
+
+                // format the userList for rltm.js standard
+                occupants.forEach((occupant) => {
+                    this.userUpdate(occupant.uuid, occupant.state);
+                });
+
+            }
+
+        };
+
+        /**
+        * Turns a {@link Chat} into a JSON representation.
+        * @return {Object}
+        */
+        this.objectify = () => {
+
+            return {
+                channel: this.channel,
+                group: this.group,
+                private: this.isPrivate
+            };
+
+        };
+
+        /**
+         * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
+         * @param {User} user The {@link User} to invite to this chatroom.
+         * @fires Me#event:$"."invite
+         * @example
+         * // one user running ChatEngine
+         * let secretChat = new ChatEngine.Chat('secret-channel');
+         * secretChat.invite(someoneElse);
+         *
+         * // someoneElse in another instance of ChatEngine
+         * me.direct.on('$.invite', (payload) => {
+                *     let secretChat = new ChatEngine.Chat(payload.data.channel);
+                * });
+         */
+        this.invite = (user) => {
+
+            let complete = () => {
+
+                let send = () => {
+
+                    /**
+                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                     * Fired by the {@link Chat#invite} method.
+                     * @event Me#$"."invite
+                     * @tutorial private
+                     * @example
+                     * me.direct.on('$.invite', (payload) => {
+                                  *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                                  * });
+                     */
+                    user.direct.emit('$.invite', {
+                        channel: this.channel
+                    });
+
+                };
+
+                if (!user.direct.connected) {
+                    user.direct.connect();
+                    user.direct.on('$.connected', send);
+                } else {
+                    send();
+                }
+
+            };
+
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: user.uuid,
+                myUUID: this.chatEngine.me.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    complete();
+                })
+                .catch((error) => {
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
+
+        };
+
+        /**
+         Keep track of {@link User}s in the room by subscribing to PubNub presence events.
+
+         @private
+         @param {Object} data The PubNub presence response for this event
+         */
+        this.onPresence = (presenceEvent) => {
+
+            // make sure channel matches this channel
+            if (this.channel === presenceEvent.channel) {
+
+                // someone joins channel
+                if (presenceEvent.action === 'join') {
+
+                    let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
+
+                    /**
+                     * Fired when a {@link User} has joined the room.
+                     *
+                     * @event Chat#$"."online"."join
+                     * @param {Object} data The payload returned by the event
+                     * @param {User} data.user The {@link User} that came online
+                     * @example
+                     * chat.on('$.join', (data) => {
+                                  *     console.log('User has joined the room!', data.user);
+                                  * });
+                     */
+
+                    // It's possible for PubNub to send us both a join and have the user appear in here_now
+                    // Avoid firing duplicate $.online events.
+                    if (!this.users[user.uuid]) {
+                        this.trigger('$.online.join', { user });
+                    }
+
+                }
+
+                // someone leaves channel
+                if (presenceEvent.action === 'leave') {
+                    this.userLeave(presenceEvent.uuid);
+                }
+
+                // someone timesout
+                if (presenceEvent.action === 'timeout') {
+                    this.userDisconnect(presenceEvent.uuid);
+                }
+
+                // someone's state is updated
+                if (presenceEvent.action === 'state-change') {
+                    this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+                }
+
+            }
+
+        };
+
+        /**
+         * Boolean value that indicates of the Chat is connected to the network
+         * @type {Boolean}
+         */
+        this.connected = false;
+
+        /**
+         * @private
+         */
+        this.onPrep = () => {
+
+            if (!this.connected) {
+
+                if (!this.chatEngine.pubnub) {
+                    this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+                }
+
+                // this will trigger ready callbacks
+
+                // subscribe to the PubNub channel for this Chat
+                this.chatEngine.pubnub.subscribe({
+                    channels: [this.channel],
+                    withPresence: true
+                });
+
+            }
+
+        };
+
+        /**
+         * @private
+         */
+        this.grant = () => {
+
+            let createChat = () => {
+
+                axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
+                    globalChannel: this.chatEngine.ceConfig.globalChannel,
+                    authKey: this.chatEngine.pnConfig.authKey,
+                    uuid: this.chatEngine.pnConfig.uuid,
+                    authData: this.chatEngine.me.authData,
+                    chat: this.objectify()
+                })
+                    .then(() => {
+                        this.onPrep();
+                    })
+                    .catch((error) => {
+                        this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                    });
+            };
+
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    createChat();
+                })
+                .catch((error) => {
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
+
+        };
+
+        /**
+         * Connect to PubNub servers to initialize the chat.
+         * @example
+         * // create a new chatroom, but don't connect to it automatically
+         * let chat = new Chat('some-chat', false)
+         *
+         * // connect to the chat when we feel like it
+         * chat.connect();
+         */
+        this.connect = () => {
+            this.grant();
+        };
+
+        if (autoConnect) {
+            this.connect();
+        }
+
+        this.chatEngine.chats[this.channel] = this;
+
+        this.bindProtoPlugins();
+
+    }
+
+    /**
+     * Send events to other clients in this {@link User}.
+     * Events are trigger over the network  and all events are made
+     * on behalf of {@link Me}
+     *
+     * @param {String} event The event name
+     * @param {Object} data The event payload object
+     * @example
+     * chat.emit('custom-event', {value: true});
+     * chat.on('custom-event', (payload) => {
+          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
+          * });
+     */
+    emit(event, data) {
+
+        // create a standardized payload object
+        let payload = {
+            data, // the data supplied from params
+            sender: this.chatEngine.me.uuid, // my own uuid
+            chat: this, // an instance of this chat
+        };
+
+        // run the plugin queue to modify the event
+        this.runPluginQueue('emit', event, (next) => {
+            next(null, payload);
+        }, (err, pluginResponse) => {
+
+            // remove chat otherwise it would be serialized
+            // instead, it's rebuilt on the other end.
+            // see this.trigger
+            delete pluginResponse.chat;
+
+            // publish the event and data over the configured channel
+
+            // ensure the event exists within the global space
+            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+
+            this.events[event].publish(pluginResponse);
+
+        });
+
+    }
+
+    /**
+     Add a user to the {@link Chat}, creating it if it doesn't already exist.
+
+     @private
+     @param {String} uuid The user uuid
+     @param {Object} state The user initial state
+     @param {Boolean} trigger Force a trigger that this user is online
+     */
+    createUser(uuid, state) {
+
+        // Ensure that this user exists in the global list
+        // so we can reference it from here out
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+
+        this.chatEngine.users[uuid].assign(state);
+
+        // trigger the join event over this chatroom
+        if (!this.users[uuid]) {
+
+            /**
+             * Broadcast that a {@link User} has come online. This is when
+             * the framework firsts learn of a user. This can be triggered
+             * by, ```$.join```, or other network events that
+             * notify the framework of a new user.
+             *
+             * @event Chat#$"."online"."here
+             * @param {Object} data The payload returned by the event
+             * @param {User} data.user The {@link User} that came online
+             * @example
+             * chat.on('$.online.here', (data) => {
+                      *     console.log('User has come online:', data.user);
+                      * });
+             */
+
+            this.trigger('$.online.here', {
+                user: this.chatEngine.users[uuid]
+            });
+
+        }
+
+        // store this user in the chatroom
+        this.users[uuid] = this.chatEngine.users[uuid];
+
+        // return the instance of this user
+        return this.chatEngine.users[uuid];
+
+    }
+
+    /**
+     * Update a user's state.
+     * @private
+     * @param {String} uuid The {@link User} uuid
+     * @param {Object} state State to update for the user
+     */
+    userUpdate(uuid, state) {
+
+        // ensure the user exists within the global space
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+
+        // if we don't know about this user
+        if (!this.users[uuid]) {
+            // do the whole join thing
+            this.createUser(uuid, state);
+        }
+
+        // update this user's state in this chatroom
+        this.users[uuid].assign(state);
+
+        /**
+         * Broadcast that a {@link User} has changed state.
+         * @event ChatEngine#$"."state
+         * @param {Object} data The payload returned by the event
+         * @param {User} data.user The {@link User} that changed state
+         * @param {Object} data.state The new user state
+         * @example
+         * ChatEngine.on('$.state', (data) => {
+         *     console.log('User has changed state:', data.user, 'new state:', data.state);
+         * });
+         */
+        this.chatEngine._emit('$.state', {
+            user: this.users[uuid],
+            state: this.users[uuid].state
+        });
+
+    }
+
+    /**
+     * Leave from the {@link Chat} on behalf of {@link Me}.
+     * @fires Chat#event:$"."offline"."leave
+     * @example
+     * chat.leave();
+     */
+    leave() {
+
+        // unsubscribe from the channel locally
+        this.chatEngine.pubnub.unsubscribe({
+            channels: [this.channel]
+        });
+
+        // delete the chat in the remote list
+        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
+            data: {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            } })
+            .then(() => {})
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            });
+
+
+        this.connected = false;
+
+    }
+
+    /**
+     Perform updates when a user has left the {@link Chat}.
+
+     @private
+     */
+    userLeave(uuid) {
+
+        // make sure this event is real, user may have already left
+        if (this.users[uuid]) {
+
+            // if a user leaves, trigger the event
+
+            /**
+             * Fired when a {@link User} intentionally leaves a {@link Chat}.
+             *
+             * @event Chat#$"."offline"."leave
+             * @param {Object} data The data payload from the event
+             * @param {User} user The {@link User} that has left the room
+             * @example
+             * chat.on('$.offline.leave', (data) => {
+                      *     console.log('User left the room manually:', data.user);
+                      * });
+             */
+            this.trigger('$.offline.leave', {
+                user: this.users[uuid]
+            });
+
+            // remove the user from the local list of users
+            delete this.users[uuid];
+
+            // we don't remove the user from the global list,
+            // because they may be online in other channels
+
+        } else {
+
+            // that user isn't in the user list
+            // we never knew about this user or they already left
+
+            // console.log('user already left');
+        }
+    }
+
+    /**
+     Fired when a user disconnects from the {@link Chat}
+
+     @private
+     @param {String} uuid The uuid of the {@link Chat} that left
+     */
+    userDisconnect(uuid) {
+
+        // make sure this event is real, user may have already left
+        if (this.users[uuid]) {
+
+            /**
+             * Fired specifically when a {@link User} looses network connection
+             * to the {@link Chat} involuntarily.
+             *
+             * @event Chat#$"."offline"."disconnect
+             * @param {Object} data The {@link User} that disconnected
+             * @param {Object} data.user The {@link User} that disconnected
+             * @example
+             * chat.on('$.offline.disconnect', (data) => {
+                      *     console.log('User disconnected from the network:', data.user);
+                      * });
+             */
+
+            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
+        }
+
+    }
+
+    /**
+     Set the state for {@link Me} within this {@link User}.
+     Broadcasts the ```$.state``` event on other clients
+
+     @private
+     @param {Object} state The new state {@link Me} will have within this {@link User}
+     */
+    setState(state) {
+        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
+            // handle status, response
+        });
+    }
+
+    search(config) {
+        return new Search(this.chatEngine, this, config);
+    }
+
+    onConnectionReady() {
+
+        /**
+         * Broadcast that the {@link Chat} is connected to the network.
+         * @event Chat#$"."connected
+         * @example
+         * chat.on('$.connected', () => {
+                *     console.log('chat is ready to go!');
+                * });
+         */
+        this.trigger('$.connected');
+
+        this.connected = true;
+
+        // get a list of users online now
+        // ask PubNub for information about connected users in this channel
+        this.chatEngine.pubnub.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, this.onHereNow);
+
+        // listen to all PubNub events for this Chat
+        this.chatEngine.pubnub.addListener({
+            message: this.onMessage,
+            presence: this.onPresence
+        });
+
+    }
+
+};
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
 const waterfall = __webpack_require__(51);
-const RootEmitter = __webpack_require__(14);
-const Event = __webpack_require__(24);
+const RootEmitter = __webpack_require__(15);
+const Event = __webpack_require__(25);
 // const User = require('../components/user');
 
 /**
  An ChatEngine generic emitter that supports plugins and forwards
  events to the root emitter.
- @class Emitter
  @extends RootEmitter
  */
-class Emitter extends RootEmitter {
+module.exports = class Emitter extends RootEmitter {
 
     constructor(chatEngine) {
 
@@ -655,22 +1278,16 @@ class Emitter extends RootEmitter {
         this.name = 'Emitter';
 
         /**
-         Stores a list of plugins bound to this object
-         @private
-         */
-        this.plugins = [];
-
-        /**
          Emit events locally.
 
          @private
          @param {String} event The event payload object
          */
-        this._emit = (event, data = {}) => {
+        this._emit = (event, data) => {
 
             // all events are forwarded to ChatEngine object
             // so you can globally bind to events with ChatEngine.on()
-            this.chatEngine._emit(event, data, this);
+            this.chatEngine._emit(event, data);
 
             // emit the event from the object that created it
             this.emitter.emit(event, data);
@@ -708,194 +1325,195 @@ class Emitter extends RootEmitter {
 
         };
 
-    }
+        /**
+         Stores a list of plugins bound to this object
+         @private
+         */
+        this.plugins = [];
 
-    // add an object as a subobject under a namespoace
-    addChild(childName, childOb) {
+        // add an object as a subobject under a namespoace
+        this.addChild = (ob, childName, childOb) => {
 
-        // assign the new child object as a property of parent under the
-        // given namespace
-        this[childName] = childOb;
+            // assign the new child object as a property of parent under the
+            // given namespace
+            ob[childName] = childOb;
 
-        // the new object can use ```this.parent``` to access
-        // the root class
-        childOb.parent = this;
-
-    }
-
-    /**
-     Binds a plugin to this object
-     @param {Object} module The plugin module
-     */
-    plugin(module) {
-
-        // add this plugin to a list of plugins for this object
-        this.plugins.push(module);
-
-        // see if there are plugins to attach to this class
-        if (module.extends && module.extends[this.name]) {
-
-            // attach the plugins to this class
-            // under their namespace
-            this.addChild(module.namespace, new module.extends[this.name]());
-
-            this[module.namespace].ChatEngine = this.chatEngine;
-
-            // if the plugin has a special construct function
-            // run it
-            if (this[module.namespace].construct) {
-                this[module.namespace].construct();
-            }
-
-        }
-
-        return this;
-
-    }
-
-    bindProtoPlugins() {
-
-        if (this.chatEngine.protoPlugins[this.name]) {
-
-            this.chatEngine.protoPlugins[this.name].forEach((module) => {
-                this.plugin(module);
-            });
-
-        }
-
-    }
-
-    /**
-     Broadcasts an event locally to all listeners.
-     @private
-     @param {String} event The event name
-     @param {Object} payload The event payload object
-     */
-    trigger(event, payload, done = () => {}) {
-
-        let complete = () => {
-
-            // let plugins modify the event
-            this.runPluginQueue('on', event, (next) => {
-                next(null, payload);
-            }, (reject, pluginResponse) => {
-
-                if (reject) {
-                    done(reject);
-                } else {
-                    // emit this event to any listener
-                    this._emit(event, pluginResponse);
-                    done(null, event, pluginResponse);
-                }
-
-            });
+            // the new object can use ```this.parent``` to access
+            // the root class
+            childOb.parent = ob;
 
         };
 
-        // this can be made into plugin
-        if (typeof payload === 'object') {
+        /**
+         Binds a plugin to this object
+         @param {Object} module The plugin module
+         */
+        this.plugin = (module) => {
 
-            // restore chat in payload
-            if (!payload.chat) {
-                payload.chat = this;
+            // add this plugin to a list of plugins for this object
+            this.plugins.push(module);
+
+            // see if there are plugins to attach to this class
+            if (module.extends && module.extends[this.name]) {
+
+                // attach the plugins to this class
+                // under their namespace
+                this.addChild(this, module.namespace, new module.extends[this.name]());
+
+                this[module.namespace].ChatEngine = this.chatEngine;
+
+                // if the plugin has a special construct function
+                // run it
+                if (this[module.namespace].construct) {
+                    this[module.namespace].construct();
+                }
+
             }
 
-            // if we should try to restore the sender property
-            if (payload.sender) {
+            return this;
 
-                // this use already exists in memory
-                if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._hasState()) {
-                    payload.sender = this.chatEngine.users[payload.sender];
-                    complete();
-                } else {
+        };
 
-                    let User = __webpack_require__(1);
+        this.bindProtoPlugins = () => {
 
-                    // the user doesn't exist, create it
-                    payload.sender = new User(this.chatEngine, payload.sender);
+            if (this.chatEngine.protoPlugins[this.name]) {
 
-                    // try to get stored state from server
-                    payload.sender._getState(this, () => {
+                this.chatEngine.protoPlugins[this.name].forEach((module) => {
+                    this.plugin(module);
+                });
+
+            }
+
+        };
+
+
+        /**
+         Broadcasts an event locally to all listeners.
+
+         @private
+         @param {String} event The event name
+         @param {Object} payload The event payload object
+         */
+
+        this.trigger = (event, payload, done = () => {}) => {
+
+            let complete = () => {
+
+                // let plugins modify the event
+                this.runPluginQueue('on', event, (next) => {
+                    next(null, payload);
+                }, (reject, pluginResponse) => {
+
+                    if (reject) {
+                        done(reject);
+                    } else {
+                        // emit this event to any listener
+                        this._emit(event, pluginResponse);
+                        done(null, event, pluginResponse);
+                    }
+
+                });
+
+            };
+
+            // this can be made into plugin
+            if (typeof payload === 'object') {
+
+                // restore chat in payload
+                if (!payload.chat) {
+                    payload.chat = this;
+                }
+
+                // if we should try to restore the sender property
+                if (payload.sender) {
+
+                    // this use already exists in memory
+                    if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._hasState()) {
+                        payload.sender = this.chatEngine.users[payload.sender];
                         complete();
-                    });
+                    } else {
 
+                        let User = __webpack_require__(1);
+
+                        // the user doesn't exist, create it
+                        payload.sender = new User(this.chatEngine, payload.sender);
+
+                        // try to get stored state from server
+                        payload.sender._getState(this, () => {
+                            complete();
+                        });
+
+                    }
+
+                } else {
+                    // there's no "sender" in this object, move on
+                    complete();
                 }
 
             } else {
-                // there's no "sender" in this object, move on
+                // payload is not an object, we want nothing to do with it.
                 complete();
             }
 
-        } else {
-            // payload is not an object, we want nothing to do with it.
-            complete();
-        }
-    }
+        };
 
-    /**
-     Load plugins and attach a queue of functions to execute before and
-     after events are trigger or received.
+        /**
+         Load plugins and attach a queue of functions to execute before and
+         after events are trigger or received.
 
-     @private
-     @param {String} location Where in the middleeware the event should run (emit, trigger)
-     @param {String} event The event name
-     @param {String} first The first function to run before the plugins have run
-     @param {String} last The last function to run after the plugins have run
-     */
-    runPluginQueue(location, event, first, last) {
+         @private
+         @param {String} location Where in the middleeware the event should run (emit, trigger)
+         @param {String} event The event name
+         @param {String} first The first function to run before the plugins have run
+         @param {String} last The last function to run after the plugins have run
+         */
+        this.runPluginQueue = (location, event, first, last) => {
 
-        // this assembles a queue of functions to run as middleware
-        // event is a triggered event key
-        let pluginQueue = [];
+            // this assembles a queue of functions to run as middleware
+            // event is a triggered event key
+            let pluginQueue = [];
 
-        // the first function is always required
-        pluginQueue.push(first);
+            // the first function is always required
+            pluginQueue.push(first);
 
-        // look through the configured plugins
-        this.plugins.forEach((pluginItem) => {
+            // look through the configured plugins
+            this.plugins.forEach((pluginItem) => {
 
-            // if they have defined a function to run specifically
-            // for this event
-            if (pluginItem.middleware && pluginItem.middleware[location]) {
+                // if they have defined a function to run specifically
+                // for this event
+                if (pluginItem.middleware && pluginItem.middleware[location]) {
 
-                if (pluginItem.middleware[location][event]) {
-                    // add the function to the queue
-                    pluginQueue.push(pluginItem.middleware[location][event]);
+                    if (pluginItem.middleware[location][event]) {
+                        // add the function to the queue
+                        pluginQueue.push(pluginItem.middleware[location][event]);
+                    }
+
+                    if (pluginItem.middleware[location]['*']) {
+                        // add the function to the queue
+                        pluginQueue.push(pluginItem.middleware[location]['*']);
+                    }
+
                 }
 
-                if (pluginItem.middleware[location]['*']) {
-                    // add the function to the queue
-                    pluginQueue.push(pluginItem.middleware[location]['*']);
-                }
+            });
 
-            }
+            // waterfall runs the functions in assigned order
+            // waiting for one to complete before moving to the next
+            // when it's done, the ```last``` parameter is called
+            waterfall(pluginQueue, last);
 
-        });
-
-        // waterfall runs the functions in assigned order
-        // waiting for one to complete before moving to the next
-        // when it's done, the ```last``` parameter is called
-        waterfall(pluginQueue, last);
+        };
 
     }
 
-    onConstructed() {
-
-        this.bindProtoPlugins();
-        this.trigger(['$', 'created', this.name.toLowerCase()].join('.'));
-
-    }
-
-}
-
-module.exports = Emitter;
+};
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(20),
+var Symbol = __webpack_require__(21),
     getRawTag = __webpack_require__(62),
     objectToString = __webpack_require__(63);
 
@@ -927,10 +1545,10 @@ module.exports = baseGetTag;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var freeGlobal = __webpack_require__(21);
+var freeGlobal = __webpack_require__(22);
 
 /** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -942,7 +1560,7 @@ module.exports = root;
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports) {
 
 /**
@@ -977,7 +1595,7 @@ module.exports = isObjectLike;
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -995,7 +1613,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1181,19 +1799,19 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var utils = __webpack_require__(0);
-var settle = __webpack_require__(34);
-var buildURL = __webpack_require__(36);
-var parseHeaders = __webpack_require__(37);
-var isURLSameOrigin = __webpack_require__(38);
-var createError = __webpack_require__(11);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(39);
+var settle = __webpack_require__(35);
+var buildURL = __webpack_require__(37);
+var parseHeaders = __webpack_require__(38);
+var isURLSameOrigin = __webpack_require__(39);
+var createError = __webpack_require__(12);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(40);
 
 module.exports = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -1290,7 +1908,7 @@ module.exports = function xhrAdapter(config) {
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
     if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(40);
+      var cookies = __webpack_require__(41);
 
       // Add xsrf header
       var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -1366,16 +1984,16 @@ module.exports = function xhrAdapter(config) {
   });
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var enhanceError = __webpack_require__(35);
+var enhanceError = __webpack_require__(36);
 
 /**
  * Create an Error with the specified message, config, error code, request and response.
@@ -1394,7 +2012,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1406,7 +2024,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1432,20 +2050,19 @@ module.exports = Cancel;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
 // Allows us to create and bind to events. Everything in ChatEngine is an event
 // emitter
-const EventEmitter2 = __webpack_require__(49).EventEmitter2;
+const EventEmitter2 = __webpack_require__(50).EventEmitter2;
 
 /**
 * The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
 * ```this.on()```, ```this.emit()```, etc.
-* @class RootEmitter
 */
-class RootEmitter {
+module.exports = class RootEmitter {
 
     constructor() {
 
@@ -1577,11 +2194,10 @@ class RootEmitter {
     }
 
 };
-module.exports = RootEmitter;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports) {
 
 /**
@@ -1613,7 +2229,7 @@ module.exports = isArray;
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 /**
@@ -1636,7 +2252,7 @@ module.exports = noop;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1657,7 +2273,7 @@ function once(fn) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 /**
@@ -1684,11 +2300,11 @@ module.exports = identity;
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(5),
-    isObject = __webpack_require__(22);
+var baseGetTag = __webpack_require__(6),
+    isObject = __webpack_require__(23);
 
 /** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]',
@@ -1727,10 +2343,10 @@ module.exports = isFunction;
 
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var root = __webpack_require__(6);
+var root = __webpack_require__(7);
 
 /** Built-in value references. */
 var Symbol = root.Symbol;
@@ -1739,7 +2355,7 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -1750,7 +2366,7 @@ module.exports = freeGlobal;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(61)))
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports) {
 
 /**
@@ -1787,7 +2403,7 @@ module.exports = isObject;
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1808,14 +2424,13 @@ function onlyOnce(fn) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports) {
 
 /**
- * @class Event
- * Represents an event that may be emitted or subscribed to.
+ Represents an event that may be emitted or subscribed to.
  */
-class Event {
+module.exports = class Event {
 
     constructor(chatEngine, chat, event) {
 
@@ -1830,11 +2445,36 @@ class Event {
 
         this.chatEngine = chatEngine;
 
-        this.chat = chat;
-
-        this.event = event;
-
         this.name = 'Event';
+        /**
+         Publishes the event over the PubNub network to the {@link Event} channel
+
+         @private
+         @param {Object} data The event payload object
+         */
+        this.publish = (m) => {
+
+            m.event = event;
+
+            this.chatEngine.pubnub.publish({
+                message: m,
+                channel: this.channel
+            }, (status) => {
+
+                if (status.statusCode === 200) {
+                    chat.trigger('$.publish.success');
+                } else {
+
+                    /**
+                     * There was a problem publishing over the PubNub network.
+                     * @event Chat#$"."error"."publish
+                     */
+                    this.chatEngine.throwError(chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
+                }
+
+            });
+
+        };
 
         /**
          Forwards events to the Chat that registered the event {@link Chat}
@@ -1842,63 +2482,30 @@ class Event {
          @private
          @param {Object} data The event payload object
          */
+        this.onMessage = (m) => {
+
+            if (this.channel === m.channel && m.message.event === event) {
+                chat.trigger(m.message.event, m.message);
+            }
+
+        };
 
         // call onMessage when PubNub receives an event
         this.chatEngine.pubnub.addListener({
-            message: this.onMessage.bind(this)
-        });
-
-    }
-
-    onMessage(m) {
-
-        if (this.channel === m.channel && m.message.event === this.event) {
-            this.chat.trigger(m.message.event, m.message);
-        }
-
-    }
-
-    /**
-     Publishes the event over the PubNub network to the {@link Event} channel
-
-     @private
-     @param {Object} data The event payload object
-     */
-    publish(m) {
-
-        m.event = this.event;
-
-        this.chatEngine.pubnub.publish({
-            message: m,
-            channel: this.channel
-        }, (status) => {
-
-            if (status.statusCode === 200) {
-                this.chat.trigger('$.publish.success');
-            } else {
-
-                /**
-                 * There was a problem publishing over the PubNub network.
-                 * @event Chat#$"."error"."publish
-                 */
-                this.chatEngine.throwError(this.chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
-            }
-
+            message: this.onMessage
         });
 
     }
 
 };
 
-module.exports = Event;
-
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isFunction = __webpack_require__(19),
-    isLength = __webpack_require__(26);
+var isFunction = __webpack_require__(20),
+    isLength = __webpack_require__(27);
 
 /**
  * Checks if `value` is array-like. A value is considered array-like if it's
@@ -1933,7 +2540,7 @@ module.exports = isArrayLike;
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports) {
 
 /** Used as references for various `Number` constants. */
@@ -1974,7 +2581,7 @@ module.exports = isLength;
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -2002,11 +2609,11 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // allows asynchronous execution flow.
-const init = __webpack_require__(29);
+const init = __webpack_require__(30);
 
 /**
 Global object used to create an instance of {@link ChatEngine}.
@@ -2052,14 +2659,14 @@ module.exports = {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const axios = __webpack_require__(2);
-const PubNub = __webpack_require__(48);
+const PubNub = __webpack_require__(49);
 
-const RootEmitter = __webpack_require__(14);
-const Chat = __webpack_require__(50);
+const RootEmitter = __webpack_require__(15);
+const Chat = __webpack_require__(4);
 const Me = __webpack_require__(94);
 const User = __webpack_require__(1);
 
@@ -2167,12 +2774,11 @@ module.exports = (ceConfig, pnConfig) => {
 
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
+            ChatEngine.global = new Chat(ChatEngine, ceConfig.globalChannel, false, true, 'global');
 
-            // build the current user
+            // create a new user that represents this client
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
             ChatEngine.me.update(state);
-            ChatEngine.me.onConstructed();
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
@@ -2265,7 +2871,6 @@ module.exports = (ceConfig, pnConfig) => {
 
                     if (statusEvent.affectedChannels) {
                         statusEvent.affectedChannels.forEach((channel) => {
-
                             let chat = ChatEngine.chats[channel];
 
                             if (chat) {
@@ -2276,7 +2881,6 @@ module.exports = (ceConfig, pnConfig) => {
 
                                 // trigger the network events
                                 chat.trigger(eventName, statusEvent);
-
                             } else {
                                 ChatEngine._emit(eventName, statusEvent);
                             }
@@ -2332,7 +2936,6 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.Chat = class extends Chat {
         constructor(...args) {
             super(ChatEngine, ...args);
-            this.onConstructed();
         }
     };
 
@@ -2349,7 +2952,6 @@ module.exports = (ceConfig, pnConfig) => {
                 return ChatEngine.me;
             } else {
                 super(ChatEngine, ...args);
-                this.onConstructed();
             }
 
         }
@@ -2361,15 +2963,15 @@ module.exports = (ceConfig, pnConfig) => {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(8);
-var Axios = __webpack_require__(32);
+var bind = __webpack_require__(9);
+var Axios = __webpack_require__(33);
 var defaults = __webpack_require__(3);
 
 /**
@@ -2403,15 +3005,15 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(13);
-axios.CancelToken = __webpack_require__(46);
-axios.isCancel = __webpack_require__(12);
+axios.Cancel = __webpack_require__(14);
+axios.CancelToken = __webpack_require__(47);
+axios.isCancel = __webpack_require__(13);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(47);
+axios.spread = __webpack_require__(48);
 
 module.exports = axios;
 
@@ -2420,7 +3022,7 @@ module.exports.default = axios;
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 /*!
@@ -2447,7 +3049,7 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2455,10 +3057,10 @@ function isSlowBuffer (obj) {
 
 var defaults = __webpack_require__(3);
 var utils = __webpack_require__(0);
-var InterceptorManager = __webpack_require__(41);
-var dispatchRequest = __webpack_require__(42);
-var isAbsoluteURL = __webpack_require__(44);
-var combineURLs = __webpack_require__(45);
+var InterceptorManager = __webpack_require__(42);
+var dispatchRequest = __webpack_require__(43);
+var isAbsoluteURL = __webpack_require__(45);
+var combineURLs = __webpack_require__(46);
 
 /**
  * Create a new instance of Axios
@@ -2540,7 +3142,7 @@ module.exports = Axios;
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2559,13 +3161,13 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var createError = __webpack_require__(11);
+var createError = __webpack_require__(12);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -2592,7 +3194,7 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2620,7 +3222,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2695,7 +3297,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2739,7 +3341,7 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2814,7 +3416,7 @@ module.exports = (
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2857,7 +3459,7 @@ module.exports = btoa;
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2917,7 +3519,7 @@ module.exports = (
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2976,15 +3578,15 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var transformData = __webpack_require__(43);
-var isCancel = __webpack_require__(12);
+var transformData = __webpack_require__(44);
+var isCancel = __webpack_require__(13);
 var defaults = __webpack_require__(3);
 
 /**
@@ -3062,7 +3664,7 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3089,7 +3691,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3110,7 +3712,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3131,13 +3733,13 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Cancel = __webpack_require__(13);
+var Cancel = __webpack_require__(14);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -3195,7 +3797,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3229,7 +3831,7 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 !function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.PubNub=t():e.PubNub=t()}(this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var i=n[r]={exports:{},id:r,loaded:!1};return e[r].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var n={};return t.m=e,t.c=n,t.p="",t(0)}([function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function o(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function s(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}function a(e){if(!navigator||!navigator.sendBeacon)return!1;navigator.sendBeacon(e)}Object.defineProperty(t,"__esModule",{value:!0});var u=n(1),c=r(u),l=n(40),h=r(l),f=n(41),d=r(f),p=n(42),g=(n(8),function(e){function t(e){i(this,t);var n=e.listenToBrowserNetworkEvents,r=void 0===n||n;e.db=d.default,e.sdkFamily="Web",e.networking=new h.default({get:p.get,post:p.post,sendBeacon:a});var s=o(this,(t.__proto__||Object.getPrototypeOf(t)).call(this,e));return r&&(window.addEventListener("offline",function(){s.networkDownDetected()}),window.addEventListener("online",function(){s.networkUpDetected()})),s}return s(t,e),t}(c.default));t.default=g,e.exports=t.default},function(e,t,n){"use strict";function r(e){if(e&&e.__esModule)return e;var t={};if(null!=e)for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&(t[n]=e[n]);return t.default=e,t}function i(e){return e&&e.__esModule?e:{default:e}}function o(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),a=n(2),u=i(a),c=n(7),l=i(c),h=n(9),f=i(h),d=n(11),p=i(d),g=n(12),y=i(g),v=n(18),b=i(v),_=n(19),m=r(_),k=n(20),P=r(k),S=n(21),w=r(S),O=n(22),T=r(O),C=n(23),M=r(C),E=n(24),x=r(E),N=n(25),R=r(N),K=n(26),A=r(K),j=n(27),D=r(j),G=n(28),U=r(G),B=n(29),I=r(B),H=n(30),L=r(H),q=n(31),F=r(q),z=n(32),X=r(z),W=n(33),V=r(W),J=n(34),$=r(J),Q=n(35),Y=r(Q),Z=n(36),ee=r(Z),te=n(37),ne=r(te),re=n(38),ie=r(re),oe=n(15),se=r(oe),ae=n(39),ue=r(ae),ce=n(16),le=i(ce),he=n(13),fe=i(he),de=(n(8),function(){function e(t){var n=this;o(this,e);var r=t.db,i=t.networking,s=this._config=new l.default({setup:t,db:r}),a=new f.default({config:s});i.init(s);var u={config:s,networking:i,crypto:a},c=b.default.bind(this,u,se),h=b.default.bind(this,u,U),d=b.default.bind(this,u,L),g=b.default.bind(this,u,X),v=b.default.bind(this,u,ue),_=this._listenerManager=new y.default,k=new p.default({timeEndpoint:c,leaveEndpoint:h,heartbeatEndpoint:d,setStateEndpoint:g,subscribeEndpoint:v,crypto:u.crypto,config:u.config,listenerManager:_});this.addListener=_.addListener.bind(_),this.removeListener=_.removeListener.bind(_),this.removeAllListeners=_.removeAllListeners.bind(_),this.channelGroups={listGroups:b.default.bind(this,u,T),listChannels:b.default.bind(this,u,M),addChannels:b.default.bind(this,u,m),removeChannels:b.default.bind(this,u,P),deleteGroup:b.default.bind(this,u,w)},this.push={addChannels:b.default.bind(this,u,x),removeChannels:b.default.bind(this,u,R),deleteDevice:b.default.bind(this,u,D),listChannels:b.default.bind(this,u,A)},this.hereNow=b.default.bind(this,u,V),this.whereNow=b.default.bind(this,u,I),this.getState=b.default.bind(this,u,F),this.setState=k.adaptStateChange.bind(k),this.grant=b.default.bind(this,u,Y),this.audit=b.default.bind(this,u,$),this.publish=b.default.bind(this,u,ee),this.fire=function(e,t){return e.replicate=!1,e.storeInHistory=!1,n.publish(e,t)},this.history=b.default.bind(this,u,ne),this.fetchMessages=b.default.bind(this,u,ie),this.time=c,this.subscribe=k.adaptSubscribeChange.bind(k),this.unsubscribe=k.adaptUnsubscribeChange.bind(k),this.disconnect=k.disconnect.bind(k),this.reconnect=k.reconnect.bind(k),this.destroy=function(e){k.unsubscribeAll(e),k.disconnect()},this.stop=this.destroy,this.unsubscribeAll=k.unsubscribeAll.bind(k),this.getSubscribedChannels=k.getSubscribedChannels.bind(k),this.getSubscribedChannelGroups=k.getSubscribedChannelGroups.bind(k),this.encrypt=a.encrypt.bind(a),this.decrypt=a.decrypt.bind(a),this.getAuthKey=u.config.getAuthKey.bind(u.config),this.setAuthKey=u.config.setAuthKey.bind(u.config),this.setCipherKey=u.config.setCipherKey.bind(u.config),this.getUUID=u.config.getUUID.bind(u.config),this.setUUID=u.config.setUUID.bind(u.config),this.getFilterExpression=u.config.getFilterExpression.bind(u.config),this.setFilterExpression=u.config.setFilterExpression.bind(u.config)}return s(e,[{key:"getVersion",value:function(){return this._config.getVersion()}},{key:"networkDownDetected",value:function(){this._listenerManager.announceNetworkDown(),this._config.restore?this.disconnect():this.destroy(!0)}},{key:"networkUpDetected",value:function(){this._listenerManager.announceNetworkUp(),this.reconnect()}}],[{key:"generateUUID",value:function(){return u.default.v4()}}]),e}());de.OPERATIONS=le.default,de.CATEGORIES=fe.default,t.default=de,e.exports=t.default},function(e,t,n){var r=n(3),i=n(6),o=i;o.v1=r,o.v4=i,e.exports=o},function(e,t,n){function r(e,t,n){var r=t&&n||0,i=t||[];e=e||{};var s=void 0!==e.clockseq?e.clockseq:u,h=void 0!==e.msecs?e.msecs:(new Date).getTime(),f=void 0!==e.nsecs?e.nsecs:l+1,d=h-c+(f-l)/1e4;if(d<0&&void 0===e.clockseq&&(s=s+1&16383),(d<0||h>c)&&void 0===e.nsecs&&(f=0),f>=1e4)throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");c=h,l=f,u=s,h+=122192928e5;var p=(1e4*(268435455&h)+f)%4294967296;i[r++]=p>>>24&255,i[r++]=p>>>16&255,i[r++]=p>>>8&255,i[r++]=255&p;var g=h/4294967296*1e4&268435455;i[r++]=g>>>8&255,i[r++]=255&g,i[r++]=g>>>24&15|16,i[r++]=g>>>16&255,i[r++]=s>>>8|128,i[r++]=255&s;for(var y=e.node||a,v=0;v<6;++v)i[r+v]=y[v];return t||o(i)}var i=n(4),o=n(5),s=i(),a=[1|s[0],s[1],s[2],s[3],s[4],s[5]],u=16383&(s[6]<<8|s[7]),c=0,l=0;e.exports=r},function(e,t){(function(t){var n,r=t.crypto||t.msCrypto;if(r&&r.getRandomValues){var i=new Uint8Array(16);n=function(){return r.getRandomValues(i),i}}if(!n){var o=new Array(16);n=function(){for(var e,t=0;t<16;t++)0==(3&t)&&(e=4294967296*Math.random()),o[t]=e>>>((3&t)<<3)&255;return o}}e.exports=n}).call(t,function(){return this}())},function(e,t){function n(e,t){var n=t||0,i=r;return i[e[n++]]+i[e[n++]]+i[e[n++]]+i[e[n++]]+"-"+i[e[n++]]+i[e[n++]]+"-"+i[e[n++]]+i[e[n++]]+"-"+i[e[n++]]+i[e[n++]]+"-"+i[e[n++]]+i[e[n++]]+i[e[n++]]+i[e[n++]]+i[e[n++]]+i[e[n++]]}for(var r=[],i=0;i<256;++i)r[i]=(i+256).toString(16).substr(1);e.exports=n},function(e,t,n){function r(e,t,n){var r=t&&n||0;"string"==typeof e&&(t="binary"==e?new Array(16):null,e=null),e=e||{};var s=e.random||(e.rng||i)();if(s[6]=15&s[6]|64,s[8]=63&s[8]|128,t)for(var a=0;a<16;++a)t[r+a]=s[a];return t||o(s)}var i=n(4),o=n(5);e.exports=r},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),o=n(2),s=function(e){return e&&e.__esModule?e:{default:e}}(o),a=(n(8),function(){function e(t){var n=t.setup,i=t.db;r(this,e),this._db=i,this.instanceId="pn-"+s.default.v4(),this.secretKey=n.secretKey||n.secret_key,this.subscribeKey=n.subscribeKey||n.subscribe_key,this.publishKey=n.publishKey||n.publish_key,this.sdkFamily=n.sdkFamily,this.partnerId=n.partnerId,this.setAuthKey(n.authKey),this.setCipherKey(n.cipherKey),this.setFilterExpression(n.filterExpression),this.origin=n.origin||"pubsub.pubnub.com",this.secure=n.ssl||!1,this.restore=n.restore||!1,this.proxy=n.proxy,this.keepAlive=n.keepAlive,this.keepAliveSettings=n.keepAliveSettings,this.autoNetworkDetection=n.autoNetworkDetection||!1,this.customEncrypt=n.customEncrypt,this.customDecrypt=n.customDecrypt,"undefined"!=typeof location&&"https:"===location.protocol&&(this.secure=!0),this.logVerbosity=n.logVerbosity||!1,this.suppressLeaveEvents=n.suppressLeaveEvents||!1,this.announceFailedHeartbeats=n.announceFailedHeartbeats||!0,this.announceSuccessfulHeartbeats=n.announceSuccessfulHeartbeats||!1,this.useInstanceId=n.useInstanceId||!1,this.useRequestId=n.useRequestId||!1,this.requestMessageCountThreshold=n.requestMessageCountThreshold,this.setTransactionTimeout(n.transactionalRequestTimeout||15e3),this.setSubscribeTimeout(n.subscribeRequestTimeout||31e4),this.setSendBeaconConfig(n.useSendBeacon||!0),this.setPresenceTimeout(n.presenceTimeout||300),n.heartbeatInterval&&this.setHeartbeatInterval(n.heartbeatInterval),this.setUUID(this._decideUUID(n.uuid))}return i(e,[{key:"getAuthKey",value:function(){return this.authKey}},{key:"setAuthKey",value:function(e){return this.authKey=e,this}},{key:"setCipherKey",value:function(e){return this.cipherKey=e,this}},{key:"getUUID",value:function(){return this.UUID}},{key:"setUUID",value:function(e){return this._db&&this._db.set&&this._db.set(this.subscribeKey+"uuid",e),this.UUID=e,this}},{key:"getFilterExpression",value:function(){return this.filterExpression}},{key:"setFilterExpression",value:function(e){return this.filterExpression=e,this}},{key:"getPresenceTimeout",value:function(){return this._presenceTimeout}},{key:"setPresenceTimeout",value:function(e){return this._presenceTimeout=e,this.setHeartbeatInterval(this._presenceTimeout/2-1),this}},{key:"getHeartbeatInterval",value:function(){return this._heartbeatInterval}},{key:"setHeartbeatInterval",value:function(e){return this._heartbeatInterval=e,this}},{key:"getSubscribeTimeout",value:function(){return this._subscribeRequestTimeout}},{key:"setSubscribeTimeout",value:function(e){return this._subscribeRequestTimeout=e,this}},{key:"getTransactionTimeout",value:function(){return this._transactionalRequestTimeout}},{key:"setTransactionTimeout",value:function(e){return this._transactionalRequestTimeout=e,this}},{key:"isSendBeaconEnabled",value:function(){return this._useSendBeacon}},{key:"setSendBeaconConfig",value:function(e){return this._useSendBeacon=e,this}},{key:"getVersion",value:function(){return"4.13.0"}},{key:"_decideUUID",value:function(e){return e||(this._db&&this._db.get&&this._db.get(this.subscribeKey+"uuid")?this._db.get(this.subscribeKey+"uuid"):"pn-"+s.default.v4())}}]),e}());t.default=a,e.exports=t.default},function(e,t){"use strict";e.exports={}},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(7),a=(r(s),n(10)),u=r(a),c=function(){function e(t){var n=t.config;i(this,e),this._config=n,this._iv="0123456789012345",this._allowedKeyEncodings=["hex","utf8","base64","binary"],this._allowedKeyLengths=[128,256],this._allowedModes=["ecb","cbc"],this._defaultOptions={encryptKey:!0,keyEncoding:"utf8",keyLength:256,mode:"cbc"}}return o(e,[{key:"HMACSHA256",value:function(e){return u.default.HmacSHA256(e,this._config.secretKey).toString(u.default.enc.Base64)}},{key:"SHA256",value:function(e){return u.default.SHA256(e).toString(u.default.enc.Hex)}},{key:"_parseOptions",value:function(e){var t=e||{};return t.hasOwnProperty("encryptKey")||(t.encryptKey=this._defaultOptions.encryptKey),t.hasOwnProperty("keyEncoding")||(t.keyEncoding=this._defaultOptions.keyEncoding),t.hasOwnProperty("keyLength")||(t.keyLength=this._defaultOptions.keyLength),t.hasOwnProperty("mode")||(t.mode=this._defaultOptions.mode),-1===this._allowedKeyEncodings.indexOf(t.keyEncoding.toLowerCase())&&(t.keyEncoding=this._defaultOptions.keyEncoding),-1===this._allowedKeyLengths.indexOf(parseInt(t.keyLength,10))&&(t.keyLength=this._defaultOptions.keyLength),-1===this._allowedModes.indexOf(t.mode.toLowerCase())&&(t.mode=this._defaultOptions.mode),t}},{key:"_decodeKey",value:function(e,t){return"base64"===t.keyEncoding?u.default.enc.Base64.parse(e):"hex"===t.keyEncoding?u.default.enc.Hex.parse(e):e}},{key:"_getPaddedKey",value:function(e,t){return e=this._decodeKey(e,t),t.encryptKey?u.default.enc.Utf8.parse(this.SHA256(e).slice(0,32)):e}},{key:"_getMode",value:function(e){return"ecb"===e.mode?u.default.mode.ECB:u.default.mode.CBC}},{key:"_getIV",value:function(e){return"cbc"===e.mode?u.default.enc.Utf8.parse(this._iv):null}},{key:"encrypt",value:function(e,t,n){return this._config.customEncrypt?this._config.customEncrypt(e):this.pnEncrypt(e,t,n)}},{key:"decrypt",value:function(e,t,n){return this._config.customDecrypt?this._config.customDecrypt(e):this.pnDecrypt(e,t,n)}},{key:"pnEncrypt",value:function(e,t,n){if(!t&&!this._config.cipherKey)return e;n=this._parseOptions(n);var r=this._getIV(n),i=this._getMode(n),o=this._getPaddedKey(t||this._config.cipherKey,n);return u.default.AES.encrypt(e,o,{iv:r,mode:i}).ciphertext.toString(u.default.enc.Base64)||e}},{key:"pnDecrypt",value:function(e,t,n){if(!t&&!this._config.cipherKey)return e;n=this._parseOptions(n);var r=this._getIV(n),i=this._getMode(n),o=this._getPaddedKey(t||this._config.cipherKey,n);try{var s=u.default.enc.Base64.parse(e),a=u.default.AES.decrypt({ciphertext:s},o,{iv:r,mode:i}).toString(u.default.enc.Utf8);return JSON.parse(a)}catch(e){return null}}}]),e}();t.default=c,e.exports=t.default},function(e,t){"use strict";var n=n||function(e,t){var n={},r=n.lib={},i=function(){},o=r.Base={extend:function(e){i.prototype=this;var t=new i;return e&&t.mixIn(e),t.hasOwnProperty("init")||(t.init=function(){t.$super.init.apply(this,arguments)}),t.init.prototype=t,t.$super=this,t},create:function(){var e=this.extend();return e.init.apply(e,arguments),e},init:function(){},mixIn:function(e){for(var t in e)e.hasOwnProperty(t)&&(this[t]=e[t]);e.hasOwnProperty("toString")&&(this.toString=e.toString)},clone:function(){return this.init.prototype.extend(this)}},s=r.WordArray=o.extend({init:function(e,t){e=this.words=e||[],this.sigBytes=void 0!=t?t:4*e.length},toString:function(e){return(e||u).stringify(this)},concat:function(e){var t=this.words,n=e.words,r=this.sigBytes;if(e=e.sigBytes,this.clamp(),r%4)for(var i=0;i<e;i++)t[r+i>>>2]|=(n[i>>>2]>>>24-i%4*8&255)<<24-(r+i)%4*8;else if(65535<n.length)for(i=0;i<e;i+=4)t[r+i>>>2]=n[i>>>2];else t.push.apply(t,n);return this.sigBytes+=e,this},clamp:function(){var t=this.words,n=this.sigBytes;t[n>>>2]&=4294967295<<32-n%4*8,t.length=e.ceil(n/4)},clone:function(){var e=o.clone.call(this);return e.words=this.words.slice(0),e},random:function(t){for(var n=[],r=0;r<t;r+=4)n.push(4294967296*e.random()|0);return new s.init(n,t)}}),a=n.enc={},u=a.Hex={stringify:function(e){var t=e.words;e=e.sigBytes;for(var n=[],r=0;r<e;r++){var i=t[r>>>2]>>>24-r%4*8&255;n.push((i>>>4).toString(16)),n.push((15&i).toString(16))}return n.join("")},parse:function(e){for(var t=e.length,n=[],r=0;r<t;r+=2)n[r>>>3]|=parseInt(e.substr(r,2),16)<<24-r%8*4;return new s.init(n,t/2)}},c=a.Latin1={stringify:function(e){var t=e.words;e=e.sigBytes;for(var n=[],r=0;r<e;r++)n.push(String.fromCharCode(t[r>>>2]>>>24-r%4*8&255));return n.join("")},parse:function(e){for(var t=e.length,n=[],r=0;r<t;r++)n[r>>>2]|=(255&e.charCodeAt(r))<<24-r%4*8;return new s.init(n,t)}},l=a.Utf8={stringify:function(e){try{return decodeURIComponent(escape(c.stringify(e)))}catch(e){throw Error("Malformed UTF-8 data")}},parse:function(e){return c.parse(unescape(encodeURIComponent(e)))}},h=r.BufferedBlockAlgorithm=o.extend({reset:function(){this._data=new s.init,this._nDataBytes=0},_append:function(e){"string"==typeof e&&(e=l.parse(e)),this._data.concat(e),this._nDataBytes+=e.sigBytes},_process:function(t){var n=this._data,r=n.words,i=n.sigBytes,o=this.blockSize,a=i/(4*o),a=t?e.ceil(a):e.max((0|a)-this._minBufferSize,0);if(t=a*o,i=e.min(4*t,i),t){for(var u=0;u<t;u+=o)this._doProcessBlock(r,u);u=r.splice(0,t),n.sigBytes-=i}return new s.init(u,i)},clone:function(){var e=o.clone.call(this);return e._data=this._data.clone(),e},_minBufferSize:0});r.Hasher=h.extend({cfg:o.extend(),init:function(e){this.cfg=this.cfg.extend(e),this.reset()},reset:function(){h.reset.call(this),this._doReset()},update:function(e){return this._append(e),this._process(),this},finalize:function(e){return e&&this._append(e),this._doFinalize()},blockSize:16,_createHelper:function(e){return function(t,n){return new e.init(n).finalize(t)}},_createHmacHelper:function(e){return function(t,n){return new f.HMAC.init(e,n).finalize(t)}}});var f=n.algo={};return n}(Math);!function(e){for(var t=n,r=t.lib,i=r.WordArray,o=r.Hasher,r=t.algo,s=[],a=[],u=function(e){return 4294967296*(e-(0|e))|0},c=2,l=0;64>l;){var h;e:{h=c;for(var f=e.sqrt(h),d=2;d<=f;d++)if(!(h%d)){h=!1;break e}h=!0}h&&(8>l&&(s[l]=u(e.pow(c,.5))),a[l]=u(e.pow(c,1/3)),l++),c++}var p=[],r=r.SHA256=o.extend({_doReset:function(){this._hash=new i.init(s.slice(0))},_doProcessBlock:function(e,t){for(var n=this._hash.words,r=n[0],i=n[1],o=n[2],s=n[3],u=n[4],c=n[5],l=n[6],h=n[7],f=0;64>f;f++){if(16>f)p[f]=0|e[t+f];else{var d=p[f-15],g=p[f-2];p[f]=((d<<25|d>>>7)^(d<<14|d>>>18)^d>>>3)+p[f-7]+((g<<15|g>>>17)^(g<<13|g>>>19)^g>>>10)+p[f-16]}d=h+((u<<26|u>>>6)^(u<<21|u>>>11)^(u<<7|u>>>25))+(u&c^~u&l)+a[f]+p[f],g=((r<<30|r>>>2)^(r<<19|r>>>13)^(r<<10|r>>>22))+(r&i^r&o^i&o),h=l,l=c,c=u,u=s+d|0,s=o,o=i,i=r,r=d+g|0}n[0]=n[0]+r|0,n[1]=n[1]+i|0,n[2]=n[2]+o|0,n[3]=n[3]+s|0,n[4]=n[4]+u|0,n[5]=n[5]+c|0,n[6]=n[6]+l|0,n[7]=n[7]+h|0},_doFinalize:function(){var t=this._data,n=t.words,r=8*this._nDataBytes,i=8*t.sigBytes;return n[i>>>5]|=128<<24-i%32,n[14+(i+64>>>9<<4)]=e.floor(r/4294967296),n[15+(i+64>>>9<<4)]=r,t.sigBytes=4*n.length,this._process(),this._hash},clone:function(){var e=o.clone.call(this);return e._hash=this._hash.clone(),e}});t.SHA256=o._createHelper(r),t.HmacSHA256=o._createHmacHelper(r)}(Math),function(){var e=n,t=e.enc.Utf8;e.algo.HMAC=e.lib.Base.extend({init:function(e,n){e=this._hasher=new e.init,"string"==typeof n&&(n=t.parse(n));var r=e.blockSize,i=4*r;n.sigBytes>i&&(n=e.finalize(n)),n.clamp();for(var o=this._oKey=n.clone(),s=this._iKey=n.clone(),a=o.words,u=s.words,c=0;c<r;c++)a[c]^=1549556828,u[c]^=909522486;o.sigBytes=s.sigBytes=i,this.reset()},reset:function(){var e=this._hasher;e.reset(),e.update(this._iKey)},update:function(e){return this._hasher.update(e),this},finalize:function(e){var t=this._hasher;return e=t.finalize(e),t.reset(),t.finalize(this._oKey.clone().concat(e))}})}(),function(){var e=n,t=e.lib.WordArray;e.enc.Base64={stringify:function(e){var t=e.words,n=e.sigBytes,r=this._map;e.clamp(),e=[];for(var i=0;i<n;i+=3)for(var o=(t[i>>>2]>>>24-i%4*8&255)<<16|(t[i+1>>>2]>>>24-(i+1)%4*8&255)<<8|t[i+2>>>2]>>>24-(i+2)%4*8&255,s=0;4>s&&i+.75*s<n;s++)e.push(r.charAt(o>>>6*(3-s)&63));if(t=r.charAt(64))for(;e.length%4;)e.push(t);return e.join("")},parse:function(e){var n=e.length,r=this._map,i=r.charAt(64);i&&-1!=(i=e.indexOf(i))&&(n=i);for(var i=[],o=0,s=0;s<n;s++)if(s%4){var a=r.indexOf(e.charAt(s-1))<<s%4*2,u=r.indexOf(e.charAt(s))>>>6-s%4*2;i[o>>>2]|=(a|u)<<24-o%4*8,o++}return t.create(i,o)},_map:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="}}(),function(e){function t(e,t,n,r,i,o,s){return((e=e+(t&n|~t&r)+i+s)<<o|e>>>32-o)+t}function r(e,t,n,r,i,o,s){return((e=e+(t&r|n&~r)+i+s)<<o|e>>>32-o)+t}function i(e,t,n,r,i,o,s){return((e=e+(t^n^r)+i+s)<<o|e>>>32-o)+t}function o(e,t,n,r,i,o,s){return((e=e+(n^(t|~r))+i+s)<<o|e>>>32-o)+t}for(var s=n,a=s.lib,u=a.WordArray,c=a.Hasher,a=s.algo,l=[],h=0;64>h;h++)l[h]=4294967296*e.abs(e.sin(h+1))|0;a=a.MD5=c.extend({_doReset:function(){this._hash=new u.init([1732584193,4023233417,2562383102,271733878])},_doProcessBlock:function(e,n){for(var s=0;16>s;s++){var a=n+s,u=e[a];e[a]=16711935&(u<<8|u>>>24)|4278255360&(u<<24|u>>>8)}var s=this._hash.words,a=e[n+0],u=e[n+1],c=e[n+2],h=e[n+3],f=e[n+4],d=e[n+5],p=e[n+6],g=e[n+7],y=e[n+8],v=e[n+9],b=e[n+10],_=e[n+11],m=e[n+12],k=e[n+13],P=e[n+14],S=e[n+15],w=s[0],O=s[1],T=s[2],C=s[3],w=t(w,O,T,C,a,7,l[0]),C=t(C,w,O,T,u,12,l[1]),T=t(T,C,w,O,c,17,l[2]),O=t(O,T,C,w,h,22,l[3]),w=t(w,O,T,C,f,7,l[4]),C=t(C,w,O,T,d,12,l[5]),T=t(T,C,w,O,p,17,l[6]),O=t(O,T,C,w,g,22,l[7]),w=t(w,O,T,C,y,7,l[8]),C=t(C,w,O,T,v,12,l[9]),T=t(T,C,w,O,b,17,l[10]),O=t(O,T,C,w,_,22,l[11]),w=t(w,O,T,C,m,7,l[12]),C=t(C,w,O,T,k,12,l[13]),T=t(T,C,w,O,P,17,l[14]),O=t(O,T,C,w,S,22,l[15]),w=r(w,O,T,C,u,5,l[16]),C=r(C,w,O,T,p,9,l[17]),T=r(T,C,w,O,_,14,l[18]),O=r(O,T,C,w,a,20,l[19]),w=r(w,O,T,C,d,5,l[20]),C=r(C,w,O,T,b,9,l[21]),T=r(T,C,w,O,S,14,l[22]),O=r(O,T,C,w,f,20,l[23]),w=r(w,O,T,C,v,5,l[24]),C=r(C,w,O,T,P,9,l[25]),T=r(T,C,w,O,h,14,l[26]),O=r(O,T,C,w,y,20,l[27]),w=r(w,O,T,C,k,5,l[28]),C=r(C,w,O,T,c,9,l[29]),T=r(T,C,w,O,g,14,l[30]),O=r(O,T,C,w,m,20,l[31]),w=i(w,O,T,C,d,4,l[32]),C=i(C,w,O,T,y,11,l[33]),T=i(T,C,w,O,_,16,l[34]),O=i(O,T,C,w,P,23,l[35]),w=i(w,O,T,C,u,4,l[36]),C=i(C,w,O,T,f,11,l[37]),T=i(T,C,w,O,g,16,l[38]),O=i(O,T,C,w,b,23,l[39]),w=i(w,O,T,C,k,4,l[40]),C=i(C,w,O,T,a,11,l[41]),T=i(T,C,w,O,h,16,l[42]),O=i(O,T,C,w,p,23,l[43]),w=i(w,O,T,C,v,4,l[44]),C=i(C,w,O,T,m,11,l[45]),T=i(T,C,w,O,S,16,l[46]),O=i(O,T,C,w,c,23,l[47]),w=o(w,O,T,C,a,6,l[48]),C=o(C,w,O,T,g,10,l[49]),T=o(T,C,w,O,P,15,l[50]),O=o(O,T,C,w,d,21,l[51]),w=o(w,O,T,C,m,6,l[52]),C=o(C,w,O,T,h,10,l[53]),T=o(T,C,w,O,b,15,l[54]),O=o(O,T,C,w,u,21,l[55]),w=o(w,O,T,C,y,6,l[56]),C=o(C,w,O,T,S,10,l[57]),T=o(T,C,w,O,p,15,l[58]),O=o(O,T,C,w,k,21,l[59]),w=o(w,O,T,C,f,6,l[60]),C=o(C,w,O,T,_,10,l[61]),T=o(T,C,w,O,c,15,l[62]),O=o(O,T,C,w,v,21,l[63]);s[0]=s[0]+w|0,s[1]=s[1]+O|0,s[2]=s[2]+T|0,s[3]=s[3]+C|0},_doFinalize:function(){var t=this._data,n=t.words,r=8*this._nDataBytes,i=8*t.sigBytes;n[i>>>5]|=128<<24-i%32;var o=e.floor(r/4294967296);for(n[15+(i+64>>>9<<4)]=16711935&(o<<8|o>>>24)|4278255360&(o<<24|o>>>8),n[14+(i+64>>>9<<4)]=16711935&(r<<8|r>>>24)|4278255360&(r<<24|r>>>8),t.sigBytes=4*(n.length+1),this._process(),t=this._hash,n=t.words,r=0;4>r;r++)i=n[r],n[r]=16711935&(i<<8|i>>>24)|4278255360&(i<<24|i>>>8);return t},clone:function(){var e=c.clone.call(this);return e._hash=this._hash.clone(),e}}),s.MD5=c._createHelper(a),s.HmacMD5=c._createHmacHelper(a)}(Math),function(){var e=n,t=e.lib,r=t.Base,i=t.WordArray,t=e.algo,o=t.EvpKDF=r.extend({cfg:r.extend({keySize:4,hasher:t.MD5,iterations:1}),init:function(e){this.cfg=this.cfg.extend(e)},compute:function(e,t){for(var n=this.cfg,r=n.hasher.create(),o=i.create(),s=o.words,a=n.keySize,n=n.iterations;s.length<a;){u&&r.update(u);var u=r.update(e).finalize(t);r.reset();for(var c=1;c<n;c++)u=r.finalize(u),r.reset();o.concat(u)}return o.sigBytes=4*a,o}});e.EvpKDF=function(e,t,n){return o.create(n).compute(e,t)}}(),n.lib.Cipher||function(e){var t=n,r=t.lib,i=r.Base,o=r.WordArray,s=r.BufferedBlockAlgorithm,a=t.enc.Base64,u=t.algo.EvpKDF,c=r.Cipher=s.extend({cfg:i.extend(),createEncryptor:function(e,t){return this.create(this._ENC_XFORM_MODE,e,t)},createDecryptor:function(e,t){return this.create(this._DEC_XFORM_MODE,e,t)},init:function(e,t,n){this.cfg=this.cfg.extend(n),this._xformMode=e,this._key=t,this.reset()},reset:function(){s.reset.call(this),this._doReset()},process:function(e){return this._append(e),this._process()},finalize:function(e){return e&&this._append(e),this._doFinalize()},keySize:4,ivSize:4,_ENC_XFORM_MODE:1,_DEC_XFORM_MODE:2,_createHelper:function(e){return{encrypt:function(t,n,r){return("string"==typeof n?g:p).encrypt(e,t,n,r)},decrypt:function(t,n,r){return("string"==typeof n?g:p).decrypt(e,t,n,r)}}}});r.StreamCipher=c.extend({_doFinalize:function(){return this._process(!0)},blockSize:1});var l=t.mode={},h=function(e,t,n){var r=this._iv;r?this._iv=void 0:r=this._prevBlock;for(var i=0;i<n;i++)e[t+i]^=r[i]},f=(r.BlockCipherMode=i.extend({createEncryptor:function(e,t){return this.Encryptor.create(e,t)},createDecryptor:function(e,t){return this.Decryptor.create(e,t)},init:function(e,t){this._cipher=e,this._iv=t}})).extend();f.Encryptor=f.extend({processBlock:function(e,t){var n=this._cipher,r=n.blockSize;h.call(this,e,t,r),n.encryptBlock(e,t),this._prevBlock=e.slice(t,t+r)}}),f.Decryptor=f.extend({processBlock:function(e,t){var n=this._cipher,r=n.blockSize,i=e.slice(t,t+r);n.decryptBlock(e,t),h.call(this,e,t,r),this._prevBlock=i}}),l=l.CBC=f,f=(t.pad={}).Pkcs7={pad:function(e,t){for(var n=4*t,n=n-e.sigBytes%n,r=n<<24|n<<16|n<<8|n,i=[],s=0;s<n;s+=4)i.push(r);n=o.create(i,n),e.concat(n)},unpad:function(e){e.sigBytes-=255&e.words[e.sigBytes-1>>>2]}},r.BlockCipher=c.extend({cfg:c.cfg.extend({mode:l,padding:f}),reset:function(){c.reset.call(this);var e=this.cfg,t=e.iv,e=e.mode;if(this._xformMode==this._ENC_XFORM_MODE)var n=e.createEncryptor;else n=e.createDecryptor,this._minBufferSize=1;this._mode=n.call(e,this,t&&t.words)},_doProcessBlock:function(e,t){this._mode.processBlock(e,t)},_doFinalize:function(){var e=this.cfg.padding;if(this._xformMode==this._ENC_XFORM_MODE){e.pad(this._data,this.blockSize);var t=this._process(!0)}else t=this._process(!0),e.unpad(t);return t},blockSize:4});var d=r.CipherParams=i.extend({init:function(e){this.mixIn(e)},toString:function(e){return(e||this.formatter).stringify(this)}}),l=(t.format={}).OpenSSL={stringify:function(e){var t=e.ciphertext;return e=e.salt,(e?o.create([1398893684,1701076831]).concat(e).concat(t):t).toString(a)},parse:function(e){e=a.parse(e);var t=e.words;if(1398893684==t[0]&&1701076831==t[1]){var n=o.create(t.slice(2,4));t.splice(0,4),e.sigBytes-=16}return d.create({ciphertext:e,salt:n})}},p=r.SerializableCipher=i.extend({cfg:i.extend({format:l}),encrypt:function(e,t,n,r){r=this.cfg.extend(r);var i=e.createEncryptor(n,r);return t=i.finalize(t),i=i.cfg,d.create({ciphertext:t,key:n,iv:i.iv,algorithm:e,mode:i.mode,padding:i.padding,blockSize:e.blockSize,formatter:r.format})},decrypt:function(e,t,n,r){return r=this.cfg.extend(r),t=this._parse(t,r.format),e.createDecryptor(n,r).finalize(t.ciphertext)},_parse:function(e,t){return"string"==typeof e?t.parse(e,this):e}}),t=(t.kdf={}).OpenSSL={execute:function(e,t,n,r){return r||(r=o.random(8)),e=u.create({keySize:t+n}).compute(e,r),n=o.create(e.words.slice(t),4*n),e.sigBytes=4*t,d.create({key:e,iv:n,salt:r})}},g=r.PasswordBasedCipher=p.extend({cfg:p.cfg.extend({kdf:t}),encrypt:function(e,t,n,r){return r=this.cfg.extend(r),n=r.kdf.execute(n,e.keySize,e.ivSize),r.iv=n.iv,e=p.encrypt.call(this,e,t,n.key,r),e.mixIn(n),e},decrypt:function(e,t,n,r){return r=this.cfg.extend(r),t=this._parse(t,r.format),n=r.kdf.execute(n,e.keySize,e.ivSize,t.salt),r.iv=n.iv,p.decrypt.call(this,e,t,n.key,r)}})}(),function(){for(var e=n,t=e.lib.BlockCipher,r=e.algo,i=[],o=[],s=[],a=[],u=[],c=[],l=[],h=[],f=[],d=[],p=[],g=0;256>g;g++)p[g]=128>g?g<<1:g<<1^283;for(var y=0,v=0,g=0;256>g;g++){var b=v^v<<1^v<<2^v<<3^v<<4,b=b>>>8^255&b^99;i[y]=b,o[b]=y;var _=p[y],m=p[_],k=p[m],P=257*p[b]^16843008*b;s[y]=P<<24|P>>>8,a[y]=P<<16|P>>>16,u[y]=P<<8|P>>>24,c[y]=P,P=16843009*k^65537*m^257*_^16843008*y,l[b]=P<<24|P>>>8,h[b]=P<<16|P>>>16,f[b]=P<<8|P>>>24,d[b]=P,y?(y=_^p[p[p[k^_]]],v^=p[p[v]]):y=v=1}var S=[0,1,2,4,8,16,32,64,128,27,54],r=r.AES=t.extend({_doReset:function(){for(var e=this._key,t=e.words,n=e.sigBytes/4,e=4*((this._nRounds=n+6)+1),r=this._keySchedule=[],o=0;o<e;o++)if(o<n)r[o]=t[o];else{var s=r[o-1];o%n?6<n&&4==o%n&&(s=i[s>>>24]<<24|i[s>>>16&255]<<16|i[s>>>8&255]<<8|i[255&s]):(s=s<<8|s>>>24,s=i[s>>>24]<<24|i[s>>>16&255]<<16|i[s>>>8&255]<<8|i[255&s],s^=S[o/n|0]<<24),r[o]=r[o-n]^s}for(t=this._invKeySchedule=[],n=0;n<e;n++)o=e-n,s=n%4?r[o]:r[o-4],t[n]=4>n||4>=o?s:l[i[s>>>24]]^h[i[s>>>16&255]]^f[i[s>>>8&255]]^d[i[255&s]]},encryptBlock:function(e,t){this._doCryptBlock(e,t,this._keySchedule,s,a,u,c,i)},decryptBlock:function(e,t){var n=e[t+1];e[t+1]=e[t+3],e[t+3]=n,this._doCryptBlock(e,t,this._invKeySchedule,l,h,f,d,o),n=e[t+1],e[t+1]=e[t+3],e[t+3]=n},_doCryptBlock:function(e,t,n,r,i,o,s,a){for(var u=this._nRounds,c=e[t]^n[0],l=e[t+1]^n[1],h=e[t+2]^n[2],f=e[t+3]^n[3],d=4,p=1;p<u;p++)var g=r[c>>>24]^i[l>>>16&255]^o[h>>>8&255]^s[255&f]^n[d++],y=r[l>>>24]^i[h>>>16&255]^o[f>>>8&255]^s[255&c]^n[d++],v=r[h>>>24]^i[f>>>16&255]^o[c>>>8&255]^s[255&l]^n[d++],f=r[f>>>24]^i[c>>>16&255]^o[l>>>8&255]^s[255&h]^n[d++],c=g,l=y,h=v;g=(a[c>>>24]<<24|a[l>>>16&255]<<16|a[h>>>8&255]<<8|a[255&f])^n[d++],y=(a[l>>>24]<<24|a[h>>>16&255]<<16|a[f>>>8&255]<<8|a[255&c])^n[d++],v=(a[h>>>24]<<24|a[f>>>16&255]<<16|a[c>>>8&255]<<8|a[255&l])^n[d++],f=(a[f>>>24]<<24|a[c>>>16&255]<<16|a[l>>>8&255]<<8|a[255&h])^n[d++],e[t]=g,e[t+1]=y,e[t+2]=v,e[t+3]=f},keySize:8});e.AES=t._createHelper(r)}(),n.mode.ECB=function(){var e=n.lib.BlockCipherMode.extend();return e.Encryptor=e.extend({processBlock:function(e,t){this._cipher.encryptBlock(e,t)}}),e.Decryptor=e.extend({processBlock:function(e,t){this._cipher.decryptBlock(e,t)}}),e}(),e.exports=n},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(9),a=(r(s),n(7)),u=(r(a),n(12)),c=(r(u),n(14)),l=r(c),h=n(17),f=r(h),d=(n(8),n(13)),p=r(d),g=function(){function e(t){var n=t.subscribeEndpoint,r=t.leaveEndpoint,o=t.heartbeatEndpoint,s=t.setStateEndpoint,a=t.timeEndpoint,u=t.config,c=t.crypto,h=t.listenerManager;i(this,e),this._listenerManager=h,this._config=u,this._leaveEndpoint=r,this._heartbeatEndpoint=o,this._setStateEndpoint=s,this._subscribeEndpoint=n,this._crypto=c,this._channels={},this._presenceChannels={},this._channelGroups={},this._presenceChannelGroups={},this._pendingChannelSubscriptions=[],this._pendingChannelGroupSubscriptions=[],this._currentTimetoken=0,this._lastTimetoken=0,this._storedTimetoken=null,this._subscriptionStatusAnnounced=!1,this._isOnline=!0,this._reconnectionManager=new l.default({timeEndpoint:a})}return o(e,[{key:"adaptStateChange",value:function(e,t){var n=this,r=e.state,i=e.channels,o=void 0===i?[]:i,s=e.channelGroups,a=void 0===s?[]:s;return o.forEach(function(e){e in n._channels&&(n._channels[e].state=r)}),a.forEach(function(e){e in n._channelGroups&&(n._channelGroups[e].state=r)}),this._setStateEndpoint({state:r,channels:o,channelGroups:a},t)}},{key:"adaptSubscribeChange",value:function(e){var t=this,n=e.timetoken,r=e.channels,i=void 0===r?[]:r,o=e.channelGroups,s=void 0===o?[]:o,a=e.withPresence,u=void 0!==a&&a;if(!this._config.subscribeKey||""===this._config.subscribeKey)return void(console&&console.log&&console.log("subscribe key missing; aborting subscribe"));n&&(this._lastTimetoken=this._currentTimetoken,this._currentTimetoken=n),"0"!==this._currentTimetoken&&(this._storedTimetoken=this._currentTimetoken,this._currentTimetoken=0),i.forEach(function(e){t._channels[e]={state:{}},u&&(t._presenceChannels[e]={}),t._pendingChannelSubscriptions.push(e)}),s.forEach(function(e){t._channelGroups[e]={state:{}},u&&(t._presenceChannelGroups[e]={}),t._pendingChannelGroupSubscriptions.push(e)}),this._subscriptionStatusAnnounced=!1,this.reconnect()}},{key:"adaptUnsubscribeChange",
@@ -3237,7 +3839,7 @@ value:function(e,t){var n=this,r=e.channels,i=void 0===r?[]:r,o=e.channelGroups,
 null!=i&&(c.reverse=i.toString()),c}function h(e,t){var n={messages:[],startTimeToken:t[1],endTimeToken:t[2]};return t[0].forEach(function(t){var r={timetoken:t.timetoken,entry:i(e,t.message)};n.messages.push(r)}),n}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=o,t.validateParams=s,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(8),n(16)),d=r(f),p=n(17),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){var n=e.config,r=e.crypto;if(!n.cipherKey)return t;try{return r.decrypt(t)}catch(e){return t}}function o(){return d.default.PNFetchMessagesOperation}function s(e,t){var n=t.channels,r=e.config;return n&&0!==n.length?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing channels"}function a(e,t){var n=t.channels,r=void 0===n?[]:n,i=e.config,o=r.length>0?r.join(","):",";return"/v3/history/sub-key/"+i.subscribeKey+"/channel/"+g.default.encodeString(o)}function u(e){return e.config.getTransactionTimeout()}function c(){return!0}function l(e,t){var n=t.start,r=t.end,i=t.count,o={};return i&&(o.max=i),n&&(o.start=n),r&&(o.end=r),o}function h(e,t){var n={channels:{}};return Object.keys(t.channels||{}).forEach(function(r){n.channels[r]=[],(t.channels[r]||[]).forEach(function(t){var o={};o.channel=r,o.subscription=null,o.timetoken=t.timetoken,o.message=i(e,t.message),n.channels[r].push(o)})}),n}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=o,t.validateParams=s,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(8),n(16)),d=r(f),p=n(17),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNSubscribeOperation}function o(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function s(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,o=i.length>0?i.join(","):",";return"/v2/subscribe/"+n.subscribeKey+"/"+p.default.encodeString(o)+"/0"}function a(e){return e.config.getSubscribeTimeout()}function u(){return!0}function c(e,t){var n=e.config,r=t.channelGroups,i=void 0===r?[]:r,o=t.timetoken,s=t.filterExpression,a=t.region,u={heartbeat:n.getPresenceTimeout()};return i.length>0&&(u["channel-group"]=i.join(",")),s&&s.length>0&&(u["filter-expr"]=s),o&&(u.tt=o),a&&(u.tr=a),u}function l(e,t){var n=[];t.m.forEach(function(e){var t={publishTimetoken:e.p.t,region:e.p.r},r={shard:parseInt(e.a,10),subscriptionMatch:e.b,channel:e.c,payload:e.d,flags:e.f,issuingClientId:e.i,subscribeKey:e.k,originationTimetoken:e.o,userMetadata:e.u,publishMetaData:t};n.push(r)});var r={timetoken:t.t.t,region:t.t.r};return{messages:n,metadata:r}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=o,t.getURL=s,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(8),n(16)),f=r(h),d=n(17),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(7),a=(r(s),n(13)),u=r(a),c=(n(8),function(){function e(t){var n=this;i(this,e),this._modules={},Object.keys(t).forEach(function(e){n._modules[e]=t[e].bind(n)})}return o(e,[{key:"init",value:function(e){this._config=e,this._maxSubDomain=20,this._currentSubDomain=Math.floor(Math.random()*this._maxSubDomain),this._providedFQDN=(this._config.secure?"https://":"http://")+this._config.origin,this._coreParams={},this.shiftStandardOrigin()}},{key:"nextOrigin",value:function(){if(-1===this._providedFQDN.indexOf("pubsub."))return this._providedFQDN;var e=void 0;return this._currentSubDomain=this._currentSubDomain+1,this._currentSubDomain>=this._maxSubDomain&&(this._currentSubDomain=1),e=this._currentSubDomain.toString(),this._providedFQDN.replace("pubsub","ps"+e)}},{key:"shiftStandardOrigin",value:function(){var e=arguments.length>0&&void 0!==arguments[0]&&arguments[0];return this._standardOrigin=this.nextOrigin(e),this._standardOrigin}},{key:"getStandardOrigin",value:function(){return this._standardOrigin}},{key:"POST",value:function(e,t,n,r){return this._modules.post(e,t,n,r)}},{key:"GET",value:function(e,t,n){return this._modules.get(e,t,n)}},{key:"_detectErrorCategory",value:function(e){if("ENOTFOUND"===e.code)return u.default.PNNetworkIssuesCategory;if("ECONNREFUSED"===e.code)return u.default.PNNetworkIssuesCategory;if("ECONNRESET"===e.code)return u.default.PNNetworkIssuesCategory;if("EAI_AGAIN"===e.code)return u.default.PNNetworkIssuesCategory;if(0===e.status||e.hasOwnProperty("status")&&void 0===e.status)return u.default.PNNetworkIssuesCategory;if(e.timeout)return u.default.PNTimeoutCategory;if(e.response){if(e.response.badRequest)return u.default.PNBadRequestCategory;if(e.response.forbidden)return u.default.PNAccessDeniedCategory}return u.default.PNUnknownCategory}}]),e}());t.default=c,e.exports=t.default},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={get:function(e){try{return localStorage.getItem(e)}catch(e){return null}},set:function(e,t){try{return localStorage.setItem(e,t)}catch(e){return null}}},e.exports=t.default},function(e,t,n){"use strict";function r(e){var t=(new Date).getTime(),n=(new Date).toISOString(),r=function(){return console&&console.log?console:window&&window.console&&window.console.log?window.console:console}();r.log("<<<<<"),r.log("["+n+"]","\n",e.url,"\n",e.qs),r.log("-----"),e.on("response",function(n){var i=(new Date).getTime(),o=i-t,s=(new Date).toISOString();r.log(">>>>>>"),r.log("["+s+" / "+o+"]","\n",e.url,"\n",e.qs,"\n",n.text),r.log("-----")})}function i(e,t,n){var i=this;return this._config.logVerbosity&&(e=e.use(r)),this._config.proxy&&this._modules.proxy&&(e=this._modules.proxy.call(this,e)),this._config.keepAlive&&this._modules.keepAlive&&(e=this._module.keepAlive(e)),e.timeout(t.timeout).end(function(e,r){var o={};if(o.error=null!==e,o.operation=t.operation,r&&r.status&&(o.statusCode=r.status),e)return o.errorData=e,o.category=i._detectErrorCategory(e),n(o,null);var s=JSON.parse(r.text);return s.error&&1===s.error&&s.status&&s.message&&s.service?(o.errorData=s,o.statusCode=s.status,o.error=!0,o.category=i._detectErrorCategory(o),n(o,null)):n(o,s)})}function o(e,t,n){var r=u.default.get(this.getStandardOrigin()+t.url).query(e);return i.call(this,r,t,n)}function s(e,t,n,r){var o=u.default.post(this.getStandardOrigin()+n.url).query(e).send(t);return i.call(this,o,n,r)}Object.defineProperty(t,"__esModule",{value:!0}),t.get=o,t.post=s;var a=n(43),u=function(e){return e&&e.__esModule?e:{default:e}}(a);n(8)},function(e,t,n){function r(){}function i(e){if(!v(e))return e;var t=[];for(var n in e)o(t,n,e[n]);return t.join("&")}function o(e,t,n){if(null!=n)if(Array.isArray(n))n.forEach(function(n){o(e,t,n)});else if(v(n))for(var r in n)o(e,t+"["+r+"]",n[r]);else e.push(encodeURIComponent(t)+"="+encodeURIComponent(n));else null===n&&e.push(encodeURIComponent(t))}function s(e){for(var t,n,r={},i=e.split("&"),o=0,s=i.length;o<s;++o)t=i[o],n=t.indexOf("="),-1==n?r[decodeURIComponent(t)]="":r[decodeURIComponent(t.slice(0,n))]=decodeURIComponent(t.slice(n+1));return r}function a(e){var t,n,r,i,o=e.split(/\r?\n/),s={};o.pop();for(var a=0,u=o.length;a<u;++a)n=o[a],t=n.indexOf(":"),r=n.slice(0,t).toLowerCase(),i=_(n.slice(t+1)),s[r]=i;return s}function u(e){return/[\/+]json\b/.test(e)}function c(e){return e.split(/ *; */).shift()}function l(e){return e.split(/ *; */).reduce(function(e,t){var n=t.split(/ *= */),r=n.shift(),i=n.shift();return r&&i&&(e[r]=i),e},{})}function h(e,t){t=t||{},this.req=e,this.xhr=this.req.xhr,this.text="HEAD"!=this.req.method&&(""===this.xhr.responseType||"text"===this.xhr.responseType)||void 0===this.xhr.responseType?this.xhr.responseText:null,this.statusText=this.req.xhr.statusText,this._setStatusProperties(this.xhr.status),this.header=this.headers=a(this.xhr.getAllResponseHeaders()),this.header["content-type"]=this.xhr.getResponseHeader("content-type"),this._setHeaderProperties(this.header),this.body="HEAD"!=this.req.method?this._parseBody(this.text?this.text:this.xhr.response):null}function f(e,t){var n=this;this._query=this._query||[],this.method=e,this.url=t,this.header={},this._header={},this.on("end",function(){var e=null,t=null;try{t=new h(n)}catch(t){return e=new Error("Parser is unable to parse the response"),e.parse=!0,e.original=t,e.rawResponse=n.xhr&&n.xhr.responseText?n.xhr.responseText:null,e.statusCode=n.xhr&&n.xhr.status?n.xhr.status:null,n.callback(e)}n.emit("response",t);var r;try{(t.status<200||t.status>=300)&&(r=new Error(t.statusText||"Unsuccessful HTTP response"),r.original=e,r.response=t,r.status=t.status)}catch(e){r=e}r?n.callback(r,t):n.callback(null,t)})}function d(e,t){var n=b("DELETE",e);return t&&n.end(t),n}var p;"undefined"!=typeof window?p=window:"undefined"!=typeof self?p=self:(console.warn("Using browser-only version of superagent in non-browser environment"),p=this);var g=n(44),y=n(45),v=n(46),b=e.exports=n(47).bind(null,f);b.getXHR=function(){if(!(!p.XMLHttpRequest||p.location&&"file:"==p.location.protocol&&p.ActiveXObject))return new XMLHttpRequest;try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.6.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.3.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP")}catch(e){}throw Error("Browser-only verison of superagent could not find XHR")};var _="".trim?function(e){return e.trim()}:function(e){return e.replace(/(^\s*|\s*$)/g,"")};b.serializeObject=i,b.parseString=s,b.types={html:"text/html",json:"application/json",xml:"application/xml",urlencoded:"application/x-www-form-urlencoded",form:"application/x-www-form-urlencoded","form-data":"application/x-www-form-urlencoded"},b.serialize={"application/x-www-form-urlencoded":i,"application/json":JSON.stringify},b.parse={"application/x-www-form-urlencoded":s,"application/json":JSON.parse},h.prototype.get=function(e){return this.header[e.toLowerCase()]},h.prototype._setHeaderProperties=function(e){var t=this.header["content-type"]||"";this.type=c(t);var n=l(t);for(var r in n)this[r]=n[r]},h.prototype._parseBody=function(e){var t=b.parse[this.type];return!t&&u(this.type)&&(t=b.parse["application/json"]),t&&e&&(e.length||e instanceof Object)?t(e):null},h.prototype._setStatusProperties=function(e){1223===e&&(e=204);var t=e/100|0;this.status=this.statusCode=e,this.statusType=t,this.info=1==t,this.ok=2==t,this.clientError=4==t,this.serverError=5==t,this.error=(4==t||5==t)&&this.toError(),this.accepted=202==e,this.noContent=204==e,this.badRequest=400==e,this.unauthorized=401==e,this.notAcceptable=406==e,this.notFound=404==e,this.forbidden=403==e},h.prototype.toError=function(){var e=this.req,t=e.method,n=e.url,r="cannot "+t+" "+n+" ("+this.status+")",i=new Error(r);return i.status=this.status,i.method=t,i.url=n,i},b.Response=h,g(f.prototype);for(var m in y)f.prototype[m]=y[m];f.prototype.type=function(e){return this.set("Content-Type",b.types[e]||e),this},f.prototype.responseType=function(e){return this._responseType=e,this},f.prototype.accept=function(e){return this.set("Accept",b.types[e]||e),this},f.prototype.auth=function(e,t,n){switch(n||(n={type:"basic"}),n.type){case"basic":var r=btoa(e+":"+t);this.set("Authorization","Basic "+r);break;case"auto":this.username=e,this.password=t}return this},f.prototype.query=function(e){return"string"!=typeof e&&(e=i(e)),e&&this._query.push(e),this},f.prototype.attach=function(e,t,n){return this._getFormData().append(e,t,n||t.name),this},f.prototype._getFormData=function(){return this._formData||(this._formData=new p.FormData),this._formData},f.prototype.callback=function(e,t){var n=this._callback;this.clearTimeout(),n(e,t)},f.prototype.crossDomainError=function(){var e=new Error("Request has been terminated\nPossible causes: the network is offline, Origin is not allowed by Access-Control-Allow-Origin, the page is being unloaded, etc.");e.crossDomain=!0,e.status=this.status,e.method=this.method,e.url=this.url,this.callback(e)},f.prototype._timeoutError=function(){var e=this._timeout,t=new Error("timeout of "+e+"ms exceeded");t.timeout=e,this.callback(t)},f.prototype._appendQueryString=function(){var e=this._query.join("&");e&&(this.url+=~this.url.indexOf("?")?"&"+e:"?"+e)},f.prototype.end=function(e){var t=this,n=this.xhr=b.getXHR(),i=this._timeout,o=this._formData||this._data;this._callback=e||r,n.onreadystatechange=function(){if(4==n.readyState){var e;try{e=n.status}catch(t){e=0}if(0==e){if(t.timedout)return t._timeoutError();if(t._aborted)return;return t.crossDomainError()}t.emit("end")}};var s=function(e,n){n.total>0&&(n.percent=n.loaded/n.total*100),n.direction=e,t.emit("progress",n)};if(this.hasListeners("progress"))try{n.onprogress=s.bind(null,"download"),n.upload&&(n.upload.onprogress=s.bind(null,"upload"))}catch(e){}if(i&&!this._timer&&(this._timer=setTimeout(function(){t.timedout=!0,t.abort()},i)),this._appendQueryString(),this.username&&this.password?n.open(this.method,this.url,!0,this.username,this.password):n.open(this.method,this.url,!0),this._withCredentials&&(n.withCredentials=!0),"GET"!=this.method&&"HEAD"!=this.method&&"string"!=typeof o&&!this._isHost(o)){var a=this._header["content-type"],c=this._serializer||b.serialize[a?a.split(";")[0]:""];!c&&u(a)&&(c=b.serialize["application/json"]),c&&(o=c(o))}for(var l in this.header)null!=this.header[l]&&n.setRequestHeader(l,this.header[l]);return this._responseType&&(n.responseType=this._responseType),this.emit("request",this),n.send(void 0!==o?o:null),this},b.Request=f,b.get=function(e,t,n){var r=b("GET",e);return"function"==typeof t&&(n=t,t=null),t&&r.query(t),n&&r.end(n),r},b.head=function(e,t,n){var r=b("HEAD",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},b.options=function(e,t,n){var r=b("OPTIONS",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},b.del=d,b.delete=d,b.patch=function(e,t,n){var r=b("PATCH",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},b.post=function(e,t,n){var r=b("POST",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},b.put=function(e,t,n){var r=b("PUT",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r}},function(e,t,n){function r(e){if(e)return i(e)}function i(e){for(var t in r.prototype)e[t]=r.prototype[t];return e}e.exports=r,r.prototype.on=r.prototype.addEventListener=function(e,t){return this._callbacks=this._callbacks||{},(this._callbacks["$"+e]=this._callbacks["$"+e]||[]).push(t),this},r.prototype.once=function(e,t){function n(){this.off(e,n),t.apply(this,arguments)}return n.fn=t,this.on(e,n),this},r.prototype.off=r.prototype.removeListener=r.prototype.removeAllListeners=r.prototype.removeEventListener=function(e,t){if(this._callbacks=this._callbacks||{},0==arguments.length)return this._callbacks={},this;var n=this._callbacks["$"+e];if(!n)return this;if(1==arguments.length)return delete this._callbacks["$"+e],this;for(var r,i=0;i<n.length;i++)if((r=n[i])===t||r.fn===t){n.splice(i,1);break}return this},r.prototype.emit=function(e){this._callbacks=this._callbacks||{};var t=[].slice.call(arguments,1),n=this._callbacks["$"+e];if(n){n=n.slice(0);for(var r=0,i=n.length;r<i;++r)n[r].apply(this,t)}return this},r.prototype.listeners=function(e){return this._callbacks=this._callbacks||{},this._callbacks["$"+e]||[]},r.prototype.hasListeners=function(e){return!!this.listeners(e).length}},function(e,t,n){var r=n(46);t.clearTimeout=function(){return this._timeout=0,clearTimeout(this._timer),this},t.parse=function(e){return this._parser=e,this},t.serialize=function(e){return this._serializer=e,this},t.timeout=function(e){return this._timeout=e,this},t.then=function(e,t){if(!this._fullfilledPromise){var n=this;this._fullfilledPromise=new Promise(function(e,t){n.end(function(n,r){n?t(n):e(r)})})}return this._fullfilledPromise.then(e,t)},t.catch=function(e){return this.then(void 0,e)},t.use=function(e){return e(this),this},t.get=function(e){return this._header[e.toLowerCase()]},t.getHeader=t.get,t.set=function(e,t){if(r(e)){for(var n in e)this.set(n,e[n]);return this}return this._header[e.toLowerCase()]=t,this.header[e]=t,this},t.unset=function(e){return delete this._header[e.toLowerCase()],delete this.header[e],this},t.field=function(e,t){if(null===e||void 0===e)throw new Error(".field(name, val) name can not be empty");if(r(e)){for(var n in e)this.field(n,e[n]);return this}if(null===t||void 0===t)throw new Error(".field(name, val) val can not be empty");return this._getFormData().append(e,t),this},t.abort=function(){return this._aborted?this:(this._aborted=!0,this.xhr&&this.xhr.abort(),this.req&&this.req.abort(),this.clearTimeout(),this.emit("abort"),this)},t.withCredentials=function(){return this._withCredentials=!0,this},t.redirects=function(e){return this._maxRedirects=e,this},t.toJSON=function(){return{method:this.method,url:this.url,data:this._data,headers:this._header}},t._isHost=function(e){switch({}.toString.call(e)){case"[object File]":case"[object Blob]":case"[object FormData]":return!0;default:return!1}},t.send=function(e){var t=r(e),n=this._header["content-type"];if(t&&r(this._data))for(var i in e)this._data[i]=e[i];else"string"==typeof e?(n||this.type("form"),n=this._header["content-type"],this._data="application/x-www-form-urlencoded"==n?this._data?this._data+"&"+e:e:(this._data||"")+e):this._data=e;return!t||this._isHost(e)?this:(n||this.type("json"),this)}},function(e,t){function n(e){return null!==e&&"object"==typeof e}e.exports=n},function(e,t){function n(e,t,n){return"function"==typeof n?new e("GET",t).end(n):2==arguments.length?new e("GET",t):new e(t,n)}e.exports=n}])});
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -3966,642 +4568,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 50 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const axios = __webpack_require__(2);
-
-const Emitter = __webpack_require__(4);
-const Event = __webpack_require__(24);
-const User = __webpack_require__(1);
-const Search = __webpack_require__(69);
-
-/**
- This is the root {@link Chat} class that represents a chat room
-
- @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
- @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
- @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
- @class Chat
- @extends Emitter
- @extends RootEmitter
- @fires Chat#$"."ready
- @fires Chat#$"."state
- @fires Chat#$"."online
- @fires Chat#$"."offline
- */
-class Chat extends Emitter {
-
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
-
-        super(chatEngine);
-
-        this.chatEngine = chatEngine;
-
-        this.name = 'Chat';
-
-        /**
-         * A string identifier for the Chat room.
-         * @type String
-         * @readonly
-         * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
-         */
-        this.channel = channel.toString();
-
-        // public.* has PubNub permissions for everyone to read and write
-        // private.* is totally locked down and users must be granted access one by one
-        let chanPrivString = 'public.';
-
-        if (needGrant) {
-            chanPrivString = 'private.';
-        }
-
-        if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
-            this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
-        }
-
-        /**
-        * Does this chat require new {@link User}s to be granted explicit access to this room?
-        * @type Boolean
-        * @readonly
-        */
-        this.isPrivate = needGrant;
-
-        /**
-        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
-        * @type String
-        * @readonly
-        */
-        this.group = group;
-
-        /**
-         A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
-         Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
-
-         @type Object
-         @readonly
-         */
-        this.users = {};
-
-        /**
-         * Boolean value that indicates of the Chat is connected to the network
-         * @type {Boolean}
-         */
-        this.connected = false;
-
-        if (autoConnect) {
-            this.connect();
-        }
-
-        this.chatEngine.chats[this.channel] = this;
-
-    }
-    /**
-     Updates list of {@link User}s in this {@link Chat}
-     based on who is online now.
-
-     @private
-     @param {Object} status The response status
-     @param {Object} response The response payload object
-     */
-    onHereNow(status, response) {
-
-        if (status.error) {
-
-            /**
-             * There was a problem fetching the presence of this chat
-             * @event Chat#$"."error"."presence
-             */
-            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
-
-        } else {
-
-            // get the list of occupants in this channel
-            let occupants = response.channels[this.channel].occupants;
-
-            // format the userList for rltm.js standard
-            occupants.forEach((occupant) => {
-                this.userUpdate(occupant.uuid, occupant.state);
-            });
-
-        }
-
-    }
-
-    /**
-    * Turns a {@link Chat} into a JSON representation.
-    * @return {Object}
-    */
-    objectify() {
-
-        return {
-            channel: this.channel,
-            group: this.group,
-            private: this.isPrivate
-        };
-
-    }
-
-    /**
-     * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
-     * @param {User} user The {@link User} to invite to this chatroom.
-     * @fires Me#event:$"."invite
-     * @example
-     * // one user running ChatEngine
-     * let secretChat = new ChatEngine.Chat('secret-channel');
-     * secretChat.invite(someoneElse);
-     *
-     * // someoneElse in another instance of ChatEngine
-     * me.direct.on('$.invite', (payload) => {
-            *     let secretChat = new ChatEngine.Chat(payload.data.channel);
-            * });
-     */
-    invite(user) {
-
-        let complete = () => {
-
-            let send = () => {
-
-                /**
-                 * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
-                 * Fired by the {@link Chat#invite} method.
-                 * @event Me#$"."invite
-                 * @tutorial private
-                 * @example
-                 * me.direct.on('$.invite', (payload) => {
-                              *    let privChat = new ChatEngine.Chat(payload.data.channel));
-                              * });
-                 */
-                user.direct.emit('$.invite', {
-                    channel: this.channel
-                });
-
-            };
-
-            if (!user.direct.connected) {
-                user.direct.connect();
-                user.direct.on('$.connected', send);
-            } else {
-                send();
-            }
-
-        };
-
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: user.uuid,
-            myUUID: this.chatEngine.me.uuid,
-            authData: this.chatEngine.me.authData,
-            chat: this.objectify()
-        })
-            .then(() => {
-                complete();
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            });
-
-    }
-
-    /**
-     Keep track of {@link User}s in the room by subscribing to PubNub presence events.
-
-     @private
-     @param {Object} data The PubNub presence response for this event
-     */
-    onPresence(presenceEvent) {
-
-        // make sure channel matches this channel
-        if (this.channel === presenceEvent.channel) {
-
-            // someone joins channel
-            if (presenceEvent.action === 'join') {
-
-                let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
-
-                /**
-                 * Fired when a {@link User} has joined the room.
-                 *
-                 * @event Chat#$"."online"."join
-                 * @param {Object} data The payload returned by the event
-                 * @param {User} data.user The {@link User} that came online
-                 * @example
-                 * chat.on('$.join', (data) => {
-                              *     console.log('User has joined the room!', data.user);
-                              * });
-                 */
-
-                // It's possible for PubNub to send us both a join and have the user appear in here_now
-                // Avoid firing duplicate $.online events.
-                if (!this.users[user.uuid]) {
-                    this.trigger('$.online.join', { user });
-                }
-
-            }
-
-            // someone leaves channel
-            if (presenceEvent.action === 'leave') {
-                this.userLeave(presenceEvent.uuid);
-            }
-
-            // someone timesout
-            if (presenceEvent.action === 'timeout') {
-                this.userDisconnect(presenceEvent.uuid);
-            }
-
-            // someone's state is updated
-            if (presenceEvent.action === 'state-change') {
-                this.userUpdate(presenceEvent.uuid, presenceEvent.state);
-            }
-
-        }
-
-    }
-
-    /**
-     * @private
-     */
-    onPrep() {
-
-        if (!this.connected) {
-
-            if (!this.chatEngine.pubnub) {
-                this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-            }
-
-            // this will trigger ready callbacks
-
-            // subscribe to the PubNub channel for this Chat
-            this.chatEngine.pubnub.subscribe({
-                channels: [this.channel],
-                withPresence: true
-            });
-
-        }
-
-    }
-
-    /**
-     * @private
-     */
-    grant() {
-
-        let createChat = () => {
-
-            axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            })
-                .then(() => {
-                    this.onPrep();
-                })
-                .catch((error) => {
-                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
-        };
-
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
-            globalChannel: this.chatEngine.ceConfig.globalChannel,
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: this.chatEngine.pnConfig.uuid,
-            authData: this.chatEngine.me.authData,
-            chat: this.objectify()
-        })
-            .then(() => {
-                createChat();
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            });
-
-    }
-
-    /**
-     * Connect to PubNub servers to initialize the chat.
-     * @example
-     * // create a new chatroom, but don't connect to it automatically
-     * let chat = new Chat('some-chat', false)
-     *
-     * // connect to the chat when we feel like it
-     * chat.connect();
-     */
-    connect() {
-        this.grant();
-    }
-
-    /**
-     * Send events to other clients in this {@link User}.
-     * Events are trigger over the network  and all events are made
-     * on behalf of {@link Me}
-     *
-     * @param {String} event The event name
-     * @param {Object} data The event payload object
-     * @example
-     * chat.emit('custom-event', {value: true});
-     * chat.on('custom-event', (payload) => {
-          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
-          * });
-     */
-    emit(event, data) {
-
-        // create a standardized payload object
-        let payload = {
-            data, // the data supplied from params
-            sender: this.chatEngine.me.uuid, // my own uuid
-            chat: this, // an instance of this chat
-        };
-
-        // run the plugin queue to modify the event
-        this.runPluginQueue('emit', event, (next) => {
-            next(null, payload);
-        }, (err, pluginResponse) => {
-
-            // remove chat otherwise it would be serialized
-            // instead, it's rebuilt on the other end.
-            // see this.trigger
-            delete pluginResponse.chat;
-
-            // publish the event and data over the configured channel
-
-            // ensure the event exists within the global space
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
-
-            this.events[event].publish(pluginResponse);
-
-        });
-
-    }
-
-    /**
-     Add a user to the {@link Chat}, creating it if it doesn't already exist.
-
-     @private
-     @param {String} uuid The user uuid
-     @param {Object} state The user initial state
-     @param {Boolean} trigger Force a trigger that this user is online
-     */
-    createUser(uuid, state) {
-
-        // Ensure that this user exists in the global list
-        // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
-
-        this.chatEngine.users[uuid].assign(state);
-
-        // trigger the join event over this chatroom
-        if (!this.users[uuid]) {
-
-            /**
-             * Broadcast that a {@link User} has come online. This is when
-             * the framework firsts learn of a user. This can be triggered
-             * by, ```$.join```, or other network events that
-             * notify the framework of a new user.
-             *
-             * @event Chat#$"."online"."here
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
-             * @example
-             * chat.on('$.online.here', (data) => {
-                      *     console.log('User has come online:', data.user);
-                      * });
-             */
-
-            this.trigger('$.online.here', {
-                user: this.chatEngine.users[uuid]
-            });
-
-        }
-
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
-
-        // return the instance of this user
-        return this.chatEngine.users[uuid];
-
-    }
-
-    /**
-     * Update a user's state.
-     * @private
-     * @param {String} uuid The {@link User} uuid
-     * @param {Object} state State to update for the user
-     */
-    userUpdate(uuid, state) {
-
-        // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
-
-        // if we don't know about this user
-        if (!this.users[uuid]) {
-            // do the whole join thing
-            this.createUser(uuid, state);
-        }
-
-        // update this user's state in this chatroom
-        this.users[uuid].assign(state);
-
-        /**
-         * Broadcast that a {@link User} has changed state.
-         * @event ChatEngine#$"."state
-         * @param {Object} data The payload returned by the event
-         * @param {User} data.user The {@link User} that changed state
-         * @param {Object} data.state The new user state
-         * @example
-         * ChatEngine.on('$.state', (data) => {
-         *     console.log('User has changed state:', data.user, 'new state:', data.state);
-         * });
-         */
-        this.chatEngine._emit('$.state', {
-            user: this.users[uuid],
-            state: this.users[uuid].state
-        });
-
-    }
-
-    /**
-     * Leave from the {@link Chat} on behalf of {@link Me}.
-     * @fires Chat#event:$"."offline"."leave
-     * @example
-     * chat.leave();
-     */
-    leave() {
-
-        // unsubscribe from the channel locally
-        this.chatEngine.pubnub.unsubscribe({
-            channels: [this.channel]
-        });
-
-        // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
-            data: {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            } })
-            .then(() => {})
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-            });
-
-
-        this.connected = false;
-
-        this.trigger('$.disconnected');
-
-    }
-
-    /**
-     Perform updates when a user has left the {@link Chat}.
-
-     @private
-     */
-    userLeave(uuid) {
-
-        // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
-
-            // if a user leaves, trigger the event
-
-            /**
-             * Fired when a {@link User} intentionally leaves a {@link Chat}.
-             *
-             * @event Chat#$"."offline"."leave
-             * @param {Object} data The data payload from the event
-             * @param {User} user The {@link User} that has left the room
-             * @example
-             * chat.on('$.offline.leave', (data) => {
-                      *     console.log('User left the room manually:', data.user);
-                      * });
-             */
-            this.trigger('$.offline.leave', {
-                user: this.users[uuid]
-            });
-
-            // remove the user from the local list of users
-            delete this.users[uuid];
-
-            // we don't remove the user from the global list,
-            // because they may be online in other channels
-
-        } else {
-
-            // that user isn't in the user list
-            // we never knew about this user or they already left
-
-            // console.log('user already left');
-        }
-    }
-
-    /**
-     Fired when a user disconnects from the {@link Chat}
-
-     @private
-     @param {String} uuid The uuid of the {@link Chat} that left
-     */
-    userDisconnect(uuid) {
-
-        // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
-
-            /**
-             * Fired specifically when a {@link User} looses network connection
-             * to the {@link Chat} involuntarily.
-             *
-             * @event Chat#$"."offline"."disconnect
-             * @param {Object} data The {@link User} that disconnected
-             * @param {Object} data.user The {@link User} that disconnected
-             * @example
-             * chat.on('$.offline.disconnect', (data) => {
-                      *     console.log('User disconnected from the network:', data.user);
-                      * });
-             */
-
-            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
-        }
-
-    }
-
-    /**
-     Set the state for {@link Me} within this {@link User}.
-     Broadcasts the ```$.state``` event on other clients
-
-     @private
-     @param {Object} state The new state {@link Me} will have within this {@link User}
-     */
-    setState(state) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
-            // handle status, response
-        });
-    }
-
-    /**
-     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
-     which will emit all old events unless ```config.event``` is supplied.
-     @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
-     @param {Event} [config.event] The {@link Event} to search for.
-     @param {User} [config.sender] The {@link User} who sent the message.
-     @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
-     @param {Number} [config.start=0] The timetoken to begin searching between.
-     @param {Number} [config.end=0] The timetoken to end searching between.
-     @param {Boolean} [config.reverse=false] Search oldest messages first.
-     @return {@link History}
-     @example
-    chat.search({
-        event: 'my-custom-event',
-        sender: ChatEngine.me,
-        limit: 20
-    }).on('my-custom-event', (a) => {
-        console.log('this is an old event!');
-    }).on('$.search.finish', () => {
-        assert.equal(count, 50, 'correct # of results');
-        done();
-    });
-     */
-    search(config) {
-        return new Search(this.chatEngine, this, config);
-    }
-
-    onConnectionReady() {
-
-        /**
-         * Broadcast that the {@link Chat} is connected to the network.
-         * @event Chat#$"."connected
-         * @example
-         * chat.on('$.connected', () => {
-                *     console.log('chat is ready to go!');
-                * });
-         */
-        this.trigger('$.connected');
-
-        this.connected = true;
-
-        // get a list of users online now
-        // ask PubNub for information about connected users in this channel
-        this.chatEngine.pubnub.hereNow({
-            channels: [this.channel],
-            includeUUIDs: true,
-            includeState: true
-        }, this.onHereNow.bind(this));
-
-        // listen to all PubNub events for this Chat
-        this.chatEngine.pubnub.addListener({
-            presence: this.onPresence.bind(this)
-        });
-
-    }
-
-};
-
-module.exports = Chat;
-
-
-/***/ }),
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4639,15 +4605,15 @@ exports.default = function (tasks, callback) {
     nextTask([]);
 };
 
-var _isArray = __webpack_require__(15);
+var _isArray = __webpack_require__(16);
 
 var _isArray2 = _interopRequireDefault(_isArray);
 
-var _noop = __webpack_require__(16);
+var _noop = __webpack_require__(17);
 
 var _noop2 = _interopRequireDefault(_noop);
 
-var _once = __webpack_require__(17);
+var _once = __webpack_require__(18);
 
 var _once2 = _interopRequireDefault(_once);
 
@@ -4655,7 +4621,7 @@ var _baseRest = __webpack_require__(52);
 
 var _baseRest2 = _interopRequireDefault(_baseRest);
 
-var _onlyOnce = __webpack_require__(23);
+var _onlyOnce = __webpack_require__(24);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
@@ -4725,7 +4691,7 @@ module.exports = exports['default'];
 /* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var identity = __webpack_require__(18),
+var identity = __webpack_require__(19),
     overRest = __webpack_require__(53),
     setToString = __webpack_require__(55);
 
@@ -4839,7 +4805,7 @@ module.exports = setToString;
 
 var constant = __webpack_require__(57),
     defineProperty = __webpack_require__(58),
-    identity = __webpack_require__(18);
+    identity = __webpack_require__(19);
 
 /**
  * The base implementation of `setToString` without support for hot loop shorting.
@@ -4937,9 +4903,9 @@ module.exports = getNative;
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isFunction = __webpack_require__(19),
+var isFunction = __webpack_require__(20),
     isMasked = __webpack_require__(64),
-    isObject = __webpack_require__(22),
+    isObject = __webpack_require__(23),
     toSource = __webpack_require__(66);
 
 /**
@@ -5017,7 +4983,7 @@ module.exports = g;
 /* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(20);
+var Symbol = __webpack_require__(21);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -5123,7 +5089,7 @@ module.exports = isMasked;
 /* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var root = __webpack_require__(6);
+var root = __webpack_require__(7);
 
 /** Used to detect overreaching core-js shims. */
 var coreJsData = root['__core-js_shared__'];
@@ -5229,22 +5195,18 @@ module.exports = shortOut;
 /* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Emitter = __webpack_require__(4);
+const Emitter = __webpack_require__(5);
 const eachSeries = __webpack_require__(70);
 /**
- This is our Search class which allows one to search the backlog of messages.
- Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
-
- Not recommended to be constructed on it's own. Instead, call {@link Chat#search}.
-
- @class Search
+ This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
+ If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
+ @class
  @extends Emitter
- @extends RootEmitter
- @param chatEngine
+ @param uuid
+ @param state
  @param chat
- @param config
  */
-class Search extends Emitter {
+module.exports = class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {
 
@@ -5252,16 +5214,7 @@ class Search extends Emitter {
 
         this.chatEngine = chatEngine;
 
-        /**
-        Handy property to identify what this class is.
-        @type String
-        */
         this.name = 'Search';
-
-        /**
-        The {@link Chat} we'll be searching
-        @type Chat
-        */
         this.chat = chat;
 
         this.config = config;
@@ -5277,11 +5230,6 @@ class Search extends Emitter {
         this.firstTT = 0;
         this.lastTT = 0;
 
-        this.firstPage = true;
-
-        /**
-        * @private
-        */
         this.sortHistory = (messages, desc) => {
 
             messages.sort((a, b) => {
@@ -5297,29 +5245,19 @@ class Search extends Emitter {
         /**
          * Call PubNub history in a loop.
          * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
+         * @param  {[type]}   args     [description]
+         * @param  {Function} callback [description]
+         * @return {[type]}            [description]
          * @private
          */
         this.page = (pageDone) => {
 
-            /**
-             * Requesting another page from PubNub History
-             * @event Search#$"."page"."request
-             */
             this._emit('$.search.page.request');
 
-            // only set start if this is the first call and the user hasn't set it themselves
-            if (this.firstPage && !this.config.start) {
-                this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
-            }
-
-            this.firstPage = false;
+            this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.chatEngine.pubnub.history(this.config, (status, response) => {
 
-                /**
-                 * PubNub History returned a response
-                 * @event Search#$"."page"."response
-                 */
                 this._emit('$.search.page.response');
 
                 if (status.error) {
@@ -5373,13 +5311,15 @@ class Search extends Emitter {
         };
 
         /**
-        Increments when results that satisfy filters are found.
+        * Get messages that have been published to the network before this client was connected.
+        * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
+        * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
+        *
+        * @param {String} event The name of the event we're getting history for
+        * @param {Object} [config] The PubNub history config for this call
+        * @tutorial history
         */
         this.needleCount = 0;
-
-        /**
-         * @private
-         */
         this.triggerHistory = (message, cb) => {
 
             if (this.needleCount < this.config.limit) {
@@ -5399,9 +5339,6 @@ class Search extends Emitter {
 
         };
 
-        /**
-         * @private
-         */
         this.find = () => {
 
             this.page((response) => {
@@ -5418,11 +5355,6 @@ class Search extends Emitter {
                         this.needleCount < this.config.limit) {
                         this.find();
                     } else {
-
-                        /**
-                         * Search has returned all results or reached the end of history.
-                         * @event Search#$"."finish
-                         */
                         this._emit('$.search.finish');
                     }
 
@@ -5442,18 +5374,12 @@ class Search extends Emitter {
             this.plugin(senderFilter(this.config.sender));
         }
 
-        /**
-         * Search has started.
-         * @event Search#$"."start
-         */
         this._emit('$.search.start');
         this.find();
 
     }
 
 };
-
-module.exports = Search;
 
 
 /***/ }),
@@ -5560,11 +5486,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = _eachOfLimit;
 
-var _noop = __webpack_require__(16);
+var _noop = __webpack_require__(17);
 
 var _noop2 = _interopRequireDefault(_noop);
 
-var _once = __webpack_require__(17);
+var _once = __webpack_require__(18);
 
 var _once2 = _interopRequireDefault(_once);
 
@@ -5572,7 +5498,7 @@ var _iterator = __webpack_require__(73);
 
 var _iterator2 = _interopRequireDefault(_iterator);
 
-var _onlyOnce = __webpack_require__(23);
+var _onlyOnce = __webpack_require__(24);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
@@ -5637,7 +5563,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = iterator;
 
-var _isArrayLike = __webpack_require__(25);
+var _isArrayLike = __webpack_require__(26);
 
 var _isArrayLike2 = _interopRequireDefault(_isArrayLike);
 
@@ -5714,7 +5640,7 @@ module.exports = exports['default'];
 
 var arrayLikeKeys = __webpack_require__(76),
     baseKeys = __webpack_require__(87),
-    isArrayLike = __webpack_require__(25);
+    isArrayLike = __webpack_require__(26);
 
 /**
  * Creates an array of the own enumerable property names of `object`.
@@ -5757,7 +5683,7 @@ module.exports = keys;
 
 var baseTimes = __webpack_require__(77),
     isArguments = __webpack_require__(78),
-    isArray = __webpack_require__(15),
+    isArray = __webpack_require__(16),
     isBuffer = __webpack_require__(80),
     isIndex = __webpack_require__(82),
     isTypedArray = __webpack_require__(83);
@@ -5837,7 +5763,7 @@ module.exports = baseTimes;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIsArguments = __webpack_require__(79),
-    isObjectLike = __webpack_require__(7);
+    isObjectLike = __webpack_require__(8);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -5878,8 +5804,8 @@ module.exports = isArguments;
 /* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(5),
-    isObjectLike = __webpack_require__(7);
+var baseGetTag = __webpack_require__(6),
+    isObjectLike = __webpack_require__(8);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]';
@@ -5902,7 +5828,7 @@ module.exports = baseIsArguments;
 /* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(6),
+/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(7),
     stubFalse = __webpack_require__(81);
 
 /** Detect free variable `exports`. */
@@ -5941,7 +5867,7 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 module.exports = isBuffer;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module)))
 
 /***/ }),
 /* 81 */
@@ -6032,9 +5958,9 @@ module.exports = isTypedArray;
 /* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(5),
-    isLength = __webpack_require__(26),
-    isObjectLike = __webpack_require__(7);
+var baseGetTag = __webpack_require__(6),
+    isLength = __webpack_require__(27),
+    isObjectLike = __webpack_require__(8);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -6118,7 +6044,7 @@ module.exports = baseUnary;
 /* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(21);
+/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(22);
 
 /** Detect free variable `exports`. */
 var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -6141,7 +6067,7 @@ var nodeUtil = (function() {
 
 module.exports = nodeUtil;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module)))
 
 /***/ }),
 /* 87 */
@@ -6292,6 +6218,7 @@ module.exports = exports["default"];
 /***/ (function(module, exports, __webpack_require__) {
 
 const User = __webpack_require__(1);
+const Chat = __webpack_require__(4);
 
 /**
  Represents the client connection as a special {@link User} with write permissions.
@@ -6300,12 +6227,10 @@ const User = __webpack_require__(1);
  method.
 
  @class Me
- @extends User
- @extends Emitter
- @extends RootEmitter
  @param {String} uuid The uuid of this user
+ @extends User
  */
-class Me extends User {
+module.exports = class Me extends User {
 
     constructor(chatEngine, uuid, authData) {
 
@@ -6317,10 +6242,6 @@ class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
-        /**
-         * Stores a map of {@link Chat} objects that this {@link Me} has joined across all clients.
-         * @type {Object}
-         */
         this.session = {};
 
         this.direct.on('$.server.chat.created', (payload) => {
@@ -6330,6 +6251,8 @@ class Me extends User {
         this.direct.on('$.server.chat.deleted', (payload) => {
             this.removeChatFromSession(payload.chat);
         });
+
+        this.bindProtoPlugins();
 
     }
 
@@ -6382,12 +6305,12 @@ class Me extends User {
             this.session[chat.group][chat.channel] = existingChat;
         } else {
             // otherwise, try to recreate it with the server information
-            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.group);
+            this.session[chat.group][chat.channel] = new Chat(this.chatEngine, chat.channel, chat.private, false, chat.group);
 
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
             * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            * @event Me#$"."session"."chat"."join
+            * @event ChatEngine#$"."session"."chat"."join
             */
             this.trigger('$.session.chat.join', {
                 chat: this.session[chat.group][chat.channel]
@@ -6408,7 +6331,7 @@ class Me extends User {
 
             /**
             * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-            * @event Me#$"."session"."chat"."leave
+            * @event ChatEngine#$"."session"."chat"."leave
             */
             this.trigger('$.session.chat.leave', {
                 chat: targetChat
@@ -6425,8 +6348,6 @@ class Me extends User {
     }
 
 };
-
-module.exports = Me;
 
 
 /***/ })
