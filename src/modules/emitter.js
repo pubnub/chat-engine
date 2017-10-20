@@ -91,6 +91,7 @@ class Emitter extends RootEmitter {
     /**
      Binds a plugin to this object
      @param {Object} module The plugin module
+     @tutorial using
      */
     plugin(module) {
 

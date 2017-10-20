@@ -9,7 +9,7 @@ const Search = require('../components/search');
  This is the root {@link Chat} class that represents a chat room
 
  @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
+ @param {Boolean} [needGrant=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @class Chat
@@ -17,8 +17,8 @@ const Search = require('../components/search');
  @extends RootEmitter
  @fires Chat#$"."ready
  @fires Chat#$"."state
- @fires Chat#$"."online
- @fires Chat#$"."offline
+ @fires Chat#$"."online"."*
+ @fires Chat#$"."offline"."*
  */
 class Chat extends Emitter {
 
@@ -31,7 +31,7 @@ class Chat extends Emitter {
         this.name = 'Chat';
 
         /**
-         * A string identifier for the Chat room.
+         * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
          * @type String
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
@@ -46,17 +46,12 @@ class Chat extends Emitter {
             chanPrivString = 'private.';
         }
 
-        /**
-        * The PubNub channel this Chat communicates over.
-        * @type String
-        * @readonly
-        */
         if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
         /**
-        * Does this chat require new {@link User}s to be granted explicit access to this room?
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
         * @type Boolean
         * @readonly
         */
@@ -148,8 +143,8 @@ class Chat extends Emitter {
      *
      * // someoneElse in another instance of ChatEngine
      * me.direct.on('$.invite', (payload) => {
-            *     let secretChat = new ChatEngine.Chat(payload.data.channel);
-            * });
+     *     let secretChat = new ChatEngine.Chat(payload.data.channel);
+     * });
      */
     invite(user) {
 
@@ -457,7 +452,8 @@ class Chat extends Emitter {
     }
 
     /**
-     * Leave from the {@link Chat} on behalf of {@link Me}.
+     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
+     * receiving events.
      * @fires Chat#event:$"."offline"."leave
      * @example
      * chat.leave();
@@ -584,17 +580,16 @@ class Chat extends Emitter {
      @param {Number} [config.start=0] The timetoken to begin searching between.
      @param {Number} [config.end=0] The timetoken to end searching between.
      @param {Boolean} [config.reverse=false] Search oldest messages first.
-     @return {@link History}
+     @return {Search}
      @example
     chat.search({
         event: 'my-custom-event',
         sender: ChatEngine.me,
         limit: 20
-    }).on('my-custom-event', (a) => {
-        console.log('this is an old event!');
+    }).on('my-custom-event', (event) => {
+        console.log('this is an old event!', event);
     }).on('$.search.finish', () => {
-        assert.equal(count, 50, 'correct # of results');
-        done();
+        console.log('we have all our results!')
     });
      */
     search(config) {

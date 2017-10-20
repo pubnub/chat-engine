@@ -7,8 +7,6 @@ const Me = require('./components/me');
 const User = require('./components/user');
 
 /**
- Provides the base Widget class...
-
  @class ChatEngine
  @extends RootEmitter
  @return {ChatEngine} Returns an instance of {@link ChatEngine}
@@ -22,14 +20,16 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.pnConfig = pnConfig;
 
     /**
-     * A map of all known {@link User}s in this instance of ChatEngine
+     * A map of all known {@link User}s in this instance of ChatEngine.
+     * @type {Object}
      * @memberof ChatEngine
      */
     ChatEngine.users = {};
 
     /**
-     * A map of all known {@link Chat}s in this instance of ChatEngine
+     * A map of all known {@link Chat}s in this instance of ChatEngine.
      * @memberof ChatEngine
+     * @type {Object}
      */
     ChatEngine.chats = {};
 
@@ -41,7 +41,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.global = false;
 
     /**
-     * This instance of ChatEngine represented as a special {@link User} know as {@link Me}
+     * This instance of ChatEngine represented as a special {@link User} know as {@link Me}.
      * @member {Me} me
      * @memberof ChatEngine
      */
@@ -55,7 +55,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.pubnub = false;
 
     /**
-     * Indicates if ChatEngine has fired the {@link ChatEngine#$"."ready} event
+     * Indicates if ChatEngine has fired the {@link ChatEngine#$"."ready} event.
      * @member {Object} ready
      * @memberof ChatEngine
      */
@@ -81,6 +81,13 @@ module.exports = (ceConfig, pnConfig) => {
     };
 
     ChatEngine.protoPlugins = {};
+
+    /**
+     * Bind a plugin to all future instances of a Class.
+     * @method ChatEngine#proto
+     * @param  {String} className The string representation of a class to bind to
+     * @param  {Class} plugin The plugin function.
+     */
     ChatEngine.proto = (className, plugin) => {
         ChatEngine.protoPlugins[className] = ChatEngine.protoPlugins[className] || [];
         ChatEngine.protoPlugins[className].push(plugin);
@@ -92,7 +99,7 @@ module.exports = (ceConfig, pnConfig) => {
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
      * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
-     * @param {Object} [authData] Additional data to send to the authentication endpoint. Not used by ChatEngine SDK.
+     * @param {Object} [authData] Additional data to send to the authentication endpoint to help verify a valid session. ChatEngine SDK does not make use of this, but you might!
      * @fires $"."connected
      */
     ChatEngine.connect = (uuid, state = {}, authKey = false, authData) => {
@@ -132,7 +139,7 @@ module.exports = (ceConfig, pnConfig) => {
             });
 
             /**
-             Fires when PubNub network connection changes
+             Fires when PubNub network connection changes.
 
              @private
              @param {Object} statusEvent The response status
@@ -238,7 +245,7 @@ module.exports = (ceConfig, pnConfig) => {
                 .catch((error) => {
 
                     /**
-                     * There was a problem logging in
+                     * There was a problem retrieving your session from the server.
                      * @event ChatEngine#$"."error"."session
                      */
                     ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
@@ -258,7 +265,7 @@ module.exports = (ceConfig, pnConfig) => {
             .catch((error) => {
 
                 /**
-                 * There was a problem logging in
+                 * There was a problem logging in to the server.
                  * @event ChatEngine#$"."error"."auth
                  */
                 ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });

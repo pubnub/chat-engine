@@ -92,9 +92,19 @@ class Me extends User {
             this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.group);
 
             /**
-            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            * @event Me#$"."session"."chat"."join
+            Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+            Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            ChatEngine stores sessions on the server side identified by {@link User#uuid}.
+            @event Me#$"."session"."chat"."join
+            @example
+            *
+            * // Logged in as "Ian" in first window
+            * ChatEngine.me.on('$.session.chat.join', (data) => {
+            *     console.log('I joined a new chat in a second window!', data.chat);
+            * });
+            *
+            * // Logged in as "Ian" in second window
+            * new ChatEngine.Chat('another-chat');
             */
             this.trigger('$.session.chat.join', {
                 chat: this.session[chat.group][chat.channel]
@@ -114,7 +124,7 @@ class Me extends User {
             let targetChat = this.session[chat.group][chat.channel] || chat;
 
             /**
-            * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
+            * Fired when another identical instance of {@link ChatEngine} with an identical {@link Me} leaves a {@link Chat} via {@link Chat#leave}.
             * @event Me#$"."session"."chat"."leave
             */
             this.trigger('$.session.chat.leave', {
@@ -131,6 +141,6 @@ class Me extends User {
 
     }
 
-};
+}
 
 module.exports = Me;
