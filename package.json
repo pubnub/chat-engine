@@ -37,6 +37,7 @@
     "gulp-jsdoc3": "^1.0.1",
     "gulp-mocha": "^3.0.1",
     "gulp-uglify": "^2.0.0",
+    "http-server": "^0.10.0",
     "isparta": "^4.0.0",
     "jsdoc": "^3.5.5",
     "mocha": "^3.1.2",

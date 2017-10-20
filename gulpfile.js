@@ -7,6 +7,8 @@ const isparta = require('isparta');
 const runSequence = require('run-sequence');
 const webpack = require('webpack-stream');
 const jsdoc = require('gulp-jsdoc3');
+const httpServer = require('http-server');
+const path = require('path');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
@@ -66,4 +68,24 @@ gulp.task('docs', (cb) => {
 gulp.task('watch', () => {
     runSequence('compile');
     gulp.watch(sourceFiles, ['compile']);
+});
+
+gulp.task('serve_docs', () => {
+
+    let server = httpServer.createServer({
+        root: path.join(__dirname, 'docs'),
+        robots: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': 'true'
+        }
+    });
+
+    server.listen(8080);
+
+});
+
+gulp.task('docs_dev', () => {
+    runSequence('serve_docs');
+    runSequence('watch');
 });
