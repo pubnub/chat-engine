@@ -31,7 +31,7 @@ And the plugin will be available under ```ChatEngineCore.plugin[namespace]```.
 The namespace is defined in package.json and you can learn more about it in the
 next section.
 
-Once the plugi is available, you can attach it to ChatEngine objects like we do in the
+Once the plugin is available, you can attach it to ChatEngine objects like we do in the
 Node version.
 
 ```js
