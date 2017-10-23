@@ -459,6 +459,7 @@ module.exports = class Chat extends Emitter {
             data, // the data supplied from params
             sender: this.chatEngine.me.uuid, // my own uuid
             chat: this, // an instance of this chat
+            version: this.chatEngine.package.version
         };
 
         // run the plugin queue to modify the event
