@@ -17,7 +17,7 @@ PubNub Chat Engine is an object oriented framework, so when you see {@link User}
 
 ### Me
 
-The {@link User} returned by the ```connect()``` method represents this browser window. We call that {@link User} {@link Me}.
+The {@link User} returned by the {@link ChatEngine#connect} method represents this browser window. We call that user {@link Me}.
 
 ## Usernames
 
@@ -35,7 +35,7 @@ const getUsername = () => {
 
 We can call ```getUsername()``` to get a random animal name. This will be our new username.
 
-Remember when we defined {@link Me} and supplied ```ian``` as the first parameter of ```ChatEngine.connect()```? Well, we can supply whatever we want to use as the {@link User} identifier there. Let's use our new function!
+Remember when we defined {@link Me} and supplied ```ian``` as the first parameter of {@link ChatEngine#connect}? Well, we can supply whatever we want to use as the {@link User} identifier there. Let's use our new function!
 
 ```js
 let me = ChatEngine.connect(getUsername());
