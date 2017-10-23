@@ -69,7 +69,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.session = {};
 
     /**
-     * The package.json for ChatEngine. Used for detecting package version.
+     * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
      */
     ChatEngine.package = pack;
