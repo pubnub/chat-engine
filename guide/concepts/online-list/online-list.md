@@ -25,8 +25,8 @@ to render list of online users.
 
 The list of
 
-* When first joining a Chat, the Chat will emit ```$.online.here``` for every ```User``` in the room.
-* Any time a new ```User``` joins, the ```Chat``` emits the ```$.online.join``` event.
+* When first joining a Chat, the Chat will emit ```$.online.here``` for every {@link User} in the room.
+* Any time a new {@link User} joins, the {@link Chat} emits the ```$.online.join``` event.
 
 Here we subscribe both events with wildcard syntax (```$.online.*```).
 
@@ -74,7 +74,7 @@ const appendMessage = (username, text) => {
 };
 ```
 
-Then, listen for the ```$.ready``` event to find out when the client is connected to the ```Chat```.
+Then, listen for the ```$.ready``` event to find out when the client is connected to the {@link Chat}.
 
 ```js
 chat.on('$.ready', (payload) => {
@@ -82,7 +82,7 @@ chat.on('$.ready', (payload) => {
 });
 ```
 
-We subscribe to the ```$.online.*``` event to learn about online ```User```s.
+We subscribe to the ```$.online.*``` event to learn about online {@link User}s.
 
 ```js
 chat.on('$.online.*', (payload) => {

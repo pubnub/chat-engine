@@ -8,16 +8,16 @@ This connects to the PubNub Data Stream network on behalf of the browser running
 
 ### ChatEngine.connect()
 
-The function returns a ```User``` and connect to a global ```Chat```. The paramter ```ian``` is a unique identifier for the new ```User```.
+The function returns a {@link User} and connect to a global {@link Chat}. The paramter ```ian``` is a unique identifier for the new {@link User}.
 
-PubNub Chat Engine is an object oriented framework, so when you see ```User``` and ```Chat```, it represents an actual object within the SDK.
+PubNub Chat Engine is an object oriented framework, so when you see {@link User} and {@link Chat}, it represents an actual object within the SDK.
 
 - ***User*** - A client. The browser window.
-- ***Chat*** - A chatroom that a ```User``` can join.
+- ***Chat*** - A chatroom that a {@link User} can join.
 
 ### Me
 
-The ```User``` returned by the ```connect()``` method represents this browser window. We call that ```User``` ```me```.
+The {@link User} returned by the ```connect()``` method represents this browser window. We call that {@link User} {@link Me}.
 
 ## Usernames
 
@@ -35,7 +35,7 @@ const getUsername = () => {
 
 We can call ```getUsername()``` to get a random animal name. This will be our new username.
 
-Remember when we defined ```me``` and supplied ```ian``` as the first parameter of ```ChatEngine.connect()```? Well, we can supply whatever we want to use as the ```User``` identifier there. Let's use our new function!
+Remember when we defined {@link Me} and supplied ```ian``` as the first parameter of ```ChatEngine.connect()```? Well, we can supply whatever we want to use as the {@link User} identifier there. Let's use our new function!
 
 ```js
 let me = ChatEngine.connect(getUsername());

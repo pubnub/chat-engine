@@ -2,7 +2,7 @@ Let's define a custom event so we can send and recieve text messages between win
 
 ## Broadcasting Events
 
-First, let's ```emit()``` a simple text string as a ```message``` event over the ```Chat```.
+First, let's ```emit()``` a simple text string as a ```message``` event over the {@link Chat}.
 
 ```js
 chat.emit('message', 'Hey, this is Ian!');

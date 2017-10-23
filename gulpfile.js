@@ -22,6 +22,7 @@ let pluginFiles = [
     '../chat-engine-gravatar/src/plugin.js',
     '../chat-engine-markdown/src/plugin.js',
     '../chat-engine-online-user-search/src/plugin.js'];
+let guideFiles = ['guide/**/*'];
 
 // task
 gulp.task('compile', () => {
@@ -80,7 +81,7 @@ gulp.task('compile_docs', (cb) => {
 });
 
 gulp.task('watch_docs', (cb) => {
-    gulp.watch(sourceFiles, ['compile_docs']);
+    gulp.watch(sourceFiles.concat(guideFiles), ['compile_docs']);
 });
 
 gulp.task('serve_docs', () => {

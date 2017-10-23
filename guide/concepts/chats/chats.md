@@ -48,4 +48,4 @@ See {@tutorial events} for more information on events.
 - {@tutorial using}
 
 
-For example, ```chat.users``` contains a list of all the other ```User```s online in the chat. That list of users will update automatically.
+For example, ```chat.users``` contains a list of all the other {@link User}s online in the chat. That list of users will update automatically.
