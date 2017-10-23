@@ -11,7 +11,15 @@ Chat.onAny((event, payload) => {
 
 ### Namespaced Wildcards
 
-Wildcards also work within namespaces. For example, you could subscribe to all system events with ```$.*``` or get notified of all plugin events by subscribing to ```$plugin.*```.
+Wildcards also work within namespaces.
+
+#### System Events
+
+You could subscribe to all system events with ```$.*```. See {@tutorial namespaces}.
+
+#### Plugins
+
+You can get notified of all plugin events by subscribing to ```$plugin.*```.
 
 ### All Events Everywhere
 

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Angular Bootstrap - PubNub ChatEngine</title>
+    <title>Search - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Angular Bootstrap</h1>
+    <h1 class="page-title">Search</h1>
     
 
     <section>
@@ -37,15 +37,40 @@
 <header>
     
 
-    <!-- <h2>Angular Bootstrap</h2> -->
+    <!-- <h2>Search</h2> -->
 </header>
 
 <article>
-    <iframe src="https://chat-engine-examples.surge.sh/angular/simple/index.html" width="100%" height="400px"></iframe>
+    <p>Search is a way to retrieve old events that were fired before ChatEngine
+was loaded. This way, when someone reloads their page or closes the app,
+they'll see the old messages the next time they log in.</p>
+<p>You can search for events by calling the <a href="Chat.html#search">Chat#search</a> method:</p>
+<pre class="prettyprint source lang-js"><code>chat.search({
+    event: 'message'
+});</code></pre><p><a href="Chat.html#search">Chat#search</a> returns an Event Emitter, so you subscribe to it's events
+just like other objects in ChatEngine.</p>
+<pre class="prettyprint source lang-js"><code>let searchy = chat.search({
+    event: 'message',
+    limit: 50
+});
 
-<script src="//gist-it.appspot.com/github/pubnub/chat-engine-examples/blob/master/angular/simple/app.js?footer=0"></script>
-<script src="//gist-it.appspot.com/github/pubnub/chat-engine-examples/blob/master/angular/simple/plugin.js?footer=0"></script>
-<script src="//gist-it.appspot.com/github/pubnub/chat-engine-examples/blob/master/angular/simple/index.html?footer=0"></script>
+searchy.on('message', (data) => {
+    console.log('message found', data);
+});
+
+searchy.on('$.search.finish', () => {
+    console.log('end of search');
+});</code></pre><p>This will search through every event emitted in the chat until 50 <code>message</code> events
+are found or all events have been looked at. The <code>searchy.on</code> event emitter
+augments events just like <a href="Chat.html#on">Chat#on</a>.</p>
+<p><a href="Chat.html#search">Chat#search</a> is powered by <a href="https://www.pubnub.com/docs/web-javascript/storage-and-history">PubNub History</a> and the same parameters can be input
+into the function call.</p>
+<pre class="prettyprint source lang-js"><code>chat.search({
+    event: 'message',
+    limit: 50,
+    start: '123123123123',
+    end: '123123123133'
+});</code></pre>
 </article>
 
 </section>
