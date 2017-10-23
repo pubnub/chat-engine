@@ -127,6 +127,10 @@ module.exports = (ceConfig, pnConfig) => {
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (data) => {
+             *     let me = data.me;
+             * })
              */
             ChatEngine._emit('$.ready', {
                 me: ChatEngine.me

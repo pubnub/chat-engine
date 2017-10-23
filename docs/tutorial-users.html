@@ -41,10 +41,10 @@
 </header>
 
 <article>
-    <h2>Users</h2><p><a href="User.html">User</a>s are other browser windows connected to the <a href="Chat.html">Chat</a> via ChatEngine. A User represents a connected client.</p>
-<h2>Me</h2><p>When a client connects to ChatEngine, they create a special <a href="User.html">User</a> called <a href="Me.html">Me</a>. <a href="Me.html">Me</a> represents &quot;this <a href="User.html">User</a> for this instance.&quot;</p>
-<p><a href="Me.html">Me</a> and <a href="User.html">User</a> are similar in many ways, with the main difference being that <a href="Me.html">Me</a> can update state on the network while <a href="User.html">User</a> cannot update state.</p>
-<h2>State</h2><p>So how do we add other information to Users? Like a profile? We update <a href="Me.html">Me</a>'s state.</p>
+    <h2>Users</h2><p><a href="User.html">User</a>s are other browser windows connected to the <a href="Chat.html">Chat</a> via <a href="ChatEngine.html">ChatEngine</a>. A <a href="User.html">User</a> represents a connected client.</p>
+<h2>Me</h2><p>When a client calls <a href="ChatEngine.html#connect">ChatEngine#connect</a>, they create a special <a href="User.html">User</a> called <a href="Me.html">Me</a>. <a href="Me.html">Me</a> represents &quot;this <a href="User.html">User</a> for this instance.&quot;</p>
+<p><a href="Me.html">Me</a> and <a href="User.html">User</a> are similar in many ways, with the main difference being that <a href="Me.html">Me</a> has the ability to edit <a href="Me.html#state">Me#state</a> via <a href="Me.html#update">Me#update</a> while you can not updated some other <a href="User.html#state">User#state</a>.</p>
+<h2>State</h2><p>So how do we add other information to Users? Like a profile? We update <a href="Me.html#state">Me#state</a> via <a href="Me.html#update">Me#update</a>.</p>
 <p>This way, when any new client connects to the chat, their <a href="Me.html">Me</a> object will update all the other clients about it's state.</p>
 <p>Let's give <a href="Me.html">Me</a> a unique username color. Here's a function to choose a random color.</p>
 <pre class="prettyprint source lang-js"><code>const colors =   [&quot;AliceBlue&quot;,&quot;AntiqueWhite&quot;,&quot;Aqua&quot;,&quot;Aquamarine&quot;,&quot;Azure&quot;,&quot;Beige&quot;,&quot;Bisque&quot;,&quot;Black&quot;,&quot;BlanchedAlmond&quot;,&quot;Blue&quot;,&quot;BlueViolet&quot;,&quot;Brown&quot;,&quot;BurlyWood&quot;,&quot;CadetBlue&quot;,&quot;Chartreuse&quot;,&quot;Chocolate&quot;,&quot;Coral&quot;,&quot;CornflowerBlue&quot;,&quot;Cornsilk&quot;,&quot;Crimson&quot;,&quot;Cyan&quot;,&quot;DarkBlue&quot;,&quot;DarkCyan&quot;,&quot;DarkGoldenRod&quot;,&quot;DarkGray&quot;,&quot;DarkGrey&quot;,&quot;DarkGreen&quot;,&quot;DarkKhaki&quot;,&quot;DarkMagenta&quot;,&quot;DarkOliveGreen&quot;,&quot;Darkorange&quot;,&quot;DarkOrchid&quot;,&quot;DarkRed&quot;,&quot;DarkSalmon&quot;,&quot;DarkSeaGreen&quot;,&quot;DarkSlateBlue&quot;,&quot;DarkSlateGray&quot;,&quot;DarkSlateGrey&quot;,&quot;DarkTurquoise&quot;,&quot;DarkViolet&quot;,&quot;DeepPink&quot;,&quot;DeepSkyBlue&quot;,&quot;DimGray&quot;,&quot;DimGrey&quot;,&quot;DodgerBlue&quot;,&quot;FireBrick&quot;,&quot;FloralWhite&quot;,&quot;ForestGreen&quot;,&quot;Fuchsia&quot;,&quot;Gainsboro&quot;,&quot;GhostWhite&quot;,&quot;Gold&quot;,&quot;GoldenRod&quot;,&quot;Gray&quot;,&quot;Grey&quot;,&quot;Green&quot;,&quot;GreenYellow&quot;,&quot;HoneyDew&quot;,&quot;HotPink&quot;,&quot;IndianRed&quot;,&quot;Indigo&quot;,&quot;Ivory&quot;,&quot;Khaki&quot;,&quot;Lavender&quot;,&quot;LavenderBlush&quot;,&quot;LawnGreen&quot;,&quot;LemonChiffon&quot;,&quot;LightBlue&quot;,&quot;LightCoral&quot;,&quot;LightCyan&quot;,&quot;LightGoldenRodYellow&quot;,&quot;LightGray&quot;,&quot;LightGrey&quot;,&quot;LightGreen&quot;,&quot;LightPink&quot;,&quot;LightSalmon&quot;,&quot;LightSeaGreen&quot;,&quot;LightSkyBlue&quot;,&quot;LightSlateGray&quot;,&quot;LightSlateGrey&quot;,&quot;LightSteelBlue&quot;,&quot;LightYellow&quot;,&quot;Lime&quot;,&quot;LimeGreen&quot;,&quot;Linen&quot;,&quot;Magenta&quot;,&quot;Maroon&quot;,&quot;MediumAquaMarine&quot;,&quot;MediumBlue&quot;,&quot;MediumOrchid&quot;,&quot;MediumPurple&quot;,&quot;MediumSeaGreen&quot;,&quot;MediumSlateBlue&quot;,&quot;MediumSpringGreen&quot;,&quot;MediumTurquoise&quot;,&quot;MediumVioletRed&quot;,&quot;MidnightBlue&quot;,&quot;MintCream&quot;,&quot;MistyRose&quot;,&quot;Moccasin&quot;,&quot;NavajoWhite&quot;,&quot;Navy&quot;,&quot;OldLace&quot;,&quot;Olive&quot;,&quot;OliveDrab&quot;,&quot;Orange&quot;,&quot;OrangeRed&quot;,&quot;Orchid&quot;,&quot;PaleGoldenRod&quot;,&quot;PaleGreen&quot;,&quot;PaleTurquoise&quot;,&quot;PaleVioletRed&quot;,&quot;PapayaWhip&quot;,&quot;PeachPuff&quot;,&quot;Peru&quot;,&quot;Pink&quot;,&quot;Plum&quot;,&quot;PowderBlue&quot;,&quot;Purple&quot;,&quot;Red&quot;,&quot;RosyBrown&quot;,&quot;RoyalBlue&quot;,&quot;SaddleBrown&quot;,&quot;Salmon&quot;,&quot;SandyBrown&quot;,&quot;SeaGreen&quot;,&quot;SeaShell&quot;,&quot;Sienna&quot;,&quot;Silver&quot;,&quot;SkyBlue&quot;,&quot;SlateBlue&quot;,&quot;SlateGray&quot;,&quot;SlateGrey&quot;,&quot;Snow&quot;,&quot;SpringGreen&quot;,&quot;SteelBlue&quot;,&quot;Tan&quot;,&quot;Teal&quot;,&quot;Thistle&quot;,&quot;Tomato&quot;,&quot;Turquoise&quot;,&quot;Violet&quot;,&quot;Wheat&quot;,&quot;White&quot;,&quot;WhiteSmoke&quot;,&quot;Yellow&quot;,&quot;YellowGreen&quot;];
@@ -52,12 +52,12 @@
 const getColor = () => {
     return colors[Math.floor(Math.random() * colors.length)];
 };</code></pre><p>Let's connect to ChatEngine.</p>
-<pre class="prettyprint source lang-js"><code>let me = ChatEngine.connect('ian-jennings');</code></pre><p>We can update the <a href="User.html">User</a>'s state on the network with the <a href="Me.html#update">Me#update</a> method.</p>
-<pre class="prettyprint source lang-js"><code>me.update({color: getColor()});</code></pre><p>Then we can listen for the state event via:</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian-jennings');</code></pre><p>We can update the <a href="User.html">User</a>'s state on the network with the <a href="Me.html#update">Me#update</a> method.</p>
+<pre class="prettyprint source lang-js"><code>me.update({color: getColor()});</code></pre><p>Then we can listen for the state event via <a href="ChatEngine.html#event:$%2522.%2522state">ChatEngine#event:$"."state</a>:</p>
 <pre class="prettyprint source"><code>ChatEngine.global.on('$.state', (payload) => {
   console.log(payload.user + ' updated state: ' + payload.state);
-});</code></pre><p>You can set <a href="Me.html">Me</a>'s starting state by using the second param of <a href="ChatEngine.html#connect">ChatEngine#connect</a>.</p>
-<pre class="prettyprint source lang-js"><code>let me = ChatEngine.connect('ian-jennings', {color: getColor()});</code></pre><p>What if we want to get a <a href="User.html">User</a>'s state some other time?</p>
+});</code></pre><p>You can set Me#staet during connection by supplying the second param of <a href="ChatEngine.html#connect">ChatEngine#connect</a>.</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian-jennings', {color: getColor()});</code></pre><p>What if we want to get a <a href="User.html">User</a>'s state some other time?</p>
 <pre class="prettyprint source lang-js"><code>// get the first user in global chat
 let user = ChatEngine.global.users[0];
 
@@ -72,7 +72,7 @@ console.log(user.state);</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 23 2017 15:17:48 GMT-0500 (CDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Oct 23 2017 15:38:43 GMT-0500 (CDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

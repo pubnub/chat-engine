@@ -8,16 +8,23 @@ This connects to the PubNub Data Stream network on behalf of the browser running
 
 ### ChatEngine.connect()
 
-The function returns a {@link User} and connect to a global {@link Chat}. The paramter ```ian``` is a unique identifier for the new {@link User}.
+The function connects to {@link ChatEngine.global}. The paramter ```ian``` is a unique identifier for the new {@link User}.
 
-PubNub Chat Engine is an object oriented framework, so when you see {@link User} and {@link Chat}, it represents an actual object within the SDK.
+When ChatEngine has been connected, a fancy {@link Me} object is returned by the {@link ChatEngine#event:$"."ready} event.
 
-- ***User*** - A client. The browser window.
-- ***Chat*** - A chatroom that a {@link User} can join.
+```js
+ChatEngine.on('$.ready', (data) => {
+    let me = data.me;
+});
+```
 
-### Me
+At this point the {@link Me} object is fully usable:
 
-The {@link User} returned by the {@link ChatEngine#connect} method represents this browser window. We call that user {@link Me}.
+```js
+me.update({lastOnline: new Date()});
+```
+
+See {@tutorial users} for more information on {@link Me#update}.
 
 ## Usernames
 

@@ -1,16 +1,16 @@
 ## Users
 
-{@link User}s are other browser windows connected to the {@link Chat} via ChatEngine. A User represents a connected client.
+{@link User}s are other browser windows connected to the {@link Chat} via {@link ChatEngine}. A {@link User} represents a connected client.
 
 ## Me
 
-When a client connects to ChatEngine, they create a special {@link User} called {@link Me}. {@link Me} represents "this {@link User} for this instance."
+When a client calls {@link ChatEngine#connect}, they create a special {@link User} called {@link Me}. {@link Me} represents "this {@link User} for this instance."
 
-{@link Me} and {@link User} are similar in many ways, with the main difference being that {@link Me} can update state on the network while {@link User} cannot update state.
+{@link Me} and {@link User} are similar in many ways, with the main difference being that {@link Me} has the ability to edit {@link Me#state} via {@link Me#update} while you can not updated some other {@link User#state}.
 
 ## State
 
-So how do we add other information to Users? Like a profile? We update {@link Me}'s state.
+So how do we add other information to Users? Like a profile? We update {@link Me#state} via {@link Me#update}.
 
 This way, when any new client connects to the chat, their {@link Me} object will update all the other clients about it's state.
 
@@ -27,7 +27,7 @@ const getColor = () => {
 Let's connect to ChatEngine.
 
 ```js
-let me = ChatEngine.connect('ian-jennings');
+ChatEngine.connect('ian-jennings');
 ```
 
 We can update the {@link User}'s state on the network with the {@link Me#update} method.
@@ -36,7 +36,7 @@ We can update the {@link User}'s state on the network with the {@link Me#update}
 me.update({color: getColor()});
 ```
 
-Then we can listen for the state event via:
+Then we can listen for the state event via {@link ChatEngine#event:$"."state}:
 
 ```
 ChatEngine.global.on('$.state', (payload) => {
@@ -45,10 +45,10 @@ ChatEngine.global.on('$.state', (payload) => {
 
 ```
 
-You can set {@link Me}'s starting state by using the second param of {@link ChatEngine#connect}.
+You can set {@link Me#staet} during connection by supplying the second param of {@link ChatEngine#connect}.
 
 ```js
-let me = ChatEngine.connect('ian-jennings', {color: getColor()});
+ChatEngine.connect('ian-jennings', {color: getColor()});
 ```
 
 What if we want to get a {@link User}'s state some other time?
