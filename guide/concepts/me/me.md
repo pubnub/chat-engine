@@ -10,7 +10,7 @@ This connects to the PubNub Data Stream network on behalf of the browser running
 
 The function connects to {@link ChatEngine.global}. The paramter ```ian``` is a unique identifier for the new {@link User}.
 
-When ChatEngine has been connected, a fancy {@link Me} object is returned by the {@link ChatEngine#event:$"."ready} event.
+When ChatEngine has been connected, a fancy {@link Me} object is returned by the {@link ChatEngine#event:$"."ready $.ready} event.
 
 ```js
 ChatEngine.on('$.ready', (data) => {

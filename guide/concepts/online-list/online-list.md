@@ -25,8 +25,8 @@ to render list of online users.
 
 The list of
 
-* When first joining a {@link Chat}, the {@link Chat} will emit {@link Chat#event:$"."online"."here} for every {@link User} in the room.
-* Any time a new {@link User} joins, the {@link Chat} emits {@link Chat#event:$"."online"."join}.
+* When first joining a {@link Chat}, the {@link Chat} will emit {@link Chat#event:$"."online"."here $.online.here} for every {@link User} in the room.
+* Any time a new {@link User} joins, the {@link Chat} emits {@link Chat#event:$"."online"."join $.online.join}.
 
 Here we subscribe both events with wildcard syntax (```$.online.*```).
 

@@ -32,7 +32,7 @@ We can update {@link Me}'s state on the network with the {@link Me#update} metho
 me.update({color: getColor()});
 ```
 
-Then we can listen for the state event in other windows via {@link ChatEngine#event:$"."state}:
+Then we can listen for the state event in other windows via {@link ChatEngine#event:$"."state $.state}:
 
 ```
 ChatEngine.global.on('$.state', (payload) => {

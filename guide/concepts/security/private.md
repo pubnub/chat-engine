@@ -24,7 +24,7 @@ This will send ```otherUser``` a secure invite to the {@link Chat} via {@link Us
 
 ## Receiving invites to Private Chats
 
-You can get notified of invites by subscribing to the {@link Me#event:$"."invite} event.
+You can get notified of invites by subscribing to the {@link Me#event:$"."invite $.invite} event.
 
 ```js
 me.direct.on('$.invite', (payload) => {

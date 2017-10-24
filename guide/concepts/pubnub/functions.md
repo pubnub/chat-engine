@@ -21,7 +21,7 @@ chat-engine#chat#private.*
 
 ## Code
 
-You can access the ChatEngine Event type via ```request.message.event``` and the
+You can access the ChatEngine Event type via ```request.messag=e.event``` and the
 event payload via ```request.message.data```.
 
 For example, to build a simple PubNub function that replaces all sent 'message's with

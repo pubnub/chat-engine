@@ -8,7 +8,7 @@ Custom events are events you define in your framework, like ```message``` and ``
 
 ### $ - System Events
 
-System events always begin with a ```$```. For example, {@link ChatEngine#event:$"."ready} and {@link Chat#event:$"."online"."join} are examples of events emitted by ChatEninge. They are system events that are automatically emitted when specific things happen. System events are documented in the reference.
+System events always begin with a ```$```. For example, {@link ChatEngine#event:$"."ready $.ready} and {@link Chat#event:$"."online"."join $.online.join} are examples of events emitted by ChatEninge. They are system events that are automatically emitted when specific things happen. System events are documented in the reference.
 
 ### $plugin - PLugin Events
 
