@@ -34,7 +34,7 @@ class Search extends Emitter {
         this.chat = chat;
 
         /**
-        An object containing configuration parameters supplied by {@link Chat#search}.
+        An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
         @type {Object}
         */
         this.config = config;
@@ -75,7 +75,7 @@ class Search extends Emitter {
         this.page = (pageDone) => {
 
             /**
-             * Requesting another page from PubNub History
+             * Requesting another page from PubNub History.
              * @event Search#$"."page"."request
              */
             this._emit('$.search.page.request');
@@ -90,7 +90,7 @@ class Search extends Emitter {
             this.chatEngine.pubnub.history(this.config, (status, response) => {
 
                 /**
-                 * PubNub History returned a response
+                 * PubNub History returned a response.
                  * @event Search#$"."page"."response
                  */
                 this._emit('$.search.page.response');
