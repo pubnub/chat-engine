@@ -122,6 +122,15 @@ module.exports = (ceConfig, pnConfig) => {
             // build the current user
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
             ChatEngine.me.update(state);
+
+            /**
+            * Fired when a {@link Me} has been created within ChatEngine.
+            * @event ChatEngine#$"."created"."me
+            * @example
+            * ChatEngine.on('$.created.me', (data, me) => {
+            *     console.log('Me was created', me);
+            * });
+            */
             ChatEngine.me.onConstructed();
 
             /**
