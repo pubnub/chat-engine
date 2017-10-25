@@ -139,5 +139,6 @@ class RootEmitter {
 
     }
 
-};
+}
+
 module.exports = RootEmitter;

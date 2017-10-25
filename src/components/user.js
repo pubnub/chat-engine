@@ -130,5 +130,6 @@ class User extends Emitter {
 
     }
 
-};
+}
+
 module.exports = User;

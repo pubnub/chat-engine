@@ -81,7 +81,7 @@ gulp.task('compile_docs', (cb) => {
         .pipe(jsdoc(config, cb));
 });
 
-gulp.task('watch_docs', (cb) => {
+gulp.task('watch_docs', () => {
     gulp.watch(sourceFiles.concat(guideFiles).concat(readme), ['compile_docs']);
 });
 

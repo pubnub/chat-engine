@@ -221,6 +221,6 @@ class Search extends Emitter {
 
     }
 
-};
+}
 
 module.exports = Search;
