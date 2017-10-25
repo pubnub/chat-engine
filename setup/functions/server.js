@@ -11,25 +11,6 @@ export default (request, response) => {
 
     let controllers = {};
 
-    let reset = function() {
-        if ( isReset ) return;
-        pubnub.grant({
-            read: false,
-            write: false,
-            ttl: 0
-        }).then( ( status ) => {
-            if ( !status.message || status.message !== "Success" ) {
-                console.log("PAM Issue: ", status.message);
-                response.status = 500;
-                return response.send("Internal Server Error");
-            } else {
-                console.log("All PAM permissions successfully reset.");
-            }
-        });
-
-        isReset = true;
-    }
-
     let globalGrant = function(gChan, myUUID, myAuthKey) {
 
         let chanMeRW = [
@@ -346,9 +327,6 @@ export default (request, response) => {
         }
 
     };
-
-    // Reset all PAM permissions
-    // reset();
 
     // Choose route based on request.params and request.method
     // Execute the controller function in the controllers object
