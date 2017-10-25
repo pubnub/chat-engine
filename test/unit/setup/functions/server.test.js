@@ -12,4 +12,7 @@ describe('#server', () => {
         assert.isObject(server, 'was successfully created');
         done();
     });
+
+    //...
+    
 });
