@@ -1,3 +1,27 @@
+# New in v0.6.x
+
+- {@link Chat#search New Search (History) Class}
+    - ```chat.search({event: 'message'}).on('messsage', () => {})```.
+    - Search returns event emitter for superior code quality
+    - Search now pages to iterate over complete history
+    - Ability to search between dates
+    - Events for {@link Search#event:$"."search"."start $.search.start} and {@link Search#event:$"."page"."request $.page.request}
+- Functions auto setup in setup.js
+- Unit testing coverage
+- Ability to subscribe to events indicating a class was created locally
+    - {@link ChatEngine#event:$"."created"."chat ChatEngine#$.created.chat}
+    - {@link ChatEngine#event:$"."created"."user ChatEngine#$.created.user}
+    - {@link ChatEngine#event:$"."created"."me ChatEngine#$.created.me}
+- Source of ```ChatEngine``` events available as second param in callback.
+    - ```ChatEngine.on('$.created.chat', (payload, chat) => {})```;
+- Full es6 class syntax
+- protoPlugin() -> {@link ChatEngine#proto}
+- Docs updated
+    - Docs rendering repaired
+    - Docs migrated from 0.4.x -> 0.6.x
+    - Improved hyperlinks between events and methods
+    - Docs build process in gulp (```compile_docs```, ```watch_docs```, ```serve_docs```, and ```docs_dev``` to do all three).
+
 # Development
 
 ## Cloning

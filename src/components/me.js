@@ -7,10 +7,12 @@ const User = require('./user');
  method.
 
  @class Me
- @param {String} uuid The uuid of this user
  @extends User
+ @extends Emitter
+ @extends RootEmitter
+ @param {String} uuid The uuid of this user
  */
-module.exports = class Me extends User {
+class Me extends User {
 
     constructor(chatEngine, uuid, authData) {
 
@@ -22,6 +24,10 @@ module.exports = class Me extends User {
         this.authData = authData;
         this.chatEngine = chatEngine;
 
+        /**
+         * Stores a map of {@link Chat} objects that this {@link Me} has joined across all clients.
+         * @type {Object}
+         */
         this.session = {};
 
         this.direct.on('$.server.chat.created', (payload) => {
@@ -86,9 +92,19 @@ module.exports = class Me extends User {
             this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.group);
 
             /**
-            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            * @event ChatEngine#$"."session"."chat"."join
+            Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+            Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            ChatEngine stores sessions on the server side identified by {@link User#uuid}.
+            @event Me#$"."session"."chat"."join
+            @example
+            *
+            * // Logged in as "Ian" in first window
+            * ChatEngine.me.on('$.session.chat.join', (data) => {
+            *     console.log('I joined a new chat in a second window!', data.chat);
+            * });
+            *
+            * // Logged in as "Ian" in second window
+            * new ChatEngine.Chat('another-chat');
             */
             this.trigger('$.session.chat.join', {
                 chat: this.session[chat.group][chat.channel]
@@ -108,8 +124,8 @@ module.exports = class Me extends User {
             let targetChat = this.session[chat.group][chat.channel] || chat;
 
             /**
-            * Fired when another identical instance of {@link ChatEngine} and {@link Me} leaves a {@link Chat}.
-            * @event ChatEngine#$"."session"."chat"."leave
+            * Fired when another identical instance of {@link ChatEngine} with an identical {@link Me} leaves a {@link Chat} via {@link Chat#leave}.
+            * @event Me#$"."session"."chat"."leave
             */
             this.trigger('$.session.chat.leave', {
                 chat: targetChat
@@ -125,4 +141,6 @@ module.exports = class Me extends User {
 
     }
 
-};
+}
+
+module.exports = Me;

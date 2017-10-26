@@ -9,16 +9,18 @@ const Search = require('../components/search');
  This is the root {@link Chat} class that represents a chat room
 
  @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [needGrant=true] This Chat has restricted permissions and we need to authenticate ourselves in order to connect.
+ @param {Boolean} [needGrant=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+ @class Chat
  @extends Emitter
+ @extends RootEmitter
  @fires Chat#$"."ready
  @fires Chat#$"."state
- @fires Chat#$"."online
- @fires Chat#$"."offline
+ @fires Chat#$"."online"."*
+ @fires Chat#$"."offline"."*
  */
-module.exports = class Chat extends Emitter {
+class Chat extends Emitter {
 
     constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
 
@@ -29,7 +31,7 @@ module.exports = class Chat extends Emitter {
         this.name = 'Chat';
 
         /**
-         * A string identifier for the Chat room.
+         * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
          * @type String
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
@@ -49,7 +51,7 @@ module.exports = class Chat extends Emitter {
         }
 
         /**
-        * Does this chat require new {@link User}s to be granted explicit access to this room?
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
         * @type Boolean
         * @readonly
         */
@@ -117,125 +119,6 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * Call PubNub history in a loop.
-     * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
-     * @param  {[type]}   args     [description]
-     * @param  {Function} callback [description]
-     * @return {[type]}            [description]
-     * @private
-     */
-    _pageHistory(event, args, callback) {
-
-        args.pagesize = args.pagesize || 100;
-        args.countEmitted = args.countEmitted || 0;
-
-        this.chatEngine.pubnub.history({
-            // search starting from this timetoken
-            // start: args.startToken,
-            channel: args.channel,
-            // false - search forwards through the timeline
-            // true - search backwards through the timeline
-            reverse: args.reverse,
-            // limit number of messages per request to this value; default/max=100
-            count: args.pagesize,
-            // include each returned message's publish timetoken
-            includeTimetoken: true,
-            // prevents JS from truncating 17 digit timetokens
-            stringifiedTimeToken: true
-        }, (status, response) => {
-
-            if (status.error) {
-
-                /**
-                 * There was a problem fetching the history of this chat
-                 * @event Chat#$"."error"."history
-                 */
-                this.chatEngine.throwError(this, 'trigger', 'history', new Error('There was a problem fetching the history. Make sure history is enabled for this PubNub key.'), status);
-
-            } else {
-
-                // holds the accumulation of resulting messages across all iterations
-                let count = args.count || 0;
-                // timetoken of the first message in response
-                let firstTT = response.startTimeToken;
-                // timetoken of the last message in response
-                let lastTT = response.endTimeToken;
-                // if no max results specified, default to 500
-                args.max = !args.max ? 500 : args.max;
-
-                Object.keys(response.messages).forEach((key) => {
-
-                    if (response.messages[key]
-                        && response.messages[key].entry.event === event) {
-
-                        let thisEvent = ['$', 'history', event].join('.');
-
-                        if (count < args.max) {
-
-                            /**
-                             * Fired by the {@link Chat#history} call. Emits old events again. Events are prepended with
-                             * ```$.history.``` to distinguish it from the original live events.
-                             * @event Chat#$"."history"."*
-                             * @tutorial history
-                             */
-                            this.trigger(thisEvent, response.messages[key].entry);
-                            count += 1;
-
-                        }
-
-                    }
-
-                });
-
-                // we keep asking for more messages if # messages returned by last request is the
-                // same at the pagesize AND we still have reached the total number of messages requested
-                // same as the opposit of !(msgs.length < pagesize || total == max)
-                if (response.messages.length === args.pagesize && count < args.max) {
-
-                    this._pageHistory(event, {
-                        channel: args.channel,
-                        max: args.max,
-                        reverse: args.reverse,
-                        pagesize: args.pagesize,
-                        startToken: args.reverse ? lastTT : firstTT,
-                        event: args.event,
-                        count,
-                        countEmitted: args.countEmitted
-                    }, callback);
-
-                } else {
-                    // we've reached the end of possible messages to retrieve or hit the 'max' we asked for
-                    // so invoke the callback to the original caller of getMessages providing the total message results
-                    callback();
-                }
-
-            }
-
-        });
-    }
-
-    /**
-     * Get messages that have been published to the network before this client was connected.
-     * Events are published with the ```$history``` prefix. So for example, if you had the event ```message```,
-     * you would call ```Chat.history('message')``` and subscribe to history events via ```chat.on('$history.message', (data) => {})```.
-     *
-     * @param {String} event The name of the event we're getting history for
-     * @param {Object} [config] The PubNub history config for this call
-     * @tutorial history
-     */
-    history(event, config = {}, done = () => {}) {
-
-        // create the event if it does not exist
-        this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
-
-        // set the PubNub configured channel to this channel
-        config.channel = this.events[event].channel;
-
-        this._pageHistory(event, config, done);
-
-    }
-
-    /**
     * Turns a {@link Chat} into a JSON representation.
     * @return {Object}
     */
@@ -260,8 +143,8 @@ module.exports = class Chat extends Emitter {
      *
      * // someoneElse in another instance of ChatEngine
      * me.direct.on('$.invite', (payload) => {
-            *     let secretChat = new ChatEngine.Chat(payload.data.channel);
-            * });
+     *     let secretChat = new ChatEngine.Chat(payload.data.channel);
+     * });
      */
     invite(user) {
 
@@ -569,7 +452,8 @@ module.exports = class Chat extends Emitter {
     }
 
     /**
-     * Leave from the {@link Chat} on behalf of {@link Me}.
+     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
+     * receiving events.
      * @fires Chat#event:$"."offline"."leave
      * @example
      * chat.leave();
@@ -689,7 +573,6 @@ module.exports = class Chat extends Emitter {
     /**
      Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
      which will emit all old events unless ```config.event``` is supplied.
-     @param {Object} [config] The search configuration object.
      @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
      @param {Event} [config.event] The {@link Event} to search for.
      @param {User} [config.sender] The {@link User} who sent the message.
@@ -697,17 +580,16 @@ module.exports = class Chat extends Emitter {
      @param {Number} [config.start=0] The timetoken to begin searching between.
      @param {Number} [config.end=0] The timetoken to end searching between.
      @param {Boolean} [config.reverse=false] Search oldest messages first.
-     @return {@link History}
+     @return {Search}
      @example
     chat.search({
         event: 'my-custom-event',
         sender: ChatEngine.me,
         limit: 20
-    }).on('my-custom-event', (a) => {
-        console.log('this is an old event!');
+    }).on('my-custom-event', (event) => {
+        console.log('this is an old event!', event);
     }).on('$.search.finish', () => {
-        assert.equal(count, 50, 'correct # of results');
-        done();
+        console.log('we have all our results!')
     });
      */
     search(config) {
@@ -743,4 +625,6 @@ module.exports = class Chat extends Emitter {
 
     }
 
-};
+}
+
+module.exports = Chat;

@@ -6,7 +6,7 @@ You can grab the latest version of ChatEngine by hotlinking to the GitHub pages
 hosted version of ChatEngine
 
 ```js
-<script src="//pubnub.github.io/chat-engine/dist/0.4.2/chat-engine.js"></script>
+<script src="//pubnub.github.io/chat-engine/dist/0.6.1/chat-engine.js"></script>
 ```
 
 The ChatEngine library will then be available as ```window.ChatEngineCore```.

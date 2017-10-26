@@ -31,7 +31,7 @@ The ```sendChat()``` method fires {@link Chat#emit}.
 function sendChat() {
 
     chat.emit('message', {
-        text: 'hello worl!'
+        text: 'hello world!'
     });
 
 };
@@ -60,7 +60,7 @@ For example in angular:
 ```
 <ul id="online-list">
     <li ng-repeat="(uuid, user) in chat.users">
-        <a href="#" ng-click="chat.invite(user)">{{user.state().username}}</a>
+        <a href="#" ng-click="chat.invite(user)">{{user.state.username}}</a>
     </li>
 </ul>
 ```

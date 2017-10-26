@@ -1,14 +1,12 @@
-### Errors Two Ways
-
 When developing with ChatEngine, errors will occasionally be reported to let you know when things go wrong.
 
-By default, errors are both thrown from ChatEngine source and emitted as ```$.error``` events from the object that emitted them.
+By default, errors are both emitted as ```$.error``` events from the object that is responsible and bubbled via ```throw```.
 
-#### Thrown Errors
+## Thrown Errors
 
 You'll notice thrown errors because they usually break Javascript execution and log a stack trace within the console.
 
-#### Errors as Events
+## Errors as Events
 
 You can also subscribe to errors via the ```$.error``` event. If you'd like to subscribe to all ChatEngine errors, try the following:
 
@@ -18,7 +16,7 @@ ChatEngine.onAny('$.error.*', (payload) {
 });
 ```
 
-#### Errors in Production
+## Errors in Production
 
 In a production app, it is not a good idea to throw errors. If you'd like to suprress errors, supply ```throwErrors: false``` in your ```ceConfig```.
 

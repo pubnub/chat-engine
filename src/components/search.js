@@ -1,17 +1,19 @@
 const Emitter = require('../modules/emitter');
 const eachSeries = require('async/eachSeries');
 /**
- This is our Search class which allows one to search the backlog of messages.
+Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
+
+
  Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
 
- Not recommended to be constructed on it's own. Instead, call {@link Chat#search}.
-
+ @class Search
  @extends Emitter
+ @extends RootEmitter
  @param chatEngine
  @param chat
  @param config
  */
-module.exports = class Search extends Emitter {
+class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {
 
@@ -26,11 +28,15 @@ module.exports = class Search extends Emitter {
         this.name = 'Search';
 
         /**
-        The {@link Chat} we'll be searching
+        The {@link Chat} used for searching.
         @type Chat
         */
         this.chat = chat;
 
+        /**
+        An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
+        @type {Object}
+        */
         this.config = config;
         this.config.event = config.event;
         this.config.limit = config.limit || 20;
@@ -64,15 +70,12 @@ module.exports = class Search extends Emitter {
         /**
          * Call PubNub history in a loop.
          * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
-         * @param  {[type]}   args     [description]
-         * @param  {Function} callback [description]
-         * @return {[type]}            [description]
          * @private
          */
         this.page = (pageDone) => {
 
             /**
-             * Requesting another page from PubNub History
+             * Requesting another page from PubNub History.
              * @event Search#$"."page"."request
              */
             this._emit('$.search.page.request');
@@ -87,7 +90,7 @@ module.exports = class Search extends Emitter {
             this.chatEngine.pubnub.history(this.config, (status, response) => {
 
                 /**
-                 * PubNub History returned a response
+                 * PubNub History returned a response.
                  * @event Search#$"."page"."response
                  */
                 this._emit('$.search.page.response');
@@ -142,9 +145,6 @@ module.exports = class Search extends Emitter {
             };
         };
 
-        /**
-        Increments when results that satisfy filters are found.
-        */
         this.needleCount = 0;
 
         /**
@@ -191,7 +191,7 @@ module.exports = class Search extends Emitter {
 
                         /**
                          * Search has returned all results or reached the end of history.
-                         * @event Search#$"."finish
+                         * @event Search#$"."search"."finish
                          */
                         this._emit('$.search.finish');
                     }
@@ -214,11 +214,13 @@ module.exports = class Search extends Emitter {
 
         /**
          * Search has started.
-         * @event Search#$"."start
+         * @event Search#$"."search"."start
          */
         this._emit('$.search.start');
         this.find();
 
     }
 
-};
+}
+
+module.exports = Search;

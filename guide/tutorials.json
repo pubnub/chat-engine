@@ -28,17 +28,17 @@
              "events": {
                  "title": "Events"
              },
+             "payload": {
+                 "title": "Event Payload"
+             },
              "namespaces": {
                  "title": "Namespaces"
              },
              "wildcard": {
                  "title": "Wildcards"
              },
-             "payload": {
-                 "title": "Event Payload"
-             },
-             "history": {
-                 "title": "History"
+             "search": {
+                 "title": "Search"
              },
              "globalChat": {
                  "title": "Global Chat"

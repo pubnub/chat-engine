@@ -21,7 +21,7 @@ This will connect to {@link ChatEngine} with {@link Me#uuid} equal to "ian a {@l
 Because {@link ChatEngine} must do some work to connect to the server, we must wait for it to respond before
 working with {@link Chat}s and {@link User}s.
 
-When {@link ChatEngine} is ready, it will emit {@link ChatEngine#event:$"."ready}. We can subscribe to this event with {@link ChatEngine#on}.
+When {@link ChatEngine} is ready, it will emit {@link ChatEngine#event:$"."ready $.ready}. We can subscribe to this event with {@link ChatEngine#on}.
 
 ```js
 ChatEngine.on('$.ready', (data) => {

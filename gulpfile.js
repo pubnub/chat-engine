@@ -6,6 +6,24 @@ const istanbul = require('gulp-istanbul');
 const isparta = require('isparta');
 const runSequence = require('run-sequence');
 const webpack = require('webpack-stream');
+const jsdoc = require('gulp-jsdoc3');
+const httpServer = require('http-server');
+const path = require('path');
+
+let sourceFiles = ['src/**/*.js'];
+let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
+let pluginFiles = [
+    '../chat-engine-uploadcare/src/plugin.js',
+    '../chat-engine-typing-indicator/src/plugin.js',
+    '../chat-engine-desktop-notifications/src/plugin.js',
+    '../chat-engine-emoji/src/plugin.js',
+    '../chat-engine-random-username/src/plugin.js',
+    '../chat-engine-unread-messages/src/plugin.js',
+    '../chat-engine-gravatar/src/plugin.js',
+    '../chat-engine-markdown/src/plugin.js',
+    '../chat-engine-online-user-search/src/plugin.js'];
+let guideFiles = ['guide/**/*'];
+let readme = ['README.md'];
 
 // task
 gulp.task('compile', () => {
@@ -17,21 +35,21 @@ gulp.task('compile', () => {
 });
 
 gulp.task('lint_code', [], () => {
-    return gulp.src(['src/**/*.js'])
+    return gulp.src(sourceFiles)
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
 });
 
 gulp.task('lint_tests', [], () => {
-    return gulp.src(['test/**/*.js'])
+    return gulp.src(testFiles)
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
 });
 
 gulp.task('run_tests', () => {
-    return gulp.src(['test/unit/**/*.test.js', 'test/integration/**/*.test.js'], { read: false })
+    return gulp.src(testFiles, { read: false })
         .pipe(mocha({ reporter: 'spec' }))
         .pipe(istanbul.writeReports());
 });
@@ -41,7 +59,7 @@ gulp.task('default', ['compile']);
 gulp.task('validate', ['lint_code', 'lint_tests']);
 
 gulp.task('pre-test', () => {
-    return gulp.src(['src/**/*.js'])
+    return gulp.src(sourceFiles)
         .pipe(istanbul({ instrumenter: isparta.Instrumenter, includeAllSources: true }))
         .pipe(istanbul.hookRequire());
 });
@@ -54,5 +72,37 @@ gulp.task('test', () => {
 
 gulp.task('watch', () => {
     runSequence('compile');
-    gulp.watch('src/**/*.js', ['compile']);
+    gulp.watch(sourceFiles, ['compile']);
+});
+
+gulp.task('compile_docs', (cb) => {
+    let config = require('./jsdoc.json');
+    gulp.src(sourceFiles.concat(pluginFiles), { read: false })
+        .pipe(jsdoc(config, cb));
+});
+
+gulp.task('watch_docs', () => {
+    gulp.watch(sourceFiles.concat(guideFiles).concat(readme), ['compile_docs']);
+});
+
+gulp.task('serve_docs', () => {
+
+    runSequence('compile_docs');
+
+    let server = httpServer.createServer({
+        root: path.join(__dirname, 'docs'),
+        robots: true,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': 'true'
+        }
+    });
+
+    server.listen(8080);
+
+});
+
+gulp.task('docs_dev', () => {
+    runSequence('serve_docs');
+    runSequence('watch_docs');
 });

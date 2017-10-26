@@ -2,13 +2,13 @@
 
 ![](/getting-started/assets/README-c71c143b.png)
 
-A list of all the clients who have joined the chatroom is available from ```chat.users```.
+A list of all the clients who have joined the chatroom is available from {@link Chat#users}.
 
 ```js
 console.log(chat.users);
 ```
 
-It returns a list of ```Users``` who have also joined this chat.
+It returns a list of {@link User}s who have also joined this {@link Chat}.
 
 ```js
 {
@@ -17,7 +17,7 @@ It returns a list of ```Users``` who have also joined this chat.
 }
 ```
 
-This property is kept in sync as Users join and leave the Chats. If you're using
+This property is kept in sync as {@link User}s join and leave the {@link Chat}s. If you're using
 a library like React or Angular, you can simply loop through ```chat.users```
 to render list of online users.
 
@@ -25,8 +25,8 @@ to render list of online users.
 
 The list of
 
-* When first joining a Chat, the Chat will emit ```$.online.here``` for every ```User``` in the room.
-* Any time a new ```User``` joins, the ```Chat``` emits the ```$.online.join``` event.
+* When first joining a {@link Chat}, the {@link Chat} will emit {@link Chat#event:$"."online"."here $.online.here} for every {@link User} in the room.
+* Any time a new {@link User} joins, the {@link Chat} emits {@link Chat#event:$"."online"."join $.online.join}.
 
 Here we subscribe both events with wildcard syntax (```$.online.*```).
 
@@ -63,7 +63,7 @@ Next, we'll create a function that adds  ```username: text``` as a line in the l
 const appendMessage = (username, text) => {
 
   let message =
-    $(`<div class="list-group-item" />`)
+    $('<div class="list-group-item" />')
       .append($('<strong>').text(username + ': '))
       .append($('<span>').text(text));
 
@@ -74,18 +74,18 @@ const appendMessage = (username, text) => {
 };
 ```
 
-Then, listen for the ```$.ready``` event to find out when the client is connected to the ```Chat```.
+Then, listen for the ```$.ready``` event to find out when the client is connected to the {@link Chat}.
 
 ```js
-chat.on('$.ready', (payload) => {
+ChatEngine.on('$.ready', (payload) => {
   appendMessage('Status', 'Connected to chat!');
 });
 ```
 
-We subscribe to the ```$.online.*``` event to learn about online ```User```s.
+We subscribe to the ```$.online.*``` event to learn about online {@link User}s.
 
 ```js
-chat.on('$.online.*', (payload) => {
+ChatEngine.on('$.online.*', (payload) => {
   appendMessage('Status', payload.user.uuid + ' is in this room!');
 });
 ```
