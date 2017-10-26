@@ -155,7 +155,7 @@ let Provision = (email, password, callback = function () {}, status = function (
 
                                             $.get('functions/server.js', (code) => {
 
-                                                api.request('post', ['api','v1', 'blocks', 'key', key.id, 'event_handler'], {
+                                                api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
                                                     data: {
                                                         key_id: key.id,
                                                         block_id: block.id,
