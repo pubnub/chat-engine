@@ -37,7 +37,7 @@ let Provision = (email, password, callback = function () {}, status = function (
 
             api.request('post', ['api', 'apps'], {
                 data: {
-                    name: 'ChatEngine App',
+                    name: 'Chat Engine App',
                     owner_id: account.id,
                     properties: {}
                 }
@@ -72,7 +72,7 @@ let Provision = (email, password, callback = function () {}, status = function (
 
                     status('Enabling PubNub features...');
 
-                    key.properties.name = 'ChatEngine Keyset';
+                    key.properties.name = 'Chat Engine Keyset';
                     key.properties.presence = 1;
                     key.properties.history = 1;
                     key.properties.message_storage_ttl = 7;
@@ -98,7 +98,7 @@ let Provision = (email, password, callback = function () {}, status = function (
 
                         api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block'], {
                             data: {
-                                name: 'ChatEngine Function',
+                                name: 'Chat Engine Function',
                                 key_id: key.id
                             }
                         }, (err, response) => {
