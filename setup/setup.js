@@ -65,7 +65,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                     let key;
 
                     for (let item of apps) {
-                        if (item.id == app.id) {
+                        if (item.id === app.id) {
                             key = item.keys[0];
                         }
                     }
@@ -122,7 +122,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                                         channels: 'global',
                                         name: 'state-to-kv',
                                         code: code,
-                                        output: 'output-0.5823105682419438'
+                                        output: 'output-state-to-kv-' + (new Date()).getTime()
                                     }
                                 }, (err, response) => {
 
@@ -143,7 +143,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                 channels: 'global',
                                                 name: 'get-kv-state',
                                                 code: code,
-                                                output: 'output-0.5823105682419438'
+                                                output: 'output-get-kv-state-' + Math.round((new Date()).getTime())
                                             }
                                         }, (err, response) => {
 
@@ -151,24 +151,48 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                 callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
                                             }
 
-                                            status('Starting Pubnub Function...');
+                                            status('Creating new on-request Event Handler...');
 
-                                            api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
-                                                data: {
-                                                    block_id: block.id,
-                                                    key_id: key.id,
-                                                    action: 'start'
-                                                }
-                                            }, (err, response) => {
+                                            $.get('functions/server.js', (code) => {
 
-                                                if (err) {
-                                                    callback('Could not start PubNub Function. Please contact support@pubnub.com.');
-                                                }
+                                                api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
+                                                    data: {
+                                                        key_id: key.id,
+                                                        block_id: block.id,
+                                                        code: code,
+                                                        type: 'js',
+                                                        name: 'chat-engine-server',
+                                                        path: 'chat-engine-server',
+                                                        event: 'js-on-rest',
+                                                        output: 'output-server-endpoint-' + Math.round((new Date()).getTime())
+                                                    }
+                                                }, (err, response) => {
 
-                                                status('Done!');
+                                                    if (err) {
+                                                        callback('Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.');
+                                                    }
 
-                                                callback(null, { pub: key.publish_key, sub: key.subscribe_key });
-                                            });
+                                                    status('Starting Pubnub Function...');
+
+                                                    api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
+                                                        data: {
+                                                            block_id: block.id,
+                                                            key_id: key.id,
+                                                            action: 'start'
+                                                        }
+                                                    }, (err, response) => {
+
+                                                        if (err) {
+                                                            callback('Could not start PubNub Function. Please contact support@pubnub.com.');
+                                                        }
+
+                                                        status('Done!');
+
+                                                        callback(null, { pub: key.publish_key, sub: key.subscribe_key });
+                                                    });
+                                                });
+
+                                            }, 'text');
                                         });
                                     }, 'text');
                                 });
@@ -179,4 +203,4 @@ let Provision = (email, password, callback = function () {}, status = function (
             });
         });
     });
-}
+};
