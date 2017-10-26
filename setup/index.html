@@ -152,7 +152,7 @@
                 output += "    subscribeKey: '" + data.sub + "'\n";
                 output += "}, {\n";
                 output += "    globalChannel: 'global',\n";
-                output += "    endpoint: 'http://localhost:3000/insecure'\n";
+                output += "    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/" + data.sub + "/chat-engine-server'\n";
                 output += "});\n";
 
                 $('#code').text(output);
