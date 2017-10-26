@@ -151,24 +151,49 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                 callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
                                             }
 
-                                            status('Starting Pubnub Function...');
+                                            status('Creating new on-request Event Handler...');
 
-                                            api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
-                                                data: {
-                                                    block_id: block.id,
-                                                    key_id: key.id,
-                                                    action: 'start'
-                                                }
-                                            }, (err, response) => {
+                                            $.get('functions/server.js', (code) => {
 
-                                                if (err) {
-                                                    callback('Could not start PubNub Function. Please contact support@pubnub.com.');
-                                                }
+                                                api.request('post', ['api','v1', 'blocks', 'key', key.id, 'event_handler'], {
+                                                    data: {
+                                                        key_id: key.id,
+                                                        block_id: block.id,
+                                                        code: code,
+                                                        output: 'blocks-output-ILBHlac94cJJAfHUb6xI.417330032733467',
+                                                        type: 'js',
+                                                        name: 'chat-engine-server',
+                                                        channels: '',
+                                                        path: 'chat-engine-server',
+                                                        event: 'js-on-rest'
+                                                    }
+                                                }, (err, response) => {
 
-                                                status('Done!');
+                                                    if (err) {
+                                                        callback('Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.');
+                                                    }
 
-                                                callback(null, { pub: key.publish_key, sub: key.subscribe_key });
-                                            });
+                                                    status('Starting Pubnub Function...');
+
+                                                    api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
+                                                        data: {
+                                                            block_id: block.id,
+                                                            key_id: key.id,
+                                                            action: 'start'
+                                                        }
+                                                    }, (err, response) => {
+
+                                                        if (err) {
+                                                            callback('Could not start PubNub Function. Please contact support@pubnub.com.');
+                                                        }
+
+                                                        status('Done!');
+
+                                                        callback(null, { pub: key.publish_key, sub: key.subscribe_key });
+                                                    });
+                                                });
+
+                                            }, 'text');
                                         });
                                     }, 'text');
                                 });
