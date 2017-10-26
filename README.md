@@ -1,4 +1,4 @@
-# New in v0.6.x
+# New in v0.7.0
 
 - {@link Chat#search New Search (History) Class}
     - ```chat.search({event: 'message'}).on('messsage', () => {})```.
