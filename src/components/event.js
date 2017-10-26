@@ -61,7 +61,13 @@ class Event {
         }, (status) => {
 
             if (status.statusCode === 200) {
-                this.chat.trigger('$.publish.success');
+
+                /**
+                 * Message successfully published
+                 * @event Chat#$"."publish"."success
+                 * @param {Object} data The message object
+                 */
+                this.chat.trigger('$.publish.success', m);
             } else {
 
                 /**
