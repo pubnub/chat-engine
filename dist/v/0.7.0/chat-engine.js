@@ -824,7 +824,7 @@ module.exports = defaults;
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const waterfall = __webpack_require__(52);
+const waterfall = __webpack_require__(53);
 const RootEmitter = __webpack_require__(14);
 const Event = __webpack_require__(22);
 // const User = require('../components/user');
@@ -1110,8 +1110,8 @@ module.exports = exports["default"];
 /***/ (function(module, exports, __webpack_require__) {
 
 var Symbol = __webpack_require__(24),
-    getRawTag = __webpack_require__(64),
-    objectToString = __webpack_require__(65);
+    getRawTag = __webpack_require__(65),
+    objectToString = __webpack_require__(66);
 
 /** `Object#toString` result references. */
 var nullTag = '[object Null]',
@@ -1450,7 +1450,7 @@ module.exports = Cancel;
 
 // Allows us to create and bind to events. Everything in ChatEngine is an event
 // emitter
-const EventEmitter2 = __webpack_require__(50).EventEmitter2;
+const EventEmitter2 = __webpack_require__(51).EventEmitter2;
 
 /**
 * The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
@@ -1702,7 +1702,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.isAsync = undefined;
 
-var _asyncify = __webpack_require__(53);
+var _asyncify = __webpack_require__(54);
 
 var _asyncify2 = _interopRequireDefault(_asyncify);
 
@@ -1852,7 +1852,13 @@ class Event {
         }, (status) => {
 
             if (status.statusCode === 200) {
-                this.chat.trigger('$.publish.success');
+
+                /**
+                 * Message successfully published
+                 * @event Chat#$"."publish"."success
+                 * @param {Object} data The message object
+                 */
+                this.chat.trigger('$.publish.success', m);
             } else {
 
                 /**
@@ -1875,7 +1881,7 @@ module.exports = Event;
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isFunction = __webpack_require__(63),
+var isFunction = __webpack_require__(64),
     isLength = __webpack_require__(27);
 
 /**
@@ -2073,10 +2079,11 @@ module.exports = {
 
 const axios = __webpack_require__(3);
 const PubNub = __webpack_require__(49);
+const pack = __webpack_require__(50);
 
 const RootEmitter = __webpack_require__(14);
-const Chat = __webpack_require__(51);
-const Me = __webpack_require__(86);
+const Chat = __webpack_require__(52);
+const Me = __webpack_require__(87);
 const User = __webpack_require__(2);
 
 /**
@@ -2139,6 +2146,12 @@ module.exports = (ceConfig, pnConfig) => {
     * @type {Object}
     */
     ChatEngine.session = {};
+
+    /**
+     * The package.json for ChatEngine. Used mainly for detecting package version.
+     * @type {Object}
+     */
+    ChatEngine.package = pack;
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
@@ -3292,6 +3305,12 @@ module.exports = function spread(callback) {
 
 /***/ }),
 /* 50 */
+/***/ (function(module, exports) {
+
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.7.0","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-uglify":"^2.0.0","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","isparta":"^4.0.0","pubnub":"^4.13.0","request":"^2.82.0"}}
+
+/***/ }),
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -4020,7 +4039,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const axios = __webpack_require__(3);
@@ -4028,7 +4047,7 @@ const axios = __webpack_require__(3);
 const Emitter = __webpack_require__(5);
 const Event = __webpack_require__(22);
 const User = __webpack_require__(2);
-const Search = __webpack_require__(58);
+const Search = __webpack_require__(59);
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -4367,6 +4386,7 @@ class Chat extends Emitter {
             data, // the data supplied from params
             sender: this.chatEngine.me.uuid, // my own uuid
             chat: this, // an instance of this chat
+            version: this.chatEngine.package.version
         };
 
         // run the plugin queue to modify the event
@@ -4656,7 +4676,7 @@ module.exports = Chat;
 
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4775,7 +4795,7 @@ module.exports = exports['default'];
  */
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4790,11 +4810,11 @@ var _isObject = __webpack_require__(20);
 
 var _isObject2 = _interopRequireDefault(_isObject);
 
-var _initialParams = __webpack_require__(54);
+var _initialParams = __webpack_require__(55);
 
 var _initialParams2 = _interopRequireDefault(_initialParams);
 
-var _setImmediate = __webpack_require__(55);
+var _setImmediate = __webpack_require__(56);
 
 var _setImmediate2 = _interopRequireDefault(_setImmediate);
 
@@ -4891,7 +4911,7 @@ function rethrow(error) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4918,7 +4938,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 module.exports = exports['default'];
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4964,10 +4984,10 @@ if (hasSetImmediate) {
 }
 
 exports.default = wrap(_defer);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(56).setImmediate, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(57).setImmediate, __webpack_require__(1)))
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -5020,13 +5040,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(57);
+__webpack_require__(58);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -5219,11 +5239,11 @@ exports.clearImmediate = clearImmediate;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21), __webpack_require__(1)))
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const Emitter = __webpack_require__(5);
-const eachSeries = __webpack_require__(59);
+const eachSeries = __webpack_require__(60);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 
@@ -5451,7 +5471,7 @@ module.exports = Search;
 
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5461,11 +5481,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _eachLimit = __webpack_require__(60);
+var _eachLimit = __webpack_require__(61);
 
 var _eachLimit2 = _interopRequireDefault(_eachLimit);
 
-var _doLimit = __webpack_require__(85);
+var _doLimit = __webpack_require__(86);
 
 var _doLimit2 = _interopRequireDefault(_doLimit);
 
@@ -5494,7 +5514,7 @@ exports.default = (0, _doLimit2.default)(_eachLimit2.default, 1);
 module.exports = exports['default'];
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5505,11 +5525,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = eachLimit;
 
-var _eachOfLimit = __webpack_require__(61);
+var _eachOfLimit = __webpack_require__(62);
 
 var _eachOfLimit2 = _interopRequireDefault(_eachOfLimit);
 
-var _withoutIndex = __webpack_require__(84);
+var _withoutIndex = __webpack_require__(85);
 
 var _withoutIndex2 = _interopRequireDefault(_withoutIndex);
 
@@ -5545,7 +5565,7 @@ function eachLimit(coll, limit, iteratee, callback) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5564,7 +5584,7 @@ var _once = __webpack_require__(17);
 
 var _once2 = _interopRequireDefault(_once);
 
-var _iterator = __webpack_require__(62);
+var _iterator = __webpack_require__(63);
 
 var _iterator2 = _interopRequireDefault(_iterator);
 
@@ -5572,7 +5592,7 @@ var _onlyOnce = __webpack_require__(18);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
-var _breakLoop = __webpack_require__(83);
+var _breakLoop = __webpack_require__(84);
 
 var _breakLoop2 = _interopRequireDefault(_breakLoop);
 
@@ -5622,7 +5642,7 @@ function _eachOfLimit(limit) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5637,11 +5657,11 @@ var _isArrayLike = __webpack_require__(23);
 
 var _isArrayLike2 = _interopRequireDefault(_isArrayLike);
 
-var _getIterator = __webpack_require__(66);
+var _getIterator = __webpack_require__(67);
 
 var _getIterator2 = _interopRequireDefault(_getIterator);
 
-var _keys = __webpack_require__(67);
+var _keys = __webpack_require__(68);
 
 var _keys2 = _interopRequireDefault(_keys);
 
@@ -5686,7 +5706,7 @@ function iterator(coll) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(7),
@@ -5729,7 +5749,7 @@ module.exports = isFunction;
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Symbol = __webpack_require__(24);
@@ -5781,7 +5801,7 @@ module.exports = getRawTag;
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports) {
 
 /** Used for built-in method references. */
@@ -5809,7 +5829,7 @@ module.exports = objectToString;
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -5828,11 +5848,11 @@ var iteratorSymbol = typeof Symbol === 'function' && Symbol.iterator;
 module.exports = exports['default'];
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var arrayLikeKeys = __webpack_require__(68),
-    baseKeys = __webpack_require__(79),
+var arrayLikeKeys = __webpack_require__(69),
+    baseKeys = __webpack_require__(80),
     isArrayLike = __webpack_require__(23);
 
 /**
@@ -5871,15 +5891,15 @@ module.exports = keys;
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseTimes = __webpack_require__(69),
-    isArguments = __webpack_require__(70),
+var baseTimes = __webpack_require__(70),
+    isArguments = __webpack_require__(71),
     isArray = __webpack_require__(15),
-    isBuffer = __webpack_require__(72),
-    isIndex = __webpack_require__(74),
-    isTypedArray = __webpack_require__(75);
+    isBuffer = __webpack_require__(73),
+    isIndex = __webpack_require__(75),
+    isTypedArray = __webpack_require__(76);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -5926,7 +5946,7 @@ module.exports = arrayLikeKeys;
 
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports) {
 
 /**
@@ -5952,10 +5972,10 @@ module.exports = baseTimes;
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseIsArguments = __webpack_require__(71),
+var baseIsArguments = __webpack_require__(72),
     isObjectLike = __webpack_require__(8);
 
 /** Used for built-in method references. */
@@ -5994,7 +6014,7 @@ module.exports = isArguments;
 
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(7),
@@ -6018,11 +6038,11 @@ module.exports = baseIsArguments;
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(25),
-    stubFalse = __webpack_require__(73);
+    stubFalse = __webpack_require__(74);
 
 /** Detect free variable `exports`. */
 var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -6063,7 +6083,7 @@ module.exports = isBuffer;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module)))
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports) {
 
 /**
@@ -6087,7 +6107,7 @@ module.exports = stubFalse;
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports) {
 
 /** Used as references for various `Number` constants. */
@@ -6115,12 +6135,12 @@ module.exports = isIndex;
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseIsTypedArray = __webpack_require__(76),
-    baseUnary = __webpack_require__(77),
-    nodeUtil = __webpack_require__(78);
+var baseIsTypedArray = __webpack_require__(77),
+    baseUnary = __webpack_require__(78),
+    nodeUtil = __webpack_require__(79);
 
 /* Node.js helper references. */
 var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
@@ -6148,7 +6168,7 @@ module.exports = isTypedArray;
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(7),
@@ -6214,7 +6234,7 @@ module.exports = baseIsTypedArray;
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports) {
 
 /**
@@ -6234,7 +6254,7 @@ module.exports = baseUnary;
 
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(26);
@@ -6263,11 +6283,11 @@ module.exports = nodeUtil;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28)(module)))
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isPrototype = __webpack_require__(80),
-    nativeKeys = __webpack_require__(81);
+var isPrototype = __webpack_require__(81),
+    nativeKeys = __webpack_require__(82);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -6299,7 +6319,7 @@ module.exports = baseKeys;
 
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports) {
 
 /** Used for built-in method references. */
@@ -6323,10 +6343,10 @@ module.exports = isPrototype;
 
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var overArg = __webpack_require__(82);
+var overArg = __webpack_require__(83);
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeKeys = overArg(Object.keys, Object);
@@ -6335,7 +6355,7 @@ module.exports = nativeKeys;
 
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports) {
 
 /**
@@ -6356,7 +6376,7 @@ module.exports = overArg;
 
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6371,7 +6391,7 @@ exports.default = {};
 module.exports = exports["default"];
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6389,7 +6409,7 @@ function _withoutIndex(iteratee) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6407,7 +6427,7 @@ function doLimit(fn, limit) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 86 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const User = __webpack_require__(2);
