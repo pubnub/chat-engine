@@ -1,5 +1,6 @@
 const axios = require('axios');
 const PubNub = require('pubnub');
+const pack = require('../package.json');
 
 const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
@@ -66,6 +67,12 @@ module.exports = (ceConfig, pnConfig) => {
     * @type {Object}
     */
     ChatEngine.session = {};
+
+    /**
+     * The package.json for ChatEngine. Used mainly for detecting package version.
+     * @type {Object}
+     */
+    ChatEngine.package = pack;
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
