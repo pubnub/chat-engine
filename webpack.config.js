@@ -3,7 +3,7 @@ let StatsPlugin = require('stats-webpack-plugin');
 let config = {
     module: {
         loaders: [
-            { test: /\.json/, loader: 'json' },
+            { test: /\.json/, loader: 'json-loader' },
         ],
     },
     output: {
