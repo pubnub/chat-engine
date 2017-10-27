@@ -122,7 +122,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                                         channels: 'global',
                                         name: 'state-to-kv',
                                         code: code,
-                                        output: 'output-0.5823105682419438'
+                                        output: 'output-state-to-kv-' + Math.round((new Date()).getTime())
                                     }
                                 }, (err, response) => {
 
@@ -143,7 +143,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                 channels: 'global',
                                                 name: 'get-kv-state',
                                                 code: code,
-                                                output: 'output-0.5823105682419438'
+                                                output: 'output-get-kv-state-' + Math.round((new Date()).getTime())
                                             }
                                         }, (err, response) => {
 
@@ -160,12 +160,11 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                         key_id: key.id,
                                                         block_id: block.id,
                                                         code: code,
-                                                        output: 'blocks-output-ILBHlac94cJJAfHUb6xI.417330032733467',
                                                         type: 'js',
                                                         name: 'chat-engine-server',
-                                                        channels: '',
                                                         path: 'chat-engine-server',
-                                                        event: 'js-on-rest'
+                                                        event: 'js-on-rest',
+                                                        output: 'output-server-endpoint-' + Math.round((new Date()).getTime())
                                                     }
                                                 }, (err, response) => {
 
