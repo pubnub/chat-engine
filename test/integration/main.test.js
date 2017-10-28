@@ -441,7 +441,7 @@ describe('invite', () => {
                 done();
             });
 
-            illegalAccessChat.emit('message', 'test');
+            illegalAccessChat.emit('message', { message: 'hello' });
 
         });
 
