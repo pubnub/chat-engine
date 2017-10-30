@@ -16,60 +16,7 @@
         <script type="text/javascript" src="./client.js"></script>
         <script type="text/javascript" src="./setup.js"></script>
 
-        <style type="text/css">
-          body {
-            padding: 30px ;
-            overflow-x: hidden;
-          }
-          .loader,
-          .loader:after {
-            border-radius: 50%;
-            width: 10em;
-            height: 10em;
-          }
-          .loader {
-            margin: 60px auto;
-            font-size: 10px;
-            position: relative;
-            text-indent: -9999em;
-            border-top: 1.1em solid rgba(22,54,255, 0.2);
-            border-right: 1.1em solid rgba(22,54,255, 0.2);
-            border-bottom: 1.1em solid rgba(22,54,255, 0.2);
-            border-left: 1.1em solid #1636ff;
-            -webkit-transform: translateZ(0);
-            -ms-transform: translateZ(0);
-            transform: translateZ(0);
-            -webkit-animation: load8 1.1s infinite linear;
-            animation: load8 1.1s infinite linear;
-          }
-          @-webkit-keyframes load8 {
-            0% {
-              -webkit-transform: rotate(0deg);
-              transform: rotate(0deg);
-            }
-            100% {
-              -webkit-transform: rotate(360deg);
-              transform: rotate(360deg);
-            }
-          }
-          @keyframes load8 {
-            0% {
-              -webkit-transform: rotate(0deg);
-              transform: rotate(0deg);
-            }
-            100% {
-              -webkit-transform: rotate(360deg);
-              transform: rotate(360deg);
-            }
-          }
-
-          #load, #output, #error {
-            display: none;
-          }
-          #status {
-            text-align: center;
-          }
-        </style>
+        <link rel="stylesheet" href="styles.css"></link>
 
     </head>
     <body>
@@ -124,62 +71,7 @@
 
         </div>
 
-        <script type="text/javascript">
-          const provisionElement = $('#provision');
-          const loadElement = $('#load');
-          const errorElement = $('#error');
-          const errorOutElement = $('#error-out');
-          const statusElement = $('#status');
-          const codeElement = $('#code');
-          const outputElement = $('#output');
-          const emailElement = $('#email');
-          const passwordElement = $('#password');
-          
-          provisionElement.submit(() => {
-            provisionElement.hide();
-            loadElement.show();
-            errorElement.hide();
-            statusElement.empty();
-
-            Provision(emailElement.val(), passwordElement.val(), function(err, data) {
-
-              if(err) {
-
-                loadElement.hide();
-                provisionElement.show();
-
-                errorOutElement.html(err);
-                errorElement.show();
-
-              } else {
-
-                loadElement.hide();
-
-                let output = "";
-                output += "// Make sure to import ChatEngine first!\n";
-                output += "ChatEngine = ChatEngineCore.create({\n";
-                output += "    publishKey: '" + data.pub + "',\n";
-                output += "    subscribeKey: '" + data.sub + "'\n";
-                output += "}, {\n";
-                output += "    globalChannel: 'global',\n";
-                output += "    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/" + data.sub + "/chat-engine-server'\n";
-                output += "});\n";
-
-                codeElement.text(output);
-                outputElement.show();
-
-              }
-
-            }, function(statusText){
-
-              statusElement.append($('<li class="list-group-item">' + statusText + '</li>'));
-
-            });
-
-            return false;
-
-          });
-        </script>
+        <script type="text/javascript" src="script.js"></script>
 
     </body>
 </html>
