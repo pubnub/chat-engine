@@ -52,13 +52,13 @@ let Client = function (options) {
 
         $.ajax(opts)
             .done((data) => {
-                console.log(data)
-                holla(null, data)
+                console.log(data);
+                holla(null, data);
             })
             .fail((data) => {
-                console.log('fail', data)
-                holla(data || data.message || data)
-            })
+                console.log('fail', data);
+                holla(data || data.message || data);
+            });
 
 
     };
