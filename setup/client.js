@@ -1,14 +1,14 @@
-let Client = function(options) {
+let Client = function (options) {
 
     var self = this;
 
-    var errHandle = function(text) {
+    var errHandle = function (text) {
         if (options.debug) {
             console.error(colors.red('API Error: ' + text));
         }
     };
 
-    var clog = function(input) {
+    var clog = function (input) {
 
         if (options.debug) {
             if (typeof(input) === 'object') {
@@ -25,7 +25,7 @@ let Client = function(options) {
 
     self.session = false;
 
-    self.request = function(method, url, opts, holla) {
+    self.request = function (method, url, opts, holla) {
 
         if (url[1] !== 'me' && !self.session) {
             return errHandle('Authorize with init() first.');
@@ -63,14 +63,14 @@ let Client = function(options) {
 
     };
 
-    self.init = function(input, holla) {
+    self.init = function (input, holla) {
 
         self.request('post', ['api', 'me'], {
             data: {
                 email: input.email || errHandle('No Email Supplied'),
                 password: input.password || errHandle('No Password Supplied')
             }
-        }, function(err, body) {
+        }, function (err, body) {
 
             if (body && body.error) {
                 holla(body.error);

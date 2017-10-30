@@ -14,7 +14,7 @@ provisionElement.submit(() => {
     errorElement.hide();
     statusElement.empty();
 
-    Provision(emailElement.val(), passwordElement.val(), function(err, data) {
+    Provision(emailElement.val(), passwordElement.val(), (err, data) => {
 
         if (err) {
 
@@ -43,7 +43,7 @@ provisionElement.submit(() => {
 
         }
 
-    }, function(statusText) {
+    }, (statusText) => {
 
         statusElement.append($('<li class="list-group-item">' + statusText + '</li>'));
 
