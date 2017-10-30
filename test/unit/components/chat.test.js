@@ -37,6 +37,14 @@ describe('#chat', () => {
         chatEngineInstance.pubnub.hereNow.args[0][1]({ error: false }, { channels: { [chatInstance.channel]: { occupants: [{ uuid: 'user123', state: { state: 'active' } }] } } });
     });
 
+    it('should not allow to send string payload', (done) => {
+        try {
+            chatInstance.emit('message', 'hello');
+        } catch (e) {
+            done();
+        }
+    });
+
     it('disconnect chat', (done) => {
         chatInstance.users.user1 = {};
 
