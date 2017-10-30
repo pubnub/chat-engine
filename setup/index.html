@@ -124,26 +124,35 @@
         </div>
 
         <script type="text/javascript">
-          $('#provision').submit(() => {
+          const provisionElement = $('#provision');
+          const loadElement = $('#load');
+          const errorElement = $('#error');
+          const errorOutElement = $('#error-out');
+          const statusElement = $('#status');
+          const codeElement = $('#code');
+          const outputElement = $('#output');
+          const emailElement = $('#email');
+          const passwordElement = $('#password');
+          
+          provisionElement.submit(() => {
+            provisionElement.hide();
+            loadElement.show();
+            errorElement.hide();
+            statusElement.empty();
 
-            $('#provision').hide();
-            $('#load').show();
-            $('#error').hide();
-            $('#status').empty();
-
-            Provision($('#email').val(), $('#password').val(), function(err, data) {
+            Provision(emailElement.val(), passwordElement.val(), function(err, data) {
 
               if(err) {
 
-                $('#load').hide();
-                $('#provision').show();
+                loadElement.hide();
+                provisionElement.show();
 
-                $('#error-out').html(err);
-                $('#error').show();
+                errorOutElement.html(err);
+                errorElement.show();
 
               } else {
 
-                $('#load').hide();
+                loadElement.hide();
 
                 let output = "";
                 output += "// Make sure to import ChatEngine first!\n";
@@ -155,14 +164,14 @@
                 output += "    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/" + data.sub + "/chat-engine-server'\n";
                 output += "});\n";
 
-                $('#code').text(output);
-                $('#output').show();
+                codeElement.text(output);
+                outputElement.show();
 
               }
 
             }, function(statusText){
 
-              $('#status').append($('<li class="list-group-item">' + statusText + '</li>'));
+              statusElement.append($('<li class="list-group-item">' + statusText + '</li>'));
 
             });
 
