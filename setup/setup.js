@@ -122,7 +122,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                                         channels: 'global',
                                         name: 'state-to-kv',
                                         code: code,
-                                        output: 'output-state-to-kv-' + Math.round((new Date()).getTime())
+                                        output: 'output-state-to-kv-' + (new Date()).getTime();
                                     }
                                 }, (err, response) => {
 
