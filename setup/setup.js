@@ -65,7 +65,7 @@ let Provision = (email, password, callback = function() {}, status = function() 
                     let key;
 
                     for (let item of apps) {
-                        if (item.id == app.id) {
+                        if (item.id === app.id) {
                             key = item.keys[0];
                         }
                     }
@@ -122,7 +122,7 @@ let Provision = (email, password, callback = function() {}, status = function() 
                                         channels: 'global',
                                         name: 'state-to-kv',
                                         code: code,
-                                        output: 'output-state-to-kv-' + (new Date()).getTime();
+                                        output: 'output-state-to-kv-' + (new Date()).getTime()
                                     }
                                 }, (err, response) => {
 
@@ -203,4 +203,4 @@ let Provision = (email, password, callback = function() {}, status = function() 
             });
         });
     });
-}
+};
