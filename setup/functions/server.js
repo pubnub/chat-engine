@@ -3,6 +3,8 @@ export default (request, response) => {
     const xhr = require('xhr');
     const pubnub = require('pubnub');
 
+    const oneHourInMinutes = 60;
+
     response.headers["Access-Control-Allow-Origin"] = "*";
     response.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE";
@@ -10,6 +12,192 @@ export default (request, response) => {
     const requestBody = JSON.parse(request.body);
 
     let controllers = {};
+
+    let addUuidToChannel = function (channel, myUuid, uuid, ttl) {
+        ttl = ttl || oneHourInMinutes;
+        let key = ['authed', channel].join(':');
+        response.status = 200;
+
+        return kvdb.get(key).then( ( retrievedKey ) => {
+            let record = retrievedKey || [];
+
+            // The first user adds their UUID to the allowed UUIDs for the channel
+            if (record.length === 0) {
+                record.push(myUuid);
+                return kvdb.set(key, record, ttl).then(( storeError ) => {
+                    if ( storeError ) {
+                        console.log('KVStore error: ', storeError);
+                        response.status = 500;
+                        return response.send('Internal Server Error');
+                    }
+                    else {
+                        return response.send();
+                    }
+                });
+            }
+
+            // The first user allows the UUID of another user to the private chat
+            // Only the first UUID in the list of allowed UUIDs can add others
+            if (record.length > 0 && record.indexOf(myUuid) === 0 && myUuid.length > 1) {
+                
+                // If the initial UUID tries to allow themself again, return 200
+                if (!uuid || uuid === myUuid) {
+                    return response.send();
+                }
+
+                // Add the invited UUID to the list of allowed UUIDs
+                record.push(uuid);
+                return kvdb.set(key, record, ttl).then(( storeError ) => {
+                    if ( storeError ) {
+                        console.log('KVStore error: ', storeError);
+                        response.status = 500;
+                        return response.send('Internal Server Error');
+                    }
+                    else {
+                        return response.send();
+                    }
+                });
+            }
+
+            response.status = 401;
+            return response.send();
+        });
+    }
+
+    let grantReadWrite = function (channel, myUuid, myAuthKey, ttl) {
+        ttl = ttl || oneHourInMinutes;
+        let key = ['authed', channel].join(':');
+        response.status = 200;
+
+        // Check the list of allowed UUIDs for the channel
+        return kvdb.get(key).then( ( retrievedKey ) => {
+            let record = retrievedKey || [];
+
+            let uuidNotAllowed = record.indexOf(myUuid) === -1;
+
+            if (uuidNotAllowed) {
+                response.status = 401;
+                return response.send();
+            }
+
+            let chanReadWrite = [
+                channel,
+                channel + '-pnpres',
+                channel + '#user#' + myUuid + '#read.*',
+                channel + '#user#' + myUuid + '#write.*'
+            ];
+
+            return pubnub.grant({
+                channels: chanReadWrite,
+                read: true,
+                write: true,
+                authKeys: [myAuthKey],
+                ttl: ttl
+            }).then( ( status ) => {
+                if (status && status.message === "Success") {
+                    return response.send();
+                }
+
+                console.log(status);
+                response.status = 500;
+                return response.send();
+
+            }).catch( ( err ) => {
+                console.log(err);
+                response.status = 500;
+                return response.send();
+            });
+
+        });
+    }
+
+    let grantRead = function (channel, myUuid, myAuthKey, ttl) {
+        ttl = ttl || oneHourInMinutes;
+        let key = ['authed', channel].join(':');
+        response.status = 200;
+
+        // Check the list of allowed UUIDs for the channel
+        return kvdb.get(key).then( ( retrievedKey ) => {
+            let record = retrievedKey || [];
+
+            let uuidNotAllowed = record.indexOf(myUuid) === -1;
+
+            if (uuidNotAllowed) {
+                response.status = 401;
+                return response.send();
+            }
+
+            let chanRead = [
+                channel + '#user:' + myUuid + '#read.*'
+            ];
+
+            return pubnub.grant({
+                channels: chanRead,
+                read: true,
+                write: false,
+                authKeys: [myAuthKey],
+                ttl: ttl
+            }).then( ( status ) => {
+                if (status && status.message === "Success") {
+                    return response.send();
+                }
+
+                console.log(status);
+                response.status = 500;
+                return response.send();
+
+            }).catch( ( err ) => {
+                console.log(err);
+                response.status = 500;
+                return response.send();
+            });
+
+        });
+    }
+
+    let grantWrite = function (channel, myUuid, myAuthKey, ttl) {
+        ttl = ttl || oneHourInMinutes;
+        let key = ['authed', channel].join(':');
+        response.status = 200;
+
+        // Check the list of allowed UUIDs for the channel
+        return kvdb.get(key).then( ( retrievedKey ) => {
+            let record = retrievedKey || [];
+
+            let uuidNotAllowed = record.indexOf(myUuid) === -1;
+
+            if (uuidNotAllowed) {
+                response.status = 401;
+                return response.send();
+            }
+
+            let chanWrite = [
+                channel + '#user:' + myUuid + '#write.*'
+            ];
+
+            return pubnub.grant({
+                channels: chanWrite,
+                read: false,
+                write: true,
+                authKeys: [myAuthKey],
+                ttl: ttl
+            }).then( ( status ) => {
+                if (status && status.message === "Success") {
+                    return response.send();
+                }
+
+                console.log(status);
+                response.status = 500;
+                return response.send();
+
+            }).catch( ( err ) => {
+                console.log(err);
+                response.status = 500;
+                return response.send();
+            });
+
+        });
+    }
 
     let globalGrant = function(gChan, myUUID, myAuthKey) {
 
@@ -72,66 +260,6 @@ export default (request, response) => {
       response.status = 200;
       return response.send('Hello World!');
     };
-
-    let authUser = (uuid, authKey, channel, forceAuth) => {
-
-        let key = ['authed', channel].join(':');
-
-        return kvdb.get(key).then( ( retrievedKey ) => {
-            let record = retrievedKey || [];
-
-            let newChannels = [channel, channel + '-pnpres'];
-
-            if(forceAuth || !record.length || (record.indexOf(uuid) > -1 && authKey)) {
-
-                return pubnub.grant({
-                    channels: newChannels,
-                    read: true, // false to disallow
-                    write: true,
-                    ttl: 0,
-                    authKeys: [authKey]
-                }).then( ( status ) => {
-
-                    if ( !status.message || status.message !== "Success" ) {
-                        console.log("PAM Issue: ", status.message);
-                        response.status = 500;
-                    }
-                    else {
-                        response.status = 200;
-                    }
-
-                    if(record.indexOf(uuid) === -1) {
-                        record.push(uuid);
-                    }
-
-                    return kvdb.set( key, record, 0 );
-                }).then(( storeError ) => {
-                    if ( storeError ) {
-                        console.log('KVStore error: ', storeError);
-                        response.status = 500;
-                        return response.send('Internal Server Error');
-                    }
-                    else {
-                        return response.send();
-                    }
-                });
-
-            }
-            else {
-                return kvdb.set( key, record, 0 )
-                .then( ( storeError ) => {
-                    if ( storeError ) {
-                        console.log('KVStore error: ', storeError);
-                        response.status = 500;
-                        return response.send('Internal Server Error');
-                    }
-
-                    response.status = 200;
-                    return response.send();
-                });
-            }
-        });
-    }
 
     controllers['/insecure/grant'] = {};
     controllers['/insecure/grant']['POST'] = function () {
@@ -273,58 +401,78 @@ export default (request, response) => {
     controllers['/insecure/chat/grant'] = {};
     controllers['/insecure/chat/grant']['POST'] = function () {
 
-        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
+        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
             response.status = 422;
             return response.send('Missing property from request body'); 
         }
 
-        if ( requestBody.chat.private ) {
+        let ttl = requestBody.ttl;
 
-            return authUser(requestBody.uuid, requestBody.authKey, requestBody.chat.channel, false);
-
-        } else {
-            response.status = 200;
-            return response.send();
+        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
+            response.status = 422;
+            return response.send('Invalid "ttl" in request body'); 
         }
+
+        return grantReadWrite(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
+
+    };
+
+    controllers['/insecure/chat/grant/read'] = {};
+    controllers['/insecure/chat/grant/read']['POST'] = function () {
+
+        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
+            response.status = 422;
+            return response.send('Missing property from request body'); 
+        }
+
+        let ttl = requestBody.ttl;
+
+        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
+            response.status = 422;
+            return response.send('Invalid "ttl" in request body'); 
+        }
+
+        return grantRead(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
+
+    };
+
+    controllers['/insecure/chat/grant/write'] = {};
+    controllers['/insecure/chat/grant/write']['POST'] = function () {
+
+        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
+            response.status = 422;
+            return response.send('Missing property from request body'); 
+        }
+
+        let ttl = requestBody.ttl;
+
+        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
+            response.status = 422;
+            return response.send('Invalid "ttl" in request body'); 
+        }
+
+        return grantWrite(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
 
     };
 
     controllers['/insecure/chat/invite'] = {};
     controllers['/insecure/chat/invite']['POST'] = function () {
 
-        // you can only invite if you're in the channel
-        // grants the user permission in the channel
+        // Used when a user is creating a private chat or inviting others to the private chat
 
-        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
+        if ( !requestBody.myUuid || !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body'); 
         }
 
-        // grants, grants, grants, grants, grants grants, grants everybody!
-        return authUser(requestBody.uuid, db['authkeys:' + requestBody.uuid], requestBody.chat.channel, true);
+        let ttl = requestBody.ttl;
 
-    };
-
-    // uuids are permitted in channels
-    // authKey is what is used to grant
-    // server should make sure that uuid or other auth params match authKey for security
-    controllers['/test'] = {};
-    controllers['/test']['POST'] = function () {
-
-        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
+        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
             response.status = 422;
-            return response.send('Missing property from request body'); 
+            return response.send('Invalid "ttl" in request body'); 
         }
 
-        if(requestBody.authKey === 'open-sesame') {
-
-            // grants everybody!
-            return globalGrant(requestBody.channel, requestBody.uuid, requestBody.authKey);
-
-        } else {
-            response.status = 401;
-            return response.send();
-        }
+        return addUuidToChannel(requestBody.chat.channel, requestBody.myUuid, requestBody.uuid, ttl);
 
     };
 
