@@ -23,7 +23,7 @@ describe('#server', () => {
     let server = null;
 
     beforeEach(() => {
-        server = Mock('../../../../setup/functions/server');
+        server = Mock('./setup/functions/server');
     });
 
     it('creates server event handler of type Function', (done) => {
