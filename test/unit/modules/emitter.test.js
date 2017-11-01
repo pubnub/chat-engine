@@ -105,4 +105,44 @@ describe('#emitter', () => {
         done();
 
     });
+
+    it('plugin should reset scope', (done) => {
+
+        let plugin = () => {
+            class extension {
+                construct() {
+                }
+                test() {
+                    this.stringKey = 'plugin state';
+                }
+            }
+
+            return {
+                namespace: 'statePlugin',
+                extends: {
+                    Emitter: extension
+                }
+            };
+        };
+
+        // call test() on first instance
+        emitterInstance.plugin(plugin());
+        emitterInstance.statePlugin.test();
+
+        // key should match
+        assert(emitterInstance.statePlugin.stringKey === 'plugin state', 'got the expected value');
+        // attach plugin to second instance, do not call test
+        let emitterInstance2 = new Emitter(chatEngineInstance);
+        emitterInstance2.plugin(plugin());
+
+        console.log('should be defined', emitterInstance.statePlugin.stringKey);
+        console.log('should be undefined', emitterInstance.statePlugin.stringKey);
+
+        // this should have fresh state
+        assert(emitterInstance.statePlugin.stringKey === undefined, 'got the expected value');
+
+        done();
+
+    });
+
 });
