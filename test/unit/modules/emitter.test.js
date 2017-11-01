@@ -79,11 +79,12 @@ describe('#emitter', () => {
         done();
     });
 
-    it('should works from a plugin', (done) => {
+    it('should manage state from a plugin', (done) => {
+
         let plugin = () => {
             class extension {
                 construct() {
-                    this.setState('stringKey', 'hello world');
+                    this.setState('stringKey', 'plugin state');
                 }
             }
 
@@ -96,8 +97,12 @@ describe('#emitter', () => {
         };
 
         emitterInstance.plugin(plugin());
+
         assert(emitterInstance.plugins.length === 1, 'plugin works!');
         assert(emitterInstance.getState('stringKey') === 'hello world', 'got the expected value');
+        assert(emitterInstance.statePlugin.getState('stringKey') === 'plugin state', 'got the expected value');
+
         done();
+
     });
 });
