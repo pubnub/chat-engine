@@ -83,7 +83,7 @@ describe('#emitter', () => {
         let plugin = () => {
             class extension {
                 construct() {
-                    this.parent.setState('stringKey', 'hello world');
+                    this.setState('stringKey', 'hello world');
                 }
             }
 

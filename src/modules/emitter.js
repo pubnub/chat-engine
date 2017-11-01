@@ -90,7 +90,9 @@ class Emitter extends RootEmitter {
         // the new object can use ```this.parent``` to access
         // the root class
         childOb.parent = this;
-
+        childOb.getState = this.getState.bind(this);
+        childOb.setState = this.setState.bind(this);
+        childOb.listStates = this.listStates.bind(this);
     }
 
     getState(key) {
