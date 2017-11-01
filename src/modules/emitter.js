@@ -26,6 +26,12 @@ class Emitter extends RootEmitter {
         this.plugins = [];
 
         /**
+         Stores in memory keys and values
+         @private
+         */
+        this._states = {};
+
+        /**
          Emit events locally.
 
          @private
@@ -77,7 +83,6 @@ class Emitter extends RootEmitter {
 
     // add an object as a subobject under a namespoace
     addChild(childName, childOb) {
-
         // assign the new child object as a property of parent under the
         // given namespace
         this[childName] = childOb;
@@ -86,6 +91,22 @@ class Emitter extends RootEmitter {
         // the root class
         childOb.parent = this;
 
+    }
+
+    getState(key) {
+        return this._states[key];
+    }
+
+    setState(key, value) {
+        if (this._states[key] && !value) {
+            delete this._states[key];
+        } else {
+            this._states[key] = value;
+        }
+    }
+
+    listStates() {
+        return Object.keys(this._states);
     }
 
     /**
@@ -100,7 +121,6 @@ class Emitter extends RootEmitter {
 
         // see if there are plugins to attach to this class
         if (module.extends && module.extends[this.name]) {
-
             // attach the plugins to this class
             // under their namespace
             this.addChild(module.namespace, new module.extends[this.name]());
