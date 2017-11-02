@@ -53,10 +53,10 @@ describe('config', () => {
     it('should be configured', () => {
 
         ChatEngine = ChatEngineCore.create({
-            publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
-            subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
+            publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
+            subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
         }, {
-            endpoint: 'http://localhost:3000/insecure',
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
             globalChannel,
             throwErrors: false
         });
@@ -227,6 +227,20 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
+        let i = 0;
+        while (i < 200) {
+
+            chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('not-tester', {
+                text: 'hello world ' + i
+            });
+
+            i += 1;
+
+        }
+
         chatHistory.search({
             event: 'tester',
             limit: 50
@@ -249,6 +263,21 @@ describe('history', () => {
         this.timeout(10000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+
+
+        let i = 0;
+        while (i < 200) {
+
+            chatHistory2.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
+
+            i += 1;
+
+        }
 
         chatHistory2.search({
             event: 'tester',
@@ -297,12 +326,11 @@ describe('remote chat list', () => {
             done();
         });
 
-        // create a new chat within some other instance
         ChatEngineClone = ChatEngineCore.create({
-            publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
-            subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
+            publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
+            subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
         }, {
-            endpoint: 'http://localhost:3000/insecure',
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
             globalChannel,
             throwErrors: false
         });
@@ -360,11 +388,12 @@ describe('invite', () => {
     it('should be created', (done) => {
 
         ChatEngineYou = ChatEngineCore.create({
-            publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
-            subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
+            publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
+            subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
         }, {
-            endpoint: 'http://localhost:3000/insecure',
-            globalChannel
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
+            globalChannel,
+            throwErrors: false
         });
 
         ChatEngineYou.connect('stephen', { works: true }, 'stephen-authtoken');

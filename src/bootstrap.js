@@ -76,6 +76,8 @@ module.exports = (ceConfig, pnConfig) => {
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
+        console.log(ceError)
+
         if (ceConfig.throwErrors) {
             // throw ceError;
             throw ceError;
@@ -280,7 +282,7 @@ module.exports = (ceConfig, pnConfig) => {
                 });
         };
 
-        axios.post(ceConfig.endpoint, 
+        axios.post(ceConfig.endpoint,
         {
             uuid: pnConfig.uuid,
             channel: ceConfig.globalChannel,
