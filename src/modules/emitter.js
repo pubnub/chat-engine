@@ -29,7 +29,7 @@ class Emitter extends RootEmitter {
          Stores in memory keys and values
          @private
          */
-        this._states = {};
+        this._dataset = {};
 
         /**
          Emit events locally.
@@ -87,28 +87,30 @@ class Emitter extends RootEmitter {
         // given namespace
         this[childName] = childOb;
 
+        // assign a data set for the namespace if it doesn't exist
+        if (!this._dataset[childName]) {
+            this._dataset[childName] = {};
+        }
+
         // the new object can use ```this.parent``` to access
         // the root class
         childOb.parent = this;
-        childOb.getState = this.getState.bind(this);
-        childOb.setState = this.setState.bind(this);
-        childOb.listStates = this.listStates.bind(this);
+
+        // bind get() and set() to the data set
+        childOb.get = this.get.bind(this._dataset[childName]);
+        childOb.set = this.set.bind(this._dataset[childName]);
     }
 
-    getState(key) {
-        return this._states[key];
+    get(key) {
+        return this[key];
     }
 
-    setState(key, value) {
-        if (this._states[key] && !value) {
-            delete this._states[key];
+    set(key, value) {
+        if (this[key] && !value) {
+            delete this[key];
         } else {
-            this._states[key] = value;
+            this[key] = value;
         }
-    }
-
-    listStates() {
-        return Object.keys(this._states);
     }
 
     /**

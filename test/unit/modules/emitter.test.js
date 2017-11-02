@@ -52,30 +52,22 @@ describe('#emitter', () => {
     });
 
     it('should get a string state', (done) => {
-        emitterInstance.setState('stringKey', 'hello world');
-        assert(emitterInstance.getState('stringKey') === 'hello world', 'got the expected value');
+        emitterInstance.set('stringKey', 'hello world');
+        assert(emitterInstance.get('stringKey') === 'hello world', 'got the expected value');
         done();
     });
 
     it('should get an object state', (done) => {
-        emitterInstance.setState('objectKey', { users: 12, chatName: 'test' });
-        assert.deepEqual(emitterInstance.getState('objectKey'), { users: 12, chatName: 'test' });
-        done();
-    });
-
-    it('should get the list of states', (done) => {
-        emitterInstance.setState('integerKey', 10);
-        emitterInstance.setState('stringKey', 'hello world');
-        emitterInstance.setState('booleanKey', true);
-        assert.deepEqual(emitterInstance.listStates(), ['integerKey', 'stringKey', 'booleanKey']);
+        emitterInstance.set('objectKey', { users: 12, chatName: 'test' });
+        assert.deepEqual(emitterInstance.get('objectKey'), { users: 12, chatName: 'test' });
         done();
     });
 
     it('should remove a state', (done) => {
-        emitterInstance.setState('integerKey', 10);
-        emitterInstance.setState('integerKey', null);
+        emitterInstance.set('integerKey', 10);
+        emitterInstance.set('integerKey', null);
 
-        assert.isUndefined(emitterInstance.getState('integerKey'));
+        assert.isUndefined(emitterInstance.get('integerKey'));
         done();
     });
 
@@ -84,12 +76,12 @@ describe('#emitter', () => {
         let plugin = () => {
             class extension {
                 construct() {
-                    this.setState('stringKey', 'plugin state');
+                    this.set('stringKey', 'hello world');
                 }
             }
 
             return {
-                namespace: 'statePlugin',
+                namespace: 'demo_plugin',
                 extends: {
                     Emitter: extension
                 }
@@ -99,50 +91,8 @@ describe('#emitter', () => {
         emitterInstance.plugin(plugin());
 
         assert(emitterInstance.plugins.length === 1, 'plugin works!');
-        assert(emitterInstance.getState('stringKey') === 'hello world', 'got the expected value');
-        assert(emitterInstance.statePlugin.getState('stringKey') === 'plugin state', 'got the expected value');
+        assert(emitterInstance.demo_plugin.get('stringKey') === 'hello world', 'got the expected value');
 
         done();
-
     });
-
-    it('plugin should reset scope', (done) => {
-
-        let plugin = () => {
-            class extension {
-                construct() {
-                }
-                test() {
-                    this.stringKey = 'plugin state';
-                }
-            }
-
-            return {
-                namespace: 'statePlugin',
-                extends: {
-                    Emitter: extension
-                }
-            };
-        };
-
-        // call test() on first instance
-        emitterInstance.plugin(plugin());
-        emitterInstance.statePlugin.test();
-
-        // key should match
-        assert(emitterInstance.statePlugin.stringKey === 'plugin state', 'got the expected value');
-        // attach plugin to second instance, do not call test
-        let emitterInstance2 = new Emitter(chatEngineInstance);
-        emitterInstance2.plugin(plugin());
-
-        console.log('should be defined', emitterInstance.statePlugin.stringKey);
-        console.log('should be undefined', emitterInstance.statePlugin.stringKey);
-
-        // this should have fresh state
-        assert(emitterInstance.statePlugin.stringKey === undefined, 'got the expected value');
-
-        done();
-
-    });
-
 });
