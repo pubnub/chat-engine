@@ -148,6 +148,8 @@ class Chat extends Emitter {
      */
     invite(user) {
 
+        console.log('calling invite', user)
+
         let complete = () => {
 
             let send = () => {
@@ -177,7 +179,7 @@ class Chat extends Emitter {
 
         };
 
-        axios.post(this.chatEngine.ceConfig.endpoint, 
+        axios.post(this.chatEngine.ceConfig.endpoint,
         {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
@@ -191,6 +193,7 @@ class Chat extends Emitter {
             }
         })
             .then(() => {
+                console.log('did it work?')
                 complete();
             })
             .catch((error) => {
@@ -284,7 +287,7 @@ class Chat extends Emitter {
 
         let createChat = () => {
 
-            axios.post(this.chatEngine.ceConfig.endpoint, 
+            axios.post(this.chatEngine.ceConfig.endpoint,
             {
                 globalChannel: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
@@ -490,7 +493,7 @@ class Chat extends Emitter {
             },
             params: {
                 route: 'chats'
-            } 
+            }
         })
             .then(() => {})
             .catch((error) => {

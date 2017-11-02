@@ -15,13 +15,20 @@ export default (request, response) => {
 
     let controllers = {};
 
-    let addUuidToChannel = function (channel, myUuid, uuid, ttl) {
+    let addUuidToChannel = function (channel, myUuid, uuid, ttl, authKey) {
+
+        console.log('add uuid to channel')
+
         ttl = ttl || oneHourInMinutes;
+
         let key = ['authed', channel].join(':');
         response.status = 200;
 
         return kvdb.get(key).then( ( retrievedKey ) => {
+
             let record = retrievedKey || [];
+
+            console.log('uuids in channel', key, record)
 
             // The first user adds their UUID to the allowed UUIDs for the channel
             if (record.length === 0) {
@@ -33,7 +40,8 @@ export default (request, response) => {
                         return response.send('Internal Server Error');
                     }
                     else {
-                        return response.send();
+                        console.log('uuid added to channel', key, record)
+                        return grantReadWrite(channel, uuid, authKey, ttl);
                     }
                 });
             }
@@ -56,7 +64,7 @@ export default (request, response) => {
                         return response.send('Internal Server Error');
                     }
                     else {
-                        return response.send();
+                        return grantReadWrite(channel, uuid, authKey, ttl);
                     }
                 });
             }
@@ -79,7 +87,7 @@ export default (request, response) => {
             let uuidNotAllowed = record.indexOf(myUuid) === -1;
 
             if (uuidNotAllowed) {
-                console.log('read write 401')
+                console.log('read write 401', myUuid, channel)
                 response.status = 401;
                 return response.send();
             }
@@ -207,6 +215,8 @@ export default (request, response) => {
 
     let globalGrant = function(gChan, myUUID, myAuthKey) {
 
+        console.log('performing global grant for', myUUID)
+
         let chanMeRW = [
             gChan,
             gChan + '-pnpres',
@@ -243,6 +253,7 @@ export default (request, response) => {
             read: true, // false to disallow
             write: false,
             ttl: 0
+            })
         })
         .then( ( status ) => {
             if ( !status.message || status.message !== "Success" ) {
@@ -269,10 +280,16 @@ export default (request, response) => {
 
     controllers['grant'] = {};
     controllers['grant']['POST'] = function () {
-        if ( !requestBody.channel || !requestBody.uuid || !requestBody.authKey) {
+
+        console.log('grant post called')
+
+        if (!requestBody.channel || !requestBody.uuid || !requestBody.authKey) {
+            console.log('422 grant post')
             response.status = 422;
             return response.send('Missing property from request parameters');
         }
+
+        console.log('calling global grant function')
 
         return globalGrant(requestBody.channel, requestBody.uuid, requestBody.authKey);
 
@@ -321,6 +338,7 @@ export default (request, response) => {
 
     // new chat
     controllers['chats']['POST'] = function () {
+
         if ( !requestBody.uuid || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body');
@@ -412,11 +430,11 @@ export default (request, response) => {
             return response.send('Missing property from request body');
         }
 
-        // if(!requestBody.chat.private) {
-        //     response.status = 200;
-        //     console.log('hit this')
-        //     return response.send('That chat does not need authentication');
-        // }
+        if(!requestBody.chat.private) {
+            response.status = 200;
+            console.log('chat does not need auth', requestBody.chat.channel)
+            return response.send('That chat does not need authentication');
+        }
 
         let ttl = requestBody.ttl;
 
@@ -425,7 +443,7 @@ export default (request, response) => {
             return response.send('Invalid "ttl" in request body');
         }
 
-        return grantReadWrite(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
+        return addUuidToChannel(requestBody.chat.channel, requestBody.uuid, requestBody.uuid, ttl, requestBody.authkey);
 
     };
 
@@ -472,7 +490,7 @@ export default (request, response) => {
 
         // Used when a user is creating a private chat or inviting others to the private chat
 
-        if ( !requestBody.myUuid || !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
+        if (!requestBody.myUuid || !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body');
         }
@@ -484,7 +502,7 @@ export default (request, response) => {
             return response.send('Invalid "ttl" in request body');
         }
 
-        return addUuidToChannel(requestBody.chat.channel, requestBody.myUuid, requestBody.uuid, ttl);
+        return addUuidToChannel(requestBody.chat.channel, requestBody.myUuid, requestBody.uuid, ttl, requestBody.authKey);
 
     };
 

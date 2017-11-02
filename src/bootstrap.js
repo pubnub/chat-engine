@@ -77,7 +77,7 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
         console.log(payload.error)
-        console.log(payload.error.response.data)
+        // console.log(payload.error.response.data)
 
         if (ceConfig.throwErrors) {
             // throw ceError;
@@ -283,20 +283,26 @@ module.exports = (ceConfig, pnConfig) => {
                 });
         };
 
-        axios.post(ceConfig.endpoint,
-        {
+        console.log('performing global grant for user');
+
+        axios.post(ceConfig.endpoint, {
             uuid: pnConfig.uuid,
             channel: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
             authKey: pnConfig.authKey
-        },
-        {
+        }, {
             params: {
                 route: "grant"
             }
         })
-            .then((response) => { getChats(response.data); })
+            .then((response) => {
+
+                console.log('it worked', response)
+                getChats(response.data); })
+
             .catch((error) => {
+
+                console.log(error)
 
                 /**
                  * There was a problem logging in to the server.

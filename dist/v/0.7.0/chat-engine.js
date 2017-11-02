@@ -634,6 +634,8 @@ class User extends Emitter {
          * them.feed.on('update', (payload) => {})
          */
 
+        console.log('trying?', this.constructor.name === 'Me');
+
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
         this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
 
@@ -2049,6 +2051,7 @@ ChatEngine = ChatEngineCore.create({
     globalChannel: 'chat-engine-global-channel'
 });
 */
+
 const create = (pnConfig, ceConfig = {}) => {
 
     if (ceConfig.globalChannel) {
@@ -2154,6 +2157,9 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.package = pack;
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
+
+        console.log(payload.error)
+        // console.log(payload.error.response.data)
 
         if (ceConfig.throwErrors) {
             // throw ceError;
@@ -2338,8 +2344,13 @@ module.exports = (ceConfig, pnConfig) => {
         };
 
         let getChats = () => {
-
-            axios.get(ceConfig.endpoint + '/chats?uuid=' + pnConfig.uuid)
+            axios.get(ceConfig.endpoint,
+            {
+                params: {
+                    route: "chats",
+                    uuid: pnConfig.uuid
+                }
+            })
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
 
@@ -2354,14 +2365,26 @@ module.exports = (ceConfig, pnConfig) => {
                 });
         };
 
-        axios.post(ceConfig.endpoint + '/grant', {
+        console.log('performing global grant for user');
+
+        axios.post(ceConfig.endpoint, {
             uuid: pnConfig.uuid,
             channel: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
             authKey: pnConfig.authKey
+        }, {
+            params: {
+                route: "grant"
+            }
         })
-            .then((response) => { getChats(response.data); })
+            .then((response) => {
+
+                console.log('it worked', response)
+                getChats(response.data); })
+
             .catch((error) => {
+
+                console.log(error)
 
                 /**
                  * There was a problem logging in to the server.
@@ -3307,7 +3330,7 @@ module.exports = function spread(callback) {
 /* 50 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.7.0","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-uglify":"^2.0.0","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","isparta":"^4.0.0","pubnub":"^4.13.0","request":"^2.82.0"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.7.0","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-uglify":"^2.0.0","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","isparta":"^4.0.0","pubnub":"^4.13.0","pubnub-functions-mock":"^0.0.2","request":"^2.82.0"}}
 
 /***/ }),
 /* 51 */
@@ -4192,6 +4215,8 @@ class Chat extends Emitter {
      */
     invite(user) {
 
+        console.log('calling invite', user)
+
         let complete = () => {
 
             let send = () => {
@@ -4221,14 +4246,21 @@ class Chat extends Emitter {
 
         };
 
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
+        axios.post(this.chatEngine.ceConfig.endpoint,
+        {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
             myUUID: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
+        },
+        {
+            params: {
+                route: 'chat/invite'
+            }
         })
             .then(() => {
+                console.log('did it work?')
                 complete();
             })
             .catch((error) => {
@@ -4322,12 +4354,16 @@ class Chat extends Emitter {
 
         let createChat = () => {
 
-            axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
+            axios.post(this.chatEngine.ceConfig.endpoint,
+            {
                 globalChannel: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
                 uuid: this.chatEngine.pnConfig.uuid,
                 authData: this.chatEngine.me.authData,
                 chat: this.objectify()
+            },
+            {
+                params: { route: 'chats' }
             })
                 .then(() => {
                     this.onPrep();
@@ -4337,12 +4373,15 @@ class Chat extends Emitter {
                 });
         };
 
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
+        axios.post(this.chatEngine.ceConfig.endpoint, {
             globalChannel: this.chatEngine.ceConfig.globalChannel,
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: this.chatEngine.pnConfig.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
+        },
+        {
+            params: { route: 'chat/grant' }
         })
             .then(() => {
                 createChat();
@@ -4511,14 +4550,18 @@ class Chat extends Emitter {
         });
 
         // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
+        axios.delete(this.chatEngine.ceConfig.endpoint, {
             data: {
                 globalChannel: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
                 uuid: this.chatEngine.pnConfig.uuid,
                 authData: this.chatEngine.me.authData,
                 chat: this.objectify()
-            } })
+            },
+            params: {
+                route: 'chats'
+            }
+        })
             .then(() => {})
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
