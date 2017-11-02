@@ -259,11 +259,13 @@ module.exports = (ceConfig, pnConfig) => {
         };
 
         let getChats = () => {
-            
-            let qsDelimiter = ceConfig.endpoint.indexOf('?') === -1 ? '?' : '&';
-            let route = ceConfig.endpoint + '/chats' + qsDelimiter + 'uuid=' + pnConfig.uuid;
-            
-            axios.get(route)
+            axios.get(ceConfig.endpoint,
+            {
+                params: {
+                    route: "chats",
+                    uuid: pnConfig.uuid
+                }
+            })
                 .then((response) => { complete(response.data); })
                 .catch((error) => {
 
@@ -278,11 +280,17 @@ module.exports = (ceConfig, pnConfig) => {
                 });
         };
 
-        axios.post(ceConfig.endpoint + '/grant', {
+        axios.post(ceConfig.endpoint, 
+        {
             uuid: pnConfig.uuid,
             channel: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
             authKey: pnConfig.authKey
+        },
+        {
+            params: {
+                route: "grant"
+            }
         })
             .then((response) => { getChats(response.data); })
             .catch((error) => {

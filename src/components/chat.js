@@ -177,12 +177,18 @@ class Chat extends Emitter {
 
         };
 
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
+        axios.post(this.chatEngine.ceConfig.endpoint, 
+        {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
             myUUID: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
+        },
+        {
+            params: {
+                route: 'chat/invite'
+            }
         })
             .then(() => {
                 complete();
@@ -278,12 +284,16 @@ class Chat extends Emitter {
 
         let createChat = () => {
 
-            axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
+            axios.post(this.chatEngine.ceConfig.endpoint, 
+            {
                 globalChannel: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
                 uuid: this.chatEngine.pnConfig.uuid,
                 authData: this.chatEngine.me.authData,
                 chat: this.objectify()
+            },
+            {
+                params: { route: 'chats' }
             })
                 .then(() => {
                     this.onPrep();
@@ -293,12 +303,15 @@ class Chat extends Emitter {
                 });
         };
 
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
+        axios.post(this.chatEngine.ceConfig.endpoint, {
             globalChannel: this.chatEngine.ceConfig.globalChannel,
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: this.chatEngine.pnConfig.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
+        },
+        {
+            params: { route: 'chat/grant' }
         })
             .then(() => {
                 createChat();
@@ -467,14 +480,18 @@ class Chat extends Emitter {
         });
 
         // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
+        axios.delete(this.chatEngine.ceConfig.endpoint, {
             data: {
                 globalChannel: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
                 uuid: this.chatEngine.pnConfig.uuid,
                 authData: this.chatEngine.me.authData,
                 chat: this.objectify()
-            } })
+            },
+            params: {
+                route: 'chats'
+            } 
+        })
             .then(() => {})
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });

@@ -1,0 +1,556 @@
+From fc8fc8d7299bbd78c16b44db46a0d9cc4a4ef341 Mon Sep 17 00:00:00 2001
+From: Ozgur Ugurlu <ozguru@Ozgur-Ugurlu.local>
+Date: Tue, 31 Oct 2017 18:17:02 -0700
+Subject: [PATCH] Fix all axios calls to include the query param route. \nFix
+ server.js by removing leading slashes from routes since they're url encoded.
+
+---
+ setup/functions/server.js | 340 +++++++++++++---------------------------------
+ src/bootstrap.js          |  20 ++-
+ src/components/chat.js    |  27 +++-
+ 3 files changed, 132 insertions(+), 255 deletions(-)
+
+diff --git a/setup/functions/server.js b/setup/functions/server.js
+index 01b6658..4cfa1d4 100644
+--- a/setup/functions/server.js
++++ b/setup/functions/server.js
+@@ -2,9 +2,7 @@ export default (request, response) => {
+     const kvdb = require('kvstore');
+     const xhr = require('xhr');
+     const pubnub = require('pubnub');
+-
+-    const oneHourInMinutes = 60;
+-
++    
+     response.headers["Access-Control-Allow-Origin"] = "*";
+     response.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
+     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS, PUT, DELETE";
+@@ -13,192 +11,6 @@ export default (request, response) => {
+ 
+     let controllers = {};
+ 
+-    let addUuidToChannel = function (channel, myUuid, uuid, ttl) {
+-        ttl = ttl || oneHourInMinutes;
+-        let key = ['authed', channel].join(':');
+-        response.status = 200;
+-
+-        return kvdb.get(key).then( ( retrievedKey ) => {
+-            let record = retrievedKey || [];
+-
+-            // The first user adds their UUID to the allowed UUIDs for the channel
+-            if (record.length === 0) {
+-                record.push(myUuid);
+-                return kvdb.set(key, record, ttl).then(( storeError ) => {
+-                    if ( storeError ) {
+-                        console.log('KVStore error: ', storeError);
+-                        response.status = 500;
+-                        return response.send('Internal Server Error');
+-                    }
+-                    else {
+-                        return response.send();
+-                    }
+-                });
+-            }
+-
+-            // The first user allows the UUID of another user to the private chat
+-            // Only the first UUID in the list of allowed UUIDs can add others
+-            if (record.length > 0 && record.indexOf(myUuid) === 0 && myUuid.length > 1) {
+-                
+-                // If the initial UUID tries to allow themself again, return 200
+-                if (!uuid || uuid === myUuid) {
+-                    return response.send();
+-                }
+-
+-                // Add the invited UUID to the list of allowed UUIDs
+-                record.push(uuid);
+-                return kvdb.set(key, record, ttl).then(( storeError ) => {
+-                    if ( storeError ) {
+-                        console.log('KVStore error: ', storeError);
+-                        response.status = 500;
+-                        return response.send('Internal Server Error');
+-                    }
+-                    else {
+-                        return response.send();
+-                    }
+-                });
+-            }
+-
+-            response.status = 401;
+-            return response.send();
+-        });
+-    }
+-
+-    let grantReadWrite = function (channel, myUuid, myAuthKey, ttl) {
+-        ttl = ttl || oneHourInMinutes;
+-        let key = ['authed', channel].join(':');
+-        response.status = 200;
+-
+-        // Check the list of allowed UUIDs for the channel
+-        return kvdb.get(key).then( ( retrievedKey ) => {
+-            let record = retrievedKey || [];
+-
+-            let uuidNotAllowed = record.indexOf(myUuid) === -1;
+-
+-            if (uuidNotAllowed) {
+-                response.status = 401;
+-                return response.send();
+-            }
+-
+-            let chanReadWrite = [
+-                channel,
+-                channel + '-pnpres',
+-                channel + '#user#' + myUuid + '#read.*',
+-                channel + '#user#' + myUuid + '#write.*'
+-            ];
+-
+-            return pubnub.grant({
+-                channels: chanReadWrite,
+-                read: true,
+-                write: true,
+-                authKeys: [myAuthKey],
+-                ttl: ttl
+-            }).then( ( status ) => {
+-                if (status && status.message === "Success") {
+-                    return response.send();
+-                }
+-
+-                console.log(status);
+-                response.status = 500;
+-                return response.send();
+-
+-            }).catch( ( err ) => {
+-                console.log(err);
+-                response.status = 500;
+-                return response.send();
+-            });
+-
+-        });
+-    }
+-
+-    let grantRead = function (channel, myUuid, myAuthKey, ttl) {
+-        ttl = ttl || oneHourInMinutes;
+-        let key = ['authed', channel].join(':');
+-        response.status = 200;
+-
+-        // Check the list of allowed UUIDs for the channel
+-        return kvdb.get(key).then( ( retrievedKey ) => {
+-            let record = retrievedKey || [];
+-
+-            let uuidNotAllowed = record.indexOf(myUuid) === -1;
+-
+-            if (uuidNotAllowed) {
+-                response.status = 401;
+-                return response.send();
+-            }
+-
+-            let chanRead = [
+-                channel + '#user:' + myUuid + '#read.*'
+-            ];
+-
+-            return pubnub.grant({
+-                channels: chanRead,
+-                read: true,
+-                write: false,
+-                authKeys: [myAuthKey],
+-                ttl: ttl
+-            }).then( ( status ) => {
+-                if (status && status.message === "Success") {
+-                    return response.send();
+-                }
+-
+-                console.log(status);
+-                response.status = 500;
+-                return response.send();
+-
+-            }).catch( ( err ) => {
+-                console.log(err);
+-                response.status = 500;
+-                return response.send();
+-            });
+-
+-        });
+-    }
+-
+-    let grantWrite = function (channel, myUuid, myAuthKey, ttl) {
+-        ttl = ttl || oneHourInMinutes;
+-        let key = ['authed', channel].join(':');
+-        response.status = 200;
+-
+-        // Check the list of allowed UUIDs for the channel
+-        return kvdb.get(key).then( ( retrievedKey ) => {
+-            let record = retrievedKey || [];
+-
+-            let uuidNotAllowed = record.indexOf(myUuid) === -1;
+-
+-            if (uuidNotAllowed) {
+-                response.status = 401;
+-                return response.send();
+-            }
+-
+-            let chanWrite = [
+-                channel + '#user:' + myUuid + '#write.*'
+-            ];
+-
+-            return pubnub.grant({
+-                channels: chanWrite,
+-                read: false,
+-                write: true,
+-                authKeys: [myAuthKey],
+-                ttl: ttl
+-            }).then( ( status ) => {
+-                if (status && status.message === "Success") {
+-                    return response.send();
+-                }
+-
+-                console.log(status);
+-                response.status = 500;
+-                return response.send();
+-
+-            }).catch( ( err ) => {
+-                console.log(err);
+-                response.status = 500;
+-                return response.send();
+-            });
+-
+-        });
+-    }
+-
+     let globalGrant = function(gChan, myUUID, myAuthKey) {
+ 
+         let chanMeRW = [
+@@ -261,8 +73,68 @@ export default (request, response) => {
+       return response.send('Hello World!');
+     };
+ 
+-    controllers['/insecure/grant'] = {};
+-    controllers['/insecure/grant']['POST'] = function () {
++    let authUser = (uuid, authKey, channel, forceAuth) => {
++
++        let key = ['authed', channel].join(':');
++
++        return kvdb.get(key).then( ( retrievedKey ) => {
++            let record = retrievedKey || [];
++
++            let newChannels = [channel, channel + '-pnpres'];
++
++            if(forceAuth || !record.length || (record.indexOf(uuid) > -1 && authKey)) {
++
++                return pubnub.grant({
++                    channels: newChannels,
++                    read: true, // false to disallow
++                    write: true,
++                    ttl: 0,
++                    authKeys: [authKey]
++                }).then( ( status ) => {
++
++                    if ( !status.message || status.message !== "Success" ) {
++                        console.log("PAM Issue: ", status.message);
++                        response.status = 500;
++                    }
++                    else {
++                        response.status = 200;
++                    }
++
++                    if(record.indexOf(uuid) === -1) {
++                        record.push(uuid);
++                    }
++
++                    return kvdb.set( key, record, 0 );
++                }).then(( storeError ) => {
++                    if ( storeError ) {
++                        console.log('KVStore error: ', storeError);
++                        response.status = 500;
++                        return response.send('Internal Server Error');
++                    }
++                    else {
++                        return response.send();
++                    }
++                });
++
++            }
++            else {
++                return kvdb.set( key, record, 0 )
++                .then( ( storeError ) => {
++                    if ( storeError ) {
++                        console.log('KVStore error: ', storeError);
++                        response.status = 500;
++                        return response.send('Internal Server Error');
++                    }
++
++                    response.status = 200;
++                    return response.send();
++                });
++            }
++        });
++    }
++
++    controllers['grant'] = {};
++    controllers['grant']['POST'] = function () {
+         if ( !requestBody.channel || !requestBody.uuid || !requestBody.authKey) {
+             response.status = 422;
+             return response.send('Missing property from request parameters'); 
+@@ -273,8 +145,8 @@ export default (request, response) => {
+     };
+ 
+     // we logged in, grant
+-    controllers['/insecure/chats'] = {};
+-    controllers['/insecure/chats']['GET'] = function () {
++    controllers['chats'] = {};
++    controllers['chats']['GET'] = function () {
+         if ( !request.params.uuid ) {
+             response.status = 422;
+             return response.send('Missing "uuid" from request parameters'); 
+@@ -314,7 +186,7 @@ export default (request, response) => {
+     };
+ 
+     // new chat
+-    controllers['/insecure/chats']['POST'] = function () {
++    controllers['chats']['POST'] = function () {
+         if ( !requestBody.uuid || !requestBody.chat || !requestBody.chat.channel) {
+             response.status = 422;
+             return response.send('Missing property from request body'); 
+@@ -356,7 +228,7 @@ export default (request, response) => {
+         });
+     };
+ 
+-    controllers['/insecure/chats']['DELETE'] = function () {
++    controllers['chats']['DELETE'] = function () {
+         if ( !requestBody.uuid || !requestBody.globalChannel || !requestBody.chat || !requestBody.chat.channel) {
+             response.status = 422;
+             return response.send('Missing property from request body'); 
+@@ -398,81 +270,61 @@ export default (request, response) => {
+         });
+     };
+ 
+-    controllers['/insecure/chat/grant'] = {};
+-    controllers['/insecure/chat/grant']['POST'] = function () {
++    controllers['chat/grant'] = {};
++    controllers['chat/grant']['POST'] = function () {
+ 
+-        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
++        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
+             response.status = 422;
+             return response.send('Missing property from request body'); 
+         }
+ 
+-        let ttl = requestBody.ttl;
+-
+-        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
+-            response.status = 422;
+-            return response.send('Invalid "ttl" in request body'); 
+-        }
+-
+-        return grantReadWrite(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
++        if ( requestBody.chat.private ) {
+ 
+-    };
+-
+-    controllers['/insecure/chat/grant/read'] = {};
+-    controllers['/insecure/chat/grant/read']['POST'] = function () {
+-
+-        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
+-            response.status = 422;
+-            return response.send('Missing property from request body'); 
+-        }
++            return authUser(requestBody.uuid, requestBody.authKey, requestBody.chat.channel, false);
+ 
+-        let ttl = requestBody.ttl;
+-
+-        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
+-            response.status = 422;
+-            return response.send('Invalid "ttl" in request body'); 
++        } else {
++            response.status = 200;
++            return response.send();
+         }
+ 
+-        return grantRead(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
+-
+     };
+ 
+-    controllers['/insecure/chat/grant/write'] = {};
+-    controllers['/insecure/chat/grant/write']['POST'] = function () {
++    controllers['chat/invite'] = {};
++    controllers['chat/invite']['POST'] = function () {
+ 
+-        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
+-            response.status = 422;
+-            return response.send('Missing property from request body'); 
+-        }
++        // you can only invite if you're in the channel
++        // grants the user permission in the channel
+ 
+-        let ttl = requestBody.ttl;
+-
+-        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
++        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
+             response.status = 422;
+-            return response.send('Invalid "ttl" in request body'); 
++            return response.send('Missing property from request body'); 
+         }
+ 
+-        return grantWrite(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
++        // grants, grants, grants, grants, grants grants, grants everybody!
++        return authUser(requestBody.uuid, db['authkeys:' + requestBody.uuid], requestBody.chat.channel, true);
+ 
+     };
+ 
+-    controllers['/insecure/chat/invite'] = {};
+-    controllers['/insecure/chat/invite']['POST'] = function () {
+-
+-        // Used when a user is creating a private chat or inviting others to the private chat
++    // uuids are permitted in channels
++    // authKey is what is used to grant
++    // server should make sure that uuid or other auth params match authKey for security
++    controllers['/test'] = {};
++    controllers['/test']['POST'] = function () {
+ 
+-        if ( !requestBody.myUuid || !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
++        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
+             response.status = 422;
+             return response.send('Missing property from request body'); 
+         }
+ 
+-        let ttl = requestBody.ttl;
++        if(requestBody.authKey === 'open-sesame') {
+ 
+-        if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
+-            response.status = 422;
+-            return response.send('Invalid "ttl" in request body'); 
+-        }
++            // grants everybody!
++            return globalGrant(requestBody.channel, requestBody.uuid, requestBody.authKey);
+ 
+-        return addUuidToChannel(requestBody.chat.channel, requestBody.myUuid, requestBody.uuid, ttl);
++        } else {
++            response.status = 401;
++            return response.send();
++        }
+ 
+     };
+ 
+diff --git a/src/bootstrap.js b/src/bootstrap.js
+index 2fc4f64..6b379de 100644
+--- a/src/bootstrap.js
++++ b/src/bootstrap.js
+@@ -259,11 +259,13 @@ module.exports = (ceConfig, pnConfig) => {
+         };
+ 
+         let getChats = () => {
+-            
+-            let qsDelimiter = ceConfig.endpoint.indexOf('?') === -1 ? '?' : '&';
+-            let route = ceConfig.endpoint + '/chats' + qsDelimiter + 'uuid=' + pnConfig.uuid;
+-            
+-            axios.get(route)
++            axios.get(ceConfig.endpoint,
++            {
++                params: {
++                    route: "chats",
++                    uuid: pnConfig.uuid
++                }
++            })
+                 .then((response) => { complete(response.data); })
+                 .catch((error) => {
+ 
+@@ -278,11 +280,17 @@ module.exports = (ceConfig, pnConfig) => {
+                 });
+         };
+ 
+-        axios.post(ceConfig.endpoint + '/grant', {
++        axios.post(ceConfig.endpoint, 
++        {
+             uuid: pnConfig.uuid,
+             channel: ceConfig.globalChannel,
+             authData: ChatEngine.me.authData,
+             authKey: pnConfig.authKey
++        },
++        {
++            params: {
++                route: "grant"
++            }
+         })
+             .then((response) => { getChats(response.data); })
+             .catch((error) => {
+diff --git a/src/components/chat.js b/src/components/chat.js
+index c06a877..06b01f3 100644
+--- a/src/components/chat.js
++++ b/src/components/chat.js
+@@ -177,12 +177,18 @@ class Chat extends Emitter {
+ 
+         };
+ 
+-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
++        axios.post(this.chatEngine.ceConfig.endpoint, 
++        {
+             authKey: this.chatEngine.pnConfig.authKey,
+             uuid: user.uuid,
+             myUUID: this.chatEngine.me.uuid,
+             authData: this.chatEngine.me.authData,
+             chat: this.objectify()
++        },
++        {
++            params: {
++                route: 'chat/invite'
++            }
+         })
+             .then(() => {
+                 complete();
+@@ -278,12 +284,16 @@ class Chat extends Emitter {
+ 
+         let createChat = () => {
+ 
+-            axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
++            axios.post(this.chatEngine.ceConfig.endpoint, 
++            {
+                 globalChannel: this.chatEngine.ceConfig.globalChannel,
+                 authKey: this.chatEngine.pnConfig.authKey,
+                 uuid: this.chatEngine.pnConfig.uuid,
+                 authData: this.chatEngine.me.authData,
+                 chat: this.objectify()
++            },
++            {
++                params: { route: 'chats' }
+             })
+                 .then(() => {
+                     this.onPrep();
+@@ -293,12 +303,15 @@ class Chat extends Emitter {
+                 });
+         };
+ 
+-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
++        axios.post(this.chatEngine.ceConfig.endpoint, {
+             globalChannel: this.chatEngine.ceConfig.globalChannel,
+             authKey: this.chatEngine.pnConfig.authKey,
+             uuid: this.chatEngine.pnConfig.uuid,
+             authData: this.chatEngine.me.authData,
+             chat: this.objectify()
++        },
++        {
++            params: { route: 'chat/grant' }
+         })
+             .then(() => {
+                 createChat();
+@@ -467,14 +480,18 @@ class Chat extends Emitter {
+         });
+ 
+         // delete the chat in the remote list
+-        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
++        axios.delete(this.chatEngine.ceConfig.endpoint, {
+             data: {
+                 globalChannel: this.chatEngine.ceConfig.globalChannel,
+                 authKey: this.chatEngine.pnConfig.authKey,
+                 uuid: this.chatEngine.pnConfig.uuid,
+                 authData: this.chatEngine.me.authData,
+                 chat: this.objectify()
+-            } })
++            },
++            params: {
++                route: 'chats'
++            } 
++        })
+             .then(() => {})
+             .catch((error) => {
+                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+-- 
+2.13.5 (Apple Git-94)
+

@@ -1,4 +1,8 @@
-export default (request, response) => { 
+export default (request, response) => {
+
+
+    console.log('test')
+
     const kvdb = require('kvstore');
     const xhr = require('xhr');
     const pubnub = require('pubnub');
@@ -39,7 +43,7 @@ export default (request, response) => {
             // The first user allows the UUID of another user to the private chat
             // Only the first UUID in the list of allowed UUIDs can add others
             if (record.length > 0 && record.indexOf(myUuid) === 0 && myUuid.length > 1) {
-                
+
                 // If the initial UUID tries to allow themself again, return 200
                 if (!uuid || uuid === myUuid) {
                     return response.send();
@@ -265,7 +269,7 @@ export default (request, response) => {
     controllers['/insecure/grant']['POST'] = function () {
         if ( !requestBody.channel || !requestBody.uuid || !requestBody.authKey) {
             response.status = 422;
-            return response.send('Missing property from request parameters'); 
+            return response.send('Missing property from request parameters');
         }
 
         return globalGrant(requestBody.channel, requestBody.uuid, requestBody.authKey);
@@ -277,7 +281,7 @@ export default (request, response) => {
     controllers['/insecure/chats']['GET'] = function () {
         if ( !request.params.uuid ) {
             response.status = 422;
-            return response.send('Missing "uuid" from request parameters'); 
+            return response.send('Missing "uuid" from request parameters');
         }
 
         let key = ['session', request.params.uuid].join(':');
@@ -317,7 +321,7 @@ export default (request, response) => {
     controllers['/insecure/chats']['POST'] = function () {
         if ( !requestBody.uuid || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
-            return response.send('Missing property from request body'); 
+            return response.send('Missing property from request body');
         }
 
         let key = ['session', requestBody.uuid].join(':');
@@ -359,7 +363,7 @@ export default (request, response) => {
     controllers['/insecure/chats']['DELETE'] = function () {
         if ( !requestBody.uuid || !requestBody.globalChannel || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
-            return response.send('Missing property from request body'); 
+            return response.send('Missing property from request body');
         }
 
         let key = ['session', requestBody.uuid].join(':');
@@ -403,14 +407,14 @@ export default (request, response) => {
 
         if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
             response.status = 422;
-            return response.send('Missing property from request body'); 
+            return response.send('Missing property from request body');
         }
 
         let ttl = requestBody.ttl;
 
         if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
             response.status = 422;
-            return response.send('Invalid "ttl" in request body'); 
+            return response.send('Invalid "ttl" in request body');
         }
 
         return grantReadWrite(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
@@ -422,14 +426,14 @@ export default (request, response) => {
 
         if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
             response.status = 422;
-            return response.send('Missing property from request body'); 
+            return response.send('Missing property from request body');
         }
 
         let ttl = requestBody.ttl;
 
         if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
             response.status = 422;
-            return response.send('Invalid "ttl" in request body'); 
+            return response.send('Invalid "ttl" in request body');
         }
 
         return grantRead(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
@@ -441,14 +445,14 @@ export default (request, response) => {
 
         if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
             response.status = 422;
-            return response.send('Missing property from request body'); 
+            return response.send('Missing property from request body');
         }
 
         let ttl = requestBody.ttl;
 
         if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
             response.status = 422;
-            return response.send('Invalid "ttl" in request body'); 
+            return response.send('Invalid "ttl" in request body');
         }
 
         return grantWrite(requestBody.chat.channel, requestBody.uuid, requestBody.authKey, ttl);
@@ -462,14 +466,14 @@ export default (request, response) => {
 
         if ( !requestBody.myUuid || !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
-            return response.send('Missing property from request body'); 
+            return response.send('Missing property from request body');
         }
 
         let ttl = requestBody.ttl;
 
         if (!(typeof(ttl) === "number" || ttl === null || ttl === undefined)) {
             response.status = 422;
-            return response.send('Invalid "ttl" in request body'); 
+            return response.send('Invalid "ttl" in request body');
         }
 
         return addUuidToChannel(requestBody.chat.channel, requestBody.myUuid, requestBody.uuid, ttl);
@@ -489,6 +493,7 @@ export default (request, response) => {
         return controllers[route][method]();
     } else {
         response.status = 404;
+        console.log('not found');
         return response.send();
     }
 };
