@@ -2239,9 +2239,9 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.ready = true;
 
-            chatData.forEach((chatItem) => {
-                ChatEngine.me.addChatToSession(chatItem);
-            });
+            // chatData.forEach((chatItem) => {
+            //     ChatEngine.me.addChatToSession(chatItem);
+            // });
 
             /**
              Fires when PubNub network connection changes.
@@ -2343,27 +2343,28 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        let getChats = () => {
-            axios.get(ceConfig.endpoint,
-            {
-                params: {
-                    route: "chats",
-                    uuid: pnConfig.uuid
-                }
-            })
-                .then((response) => { complete(response.data); })
-                .catch((error) => {
+        // let getChats = () => {
 
-                    /**
-                     * There was a problem retrieving your session from the server.
-                     * @event ChatEngine#$"."error"."session
-                     */
-                    ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
-                        error
-                    });
+        //     axios.get(ceConfig.endpoint, {
+        //         params: {
+        //             route: 'chats',
+        //             uuid: pnConfig.uuid
+        //         }
+        //     }).then((response) => {
+        //         complete(response.data);
+        //     }).catch((error) => {
 
-                });
-        };
+        //         *
+        //          * There was a problem retrieving your session from the server.
+        //          * @event ChatEngine#$"."error"."session
+
+        //         ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
+        //             error
+        //         });
+
+        //     });
+
+        // };
 
         console.log('performing global grant for user');
 
@@ -2374,24 +2375,20 @@ module.exports = (ceConfig, pnConfig) => {
             authKey: pnConfig.authKey
         }, {
             params: {
-                route: "grant"
+                route: 'bootstrap'
             }
-        })
-            .then((response) => {
+        }).then((response) => {
+            complete();
+        }).catch((error) => {
 
-                console.log('it worked', response)
-                getChats(response.data); })
+            console.log(error);
 
-            .catch((error) => {
-
-                console.log(error)
-
-                /**
-                 * There was a problem logging in to the server.
-                 * @event ChatEngine#$"."error"."auth
-                 */
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
-            });
+            /**
+             * There was a problem logging in to the server.
+             * @event ChatEngine#$"."error"."auth
+             */
+            ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+        });
 
     };
 
