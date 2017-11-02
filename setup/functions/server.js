@@ -1,7 +1,5 @@
+
 export default (request, response) => {
-
-
-    console.log('test')
 
     const kvdb = require('kvstore');
     const xhr = require('xhr');
@@ -63,6 +61,7 @@ export default (request, response) => {
                 });
             }
 
+            console.log('add uuid 401');
             response.status = 401;
             return response.send();
         });
@@ -80,6 +79,7 @@ export default (request, response) => {
             let uuidNotAllowed = record.indexOf(myUuid) === -1;
 
             if (uuidNotAllowed) {
+                console.log('read write 401')
                 response.status = 401;
                 return response.send();
             }
@@ -127,6 +127,7 @@ export default (request, response) => {
             let uuidNotAllowed = record.indexOf(myUuid) === -1;
 
             if (uuidNotAllowed) {
+                console.log('read 401')
                 response.status = 401;
                 return response.send();
             }
@@ -171,6 +172,7 @@ export default (request, response) => {
             let uuidNotAllowed = record.indexOf(myUuid) === -1;
 
             if (uuidNotAllowed) {
+                console.log('write 401')
                 response.status = 401;
                 return response.send();
             }
@@ -221,12 +223,14 @@ export default (request, response) => {
             gChan + '#user:' + myUUID + '#write.*'
         ];
 
-        return pubnub.grant({
-            channels: chanEverybodyR,
-            read: true, // false to disallow
-            write: false,
-            ttl: 0
-        }).then( ( status ) => {
+
+            return pubnub.grant({
+                channels: chanMeRW,
+                read: true, // false to disallow
+                write: true, // false to disallow,
+                authKeys: [myAuthKey],
+                ttl: 0
+            }).then( ( status ) => {
             return pubnub.grant({
                 channels: chanEverybodyW,
                 write: true, // false to disallow
@@ -235,12 +239,10 @@ export default (request, response) => {
             });
         }).then( ( status ) => {
             return pubnub.grant({
-                channels: chanMeRW,
-                read: true, // false to disallow
-                write: true, // false to disallow,
-                authKeys: [myAuthKey],
-                ttl: 0
-            });
+            channels: chanEverybodyR,
+            read: true, // false to disallow
+            write: false,
+            ttl: 0
         })
         .then( ( status ) => {
             if ( !status.message || status.message !== "Success" ) {
@@ -265,8 +267,8 @@ export default (request, response) => {
       return response.send('Hello World!');
     };
 
-    controllers['/insecure/grant'] = {};
-    controllers['/insecure/grant']['POST'] = function () {
+    controllers['grant'] = {};
+    controllers['grant']['POST'] = function () {
         if ( !requestBody.channel || !requestBody.uuid || !requestBody.authKey) {
             response.status = 422;
             return response.send('Missing property from request parameters');
@@ -277,8 +279,8 @@ export default (request, response) => {
     };
 
     // we logged in, grant
-    controllers['/insecure/chats'] = {};
-    controllers['/insecure/chats']['GET'] = function () {
+    controllers['chats'] = {};
+    controllers['chats']['GET'] = function () {
         if ( !request.params.uuid ) {
             response.status = 422;
             return response.send('Missing "uuid" from request parameters');
@@ -318,7 +320,7 @@ export default (request, response) => {
     };
 
     // new chat
-    controllers['/insecure/chats']['POST'] = function () {
+    controllers['chats']['POST'] = function () {
         if ( !requestBody.uuid || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body');
@@ -360,7 +362,7 @@ export default (request, response) => {
         });
     };
 
-    controllers['/insecure/chats']['DELETE'] = function () {
+    controllers['chats']['DELETE'] = function () {
         if ( !requestBody.uuid || !requestBody.globalChannel || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body');
@@ -402,13 +404,19 @@ export default (request, response) => {
         });
     };
 
-    controllers['/insecure/chat/grant'] = {};
-    controllers['/insecure/chat/grant']['POST'] = function () {
+    controllers['chat/grant'] = {};
+    controllers['chat/grant']['POST'] = function () {
 
-        if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
+        if (!requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel) {
             response.status = 422;
             return response.send('Missing property from request body');
         }
+
+        // if(!requestBody.chat.private) {
+        //     response.status = 200;
+        //     console.log('hit this')
+        //     return response.send('That chat does not need authentication');
+        // }
 
         let ttl = requestBody.ttl;
 
@@ -421,8 +429,8 @@ export default (request, response) => {
 
     };
 
-    controllers['/insecure/chat/grant/read'] = {};
-    controllers['/insecure/chat/grant/read']['POST'] = function () {
+    controllers['chat/grant/read'] = {};
+    controllers['chat/grant/read']['POST'] = function () {
 
         if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
             response.status = 422;
@@ -440,8 +448,8 @@ export default (request, response) => {
 
     };
 
-    controllers['/insecure/chat/grant/write'] = {};
-    controllers['/insecure/chat/grant/write']['POST'] = function () {
+    controllers['chat/grant/write'] = {};
+    controllers['chat/grant/write']['POST'] = function () {
 
         if ( !requestBody.uuid || !requestBody.authKey || !requestBody.chat || !requestBody.chat.channel || !requestBody.chat.private) {
             response.status = 422;
@@ -459,8 +467,8 @@ export default (request, response) => {
 
     };
 
-    controllers['/insecure/chat/invite'] = {};
-    controllers['/insecure/chat/invite']['POST'] = function () {
+    controllers['chat/invite'] = {};
+    controllers['chat/invite']['POST'] = function () {
 
         // Used when a user is creating a private chat or inviting others to the private chat
 
@@ -490,6 +498,7 @@ export default (request, response) => {
     if ( !route && method === 'GET' ) {
         return controllers['/index']['GET']();
     } else if ( controllers[route] && controllers[route][method] ) {
+        console.log(method, route)
         return controllers[route][method]();
     } else {
         response.status = 404;

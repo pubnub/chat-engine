@@ -76,6 +76,9 @@ module.exports = (ceConfig, pnConfig) => {
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
+        console.log(payload.error)
+        console.log(payload.error.response.data)
+
         if (ceConfig.throwErrors) {
             // throw ceError;
             throw ceError;
