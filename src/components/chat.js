@@ -289,7 +289,7 @@ class Chat extends Emitter {
 
             axios.post(this.chatEngine.ceConfig.endpoint,
             {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                global: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
                 uuid: this.chatEngine.pnConfig.uuid,
                 authData: this.chatEngine.me.authData,
@@ -307,14 +307,14 @@ class Chat extends Emitter {
         };
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
-            globalChannel: this.chatEngine.ceConfig.globalChannel,
+            global: this.chatEngine.ceConfig.globalChannel,
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: this.chatEngine.pnConfig.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
         },
         {
-            params: { route: 'chat/grant' }
+            params: { route: 'grant' }
         })
             .then(() => {
                 createChat();

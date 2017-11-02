@@ -125,6 +125,8 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
+            getChats();
+
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
@@ -261,34 +263,57 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        // let getChats = () => {
+        let getChats = () => {
 
-        //     axios.get(ceConfig.endpoint, {
-        //         params: {
-        //             route: 'chats',
-        //             uuid: pnConfig.uuid
-        //         }
-        //     }).then((response) => {
-        //         complete(response.data);
-        //     }).catch((error) => {
+            ChatEngine.pubnub.channelGroups.addChannels(
+                {
+                    channels: [ceConfig.globalChannel],
+                    channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#')
+                },
+                function(status) {
+                    if (status.error) {
+                        console.log("operation failed w/ status: ", status);
+                    } else {
 
-        //         *
-        //          * There was a problem retrieving your session from the server.
-        //          * @event ChatEngine#$"."error"."session
+                        console.log("operation done!")
 
-        //         ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
-        //             error
-        //         });
+                        // assuming an intialized PubNub instance already exists
 
-        //     });
+                        let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
 
-        // };
+                        console.log('group is', group)
+
+                        ChatEngine.pubnub.channelGroups.listChannels({
+                            channelGroup: group
+                        }, (status, response) => {
+
+                            console.log(status, response)
+
+                            if (status.error) {
+                                console.log("operation failed w/ error:", status);
+                                return;
+                            }
+
+                            // console.log("listing push channel for device". response.channels)
+
+                            response.channels.forEach(function (channel) {
+                                console.log('channel', channel)
+                            });
+
+                        });
+
+                    }
+                }
+            );
+
+
+        };
 
         console.log('performing global grant for user');
 
         axios.post(ceConfig.endpoint, {
             uuid: pnConfig.uuid,
-            channel: ceConfig.globalChannel,
+            global: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
             authKey: pnConfig.authKey
         }, {
@@ -296,7 +321,23 @@ module.exports = (ceConfig, pnConfig) => {
                 route: 'bootstrap'
             }
         }).then((response) => {
-            complete();
+
+            axios.post(ceConfig.endpoint, {
+                uuid: pnConfig.uuid,
+                global: ceConfig.globalChannel,
+                authData: ChatEngine.me.authData,
+                authKey: pnConfig.authKey
+            }, {
+                params: {
+                    route: 'group'
+                }
+            }).then((response) => {
+
+                console.log('group posted')
+
+                complete();
+            });
+
         }).catch((error) => {
 
             console.log(error);

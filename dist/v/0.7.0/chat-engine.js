@@ -2207,6 +2207,8 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
+            getChats();
+
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
             ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
@@ -2343,34 +2345,57 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        // let getChats = () => {
+        let getChats = () => {
 
-        //     axios.get(ceConfig.endpoint, {
-        //         params: {
-        //             route: 'chats',
-        //             uuid: pnConfig.uuid
-        //         }
-        //     }).then((response) => {
-        //         complete(response.data);
-        //     }).catch((error) => {
+            ChatEngine.pubnub.channelGroups.addChannels(
+                {
+                    channels: [ceConfig.globalChannel],
+                    channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#')
+                },
+                function(status) {
+                    if (status.error) {
+                        console.log("operation failed w/ status: ", status);
+                    } else {
 
-        //         *
-        //          * There was a problem retrieving your session from the server.
-        //          * @event ChatEngine#$"."error"."session
+                        console.log("operation done!")
 
-        //         ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
-        //             error
-        //         });
+                        // assuming an intialized PubNub instance already exists
 
-        //     });
+                        let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
 
-        // };
+                        console.log('group is', group)
+
+                        ChatEngine.pubnub.channelGroups.listChannels({
+                            channelGroup: group
+                        }, (status, response) => {
+
+                            console.log(status, response)
+
+                            if (status.error) {
+                                console.log("operation failed w/ error:", status);
+                                return;
+                            }
+
+                            // console.log("listing push channel for device". response.channels)
+
+                            response.channels.forEach(function (channel) {
+                                console.log('channel', channel)
+                            });
+
+                        });
+
+                    }
+                }
+            );
+
+
+        };
 
         console.log('performing global grant for user');
 
         axios.post(ceConfig.endpoint, {
             uuid: pnConfig.uuid,
-            channel: ceConfig.globalChannel,
+            global: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
             authKey: pnConfig.authKey
         }, {
@@ -2378,7 +2403,23 @@ module.exports = (ceConfig, pnConfig) => {
                 route: 'bootstrap'
             }
         }).then((response) => {
-            complete();
+
+            axios.post(ceConfig.endpoint, {
+                uuid: pnConfig.uuid,
+                global: ceConfig.globalChannel,
+                authData: ChatEngine.me.authData,
+                authKey: pnConfig.authKey
+            }, {
+                params: {
+                    route: 'group'
+                }
+            }).then((response) => {
+
+                console.log('group posted')
+
+                complete();
+            });
+
         }).catch((error) => {
 
             console.log(error);
@@ -3327,7 +3368,7 @@ module.exports = function spread(callback) {
 /* 50 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.7.0","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-uglify":"^2.0.0","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","isparta":"^4.0.0","pubnub":"^4.13.0","pubnub-functions-mock":"^0.0.2","request":"^2.82.0"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.7.0","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-uglify":"^2.0.0","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","isparta":"^4.0.0","pubnub":"^4.17.0","pubnub-functions-mock":"^0.0.2","request":"^2.82.0"}}
 
 /***/ }),
 /* 51 */
@@ -4353,7 +4394,7 @@ class Chat extends Emitter {
 
             axios.post(this.chatEngine.ceConfig.endpoint,
             {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                global: this.chatEngine.ceConfig.globalChannel,
                 authKey: this.chatEngine.pnConfig.authKey,
                 uuid: this.chatEngine.pnConfig.uuid,
                 authData: this.chatEngine.me.authData,
@@ -4371,14 +4412,14 @@ class Chat extends Emitter {
         };
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
-            globalChannel: this.chatEngine.ceConfig.globalChannel,
+            global: this.chatEngine.ceConfig.globalChannel,
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: this.chatEngine.pnConfig.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
         },
         {
-            params: { route: 'chat/grant' }
+            params: { route: 'grant' }
         })
             .then(() => {
                 createChat();
