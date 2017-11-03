@@ -296,19 +296,13 @@ module.exports = (ceConfig, pnConfig) => {
                     console.log("operation failed w/ status: ", status);
                 } else {
 
-                    console.log("operation done!")
-
                     // assuming an intialized PubNub instance already exists
 
                     let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
 
-                    console.log('group is', group)
-
                     ChatEngine.pubnub.channelGroups.listChannels({
                         channelGroup: group
                     }, (status, response) => {
-
-                        console.log(status, response)
 
                         if (status.error) {
                             console.log("operation failed w/ error:", status);
@@ -364,9 +358,6 @@ module.exports = (ceConfig, pnConfig) => {
                     }
                 }).then((response) => {
 
-                    console.log('bootstrap post')
-                    console.log(response)
-
                     axios.post(ceConfig.endpoint, {
                         uuid: pnConfig.uuid,
                         global: ceConfig.globalChannel,
@@ -377,9 +368,6 @@ module.exports = (ceConfig, pnConfig) => {
                             route: 'group'
                         }
                     }).then((response) => {
-
-                        console.log('group posted')
-
                         complete();
                     });
 

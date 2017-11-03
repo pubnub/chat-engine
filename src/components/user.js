@@ -55,8 +55,6 @@ class User extends Emitter {
          * them.feed.on('update', (payload) => {})
          */
 
-        console.log('trying?', this.constructor.name === 'Me');
-
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
         this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'system');
 

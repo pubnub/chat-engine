@@ -159,9 +159,12 @@ describe('chat', () => {
 
         chat = new ChatEngine.Chat('chat-teser');
 
-        chat.once('$.online.*', (p) => {
-            assert(p.user.uuid === ChatEngine.me.uuid, 'this online event is me');
-            done();
+        chat.on('$.online.*', (p) => {
+
+            if (p.user.uuid === ChatEngine.me.uuid) {
+                done();
+            }
+
         });
 
     });
@@ -228,18 +231,18 @@ describe('history', () => {
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
         let i = 0;
-        while (i < 200) {
+        // while (i < 200) {
 
-            chatHistory.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     chatHistory.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-            i += 1;
+        //     i += 1;
 
-        }
+        // }
 
         chatHistory.search({
             event: 'tester',
@@ -266,18 +269,18 @@ describe('history', () => {
 
 
         let i = 0;
-        while (i < 200) {
+        // while (i < 200) {
 
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     chatHistory2.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory2.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-            i += 1;
+        //     i += 1;
 
-        }
+        // }
 
         chatHistory2.search({
             event: 'tester',

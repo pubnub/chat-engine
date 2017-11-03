@@ -634,8 +634,6 @@ class User extends Emitter {
          * them.feed.on('update', (payload) => {})
          */
 
-        console.log('trying?', this.constructor.name === 'Me');
-
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
         this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'system');
 
@@ -2378,19 +2376,13 @@ module.exports = (ceConfig, pnConfig) => {
                     console.log("operation failed w/ status: ", status);
                 } else {
 
-                    console.log("operation done!")
-
                     // assuming an intialized PubNub instance already exists
 
                     let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
 
-                    console.log('group is', group)
-
                     ChatEngine.pubnub.channelGroups.listChannels({
                         channelGroup: group
                     }, (status, response) => {
-
-                        console.log(status, response)
 
                         if (status.error) {
                             console.log("operation failed w/ error:", status);
@@ -2446,9 +2438,6 @@ module.exports = (ceConfig, pnConfig) => {
                     }
                 }).then((response) => {
 
-                    console.log('bootstrap post')
-                    console.log(response)
-
                     axios.post(ceConfig.endpoint, {
                         uuid: pnConfig.uuid,
                         global: ceConfig.globalChannel,
@@ -2459,9 +2448,6 @@ module.exports = (ceConfig, pnConfig) => {
                             route: 'group'
                         }
                     }).then((response) => {
-
-                        console.log('group posted')
-
                         complete();
                     });
 
@@ -4360,8 +4346,6 @@ class Chat extends Emitter {
      */
     onPresence(presenceEvent) {
 
-        console.log('presence', presenceEvent)
-
         // make sure channel matches this channel
         if (this.channel === presenceEvent.channel) {
 
@@ -4421,7 +4405,6 @@ class Chat extends Emitter {
         // this will trigger ready callbacks
 
         let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
-        console.log('trying to add channels', this.channel, channelGroup)
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
             global: this.chatEngine.ceConfig.globalChannel,
@@ -4801,8 +4784,6 @@ class Chat extends Emitter {
     }
 
     getUserUpdates() {
-
-        console.log('getting updates', this.channel);
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel

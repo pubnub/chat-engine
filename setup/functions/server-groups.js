@@ -230,14 +230,12 @@ export default (request, response) => {
         response.status = 200;
         return response.send();
 
-    }
+    };
 
     // Choose route based on request.params and request.method
     // Execute the controller function in the controllers object
     const route = request.params.route;
     const method = request.method.toUpperCase();
-
-    console.log(route, method)
 
     // GET request with empty route returns the homepage
     // If a requested route or method for a route does not exist, return 404

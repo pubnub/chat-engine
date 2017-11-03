@@ -206,8 +206,6 @@ class Chat extends Emitter {
      */
     onPresence(presenceEvent) {
 
-        console.log('presence', presenceEvent)
-
         // make sure channel matches this channel
         if (this.channel === presenceEvent.channel) {
 
@@ -267,7 +265,6 @@ class Chat extends Emitter {
         // this will trigger ready callbacks
 
         let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
-        console.log('trying to add channels', this.channel, channelGroup)
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
             global: this.chatEngine.ceConfig.globalChannel,
@@ -647,8 +644,6 @@ class Chat extends Emitter {
     }
 
     getUserUpdates() {
-
-        console.log('getting updates', this.channel);
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
