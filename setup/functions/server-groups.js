@@ -3,12 +3,40 @@ export default (request, response) => {
     const kvdb = require('kvstore');
     const pubnub = require('pubnub');
     const xhr = require('xhr');
+    const crypto = require('crypto');
+    const queryStringCodec = require('codec/query_string');
+    const base64Codec = require('codec/base64');
+
+    const secretKey = 'sec-c-ZjVlYmI3MTktMjQ0OS00YzUyLWI5ZDgtY2JmZmViZWE2MzAy';
 
     response.headers['Access-Control-Allow-Origin'] = '*';
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE';
 
     const body = JSON.parse(request.body);
+
+    function quote(s) {
+      return encodeURIComponent(s).replace(/[!~*'()]/g, (c) => `%${c.charCodeAt(0).toString(16)}`);
+    }
+
+    const signedRequest = (path, options = {}) => {
+
+        options.timestamp = Math.floor(Date.now() / 1000);
+
+        const params = Object.keys(options).sort().map((k) => `${k}=${quote(options[k])}`).join('&');
+        const signString = `${request.subkey}\n${request.pubkey}\n${path}\n${params}`;
+
+        return crypto.hmac(base64Codec.btoa(secretKey), signString, crypto.ALGORITHM.HMAC_SHA256).then((signature) => {
+
+            options.signature = signature;
+            const query = queryStringCodec.stringify(options);
+
+            return xhr.fetch(`https://ps.pndsn.com${path}?${query}`);
+
+
+        })
+
+    };
 
     let controllers = {
         index: {},
@@ -17,11 +45,18 @@ export default (request, response) => {
         user_write: {},
         grant: {},
         chat: {},
-        group: {}
+        group: {},
+        subscribe: {}
     };
 
     let authPolicy = () => {
-        return xhr.fetch("https://neutrinoapi.com/geocode-address");
+        return new Promise((resolve, reject) => {
+          // do something asynchronous which eventually calls either:
+          //
+             resolve(true); // fulfilled
+          // or
+          //   reject("failure reason"); // rejected
+        });
     }
 
     let handleStatus = (status) => {
@@ -93,7 +128,6 @@ export default (request, response) => {
             body.global + '#user#' + body.uuid + '#write.*'
         ];
 
-
         return pubnub.grant({
             channels: chanMeRW,
             read: true, // false to disallow
@@ -120,7 +154,6 @@ export default (request, response) => {
             channelGroups: groups,
             authKeys: [body.authkey],
             ttl: 0,
-            manage: true,
             read: true
         }).then((status) => {
 
@@ -138,6 +171,19 @@ export default (request, response) => {
             return response.send();
 
         });
+
+    };
+
+    controllers.subscribe.POST = () => {
+
+        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${body.chat.group}`, {add: body.chat.channel, uuid: body.uuid})
+            .then((serverResponse) => {
+                console.log(serverResponse)
+                return response.send();
+            }).catch((err) => {
+                console.log(err)
+                return response.send();
+            });
 
     };
 
@@ -185,8 +231,9 @@ export default (request, response) => {
 
         return authPolicy().then(() => {
             return controllers[route][method]();
-        }).catch(() => {
+        }).catch((err) => {
             console.log('Unauthorized');
+            console.log(err)
             response.status = 401;
             return response.send();
         })

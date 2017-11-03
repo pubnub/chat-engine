@@ -4418,13 +4418,22 @@ class Chat extends Emitter {
             let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
             console.log('trying to add channels', this.channel, channelGroup)
 
-            this.chatEngine.pubnub.channelGroups.addChannels({
-                channels: [this.channel],
-                channelGroup
-            }, (status, response) => {
-                console.log(status, response);
-                this.onConnectionReady();
-            });
+            axios.post(this.chatEngine.ceConfig.endpoint, {
+                global: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            },
+            {
+                params: { route: 'subscribe' }
+            })
+                .then(() => {
+                    this.onConnectionReady();
+                })
+                .catch((error) => {
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
 
         }
 

@@ -369,7 +369,7 @@ module.exports = (ceConfig, pnConfig) => {
                         authKey: pnConfig.authKey
                     }, {
                         params: {
-                            route: 'group_permissions'
+                            route: 'group'
                         }
                     }).then((response) => {
 
