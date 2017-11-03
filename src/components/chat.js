@@ -50,6 +50,30 @@ class Chat extends Emitter {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
+        axios.get(this.chatEngine.ceConfig.endpoint, {
+            params: {
+                authKey: this.chatEngine.pnConfig.authKey,
+                myUUID: this.chatEngine.me.uuid,
+                authData: this.chatEngine.me.authData,
+                channel: this.channel,
+                route: 'chat'
+            }
+        }).then((response) => {
+
+            if (response.found) {
+                this.meta = response.chat.meta;
+            }
+
+            if (autoConnect) {
+                this.connect();
+            }
+
+        }).catch((error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        });
+
+        this.meta = {};
+
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
         * @type Boolean
@@ -78,10 +102,6 @@ class Chat extends Emitter {
          * @type {Boolean}
          */
         this.connected = false;
-
-        if (autoConnect) {
-            this.connect();
-        }
 
         this.chatEngine.chats[this.channel] = this;
 
@@ -127,7 +147,8 @@ class Chat extends Emitter {
         return {
             channel: this.channel,
             group: this.group,
-            private: this.isPrivate
+            private: this.isPrivate,
+            meta: this.meta
         };
 
     }

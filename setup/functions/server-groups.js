@@ -1,6 +1,6 @@
 export default (request, response) => {
 
-    const kvdb = require('kvstore');
+    const db = require('kvstore');
     const pubnub = require('pubnub');
     const xhr = require('xhr');
     const crypto = require('crypto');
@@ -12,6 +12,13 @@ export default (request, response) => {
     response.headers['Access-Control-Allow-Origin'] = '*';
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE';
+
+    // Choose route based on request.params and request.method
+    // Execute the controller function in the controllers object
+    const route = request.params.route;
+    const method = request.method.toUpperCase();
+
+    console.log(route, method)
 
     const body = JSON.parse(request.body);
 
@@ -67,7 +74,6 @@ export default (request, response) => {
             response.status = 500;
             return response.send('Internal Server Error');
         } else {
-            response.status = 200;
             return response.send();
         }
 
@@ -225,17 +231,49 @@ export default (request, response) => {
 
     };
 
-    controllers.invite.POST = () => {
+    controllers.chat.POST = () => {
+
+        db.set(req.body.chat.channel, req.body.chat, 365);
 
         response.status = 200;
         return response.send();
 
     };
 
-    // Choose route based on request.params and request.method
-    // Execute the controller function in the controllers object
-    const route = request.params.route;
-    const method = request.method.toUpperCase();
+    controllers.chat.GET = () => {
+
+        console.log(request);
+
+        return db.get(request.params.channel).then((value) => {
+
+            if(value) {
+                return response.send({
+                    found: true,
+                    chat: value
+                });
+            } else {
+                return response.send({
+                    found: false
+                });
+            }
+
+            // response.status = 200;
+
+        }).catch((err) => {
+            console.log('KV Error');
+            console.log(err)
+            response.status = 500;
+            return response.send();
+        })
+
+    };
+
+    controllers.invite.POST = () => {
+
+        response.status = 200;
+        return response.send();
+
+    };
 
     // GET request with empty route returns the homepage
     // If a requested route or method for a route does not exist, return 404

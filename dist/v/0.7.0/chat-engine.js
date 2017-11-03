@@ -2255,8 +2255,9 @@ module.exports = (ceConfig, pnConfig) => {
 
                 ChatEngine.ready = true;
 
-            })
+                getCustomChats();
 
+            });
 
             // chatData.forEach((chatItem) => {
             //     ChatEngine.me.addChatToSession(chatItem);
@@ -2365,41 +2366,26 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        let getChats = () => {
+        let getCustomChats = () => {
 
-            ChatEngine.pubnub.channelGroups.addChannels({
-                channels: [ceConfig.globalChannel],
-                channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#'),
-                authKey: pnConfig.authKey
-            }, function(status) {
+            let group = [ceConfig.globalChannel, pnConfig.uuid, 'custom'].join('#');
+
+            ChatEngine.pubnub.channelGroups.listChannels({
+                channelGroup: group
+            }, (status, response) => {
+
                 if (status.error) {
-                    console.log("operation failed w/ status: ", status);
-                } else {
-
-                    // assuming an intialized PubNub instance already exists
-
-                    let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
-
-                    ChatEngine.pubnub.channelGroups.listChannels({
-                        channelGroup: group
-                    }, (status, response) => {
-
-                        if (status.error) {
-                            console.log("operation failed w/ error:", status);
-                            return;
-                        }
-
-                        // console.log("listing push channel for device". response.channels)
-
-                        response.channels.forEach(function (channel) {
-                            console.log('channel', channel)
-                        });
-
-                    });
-
+                    console.log("operation failed w/ error:", status);
+                    return;
                 }
-            });
 
+                // console.log("listing push channel for device". response.channels)
+
+                response.channels.forEach(function (channel) {
+                    console.log('channel', channel)
+                });
+
+            });
 
         };
 
@@ -4189,6 +4175,28 @@ class Chat extends Emitter {
         if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
+
+        axios.get(this.chatEngine.ceConfig.endpoint, {
+            params: {
+                authKey: this.chatEngine.pnConfig.authKey,
+                myUUID: this.chatEngine.me.uuid,
+                authData: this.chatEngine.me.authData,
+                channel: this.channel,
+                route: 'chat'
+            }
+        })
+        .then((response) => {
+
+            if (response.found) {
+                console.log('found!');
+            } else {
+
+            }
+
+        })
+        .catch((error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        });
 
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};

@@ -175,8 +175,9 @@ module.exports = (ceConfig, pnConfig) => {
 
                 ChatEngine.ready = true;
 
-            })
+                getCustomChats();
 
+            });
 
             // chatData.forEach((chatItem) => {
             //     ChatEngine.me.addChatToSession(chatItem);
@@ -285,41 +286,26 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        let getChats = () => {
+        let getCustomChats = () => {
 
-            ChatEngine.pubnub.channelGroups.addChannels({
-                channels: [ceConfig.globalChannel],
-                channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#'),
-                authKey: pnConfig.authKey
-            }, function(status) {
+            let group = [ceConfig.globalChannel, pnConfig.uuid, 'custom'].join('#');
+
+            ChatEngine.pubnub.channelGroups.listChannels({
+                channelGroup: group
+            }, (status, response) => {
+
                 if (status.error) {
-                    console.log("operation failed w/ status: ", status);
-                } else {
-
-                    // assuming an intialized PubNub instance already exists
-
-                    let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
-
-                    ChatEngine.pubnub.channelGroups.listChannels({
-                        channelGroup: group
-                    }, (status, response) => {
-
-                        if (status.error) {
-                            console.log("operation failed w/ error:", status);
-                            return;
-                        }
-
-                        // console.log("listing push channel for device". response.channels)
-
-                        response.channels.forEach(function (channel) {
-                            console.log('channel', channel)
-                        });
-
-                    });
-
+                    console.log("operation failed w/ error:", status);
+                    return;
                 }
-            });
 
+                // console.log("listing push channel for device". response.channels)
+
+                response.channels.forEach(function (channel) {
+                    console.log('channel', channel)
+                });
+
+            });
 
         };
 
