@@ -84,9 +84,9 @@ export default (request, response) => {
 
         return pubnub.grant({
             channelGroups: [
-                body.global + '#' + body.uuid + '#' + 'fixed',
-                body.global + '#' + body.uuid + '#' + 'system',
-                body.global + '#' + body.uuid + '#' + 'custom'
+                body.global + '#' + body.uuid + '#fixed',
+                body.global + '#' + body.uuid + '#system',
+                body.global + '#' + body.uuid + '#custom'
             ],
             authKeys: [body.authkey],
             ttl: 0,

@@ -22,7 +22,7 @@ const Search = require('../components/search');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'custom') {
 
         super(chatEngine);
 
@@ -148,8 +148,6 @@ class Chat extends Emitter {
      */
     invite(user) {
 
-        console.log('calling invite', user)
-
         let complete = () => {
 
             let send = () => {
@@ -179,15 +177,13 @@ class Chat extends Emitter {
 
         };
 
-        axios.post(this.chatEngine.ceConfig.endpoint,
-        {
+        axios.post(this.chatEngine.ceConfig.endpoint, {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
             myUUID: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
-        },
-        {
+        }, {
             params: {
                 route: 'chat/invite'
             }
@@ -270,10 +266,15 @@ class Chat extends Emitter {
 
             // this will trigger ready callbacks
 
-            // subscribe to the PubNub channel for this Chat
-            this.chatEngine.pubnub.subscribe({
+            let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
+            console.log('trying to add channels', this.channel, channelGroup)
+
+            this.chatEngine.pubnub.channelGroups.addChannels({
                 channels: [this.channel],
-                withPresence: true
+                channelGroup
+            }, (status, response) => {
+                console.log(status, response);
+                this.onConnectionReady();
             });
 
         }
@@ -287,23 +288,23 @@ class Chat extends Emitter {
 
         let createChat = () => {
 
-            axios.post(this.chatEngine.ceConfig.endpoint,
-            {
-                global: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            },
-            {
-                params: { route: 'chats' }
-            })
-                .then(() => {
-                    this.onPrep();
-                })
-                .catch((error) => {
-                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
+            // axios.post(this.chatEngine.ceConfig.endpoint,
+            // {
+            //     global: this.chatEngine.ceConfig.globalChannel,
+            //     authKey: this.chatEngine.pnConfig.authKey,
+            //     uuid: this.chatEngine.pnConfig.uuid,
+            //     authData: this.chatEngine.me.authData,
+            //     chat: this.objectify()
+            // },
+            // {
+            //     params: { route: 'chats' }
+            // })
+            //     .then(() => {
+                    // this.onPrep();
+                // })
+                // .catch((error) => {
+                //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                // });
         };
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
@@ -317,7 +318,8 @@ class Chat extends Emitter {
             params: { route: 'grant' }
         })
             .then(() => {
-                createChat();
+                // createChat();
+                this.onPrep();
             })
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
@@ -483,22 +485,22 @@ class Chat extends Emitter {
         });
 
         // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint, {
-            data: {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            },
-            params: {
-                route: 'chats'
-            }
-        })
-            .then(() => {})
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-            });
+        // axios.delete(this.chatEngine.ceConfig.endpoint, {
+        //     data: {
+        //         globalChannel: this.chatEngine.ceConfig.globalChannel,
+        //         authKey: this.chatEngine.pnConfig.authKey,
+        //         uuid: this.chatEngine.pnConfig.uuid,
+        //         authData: this.chatEngine.me.authData,
+        //         chat: this.objectify()
+        //     },
+        //     params: {
+        //         route: 'chats'
+        //     }
+        // })
+        //     .then(() => {})
+        //     .catch((error) => {
+        //         this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+        //     });
 
 
         this.connected = false;

@@ -215,7 +215,7 @@ export default (request, response) => {
 
     let globalGrant = function(gChan, myUUID, myAuthKey) {
 
-        console.log('performing global grant for', myUUID)
+        console.log('performing global grant for', myUUID, 'on', gChan)
 
         let chanMeRW = [
             gChan,

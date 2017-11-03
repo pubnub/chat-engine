@@ -125,11 +125,9 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
-            getChats();
-
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
+            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'system');
 
             // build the current user
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
@@ -157,7 +155,23 @@ module.exports = (ceConfig, pnConfig) => {
                 me: ChatEngine.me
             });
 
+            setTimeout(function() {
+
+                console.log('subscribing')
+
+                ChatEngine.pubnub.subscribe({
+                    callback: function(m){console.log('subscribe cb', m)},
+                    channelGroups: [
+                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
+                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
+                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+                    ]
+                });
+
+            }, 3000)
+
             ChatEngine.ready = true;
+
 
             // chatData.forEach((chatItem) => {
             //     ChatEngine.me.addChatToSession(chatItem);
@@ -238,6 +252,8 @@ module.exports = (ceConfig, pnConfig) => {
 
                     let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
 
+                    console.log(statusEvent)
+
                     if (statusEvent.affectedChannels) {
                         statusEvent.affectedChannels.forEach((channel) => {
 
@@ -246,6 +262,7 @@ module.exports = (ceConfig, pnConfig) => {
                             if (chat) {
                                 // connected category tells us the chat is ready
                                 if (statusEvent.category === 'PNConnectedCategory') {
+                                    console.log('connection ready')
                                     chat.onConnectionReady();
                                 }
 
@@ -265,46 +282,44 @@ module.exports = (ceConfig, pnConfig) => {
 
         let getChats = () => {
 
-            ChatEngine.pubnub.channelGroups.addChannels(
-                {
-                    channels: [ceConfig.globalChannel],
-                    channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#')
-                },
-                function(status) {
-                    if (status.error) {
-                        console.log("operation failed w/ status: ", status);
-                    } else {
+            ChatEngine.pubnub.channelGroups.addChannels({
+                channels: [ceConfig.globalChannel],
+                channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#'),
+                authKey: pnConfig.authKey
+            }, function(status) {
+                if (status.error) {
+                    console.log("operation failed w/ status: ", status);
+                } else {
 
-                        console.log("operation done!")
+                    console.log("operation done!")
 
-                        // assuming an intialized PubNub instance already exists
+                    // assuming an intialized PubNub instance already exists
 
-                        let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
+                    let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
 
-                        console.log('group is', group)
+                    console.log('group is', group)
 
-                        ChatEngine.pubnub.channelGroups.listChannels({
-                            channelGroup: group
-                        }, (status, response) => {
+                    ChatEngine.pubnub.channelGroups.listChannels({
+                        channelGroup: group
+                    }, (status, response) => {
 
-                            console.log(status, response)
+                        console.log(status, response)
 
-                            if (status.error) {
-                                console.log("operation failed w/ error:", status);
-                                return;
-                            }
+                        if (status.error) {
+                            console.log("operation failed w/ error:", status);
+                            return;
+                        }
 
-                            // console.log("listing push channel for device". response.channels)
+                        // console.log("listing push channel for device". response.channels)
 
-                            response.channels.forEach(function (channel) {
-                                console.log('channel', channel)
-                            });
-
+                        response.channels.forEach(function (channel) {
+                            console.log('channel', channel)
                         });
 
-                    }
+                    });
+
                 }
-            );
+            });
 
 
         };
@@ -321,6 +336,9 @@ module.exports = (ceConfig, pnConfig) => {
                 route: 'bootstrap'
             }
         }).then((response) => {
+
+            console.log('bootstrap post')
+            console.log(response)
 
             axios.post(ceConfig.endpoint, {
                 uuid: pnConfig.uuid,
@@ -340,7 +358,7 @@ module.exports = (ceConfig, pnConfig) => {
 
         }).catch((error) => {
 
-            console.log(error);
+            console.log('bootstrap error is', error)
 
             /**
              * There was a problem logging in to the server.

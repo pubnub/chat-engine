@@ -637,7 +637,7 @@ class User extends Emitter {
         console.log('trying?', this.constructor.name === 'Me');
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
+        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'system');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -658,7 +658,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
+        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'system');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -2207,11 +2207,9 @@ module.exports = (ceConfig, pnConfig) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
-            getChats();
-
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
+            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'system');
 
             // build the current user
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
@@ -2239,7 +2237,23 @@ module.exports = (ceConfig, pnConfig) => {
                 me: ChatEngine.me
             });
 
+            setTimeout(function() {
+
+                console.log('subscribing')
+
+                ChatEngine.pubnub.subscribe({
+                    callback: function(m){console.log('subscribe cb', m)},
+                    channelGroups: [
+                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
+                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
+                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+                    ]
+                });
+
+            }, 3000)
+
             ChatEngine.ready = true;
+
 
             // chatData.forEach((chatItem) => {
             //     ChatEngine.me.addChatToSession(chatItem);
@@ -2320,6 +2334,8 @@ module.exports = (ceConfig, pnConfig) => {
 
                     let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
 
+                    console.log(statusEvent)
+
                     if (statusEvent.affectedChannels) {
                         statusEvent.affectedChannels.forEach((channel) => {
 
@@ -2328,6 +2344,7 @@ module.exports = (ceConfig, pnConfig) => {
                             if (chat) {
                                 // connected category tells us the chat is ready
                                 if (statusEvent.category === 'PNConnectedCategory') {
+                                    console.log('connection ready')
                                     chat.onConnectionReady();
                                 }
 
@@ -2347,46 +2364,44 @@ module.exports = (ceConfig, pnConfig) => {
 
         let getChats = () => {
 
-            ChatEngine.pubnub.channelGroups.addChannels(
-                {
-                    channels: [ceConfig.globalChannel],
-                    channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#')
-                },
-                function(status) {
-                    if (status.error) {
-                        console.log("operation failed w/ status: ", status);
-                    } else {
+            ChatEngine.pubnub.channelGroups.addChannels({
+                channels: [ceConfig.globalChannel],
+                channelGroup: [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#'),
+                authKey: pnConfig.authKey
+            }, function(status) {
+                if (status.error) {
+                    console.log("operation failed w/ status: ", status);
+                } else {
 
-                        console.log("operation done!")
+                    console.log("operation done!")
 
-                        // assuming an intialized PubNub instance already exists
+                    // assuming an intialized PubNub instance already exists
 
-                        let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
+                    let group = [ceConfig.globalChannel, pnConfig.uuid, 'system'].join('#');
 
-                        console.log('group is', group)
+                    console.log('group is', group)
 
-                        ChatEngine.pubnub.channelGroups.listChannels({
-                            channelGroup: group
-                        }, (status, response) => {
+                    ChatEngine.pubnub.channelGroups.listChannels({
+                        channelGroup: group
+                    }, (status, response) => {
 
-                            console.log(status, response)
+                        console.log(status, response)
 
-                            if (status.error) {
-                                console.log("operation failed w/ error:", status);
-                                return;
-                            }
+                        if (status.error) {
+                            console.log("operation failed w/ error:", status);
+                            return;
+                        }
 
-                            // console.log("listing push channel for device". response.channels)
+                        // console.log("listing push channel for device". response.channels)
 
-                            response.channels.forEach(function (channel) {
-                                console.log('channel', channel)
-                            });
-
+                        response.channels.forEach(function (channel) {
+                            console.log('channel', channel)
                         });
 
-                    }
+                    });
+
                 }
-            );
+            });
 
 
         };
@@ -2403,6 +2418,9 @@ module.exports = (ceConfig, pnConfig) => {
                 route: 'bootstrap'
             }
         }).then((response) => {
+
+            console.log('bootstrap post')
+            console.log(response)
 
             axios.post(ceConfig.endpoint, {
                 uuid: pnConfig.uuid,
@@ -2422,7 +2440,7 @@ module.exports = (ceConfig, pnConfig) => {
 
         }).catch((error) => {
 
-            console.log(error);
+            console.log('bootstrap error is', error)
 
             /**
              * There was a problem logging in to the server.
@@ -4127,7 +4145,7 @@ const Search = __webpack_require__(59);
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'custom') {
 
         super(chatEngine);
 
@@ -4253,8 +4271,6 @@ class Chat extends Emitter {
      */
     invite(user) {
 
-        console.log('calling invite', user)
-
         let complete = () => {
 
             let send = () => {
@@ -4284,15 +4300,13 @@ class Chat extends Emitter {
 
         };
 
-        axios.post(this.chatEngine.ceConfig.endpoint,
-        {
+        axios.post(this.chatEngine.ceConfig.endpoint, {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
             myUUID: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
-        },
-        {
+        }, {
             params: {
                 route: 'chat/invite'
             }
@@ -4375,10 +4389,15 @@ class Chat extends Emitter {
 
             // this will trigger ready callbacks
 
-            // subscribe to the PubNub channel for this Chat
-            this.chatEngine.pubnub.subscribe({
+            let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
+            console.log('trying to add channels', this.channel, channelGroup)
+
+            this.chatEngine.pubnub.channelGroups.addChannels({
                 channels: [this.channel],
-                withPresence: true
+                channelGroup
+            }, (status, response) => {
+                console.log(status, response);
+                this.onConnectionReady();
             });
 
         }
@@ -4392,23 +4411,23 @@ class Chat extends Emitter {
 
         let createChat = () => {
 
-            axios.post(this.chatEngine.ceConfig.endpoint,
-            {
-                global: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            },
-            {
-                params: { route: 'chats' }
-            })
-                .then(() => {
-                    this.onPrep();
-                })
-                .catch((error) => {
-                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
+            // axios.post(this.chatEngine.ceConfig.endpoint,
+            // {
+            //     global: this.chatEngine.ceConfig.globalChannel,
+            //     authKey: this.chatEngine.pnConfig.authKey,
+            //     uuid: this.chatEngine.pnConfig.uuid,
+            //     authData: this.chatEngine.me.authData,
+            //     chat: this.objectify()
+            // },
+            // {
+            //     params: { route: 'chats' }
+            // })
+            //     .then(() => {
+                    // this.onPrep();
+                // })
+                // .catch((error) => {
+                //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                // });
         };
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
@@ -4422,7 +4441,8 @@ class Chat extends Emitter {
             params: { route: 'grant' }
         })
             .then(() => {
-                createChat();
+                // createChat();
+                this.onPrep();
             })
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
@@ -4588,22 +4608,22 @@ class Chat extends Emitter {
         });
 
         // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint, {
-            data: {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            },
-            params: {
-                route: 'chats'
-            }
-        })
-            .then(() => {})
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-            });
+        // axios.delete(this.chatEngine.ceConfig.endpoint, {
+        //     data: {
+        //         globalChannel: this.chatEngine.ceConfig.globalChannel,
+        //         authKey: this.chatEngine.pnConfig.authKey,
+        //         uuid: this.chatEngine.pnConfig.uuid,
+        //         authData: this.chatEngine.me.authData,
+        //         chat: this.objectify()
+        //     },
+        //     params: {
+        //         route: 'chats'
+        //     }
+        // })
+        //     .then(() => {})
+        //     .catch((error) => {
+        //         this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+        //     });
 
 
         this.connected = false;

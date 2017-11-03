@@ -58,7 +58,7 @@ describe('config', () => {
         }, {
             endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
             globalChannel,
-            throwErrors: false
+            throwErrors: true
         });
 
         assert.isOk(ChatEngine);
@@ -83,7 +83,7 @@ describe('connect', () => {
             done();
         });
 
-        ChatEngine.connect('ian', { works: true }, 'ian-authtoken');
+        ChatEngine.connect('ian' + new Date().getTime(), { works: true }, 'ian-authtoken' + new Date().getTime());
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
@@ -335,7 +335,7 @@ describe('remote chat list', () => {
             throwErrors: false
         });
 
-        ChatEngineClone.connect('ian', { works: true }, 'ian-authtoken');
+        ChatEngineClone.connect('ian' + new Date().getTime(), { works: true }, 'ian-authtoken'  + new Date().getTime());
 
         ChatEngineClone.on('$.ready', () => {
             syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
