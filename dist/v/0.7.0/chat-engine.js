@@ -2419,9 +2419,6 @@ module.exports = (ceConfig, pnConfig) => {
             }
         }).then((response) => {
 
-            console.log('bootstrap post')
-            console.log(response)
-
             axios.post(ceConfig.endpoint, {
                 uuid: pnConfig.uuid,
                 global: ceConfig.globalChannel,
@@ -2429,13 +2426,42 @@ module.exports = (ceConfig, pnConfig) => {
                 authKey: pnConfig.authKey
             }, {
                 params: {
-                    route: 'group'
+                    route: 'user_read'
                 }
             }).then((response) => {
 
-                console.log('group posted')
+                axios.post(ceConfig.endpoint, {
+                    uuid: pnConfig.uuid,
+                    global: ceConfig.globalChannel,
+                    authData: ChatEngine.me.authData,
+                    authKey: pnConfig.authKey
+                }, {
+                    params: {
+                        route: 'user_write'
+                    }
+                }).then((response) => {
 
-                complete();
+                    console.log('bootstrap post')
+                    console.log(response)
+
+                    axios.post(ceConfig.endpoint, {
+                        uuid: pnConfig.uuid,
+                        global: ceConfig.globalChannel,
+                        authData: ChatEngine.me.authData,
+                        authKey: pnConfig.authKey
+                    }, {
+                        params: {
+                            route: 'group'
+                        }
+                    }).then((response) => {
+
+                        console.log('group posted')
+
+                        complete();
+                    });
+
+                });
+
             });
 
         }).catch((error) => {
