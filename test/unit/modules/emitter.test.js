@@ -76,7 +76,7 @@ describe('#emitter', () => {
         let plugin = () => {
             class extension {
                 construct() {
-                    this.set('stringKey', 'hello world');
+                    this.set('stringKey', 'plugin state');
                 }
             }
 
@@ -91,7 +91,7 @@ describe('#emitter', () => {
         emitterInstance.plugin(plugin());
 
         assert(emitterInstance.plugins.length === 1, 'plugin works!');
-        assert(emitterInstance.demo_plugin.get('stringKey') === 'hello world', 'got the expected value');
+        assert(emitterInstance.demo_plugin.get('stringKey') === 'plugin state', 'got the expected value');
 
         done();
     });
