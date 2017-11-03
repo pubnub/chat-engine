@@ -46,7 +46,8 @@ export default (request, response) => {
         grant: {},
         chat: {},
         group: {},
-        subscribe: {}
+        subscribe: {},
+        invite: {}
     };
 
     let authPolicy = () => {
@@ -144,8 +145,11 @@ export default (request, response) => {
 
         let groups = [
             body.global + '#' + body.uuid + '#fixed',
+            body.global + '#' + body.uuid + '#fixed-pnpres',
             body.global + '#' + body.uuid + '#system',
-            body.global + '#' + body.uuid + '#custom'
+            body.global + '#' + body.uuid + '#system-pnpres',
+            body.global + '#' + body.uuid + '#custom',
+            body.global + '#' + body.uuid + '#custom-pnpres'
         ];
 
         console.log('granting on', groups);
@@ -176,9 +180,14 @@ export default (request, response) => {
 
     controllers.subscribe.POST = () => {
 
-        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${body.chat.group}`, {add: body.chat.channel, uuid: body.uuid})
+        let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
+        // let group = 'test';
+
+        console.log('adding', body.chat.channel, 'to', group);
+
+        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {add: body.chat.channel, uuid: body.uuid})
             .then((serverResponse) => {
-                console.log(serverResponse)
+                // console.log(serverResponse)
                 return response.send();
             }).catch((err) => {
                 console.log(err)
@@ -203,7 +212,7 @@ export default (request, response) => {
                 return response.send();
             }
 
-            response.status = 500;
+            response.status = 200;
             return response.send();
 
         }).catch((err) => {
@@ -215,6 +224,13 @@ export default (request, response) => {
         });
 
     };
+
+    controllers.invite.POST = () => {
+
+        response.status = 200;
+        return response.send();
+
+    }
 
     // Choose route based on request.params and request.method
     // Execute the controller function in the controllers object

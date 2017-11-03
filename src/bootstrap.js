@@ -143,34 +143,39 @@ module.exports = (ceConfig, pnConfig) => {
             */
             ChatEngine.me.onConstructed();
 
-            /**
-             *  Fired when ChatEngine is connected to the internet and ready to go!
-             * @event ChatEngine#$"."ready
-             * @example
-             * ChatEngine.on('$.ready', (data) => {
-             *     let me = data.me;
-             * })
-             */
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
-            });
+            ChatEngine.global.on('$.connected', () => {
 
-            setTimeout(function() {
-
-                console.log('subscribing')
-
-                ChatEngine.pubnub.subscribe({
-                    callback: function(m){console.log('subscribe cb', m)},
-                    channelGroups: [
-                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
-                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
-                    ]
+                /**
+                 *  Fired when ChatEngine is connected to the internet and ready to go!
+                 * @event ChatEngine#$"."ready
+                 * @example
+                 * ChatEngine.on('$.ready', (data) => {
+                 *     let me = data.me;
+                 * })
+                 */
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
                 });
 
-            }, 3000)
+                ChatEngine.global.getUserUpdates();
 
-            ChatEngine.ready = true;
+                let chanGroups = [
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+                ];
+
+                ChatEngine.pubnub.subscribe({
+                    callback: function(m){
+                        console.log('subscribe cb', m)
+                    },
+                    channelGroups: chanGroups,
+                    withPresence: true
+                });
+
+                ChatEngine.ready = true;
+
+            })
 
 
             // chatData.forEach((chatItem) => {

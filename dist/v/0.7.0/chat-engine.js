@@ -2225,34 +2225,39 @@ module.exports = (ceConfig, pnConfig) => {
             */
             ChatEngine.me.onConstructed();
 
-            /**
-             *  Fired when ChatEngine is connected to the internet and ready to go!
-             * @event ChatEngine#$"."ready
-             * @example
-             * ChatEngine.on('$.ready', (data) => {
-             *     let me = data.me;
-             * })
-             */
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
-            });
+            ChatEngine.global.on('$.connected', () => {
 
-            setTimeout(function() {
-
-                console.log('subscribing')
-
-                ChatEngine.pubnub.subscribe({
-                    callback: function(m){console.log('subscribe cb', m)},
-                    channelGroups: [
-                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
-                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-                        ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
-                    ]
+                /**
+                 *  Fired when ChatEngine is connected to the internet and ready to go!
+                 * @event ChatEngine#$"."ready
+                 * @example
+                 * ChatEngine.on('$.ready', (data) => {
+                 *     let me = data.me;
+                 * })
+                 */
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
                 });
 
-            }, 3000)
+                ChatEngine.global.getUserUpdates();
 
-            ChatEngine.ready = true;
+                let chanGroups = [
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+                ];
+
+                ChatEngine.pubnub.subscribe({
+                    callback: function(m){
+                        console.log('subscribe cb', m)
+                    },
+                    channelGroups: chanGroups,
+                    withPresence: true
+                });
+
+                ChatEngine.ready = true;
+
+            })
 
 
             // chatData.forEach((chatItem) => {
@@ -4334,7 +4339,7 @@ class Chat extends Emitter {
             chat: this.objectify()
         }, {
             params: {
-                route: 'chat/invite'
+                route: 'invite'
             }
         })
             .then(() => {
@@ -4354,6 +4359,8 @@ class Chat extends Emitter {
      @param {Object} data The PubNub presence response for this event
      */
     onPresence(presenceEvent) {
+
+        console.log('presence', presenceEvent)
 
         // make sure channel matches this channel
         if (this.channel === presenceEvent.channel) {
@@ -4407,35 +4414,31 @@ class Chat extends Emitter {
      */
     onPrep() {
 
-        if (!this.connected) {
-
-            if (!this.chatEngine.pubnub) {
-                this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-            }
-
-            // this will trigger ready callbacks
-
-            let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
-            console.log('trying to add channels', this.channel, channelGroup)
-
-            axios.post(this.chatEngine.ceConfig.endpoint, {
-                global: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            },
-            {
-                params: { route: 'subscribe' }
-            })
-                .then(() => {
-                    this.onConnectionReady();
-                })
-                .catch((error) => {
-                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
-
+        if (!this.chatEngine.pubnub) {
+            this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
         }
+
+        // this will trigger ready callbacks
+
+        let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
+        console.log('trying to add channels', this.channel, channelGroup)
+
+        axios.post(this.chatEngine.ceConfig.endpoint, {
+            global: this.chatEngine.ceConfig.globalChannel,
+            authKey: this.chatEngine.pnConfig.authKey,
+            uuid: this.chatEngine.pnConfig.uuid,
+            authData: this.chatEngine.me.authData,
+            chat: this.objectify()
+        },
+        {
+            params: { route: 'subscribe' }
+        })
+            .then(() => {
+                this.onConnectionReady();
+            })
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            });
 
     }
 
@@ -4790,6 +4793,16 @@ class Chat extends Emitter {
         this.trigger('$.connected');
 
         this.connected = true;
+
+        if (this.channel !== this.chatEngine.global.channel) {
+            this.getUserUpdates();
+        }
+
+    }
+
+    getUserUpdates() {
+
+        console.log('getting updates', this.channel);
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
