@@ -512,22 +512,22 @@ class Chat extends Emitter {
         });
 
         // delete the chat in the remote list
-        // axios.delete(this.chatEngine.ceConfig.endpoint, {
-        //     data: {
-        //         globalChannel: this.chatEngine.ceConfig.globalChannel,
-        //         authKey: this.chatEngine.pnConfig.authKey,
-        //         uuid: this.chatEngine.pnConfig.uuid,
-        //         authData: this.chatEngine.me.authData,
-        //         chat: this.objectify()
-        //     },
-        //     params: {
-        //         route: 'chats'
-        //     }
-        // })
-        //     .then(() => {})
-        //     .catch((error) => {
-        //         this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-        //     });
+        axios.delete(this.chatEngine.ceConfig.endpoint, {
+            data: {
+                global: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            },
+            params: {
+                route: 'chat'
+            }
+        })
+            .then(() => {})
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            });
 
 
         this.connected = false;

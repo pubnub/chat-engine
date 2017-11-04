@@ -6,6 +6,7 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
+const async = require('async');
 
 /**
  @class ChatEngine
@@ -103,6 +104,31 @@ module.exports = (ceConfig, pnConfig) => {
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
+    ChatEngine.request = (method, route, body = {}, query = {}, next) => {
+
+        let b = {
+            uuid: pnConfig.uuid,
+            global: ceConfig.globalChannel,
+            authData: ChatEngine.me.authData,
+            authKey: pnConfig.authKey
+        };
+
+        let p = {
+            route
+        };
+
+        b = Object.assign(b, body);
+        p = Object.assign(p, query);
+
+        return axios[method](ceConfig.endpoint, b, { params: p })
+            .then((response) => {
+                next(null, response);
+            }).catch((error) => {
+                next(error);
+            });
+
+    };
+
     ChatEngine.parseChannel = (channel) => {
 
         let info = channel.split('#');
@@ -133,7 +159,7 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.authKey = authKey || pnConfig.uuid;
 
-        let getCustomChats = () => {
+        let restoreSession = () => {
 
             let groups = ['custom', 'fixed', 'system'];
 
@@ -214,7 +240,7 @@ module.exports = (ceConfig, pnConfig) => {
 
                 ChatEngine.ready = true;
 
-                getCustomChats();
+                restoreSession();
 
             });
 
@@ -318,66 +344,26 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        console.log('performing global grant for user');
-
-        axios.post(ceConfig.endpoint, {
-            uuid: pnConfig.uuid,
-            global: ceConfig.globalChannel,
-            authData: ChatEngine.me.authData,
-            authKey: pnConfig.authKey
-        }, {
-            params: {
-                route: 'bootstrap'
-            }
-        }).then((response) => {
-
-            axios.post(ceConfig.endpoint, {
-                uuid: pnConfig.uuid,
-                global: ceConfig.globalChannel,
-                authData: ChatEngine.me.authData,
-                authKey: pnConfig.authKey
-            }, {
-                params: {
-                    route: 'user_read'
-                }
-            }).then((response) => {
-
-                axios.post(ceConfig.endpoint, {
-                    uuid: pnConfig.uuid,
-                    global: ceConfig.globalChannel,
-                    authData: ChatEngine.me.authData,
-                    authKey: pnConfig.authKey
-                }, {
-                    params: {
-                        route: 'user_write'
-                    }
-                }).then((response) => {
-
-                    axios.post(ceConfig.endpoint, {
-                        uuid: pnConfig.uuid,
-                        global: ceConfig.globalChannel,
-                        authData: ChatEngine.me.authData,
-                        authKey: pnConfig.authKey
-                    }, {
-                        params: {
-                            route: 'group'
-                        }
-                    }).then((response) => {
-                        complete();
-                    });
-
+        async.waterfall([
+            (next) => {
+                ChatEngine.request('post', 'bootstrap', null, null, next);
+            },
+            (bootstrap, next) => {
+                ChatEngine.request('post', 'user_read', null, null, (err) => {
+                    next(err);
                 });
-
-            });
-
-        }).catch((error) => {
-
-            console.log('bootstrap error is', error)
-
-            /**
-             * There was a problem logging in to the server.
-             * @event ChatEngine#$"."error"."auth
-             */
+            },
+            (next) => {
+                ChatEngine.request('post', 'user_write', null, null, (err) => {
+                    next(err);
+                });
+            },
+            (next) => {
+                ChatEngine.request('post', 'group', null, null, (err) => {
+                    next(err);
+                });
+            }
+        ], (error) => {
             ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
         });
 

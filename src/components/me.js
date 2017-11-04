@@ -119,6 +119,10 @@ class Me extends User {
     */
     removeChatFromSession(chat) {
 
+        console.log('remove chat from session', chat)
+
+        console.log(this.session)
+
         if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
 
             let targetChat = this.session[chat.group][chat.channel] || chat;

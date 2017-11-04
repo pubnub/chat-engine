@@ -16,7 +16,7 @@ export default (request, response) => {
     // Choose route based on request.params and request.method
     // Execute the controller function in the controllers object
     const route = request.params.route;
-    const method = request.method.toUpperCase();
+    const method = request.method.toLowerCase();
 
     const body = JSON.parse(request.body);
 
@@ -84,11 +84,11 @@ export default (request, response) => {
         return response.send('Internal Server Error');
     }
 
-    controllers.index.GET = () => {
+    controllers.index.get = () => {
         return response.send(200);
     };
 
-    controllers.user_read.POST = () => {
+    controllers.user_read.post = () => {
 
         let chanEverybodyR = [
             body.global + '#user:' + body.uuid + '#read.*'
@@ -105,7 +105,7 @@ export default (request, response) => {
 
     };
 
-    controllers.user_write.POST = () => {
+    controllers.user_write.post = () => {
 
         let chanEverybodyW = [
             body.global + '#user:' + body.uuid + '#write.*'
@@ -122,7 +122,7 @@ export default (request, response) => {
 
     }
 
-    controllers.bootstrap.POST = () => {
+    controllers.bootstrap.post = () => {
 
         console.log('performing global grant for', body.uuid, 'on', body.global);
 
@@ -146,7 +146,7 @@ export default (request, response) => {
 
     };
 
-    controllers.group.POST = () => {
+    controllers.group.post = () => {
 
         let groups = [
             body.global + '#' + body.uuid + '#fixed',
@@ -183,10 +183,9 @@ export default (request, response) => {
 
     };
 
-    controllers.subscribe.POST = () => {
+    controllers.subscribe.post = () => {
 
         let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
-        // let group = 'test';
 
         console.log('adding', body.chat.channel, 'to', group);
 
@@ -201,7 +200,7 @@ export default (request, response) => {
 
     };
 
-    controllers.grant.POST = () => {
+    controllers.grant.post = () => {
 
         console.log('grant for', body.authKey, 'on', body.chat.channel);
 
@@ -230,11 +229,13 @@ export default (request, response) => {
 
     };
 
-    controllers.chat.POST = () => {
+    controllers.chat.post = () => {
 
         let chan = [body.global, 'user', body.uuid, 'write.', 'direct'].join('#');
 
         db.set('meta:'+body.chat.channel, body.chat, 525600);
+
+        console.log('posting to', chan);
 
         pubnub.publish({
             channel: chan,
@@ -249,7 +250,15 @@ export default (request, response) => {
 
     };
 
-    controllers.chat.GET = () => {
+    controllers.chat.delete = () => {
+
+        console.log('hit');
+
+        return response.send();
+
+    };
+
+    controllers.chat.get = () => {
 
         return db.get('meta:'+request.params.channel).then((value) => {
 
@@ -269,11 +278,11 @@ export default (request, response) => {
             console.log(err)
             response.status = 500;
             return response.send();
-        })
+        });
 
     };
 
-    controllers.invite.POST = () => {
+    controllers.invite.post = () => {
 
         response.status = 200;
         return response.send();
@@ -282,7 +291,7 @@ export default (request, response) => {
 
     // GET request with empty route returns the homepage
     // If a requested route or method for a route does not exist, return 404
-    if (!route && method === 'GET') {
+    if (!route && method === 'get') {
         return controllers.index.GET();
     } else if (controllers[route] && controllers[route][method]) {
 

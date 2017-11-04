@@ -98,6 +98,10 @@ describe('connect', () => {
 
         this.timeout(4000);
 
+        // ChatEngine.onAny((a) => {
+        //     console.log(a)
+        // });
+
         ChatEngine.on('$.created.chat', (data, source) => {
 
             assert.isObject(source);
