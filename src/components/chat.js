@@ -313,7 +313,7 @@ class Chat extends Emitter {
     update(data) {
 
         let oldMeta = this.meta || {};
-        this.meta = Object.assign(oldMeta, this.meta);
+        this.meta = Object.assign(oldMeta, data);
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
             global: this.chatEngine.ceConfig.globalChannel,
