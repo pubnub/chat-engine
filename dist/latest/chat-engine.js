@@ -2217,7 +2217,7 @@ module.exports = (ceConfig, pnConfig) => {
 
                 // console.log("listing push channel for device". response.channels)
                 response.channels.forEach((channel) => {
-                    ChatEngine.me.addChatToSession(new Chat(channel));
+                    ChatEngine.me.addChatToSession(new ChatEngine.Chat(channel));
                 });
 
             });
@@ -2357,8 +2357,6 @@ module.exports = (ceConfig, pnConfig) => {
 
                     let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
 
-                    console.log(statusEvent)
-
                     if (statusEvent.affectedChannels) {
                         statusEvent.affectedChannels.forEach((channel) => {
 
@@ -2367,7 +2365,6 @@ module.exports = (ceConfig, pnConfig) => {
                             if (chat) {
                                 // connected category tells us the chat is ready
                                 if (statusEvent.category === 'PNConnectedCategory') {
-                                    console.log('connection ready')
                                     chat.onConnectionReady();
                                 }
 

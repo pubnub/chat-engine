@@ -14,6 +14,8 @@ let ChatEngine;
 let ChatEngineYou;
 let globalChannel = 'global';
 
+let username = 'ian' + new Date().getTime();
+
 let examplePlugin = () => {
 
     class extension {
@@ -83,7 +85,7 @@ describe('connect', () => {
             done();
         });
 
-        ChatEngine.connect('ian' + new Date().getTime(), { works: true }, 'ian-authtoken' + new Date().getTime());
+        ChatEngine.connect(username, { works: true }, 'ian-authtoken' + new Date().getTime());
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
@@ -338,7 +340,7 @@ describe('remote chat list', () => {
             throwErrors: false
         });
 
-        ChatEngineClone.connect('ian' + new Date().getTime(), { works: true }, 'ian-authtoken'  + new Date().getTime());
+        ChatEngineClone.connect(username, { works: true }, 'ian-authtoken'  + new Date().getTime());
 
         ChatEngineClone.on('$.ready', () => {
             syncChat = new ChatEngineClone.Chat('some-channel' + new Date().getTime(), true, true);
