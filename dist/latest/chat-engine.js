@@ -635,7 +635,7 @@ class User extends Emitter {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'system');
+        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -656,7 +656,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'system');
+        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -2230,7 +2230,7 @@ module.exports = (ceConfig, pnConfig) => {
 
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'system');
+            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
 
             // build the current user
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
@@ -4148,7 +4148,7 @@ const Search = __webpack_require__(59);
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}) {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}, group = 'custom') {
 
         super(chatEngine);
 
@@ -4157,6 +4157,8 @@ class Chat extends Emitter {
         this.name = 'Chat';
 
         this.meta = meta;
+
+        this.group = group;
 
         /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.

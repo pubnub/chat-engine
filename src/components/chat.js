@@ -22,7 +22,7 @@ const Search = require('../components/search');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}) {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}, group = 'custom') {
 
         super(chatEngine);
 
@@ -31,6 +31,8 @@ class Chat extends Emitter {
         this.name = 'Chat';
 
         this.meta = meta;
+
+        this.group = group;
 
         /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
