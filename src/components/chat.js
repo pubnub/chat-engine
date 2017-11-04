@@ -22,13 +22,15 @@ const Search = require('../components/search');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'custom') {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}) {
 
         super(chatEngine);
 
         this.chatEngine = chatEngine;
 
         this.name = 'Chat';
+
+        this.meta = meta;
 
         /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
@@ -50,28 +52,6 @@ class Chat extends Emitter {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
-        axios.get(this.chatEngine.ceConfig.endpoint, {
-            params: {
-                authKey: this.chatEngine.pnConfig.authKey,
-                myUUID: this.chatEngine.me.uuid,
-                authData: this.chatEngine.me.authData,
-                channel: this.channel,
-                route: 'chat'
-            }
-        }).then((response) => {
-
-            if (response.found) {
-                this.meta = response.chat.meta;
-            }
-
-            if (autoConnect) {
-                this.connect();
-            }
-
-        }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        });
-
         this.meta = {};
 
         /**
@@ -80,13 +60,6 @@ class Chat extends Emitter {
         * @readonly
         */
         this.isPrivate = needGrant;
-
-        /**
-        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
-        * @type String
-        * @readonly
-        */
-        this.group = group;
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -104,6 +77,10 @@ class Chat extends Emitter {
         this.connected = false;
 
         this.chatEngine.chats[this.channel] = this;
+
+        if (autoConnect) {
+            this.connect();
+        }
 
     }
     /**
@@ -311,27 +288,6 @@ class Chat extends Emitter {
      */
     grant() {
 
-        let createChat = () => {
-
-            // axios.post(this.chatEngine.ceConfig.endpoint,
-            // {
-            //     global: this.chatEngine.ceConfig.globalChannel,
-            //     authKey: this.chatEngine.pnConfig.authKey,
-            //     uuid: this.chatEngine.pnConfig.uuid,
-            //     authData: this.chatEngine.me.authData,
-            //     chat: this.objectify()
-            // },
-            // {
-            //     params: { route: 'chats' }
-            // })
-            //     .then(() => {
-                    // this.onPrep();
-                // })
-                // .catch((error) => {
-                //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                // });
-        };
-
         axios.post(this.chatEngine.ceConfig.endpoint, {
             global: this.chatEngine.ceConfig.globalChannel,
             authKey: this.chatEngine.pnConfig.authKey,
@@ -362,7 +318,48 @@ class Chat extends Emitter {
      * chat.connect();
      */
     connect() {
-        this.grant();
+
+
+        // axios.get(this.chatEngine.ceConfig.endpoint, {
+        //     params: {
+        //         authKey: this.chatEngine.pnConfig.authKey,
+        //         myUUID: this.chatEngine.me.uuid,
+        //         authData: this.chatEngine.me.authData,
+        //         channel: this.channel,
+        //         route: 'chat'
+        //     }
+        // }).then((response) => {
+
+        //     if (response.data.found) {
+
+        //         this.meta = response.data.chat.meta;
+                this.grant();
+
+        //     } else {
+
+        //         axios.post(this.chatEngine.ceConfig.endpoint, {
+        //             authKey: this.chatEngine.pnConfig.authKey,
+        //             myUUID: this.chatEngine.me.uuid,
+        //             authData: this.chatEngine.me.authData,
+        //             chat: this.objectify()
+        //         }, {
+        //             params: {
+        //                 route: 'chat'
+        //             }
+        //         }).then(() => {
+
+        //             this.grant();
+
+        //         }).catch((error) => {
+        //             this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        //         });
+
+        //     }
+
+        // }).catch((error) => {
+        //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        // });
+
     }
 
     /**

@@ -2201,6 +2201,29 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.authKey = authKey || pnConfig.uuid;
 
+        let getCustomChats = () => {
+
+            let group = [ceConfig.globalChannel, pnConfig.uuid, 'custom'].join('#');
+
+            ChatEngine.pubnub.channelGroups.listChannels({
+                channelGroup: group
+            }, (status, response) => {
+
+                if (status.error) {
+                    console.log("operation failed w/ error:", status);
+                    return;
+                }
+
+                // console.log("listing push channel for device". response.channels)
+
+                response.channels.forEach(function (channel) {
+                    console.log('channel', channel)
+                });
+
+            });
+
+        };
+
         let complete = (chatData) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
@@ -2364,29 +2387,6 @@ module.exports = (ceConfig, pnConfig) => {
                     }
                 }
             });
-        };
-
-        let getCustomChats = () => {
-
-            let group = [ceConfig.globalChannel, pnConfig.uuid, 'custom'].join('#');
-
-            ChatEngine.pubnub.channelGroups.listChannels({
-                channelGroup: group
-            }, (status, response) => {
-
-                if (status.error) {
-                    console.log("operation failed w/ error:", status);
-                    return;
-                }
-
-                // console.log("listing push channel for device". response.channels)
-
-                response.channels.forEach(function (channel) {
-                    console.log('channel', channel)
-                });
-
-            });
-
         };
 
         console.log('performing global grant for user');
@@ -4148,13 +4148,15 @@ const Search = __webpack_require__(59);
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'custom') {
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, meta = {}) {
 
         super(chatEngine);
 
         this.chatEngine = chatEngine;
 
         this.name = 'Chat';
+
+        this.meta = meta;
 
         /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
@@ -4176,27 +4178,7 @@ class Chat extends Emitter {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
-        axios.get(this.chatEngine.ceConfig.endpoint, {
-            params: {
-                authKey: this.chatEngine.pnConfig.authKey,
-                myUUID: this.chatEngine.me.uuid,
-                authData: this.chatEngine.me.authData,
-                channel: this.channel,
-                route: 'chat'
-            }
-        })
-        .then((response) => {
-
-            if (response.found) {
-                console.log('found!');
-            } else {
-
-            }
-
-        })
-        .catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        });
+        this.meta = {};
 
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
@@ -4204,13 +4186,6 @@ class Chat extends Emitter {
         * @readonly
         */
         this.isPrivate = needGrant;
-
-        /**
-        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
-        * @type String
-        * @readonly
-        */
-        this.group = group;
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -4227,11 +4202,11 @@ class Chat extends Emitter {
          */
         this.connected = false;
 
+        this.chatEngine.chats[this.channel] = this;
+
         if (autoConnect) {
             this.connect();
         }
-
-        this.chatEngine.chats[this.channel] = this;
 
     }
     /**
@@ -4275,7 +4250,8 @@ class Chat extends Emitter {
         return {
             channel: this.channel,
             group: this.group,
-            private: this.isPrivate
+            private: this.isPrivate,
+            meta: this.meta
         };
 
     }
@@ -4438,27 +4414,6 @@ class Chat extends Emitter {
      */
     grant() {
 
-        let createChat = () => {
-
-            // axios.post(this.chatEngine.ceConfig.endpoint,
-            // {
-            //     global: this.chatEngine.ceConfig.globalChannel,
-            //     authKey: this.chatEngine.pnConfig.authKey,
-            //     uuid: this.chatEngine.pnConfig.uuid,
-            //     authData: this.chatEngine.me.authData,
-            //     chat: this.objectify()
-            // },
-            // {
-            //     params: { route: 'chats' }
-            // })
-            //     .then(() => {
-                    // this.onPrep();
-                // })
-                // .catch((error) => {
-                //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                // });
-        };
-
         axios.post(this.chatEngine.ceConfig.endpoint, {
             global: this.chatEngine.ceConfig.globalChannel,
             authKey: this.chatEngine.pnConfig.authKey,
@@ -4489,7 +4444,48 @@ class Chat extends Emitter {
      * chat.connect();
      */
     connect() {
-        this.grant();
+
+
+        // axios.get(this.chatEngine.ceConfig.endpoint, {
+        //     params: {
+        //         authKey: this.chatEngine.pnConfig.authKey,
+        //         myUUID: this.chatEngine.me.uuid,
+        //         authData: this.chatEngine.me.authData,
+        //         channel: this.channel,
+        //         route: 'chat'
+        //     }
+        // }).then((response) => {
+
+        //     if (response.data.found) {
+
+        //         this.meta = response.data.chat.meta;
+                this.grant();
+
+        //     } else {
+
+        //         axios.post(this.chatEngine.ceConfig.endpoint, {
+        //             authKey: this.chatEngine.pnConfig.authKey,
+        //             myUUID: this.chatEngine.me.uuid,
+        //             authData: this.chatEngine.me.authData,
+        //             chat: this.objectify()
+        //         }, {
+        //             params: {
+        //                 route: 'chat'
+        //             }
+        //         }).then(() => {
+
+        //             this.grant();
+
+        //         }).catch((error) => {
+        //             this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        //         });
+
+        //     }
+
+        // }).catch((error) => {
+        //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        // });
+
     }
 
     /**

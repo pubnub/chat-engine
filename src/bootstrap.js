@@ -121,6 +121,29 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.authKey = authKey || pnConfig.uuid;
 
+        let getCustomChats = () => {
+
+            let group = [ceConfig.globalChannel, pnConfig.uuid, 'custom'].join('#');
+
+            ChatEngine.pubnub.channelGroups.listChannels({
+                channelGroup: group
+            }, (status, response) => {
+
+                if (status.error) {
+                    console.log("operation failed w/ error:", status);
+                    return;
+                }
+
+                // console.log("listing push channel for device". response.channels)
+
+                response.channels.forEach(function (channel) {
+                    console.log('channel', channel)
+                });
+
+            });
+
+        };
+
         let complete = (chatData) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
@@ -284,29 +307,6 @@ module.exports = (ceConfig, pnConfig) => {
                     }
                 }
             });
-        };
-
-        let getCustomChats = () => {
-
-            let group = [ceConfig.globalChannel, pnConfig.uuid, 'custom'].join('#');
-
-            ChatEngine.pubnub.channelGroups.listChannels({
-                channelGroup: group
-            }, (status, response) => {
-
-                if (status.error) {
-                    console.log("operation failed w/ error:", status);
-                    return;
-                }
-
-                // console.log("listing push channel for device". response.channels)
-
-                response.channels.forEach(function (channel) {
-                    console.log('channel', channel)
-                });
-
-            });
-
         };
 
         console.log('performing global grant for user');
