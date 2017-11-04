@@ -316,6 +316,7 @@ class Chat extends Emitter {
         this.meta = Object.assign(oldMeta, this.meta);
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
+            global: this.chatEngine.ceConfig.globalChannel,
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
