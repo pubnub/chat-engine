@@ -18,8 +18,6 @@ export default (request, response) => {
     const route = request.params.route;
     const method = request.method.toUpperCase();
 
-    console.log(route, method)
-
     const body = JSON.parse(request.body);
 
     function quote(s) {
@@ -59,6 +57,7 @@ export default (request, response) => {
 
     let authPolicy = () => {
         return new Promise((resolve, reject) => {
+
           // do something asynchronous which eventually calls either:
           //
              resolve(true); // fulfilled
@@ -104,7 +103,7 @@ export default (request, response) => {
         .then(handleStatus)
         .catch(handleError);
 
-    }
+    };
 
     controllers.user_write.POST = () => {
 
@@ -233,7 +232,17 @@ export default (request, response) => {
 
     controllers.chat.POST = () => {
 
-        db.set(req.body.chat.channel, req.body.chat, 365);
+        let chan = [body.global, 'user', body.uuid, 'write.', 'direct'].join('#');
+
+        db.set('meta:'+body.chat.channel, body.chat, 525600);
+
+        pubnub.publish({
+            channel: chan,
+            message: {
+                event: '$.server.chat.created',
+                chat: body.chat
+            }
+        });
 
         response.status = 200;
         return response.send();
@@ -242,9 +251,7 @@ export default (request, response) => {
 
     controllers.chat.GET = () => {
 
-        console.log(request);
-
-        return db.get(request.params.channel).then((value) => {
+        return db.get('meta:'+request.params.channel).then((value) => {
 
             if(value) {
                 return response.send({
@@ -256,8 +263,6 @@ export default (request, response) => {
                     found: false
                 });
             }
-
-            // response.status = 200;
 
         }).catch((err) => {
             console.log('KV Error');
@@ -284,7 +289,6 @@ export default (request, response) => {
         return authPolicy().then(() => {
             return controllers[route][method]();
         }).catch((err) => {
-            console.log('Unauthorized');
             console.log(err)
             response.status = 401;
             return response.send();

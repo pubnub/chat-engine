@@ -180,7 +180,7 @@ class Chat extends Emitter {
         axios.post(this.chatEngine.ceConfig.endpoint, {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
-            myUUID: this.chatEngine.me.uuid,
+            uuid: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
         }, {
@@ -317,7 +317,7 @@ class Chat extends Emitter {
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
             authKey: this.chatEngine.pnConfig.authKey,
-            myUUID: this.chatEngine.me.uuid,
+            uuid: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
         }, {
@@ -345,7 +345,7 @@ class Chat extends Emitter {
         axios.get(this.chatEngine.ceConfig.endpoint, {
             params: {
                 authKey: this.chatEngine.pnConfig.authKey,
-                myUUID: this.chatEngine.me.uuid,
+                uuid: this.chatEngine.me.uuid,
                 authData: this.chatEngine.me.authData,
                 channel: this.channel,
                 route: 'chat'

@@ -135,9 +135,8 @@ module.exports = (ceConfig, pnConfig) => {
                 }
 
                 // console.log("listing push channel for device". response.channels)
-
-                response.channels.forEach(function (channel) {
-                    console.log('channel', channel)
+                response.channels.forEach((channel) => {
+                    ChatEngine.me.addChatToSession(new Chat(channel));
                 });
 
             });
@@ -201,10 +200,6 @@ module.exports = (ceConfig, pnConfig) => {
                 getCustomChats();
 
             });
-
-            // chatData.forEach((chatItem) => {
-            //     ChatEngine.me.addChatToSession(chatItem);
-            // });
 
             /**
              Fires when PubNub network connection changes.

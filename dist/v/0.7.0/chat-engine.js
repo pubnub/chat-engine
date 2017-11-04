@@ -703,7 +703,8 @@ class User extends Emitter {
                 this.assign(response.data);
                 callback();
             })
-            .catch(() => {
+            .catch((error) => {
+                console.log(error)
                 this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
             });
 
@@ -2215,9 +2216,8 @@ module.exports = (ceConfig, pnConfig) => {
                 }
 
                 // console.log("listing push channel for device". response.channels)
-
-                response.channels.forEach(function (channel) {
-                    console.log('channel', channel)
+                response.channels.forEach((channel) => {
+                    ChatEngine.me.addChatToSession(new Chat(channel));
                 });
 
             });
@@ -2281,10 +2281,6 @@ module.exports = (ceConfig, pnConfig) => {
                 getCustomChats();
 
             });
-
-            // chatData.forEach((chatItem) => {
-            //     ChatEngine.me.addChatToSession(chatItem);
-            // });
 
             /**
              Fires when PubNub network connection changes.
@@ -4306,7 +4302,7 @@ class Chat extends Emitter {
         axios.post(this.chatEngine.ceConfig.endpoint, {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
-            myUUID: this.chatEngine.me.uuid,
+            uuid: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
         }, {
@@ -4443,7 +4439,7 @@ class Chat extends Emitter {
 
         axios.post(this.chatEngine.ceConfig.endpoint, {
             authKey: this.chatEngine.pnConfig.authKey,
-            myUUID: this.chatEngine.me.uuid,
+            uuid: this.chatEngine.me.uuid,
             authData: this.chatEngine.me.authData,
             chat: this.objectify()
         }, {
@@ -4471,7 +4467,7 @@ class Chat extends Emitter {
         axios.get(this.chatEngine.ceConfig.endpoint, {
             params: {
                 authKey: this.chatEngine.pnConfig.authKey,
-                myUUID: this.chatEngine.me.uuid,
+                uuid: this.chatEngine.me.uuid,
                 authData: this.chatEngine.me.authData,
                 channel: this.channel,
                 route: 'chat'
@@ -6659,7 +6655,7 @@ class Me extends User {
             this.session[chat.group][chat.channel] = existingChat;
         } else {
             // otherwise, try to recreate it with the server information
-            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.group);
+            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
 
             /**
             Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
