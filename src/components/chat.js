@@ -310,6 +310,27 @@ class Chat extends Emitter {
 
     }
 
+    update(data) {
+
+        let oldMeta = this.meta || {};
+        this.meta = Object.assign(oldMeta, this.meta);
+
+        axios.post(this.chatEngine.ceConfig.endpoint, {
+            authKey: this.chatEngine.pnConfig.authKey,
+            myUUID: this.chatEngine.me.uuid,
+            authData: this.chatEngine.me.authData,
+            chat: this.objectify()
+        }, {
+            params: {
+                route: 'chat'
+            }
+        }).then(() => {
+        }).catch((error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        });
+
+    }
+
     /**
      * Connect to PubNub servers to initialize the chat.
      * @example
@@ -321,46 +342,27 @@ class Chat extends Emitter {
      */
     connect() {
 
+        axios.get(this.chatEngine.ceConfig.endpoint, {
+            params: {
+                authKey: this.chatEngine.pnConfig.authKey,
+                myUUID: this.chatEngine.me.uuid,
+                authData: this.chatEngine.me.authData,
+                channel: this.channel,
+                route: 'chat'
+            }
+        }).then((response) => {
 
-        // axios.get(this.chatEngine.ceConfig.endpoint, {
-        //     params: {
-        //         authKey: this.chatEngine.pnConfig.authKey,
-        //         myUUID: this.chatEngine.me.uuid,
-        //         authData: this.chatEngine.me.authData,
-        //         channel: this.channel,
-        //         route: 'chat'
-        //     }
-        // }).then((response) => {
+            if (response.data.found) {
+                this.meta = response.data.chat.meta;
+            } else {
+                this.update(this.meta);
+            }
 
-        //     if (response.data.found) {
+            this.grant();
 
-        //         this.meta = response.data.chat.meta;
-                this.grant();
-
-        //     } else {
-
-        //         axios.post(this.chatEngine.ceConfig.endpoint, {
-        //             authKey: this.chatEngine.pnConfig.authKey,
-        //             myUUID: this.chatEngine.me.uuid,
-        //             authData: this.chatEngine.me.authData,
-        //             chat: this.objectify()
-        //         }, {
-        //             params: {
-        //                 route: 'chat'
-        //             }
-        //         }).then(() => {
-
-        //             this.grant();
-
-        //         }).catch((error) => {
-        //             this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        //         });
-
-        //     }
-
-        // }).catch((error) => {
-        //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        // });
+        }).catch((error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        });
 
     }
 
