@@ -2184,6 +2184,18 @@ module.exports = (ceConfig, pnConfig) => {
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
+    ChatEngine.parseChannel = (channel) => {
+
+        let info = channel.split('#');
+
+        return {
+            global: info[0],
+            type: info[1],
+            private: info[2] === 'private.'
+        };
+
+    };
+
     /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
@@ -2204,20 +2216,25 @@ module.exports = (ceConfig, pnConfig) => {
 
         let getCustomChats = () => {
 
-            let group = [ceConfig.globalChannel, pnConfig.uuid, 'custom'].join('#');
+            let groups = ['custom', 'fixed', 'system'];
 
-            ChatEngine.pubnub.channelGroups.listChannels({
-                channelGroup: group
-            }, (status, response) => {
+            groups.forEach((group) => {
 
-                if (status.error) {
-                    console.log("operation failed w/ error:", status);
-                    return;
-                }
+                let channelGroup = [ceConfig.globalChannel, pnConfig.uuid, group].join('#');
 
-                // console.log("listing push channel for device". response.channels)
-                response.channels.forEach((channel) => {
-                    ChatEngine.me.addChatToSession(new ChatEngine.Chat(channel));
+                ChatEngine.pubnub.channelGroups.listChannels({
+                    channelGroup
+                }, (status, response) => {
+
+                    if (status.error) {
+                        console.log('operation failed w/ error:', status);
+                        return;
+                    }
+
+                    response.channels.forEach((channel) => {
+                        ChatEngine.me.addChatToSession(new ChatEngine.Chat(channel, ChatEngine.parseChannel(channel).private, false, {}, group));
+                    });
+
                 });
 
             });

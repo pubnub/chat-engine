@@ -375,8 +375,10 @@ describe('remote chat list', () => {
 
     it('should be populated', (done) => {
 
-        assert.isObject(ChatEngine.me.session.global);
-        assert.isObject(ChatEngine.me.session.default);
+        console.log(ChatEngine.me.session)
+
+        assert.isObject(ChatEngine.me.session.system);
+        assert.isObject(ChatEngine.me.session.custom);
         // assert.isObject(ChatEngine.me.session.fixed);
         done();
 
