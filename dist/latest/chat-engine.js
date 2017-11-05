@@ -7802,12 +7802,10 @@ module.exports = (ceConfig, pnConfig) => {
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
-        console.log(payload.error)
-        // console.log(payload.error.response.data)
-
         if (ceConfig.throwErrors) {
             // throw ceError;
-            throw ceError;
+            throw ceError + payload;
+            console.log(payload);
         }
 
         payload.ceError = ceError.toString();
@@ -8076,7 +8074,7 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        async.waterfall([
+        async.parallel([
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
@@ -10022,7 +10020,6 @@ class Chat extends Emitter {
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);
 
-
         this.chatEngine.request('post', 'chat', {
             chat: this.objectify()
         }).then(() => {
@@ -10042,8 +10039,8 @@ class Chat extends Emitter {
      * @example
      * chat.emit('custom-event', {value: true});
      * chat.on('custom-event', (payload) => {
-          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
-          * });
+      *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
+      * });
      */
     emit(event, data) {
 
@@ -10362,6 +10359,24 @@ class Chat extends Emitter {
             },
             (next) => {
 
+                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
+                    .then((response) => {
+                        next();
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                this.chatEngine.request('post', 'join', { chat: this.objectify() })
+                    .then(() => {
+                        this.onConnectionReady();
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
                     .then((response) => {
 
@@ -10373,32 +10388,6 @@ class Chat extends Emitter {
 
                         next();
 
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
-                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
-                    .then((response) => {
-
-                        if (response.data.found) {
-                            this.meta = response.data.chat.meta;
-                        } else {
-                            this.update(this.meta);
-                        }
-
-                        next();
-
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
-                this.chatEngine.request('post', 'join', { chat: this.objectify() })
-                    .then(() => {
-                        this.onConnectionReady();
                     })
                     .catch(next);
 
@@ -10969,6 +10958,8 @@ class Search extends Emitter {
         this.config.stringifiedTimeToken = true;
         this.config.count = this.config.count || 100;
 
+        this.config.pages = this.config.pages || 10;
+
         this.needleCount = 0;
 
         this.firstTT = 0;
@@ -11091,8 +11082,16 @@ class Search extends Emitter {
 
         };
 
-        this.maxLoop = 10;
-        this.numLoops = 0;
+        this.maxPage = 10;
+        this.numPage = 0;
+
+        this.next = () => {
+
+            this.maxPage = this.maxPage + this.config.pages;
+
+            this.find();
+
+        };
 
         /**
          * @private
@@ -11107,10 +11106,13 @@ class Search extends Emitter {
 
                 eachSeries(response.messages, this.triggerHistory, () => {
 
-                    if (
+                    if (this.numPage === this.maxPage) {
+                        this._emit('$.search.pause');
+                    } else if (
                         response.messages &&
                         response.messages.length === this.config.count &&
                         this.needleCount < this.config.limit) {
+                        this.numPage += 1;
                         this.find();
                     } else {
 
@@ -12205,6 +12207,7 @@ class Me extends User {
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;
         } else {
+
             // otherwise, try to recreate it with the server information
             this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
 

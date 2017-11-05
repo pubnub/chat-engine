@@ -81,8 +81,6 @@ class Me extends User {
     */
     addChatToSession(chat) {
 
-        console.log(chat)
-
         // create the chat group if it doesn't exist
         this.session[chat.group] = this.session[chat.group] || {};
 

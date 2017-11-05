@@ -247,7 +247,6 @@ class Chat extends Emitter {
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);
 
-
         this.chatEngine.request('post', 'chat', {
             chat: this.objectify()
         }).then(() => {
@@ -267,8 +266,8 @@ class Chat extends Emitter {
      * @example
      * chat.emit('custom-event', {value: true});
      * chat.on('custom-event', (payload) => {
-          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
-          * });
+      *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
+      * });
      */
     emit(event, data) {
 
@@ -551,8 +550,6 @@ class Chat extends Emitter {
 
     getUserUpdates() {
 
-        console.log('get user updates')
-
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
         this.chatEngine.pubnub.hereNow({
@@ -589,6 +586,24 @@ class Chat extends Emitter {
             },
             (next) => {
 
+                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
+                    .then((response) => {
+                        next();
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                this.chatEngine.request('post', 'join', { chat: this.objectify() })
+                    .then(() => {
+                        this.onConnectionReady();
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
                     .then((response) => {
 
@@ -600,32 +615,6 @@ class Chat extends Emitter {
 
                         next();
 
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
-                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
-                    .then((response) => {
-
-                        if (response.data.found) {
-                            this.meta = response.data.chat.meta;
-                        } else {
-                            this.update(this.meta);
-                        }
-
-                        next();
-
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
-                this.chatEngine.request('post', 'join', { chat: this.objectify() })
-                    .then(() => {
-                        this.onConnectionReady();
                     })
                     .catch(next);
 
