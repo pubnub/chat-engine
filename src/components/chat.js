@@ -1,5 +1,5 @@
 const axios = require('axios');
-
+const async = require('async');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
 const User = require('../components/user');
@@ -177,6 +177,7 @@ class Chat extends Emitter {
 
         };
 
+
         axios.post(this.chatEngine.ceConfig.endpoint, {
             authKey: this.chatEngine.pnConfig.authKey,
             uuid: user.uuid,
@@ -253,63 +254,6 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     * @private
-     */
-    onPrep() {
-
-        if (!this.chatEngine.pubnub) {
-            this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-        }
-
-        // this will trigger ready callbacks
-
-        let channelGroup = [this.chatEngine.global.channel, this.chatEngine.me.uuid, this.group].join('#');
-
-        axios.post(this.chatEngine.ceConfig.endpoint, {
-            global: this.chatEngine.ceConfig.globalChannel,
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: this.chatEngine.pnConfig.uuid,
-            authData: this.chatEngine.me.authData,
-            chat: this.objectify()
-        },
-        {
-            params: { route: 'subscribe' }
-        })
-            .then(() => {
-                this.onConnectionReady();
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            });
-
-    }
-
-    /**
-     * @private
-     */
-    grant() {
-
-        axios.post(this.chatEngine.ceConfig.endpoint, {
-            global: this.chatEngine.ceConfig.globalChannel,
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: this.chatEngine.pnConfig.uuid,
-            authData: this.chatEngine.me.authData,
-            chat: this.objectify()
-        },
-        {
-            params: { route: 'grant' }
-        })
-            .then(() => {
-                // createChat();
-                this.onPrep();
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            });
-
-    }
-
     update(data) {
 
         let oldMeta = this.meta || {};
@@ -343,21 +287,61 @@ class Chat extends Emitter {
      */
     connect() {
 
-        this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-            .then((response) => {
+        async.waterfall([
+            (next) => {
 
-                if (response.data.found) {
-                    this.meta = response.data.chat.meta;
-                } else {
-                    this.update(this.meta);
+                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+                    .then((response) => {
+
+                        if (response.data.found) {
+                            this.meta = response.data.chat.meta;
+                        } else {
+                            this.update(this.meta);
+                        }
+
+                        next();
+
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
+                    .then((response) => {
+
+                        if (response.data.found) {
+                            this.meta = response.data.chat.meta;
+                        } else {
+                            this.update(this.meta);
+                        }
+
+                        next();
+
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                if (!this.chatEngine.pubnub) {
+                    next(new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 }
 
-                this.grant();
 
-            })
-            .catch(() => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-            });
+                this.chatEngine.request('post', 'subscribe', { chat: this.objectify() })
+                    .then(() => {
+
+                        this.onConnectionReady();
+
+                    })
+                    .catch(next);
+
+            }
+        ], (error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        });
+
 
     }
 

@@ -355,31 +355,23 @@ module.exports = (ceConfig, pnConfig) => {
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
-                }).catch((err) => {
-                    next(err);
-                });
+                }).catch(next);
             },
             (next) => {
                 ChatEngine.request('post', 'user_read').then(() => {
                     next(null);
-                }).catch((err) => {
-                    next(err);
-                });
+                }).catch(next);
             },
             (next) => {
                 ChatEngine.request('post', 'user_write').then(() => {
                     next(null);
-                }).catch((err) => {
-                    next(err);
-                });
+                }).catch(next);
             },
             (next) => {
                 ChatEngine.request('post', 'group').then(() => {
                     console.log('complete')
                     complete();
-                }).catch((err) => {
-                    next(err);
-                });
+                }).catch(next);
             }
         ], (err) => {
             if (err) {
