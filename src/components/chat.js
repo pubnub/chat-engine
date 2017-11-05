@@ -277,75 +277,6 @@ class Chat extends Emitter {
     }
 
     /**
-     * Connect to PubNub servers to initialize the chat.
-     * @example
-     * // create a new chatroom, but don't connect to it automatically
-     * let chat = new Chat('some-chat', false)
-     *
-     * // connect to the chat when we feel like it
-     * chat.connect();
-     */
-    connect() {
-
-        async.waterfall([
-            (next) => {
-                if (!this.chatEngine.pubnub) {
-                    next(new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-                } else {
-                    next();
-                }
-            },
-            (next) => {
-
-                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then((response) => {
-
-                        if (response.data.found) {
-                            this.meta = response.data.chat.meta;
-                        } else {
-                            this.update(this.meta);
-                        }
-
-                        next();
-
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
-                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
-                    .then((response) => {
-
-                        if (response.data.found) {
-                            this.meta = response.data.chat.meta;
-                        } else {
-                            this.update(this.meta);
-                        }
-
-                        next();
-
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
-                this.chatEngine.request('post', 'subscribe', { chat: this.objectify() })
-                    .then(() => {
-                        this.onConnectionReady();
-                    })
-                    .catch(next);
-
-            }
-        ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        });
-
-
-    }
-
-    /**
      * Send events to other clients in this {@link User}.
      * Events are trigger over the network  and all events are made
      * on behalf of {@link Me}
@@ -642,6 +573,76 @@ class Chat extends Emitter {
         // listen to all PubNub events for this Chat
         this.chatEngine.pubnub.addListener({
             presence: this.onPresence.bind(this)
+        });
+
+    }
+
+
+
+    /**
+     * Connect to PubNub servers to initialize the chat.
+     * @example
+     * // create a new chatroom, but don't connect to it automatically
+     * let chat = new Chat('some-chat', false)
+     *
+     * // connect to the chat when we feel like it
+     * chat.connect();
+     */
+    connect() {
+
+        async.waterfall([
+            (next) => {
+                if (!this.chatEngine.pubnub) {
+                    next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
+                } else {
+                    next();
+                }
+            },
+            (next) => {
+
+                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+                    .then((response) => {
+
+                        if (response.data.found) {
+                            this.meta = response.data.chat.meta;
+                        } else {
+                            this.update(this.meta);
+                        }
+
+                        next();
+
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
+                    .then((response) => {
+
+                        if (response.data.found) {
+                            this.meta = response.data.chat.meta;
+                        } else {
+                            this.update(this.meta);
+                        }
+
+                        next();
+
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                this.chatEngine.request('post', 'subscribe', { chat: this.objectify() })
+                    .then(() => {
+                        this.onConnectionReady();
+                    })
+                    .catch(next);
+
+            }
+        ], (error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
         });
 
     }
