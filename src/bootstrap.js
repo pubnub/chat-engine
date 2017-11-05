@@ -79,8 +79,8 @@ module.exports = (ceConfig, pnConfig) => {
 
         if (ceConfig.throwErrors) {
             // throw ceError;
-            throw ceError + payload;
-            console.log(payload);
+            console.error(payload);
+            throw ceError;
         }
 
         payload.ceError = ceError.toString();
