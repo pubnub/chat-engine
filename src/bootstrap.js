@@ -178,7 +178,13 @@ module.exports = (ceConfig, pnConfig) => {
                     }
 
                     response.channels.forEach((channel) => {
-                        ChatEngine.me.addChatToSession(new ChatEngine.Chat(channel, ChatEngine.parseChannel(channel).private, false, {}, group));
+
+                        ChatEngine.me.addChatToSession({
+                            channel,
+                            private: ChatEngine.parseChannel(channel).private,
+                            group
+                        });
+
                     });
 
                 });

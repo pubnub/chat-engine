@@ -88,6 +88,8 @@ class User extends Emitter {
         // update this user's state in it's created context
         this.assign(state);
 
+        return this;
+
     }
 
     /**

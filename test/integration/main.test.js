@@ -135,9 +135,12 @@ describe('connect', () => {
 
     });
 
-    it('should notify chatengine on disconnected', (done) => {
+    it('should notify chatengine on disconnected', function disconnected(done) {
 
-        ChatEngine.once('$.disconnected', (data, source) => {
+        this.timeout(4000)
+
+        ChatEngine.on('$.disconnected', (data, source) => {
+
             assert.isObject(source);
             if (source.channel === createdEventChat2.channel) {
                 done();

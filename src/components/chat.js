@@ -84,6 +84,8 @@ class Chat extends Emitter {
             this.connect();
         }
 
+        return this;
+
     }
     /**
      Updates list of {@link User}s in this {@link Chat}
@@ -419,7 +421,7 @@ class Chat extends Emitter {
             channels: [this.channel]
         });
 
-        this.chatEngine.request('delete', 'chat', { channel: this.channel })
+        this.chatEngine.request('post', 'leave', { chat: this.objectify() })
             .then(() => {
 
                 this.connected = false;
@@ -639,7 +641,7 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('post', 'subscribe', { chat: this.objectify() })
+                this.chatEngine.request('post', 'join', { chat: this.objectify() })
                     .then(() => {
                         this.onConnectionReady();
                     })

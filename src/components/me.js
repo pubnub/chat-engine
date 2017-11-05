@@ -40,6 +40,8 @@ class Me extends User {
             this.removeChatFromSession(payload.data.subject);
         });
 
+        return this;
+
     }
 
     // assign updates from network
@@ -79,7 +81,7 @@ class Me extends User {
     */
     addChatToSession(chat) {
 
-        // create the chat if it doesn't exist
+        // create the chat group if it doesn't exist
         this.session[chat.group] = this.session[chat.group] || {};
 
         // check the chat exists within the global list but is not grouped

@@ -51,7 +51,8 @@ export default (request, response) => {
         grant: {},
         chat: {},
         group: {},
-        subscribe: {},
+        join: {},
+        leave: {},
         invite: {}
     };
 
@@ -184,13 +185,31 @@ export default (request, response) => {
 
     };
 
-    controllers.subscribe.post = () => {
+    controllers.join.post = () => {
 
         let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
 
         console.log('adding', body.chat.channel, 'to', group);
 
         return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {add: body.chat.channel, uuid: body.uuid})
+            .then((serverResponse) => {
+                // console.log(serverResponse)
+                return response.send();
+            }).catch((err) => {
+                console.log(err)
+                return response.send();
+            });
+
+    };
+
+
+    controllers.leave.post = () => {
+
+        let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
+
+        console.log('leaving', body.chat.channel, 'to', group);
+
+        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {remove: body.chat.channel, uuid: body.uuid})
             .then((serverResponse) => {
                 // console.log(serverResponse)
                 return response.send();
@@ -236,16 +255,6 @@ export default (request, response) => {
 
         response.status = 200;
         return response.send();
-
-    };
-
-    controllers.chat.delete = () => {
-
-        return db.get('meta:'+request.params.channel).then((value) => {
-
-            return response.send();
-
-        });
 
     };
 
