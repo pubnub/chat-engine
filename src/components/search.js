@@ -45,6 +45,8 @@ class Search extends Emitter {
         this.config.stringifiedTimeToken = true;
         this.config.count = this.config.count || 100;
 
+        this.config.pages = this.config.pages || 10;
+
         this.needleCount = 0;
 
         this.firstTT = 0;
@@ -81,9 +83,7 @@ class Search extends Emitter {
             this._emit('$.search.page.request');
 
             // only set start if this is the first call and the user hasn't set it themselves
-            if (this.firstPage && !this.config.start) {
-                this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
-            }
+            this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.firstPage = false;
 
@@ -169,6 +169,17 @@ class Search extends Emitter {
 
         };
 
+        this.maxPage = 10;
+        this.numPage = 0;
+
+        this.next = () => {
+
+            this.maxPage = this.maxPage + this.config.pages;
+
+            this.find();
+
+        };
+
         /**
          * @private
          */
@@ -182,10 +193,13 @@ class Search extends Emitter {
 
                 eachSeries(response.messages, this.triggerHistory, () => {
 
-                    if (
+                    if (this.numPage === this.maxPage) {
+                        this._emit('$.search.pause');
+                    } else if (
                         response.messages &&
                         response.messages.length === this.config.count &&
                         this.needleCount < this.config.limit) {
+                        this.numPage += 1;
                         this.find();
                     } else {
 

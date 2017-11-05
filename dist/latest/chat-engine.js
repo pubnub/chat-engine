@@ -11005,9 +11005,7 @@ class Search extends Emitter {
             this._emit('$.search.page.request');
 
             // only set start if this is the first call and the user hasn't set it themselves
-            if (this.firstPage && !this.config.start) {
-                this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
-            }
+            this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
 
             this.firstPage = false;
 
@@ -11092,6 +11090,9 @@ class Search extends Emitter {
             }
 
         };
+
+        this.maxLoop = 10;
+        this.numLoops = 0;
 
         /**
          * @private

@@ -81,6 +81,8 @@ class Me extends User {
     */
     addChatToSession(chat) {
 
+        console.log(chat)
+
         // create the chat group if it doesn't exist
         this.session[chat.group] = this.session[chat.group] || {};
 
@@ -92,6 +94,7 @@ class Me extends User {
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;
         } else {
+
             // otherwise, try to recreate it with the server information
             this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
 
