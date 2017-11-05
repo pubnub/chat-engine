@@ -289,6 +289,13 @@ class Chat extends Emitter {
 
         async.waterfall([
             (next) => {
+                if (!this.chatEngine.pubnub) {
+                    next(new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+                } else {
+                    next();
+                }
+            },
+            (next) => {
 
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
                     .then((response) => {
@@ -324,16 +331,9 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                if (!this.chatEngine.pubnub) {
-                    next(new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-                }
-
-
                 this.chatEngine.request('post', 'subscribe', { chat: this.objectify() })
                     .then(() => {
-
                         this.onConnectionReady();
-
                     })
                     .catch(next);
 
