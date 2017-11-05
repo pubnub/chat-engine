@@ -75,7 +75,7 @@ describe('connect', () => {
 
     it('should be identified as new user', function beIdentified(done) {
 
-        this.timeout(4000);
+        this.timeout(6000);
 
         ChatEngine.on('$.ready', (data) => {
 
@@ -85,7 +85,7 @@ describe('connect', () => {
             done();
         });
 
-        ChatEngine.connect(username, { works: true }, 'ian-authtoken' + new Date().getTime());
+        ChatEngine.connect(username, { works: true }, username);
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
@@ -324,16 +324,13 @@ describe('history', () => {
 let ChatEngineClone;
 let syncChat;
 
+let newChannel = 'sync-chat' + new Date().getTime();
+
 describe('remote chat list', () => {
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
         this.timeout(10000);
-
-        // first instance looking or new chats
-        ChatEngine.me.once('$.session.chat.join', () => {
-            done();
-        });
 
         ChatEngineClone = ChatEngineCore.create({
             publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
@@ -344,28 +341,45 @@ describe('remote chat list', () => {
             throwErrors: false
         });
 
-        ChatEngineClone.connect(username, { works: true }, 'ian-authtoken' + new Date().getTime());
+        ChatEngineClone.connect(username, { works: true }, username);
+
+        // first instance looking or new chats
+        ChatEngine.me.on('$.session.chat.join', (payload) => {
+
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+                done();
+            }
+
+        });
 
         ChatEngineClone.on('$.ready', () => {
-            syncChat = new ChatEngineClone.Chat('some-channel' + new Date().getTime(), true, true);
+
+            syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+
         });
 
     });
 
-    it('should keep delete in sync', function deleteSync(done) {
+    it('should be populated', (done) => {
+
+        assert.isObject(ChatEngine.me.session.system);
+        assert.isObject(ChatEngine.me.session.custom);
+        // assert.isObject(ChatEngine.me.session.fixed);
+        done();
+
+    });
+
+    it('should get delete event', function deleteSync(done) {
 
         this.timeout(10000);
 
-        ChatEngine.me.once('$.session.chat.leave', (payload) => {
+        ChatEngine.me.on('$.session.chat.leave', (payload) => {
 
-            setTimeout(() => {
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
 
-                assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                assert.isUndefined(ChatEngine.me.session.custom[syncChat.channel]);
+                done();
+            }
 
-            }, 1000);
-
-            done();
         });
 
         setTimeout(() => {
@@ -375,114 +389,103 @@ describe('remote chat list', () => {
 
     });
 
-    it('should be populated', (done) => {
-
-        console.log(ChatEngine.me.session)
-
-        assert.isObject(ChatEngine.me.session.system);
-        assert.isObject(ChatEngine.me.session.custom);
-        // assert.isObject(ChatEngine.me.session.fixed);
-        done();
-
-    });
-
 });
 
 let myChat;
 
 let yourChat;
 
-describe('invite', () => {
+// describe('invite', () => {
 
-    it('should be created', (done) => {
+//     it('should be created', (done) => {
 
-        ChatEngineYou = ChatEngineCore.create({
-            publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
-            subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
-        }, {
-            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
-            globalChannel,
-            throwErrors: false
-        });
+//         ChatEngineYou = ChatEngineCore.create({
+//             publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
+//             subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
+//         }, {
+//             endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
+//             globalChannel,
+//             throwErrors: false
+//         });
 
-        ChatEngineYou.connect('stephen', { works: true }, 'stephen-authtoken');
+//         ChatEngineYou.connect('stephen', { works: true }, 'stephen-authtoken');
 
-        ChatEngineYou.on('$.ready', () => {
-            done();
-        });
+//         ChatEngineYou.on('$.ready', () => {
+//             done();
+//         });
 
-    });
+//     });
 
-    it('should create chat', (done) => {
+//     it('should create chat', (done) => {
 
-        yourChat = new ChatEngineYou.Chat('secret-channel-');
+//         yourChat = new ChatEngineYou.Chat('secret-channel-');
 
-        yourChat.on('$.connected', () => {
-            done();
-        });
+//         yourChat.on('$.connected', () => {
+//             done();
+//         });
 
-    });
+//     });
 
-    it('should invite other users', (done) => {
+//     it('should invite other users', (done) => {
 
-        me.direct.on('$.invite', (payload) => {
+//         me.direct.on('$.invite', (payload) => {
 
-            assert.isObject(payload.chat);
+//             assert.isObject(payload.chat);
 
-            myChat = new ChatEngine.Chat(payload.data.channel);
+//             myChat = new ChatEngine.Chat(payload.data.channel);
 
-            myChat.on('$.connected', () => {
-                done();
-            });
+//             myChat.on('$.connected', () => {
+//                 done();
+//             });
 
-        });
+//         });
 
-        // me is the current context
-        yourChat.invite(me);
+//         // me is the current context
+//         yourChat.invite(me);
 
-    });
+//     });
 
-    it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
+//     it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
 
-        this.timeout(5000);
+//         this.timeout(5000);
 
-        yourChat.on('message', (payload) => {
-            assert.equal(payload.data.text, 'sup?');
-            done();
-        });
+//         yourChat.on('message', (payload) => {
+//             assert.equal(payload.data.text, 'sup?');
+//             done();
+//         });
 
-        myChat.emit('message', {
-            text: 'sup?'
-        });
+//         myChat.emit('message', {
+//             text: 'sup?'
+//         });
 
-    });
+//     });
 
-    it('should not be able to join another chat', function dontJoin(done) {
+//     it('should not be able to join another chat', function dontJoin(done) {
 
-        this.timeout(10000);
+//         this.timeout(10000);
 
-        let targetChan = 'super-secret-channel-';
+//         let targetChan = 'super-secret-channel-';
 
-        let yourSecretChat = new ChatEngineYou.Chat(targetChan);
+//         let yourSecretChat = new ChatEngineYou.Chat(targetChan);
 
-        yourSecretChat.on('$.connected', () => {
+//         yourSecretChat.on('$.connected', () => {
 
-            let illegalAccessChat = new ChatEngine.Chat(targetChan);
+//             let illegalAccessChat = new ChatEngine.Chat(targetChan);
 
-            illegalAccessChat.on('$.connected', () => {
+//             illegalAccessChat.on('$.connected', () => {
 
-                done(new Error('This user should not be able to join', illegalAccessChat.channel));
+//                 done(new Error('This user should not be able to join', illegalAccessChat.channel));
 
-            });
+//             });
 
-            illegalAccessChat.once('$.error.publish', () => {
-                done();
-            });
+//             illegalAccessChat.once('$.error.publish', () => {
+//                 done();
+//             });
 
-            illegalAccessChat.emit('message', 'test');
+//             illegalAccessChat.emit('message', 'test');
 
-        });
+//         });
 
-    });
+//     });
 
-});
+// });

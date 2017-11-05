@@ -137,7 +137,7 @@ class Emitter extends RootEmitter {
      @param {String} event The event name
      @param {Object} payload The event payload object
      */
-    trigger(event, payload, done = () => {}) {
+    trigger(event, payload = {}, done = () => {}) {
 
         let complete = () => {
 

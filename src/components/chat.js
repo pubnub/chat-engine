@@ -425,7 +425,8 @@ class Chat extends Emitter {
                 this.connected = false;
 
                 this.trigger('$.disconnected');
-                this.chatEngine.me.direct.emit('$.session.chat.leave');
+
+                this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
 
             })
             .catch((error) => {
@@ -556,7 +557,7 @@ class Chat extends Emitter {
          */
         this.trigger('$.connected');
 
-        this.chatEngine.me.direct.emit('$.session.chat.join');
+        this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
 
         this.connected = true;
 

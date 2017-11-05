@@ -30,14 +30,14 @@ class Me extends User {
          */
         this.session = {};
 
-        this.direct.on('$.session.chat.join', (payload) => {
-            this.addChatToSession(payload.chat);
-            this.trigger('$.session.chat.join', payload);
+        this.sync = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
+
+        this.sync.on('$.session.chat.join', (payload) => {
+            this.addChatToSession(payload.data.subject);
         });
 
-        this.direct.on('$.session.chat.leave', (payload) => {
-            this.removeChatFromSession(payload.chat);
-            this.trigger('$.session.chat.leave', payload);
+        this.sync.on('$.session.chat.leave', (payload) => {
+            this.removeChatFromSession(payload.data.subject);
         });
 
     }
@@ -111,6 +111,9 @@ class Me extends User {
             // this.trigger('$.session.chat.join', {
             //     chat: this.session[chat.group][chat.channel]
             // });
+            //
+            this.trigger('$.session.chat.join', { chat: this.session[chat.group][chat.channel] });
+
         }
 
     }
@@ -121,10 +124,6 @@ class Me extends User {
     */
     removeChatFromSession(chat) {
 
-        console.log('remove chat from session', chat)
-
-        console.log(this.session)
-
         if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
 
             let targetChat = this.session[chat.group][chat.channel] || chat;
@@ -134,11 +133,13 @@ class Me extends User {
             * @event Me#$"."session"."chat"."leave
             */
 
+            this.trigger('$.session.chat.leave', { chat: this.session[chat.group][chat.channel] });
+
             delete this.chatEngine.chats[chat.channel];
             delete this.session[chat.group][chat.channel];
 
         } else {
-            this.chatEngine.throwError(this, 'trigger', 'removeChat', new Error('Trying to remove a chat from session, but chat or group does not exist.'));
+            // this.chatEngine.throwError(this, 'trigger', 'removeChat', new Error('Trying to remove a chat from session, but chat or group does not exist.'));
         }
 
     }

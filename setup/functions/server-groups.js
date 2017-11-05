@@ -130,6 +130,7 @@ export default (request, response) => {
             body.global,
             body.global + '-pnpres',
             body.global + '#chat#public.*',
+            body.global + '#user#' + body.uuid + '#me.*',
             body.global + '#user#' + body.uuid + '#read.*',
             body.global + '#user#' + body.uuid + '#write.*'
         ];
@@ -240,7 +241,7 @@ export default (request, response) => {
 
     controllers.chat.delete = () => {
 
-        return db.get('meta:'+body.chat.channel).then((value) => {
+        return db.get('meta:'+request.params.channel).then((value) => {
 
             return response.send();
 
