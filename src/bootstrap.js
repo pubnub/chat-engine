@@ -162,7 +162,7 @@ module.exports = (ceConfig, pnConfig) => {
 
         let restoreSession = () => {
 
-            let groups = ['custom', 'fixed', 'system'];
+            let groups = ['custom', 'rooms', 'system'];
 
             groups.forEach((group) => {
 
@@ -232,7 +232,7 @@ module.exports = (ceConfig, pnConfig) => {
                 ChatEngine.global.getUserUpdates();
 
                 let chanGroups = [
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
                     ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
                     ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
                 ];

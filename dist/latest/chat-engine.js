@@ -577,8 +577,8 @@ process.umask = function() { return 0; };
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(3);
-const Emitter = __webpack_require__(7);
+const axios = __webpack_require__(10);
+const Emitter = __webpack_require__(6);
 
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
@@ -706,7 +706,6 @@ class User extends Emitter {
                 callback();
             })
             .catch((error) => {
-                console.log(error)
                 this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
             });
 
@@ -719,12 +718,6 @@ module.exports = User;
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(33);
-
-/***/ }),
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -824,7 +817,7 @@ module.exports = defaults;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports) {
 
 var g;
@@ -851,7 +844,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -879,7 +872,7 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const waterfall = __webpack_require__(56);
@@ -1142,7 +1135,7 @@ module.exports = Emitter;
 
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1164,7 +1157,7 @@ function slice(arrayLike, start) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Symbol = __webpack_require__(27),
@@ -1198,7 +1191,7 @@ module.exports = baseGetTag;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports) {
 
 /**
@@ -1231,6 +1224,12 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(33);
 
 /***/ }),
 /* 11 */
@@ -7231,7 +7230,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate, __webpack_require__(1), __webpack_require__(5), __webpack_require__(6)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate, __webpack_require__(1), __webpack_require__(4), __webpack_require__(5)(module)))
 
 /***/ }),
 /* 18 */
@@ -7628,7 +7627,7 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 
 module.exports = freeGlobal;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
 /* 30 */
@@ -7726,7 +7725,7 @@ module.exports = {
 /* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(3);
+const axios = __webpack_require__(10);
 const PubNub = __webpack_require__(51);
 const pack = __webpack_require__(52);
 
@@ -7890,7 +7889,7 @@ module.exports = (ceConfig, pnConfig) => {
 
         let restoreSession = () => {
 
-            let groups = ['custom', 'fixed', 'system'];
+            let groups = ['custom', 'rooms', 'system'];
 
             groups.forEach((group) => {
 
@@ -7960,7 +7959,7 @@ module.exports = (ceConfig, pnConfig) => {
                 ChatEngine.global.getUserUpdates();
 
                 let chanGroups = [
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#fixed',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
                     ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
                     ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
                 ];
@@ -8171,7 +8170,7 @@ module.exports = (ceConfig, pnConfig) => {
 var utils = __webpack_require__(0);
 var bind = __webpack_require__(11);
 var Axios = __webpack_require__(35);
-var defaults = __webpack_require__(4);
+var defaults = __webpack_require__(3);
 
 /**
  * Create an instance of Axios
@@ -8254,7 +8253,7 @@ function isSlowBuffer (obj) {
 "use strict";
 
 
-var defaults = __webpack_require__(4);
+var defaults = __webpack_require__(3);
 var utils = __webpack_require__(0);
 var InterceptorManager = __webpack_require__(44);
 var dispatchRequest = __webpack_require__(45);
@@ -8786,7 +8785,7 @@ module.exports = InterceptorManager;
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(46);
 var isCancel = __webpack_require__(14);
-var defaults = __webpack_require__(4);
+var defaults = __webpack_require__(3);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -9776,9 +9775,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(3);
 const async = __webpack_require__(17);
-const Emitter = __webpack_require__(7);
+const Emitter = __webpack_require__(6);
 const Event = __webpack_require__(25);
 const User = __webpack_require__(2);
 const Search = __webpack_require__(60);
@@ -9928,49 +9926,36 @@ class Chat extends Emitter {
      */
     invite(user) {
 
-        let complete = () => {
-
-            let send = () => {
-
-                /**
-                 * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
-                 * Fired by the {@link Chat#invite} method.
-                 * @event Me#$"."invite
-                 * @tutorial private
-                 * @example
-                 * me.direct.on('$.invite', (payload) => {
-                              *    let privChat = new ChatEngine.Chat(payload.data.channel));
-                              * });
-                 */
-                user.direct.emit('$.invite', {
-                    channel: this.channel
-                });
-
-            };
-
-            if (!user.direct.connected) {
-                user.direct.connect();
-                user.direct.on('$.connected', send);
-            } else {
-                send();
-            }
-
-        };
-
-
-        axios.post(this.chatEngine.ceConfig.endpoint, {
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: user.uuid,
-            uuid: this.chatEngine.me.uuid,
-            authData: this.chatEngine.me.authData,
-            chat: this.objectify()
-        }, {
-            params: {
-                route: 'invite'
-            }
+        this.chatEngine.request('post', 'invite', {
+            to: user.uuid
         })
             .then(() => {
-                complete();
+
+                let send = () => {
+
+                    /**
+                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                     * Fired by the {@link Chat#invite} method.
+                     * @event Me#$"."invite
+                     * @tutorial private
+                     * @example
+                     * me.direct.on('$.invite', (payload) => {
+                     *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                     * });
+                     */
+                    user.direct.emit('$.invite', {
+                        channel: this.channel
+                    });
+
+                };
+
+                if (!user.direct.connected) {
+                    user.direct.connect();
+                    user.direct.on('$.connected', send);
+                } else {
+                    send();
+                }
+
             })
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
@@ -10038,16 +10023,9 @@ class Chat extends Emitter {
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);
 
-        axios.post(this.chatEngine.ceConfig.endpoint, {
-            global: this.chatEngine.ceConfig.globalChannel,
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: this.chatEngine.me.uuid,
-            authData: this.chatEngine.me.authData,
+
+        this.chatEngine.request('post', 'chat', {
             chat: this.objectify()
-        }, {
-            params: {
-                route: 'chat'
-            }
         }).then(() => {
         }).catch((error) => {
             this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
@@ -10628,7 +10606,7 @@ module.exports = Chat;
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(1)))
 
 /***/ }),
 /* 56 */
@@ -10675,7 +10653,7 @@ var _once = __webpack_require__(21);
 
 var _once2 = _interopRequireDefault(_once);
 
-var _slice = __webpack_require__(8);
+var _slice = __webpack_require__(7);
 
 var _slice2 = _interopRequireDefault(_slice);
 
@@ -10884,7 +10862,7 @@ exports.default = function (fn) {
     };
 };
 
-var _slice = __webpack_require__(8);
+var _slice = __webpack_require__(7);
 
 var _slice2 = _interopRequireDefault(_slice);
 
@@ -10906,7 +10884,7 @@ exports.hasNextTick = exports.hasSetImmediate = undefined;
 exports.fallback = fallback;
 exports.wrap = wrap;
 
-var _slice = __webpack_require__(8);
+var _slice = __webpack_require__(7);
 
 var _slice2 = _interopRequireDefault(_slice);
 
@@ -10945,7 +10923,7 @@ exports.default = wrap(_defer);
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Emitter = __webpack_require__(7);
+const Emitter = __webpack_require__(6);
 const eachSeries = __webpack_require__(61);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
@@ -11412,7 +11390,7 @@ module.exports = exports['default'];
 /* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(9),
+var baseGetTag = __webpack_require__(8),
     isObject = __webpack_require__(24);
 
 /** `Object#toString` result references. */
@@ -11679,7 +11657,7 @@ module.exports = baseTimes;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIsArguments = __webpack_require__(73),
-    isObjectLike = __webpack_require__(10);
+    isObjectLike = __webpack_require__(9);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -11720,8 +11698,8 @@ module.exports = isArguments;
 /* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(9),
-    isObjectLike = __webpack_require__(10);
+var baseGetTag = __webpack_require__(8),
+    isObjectLike = __webpack_require__(9);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]';
@@ -11783,7 +11761,7 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 module.exports = isBuffer;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module)))
 
 /***/ }),
 /* 75 */
@@ -11874,9 +11852,9 @@ module.exports = isTypedArray;
 /* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(9),
+var baseGetTag = __webpack_require__(8),
     isLength = __webpack_require__(30),
-    isObjectLike = __webpack_require__(10);
+    isObjectLike = __webpack_require__(9);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -11983,7 +11961,7 @@ var nodeUtil = (function() {
 
 module.exports = nodeUtil;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module)))
 
 /***/ }),
 /* 81 */

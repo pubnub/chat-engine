@@ -1,4 +1,3 @@
-const axios = require('axios');
 const async = require('async');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
@@ -150,49 +149,36 @@ class Chat extends Emitter {
      */
     invite(user) {
 
-        let complete = () => {
-
-            let send = () => {
-
-                /**
-                 * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
-                 * Fired by the {@link Chat#invite} method.
-                 * @event Me#$"."invite
-                 * @tutorial private
-                 * @example
-                 * me.direct.on('$.invite', (payload) => {
-                              *    let privChat = new ChatEngine.Chat(payload.data.channel));
-                              * });
-                 */
-                user.direct.emit('$.invite', {
-                    channel: this.channel
-                });
-
-            };
-
-            if (!user.direct.connected) {
-                user.direct.connect();
-                user.direct.on('$.connected', send);
-            } else {
-                send();
-            }
-
-        };
-
-
-        axios.post(this.chatEngine.ceConfig.endpoint, {
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: user.uuid,
-            uuid: this.chatEngine.me.uuid,
-            authData: this.chatEngine.me.authData,
-            chat: this.objectify()
-        }, {
-            params: {
-                route: 'invite'
-            }
+        this.chatEngine.request('post', 'invite', {
+            to: user.uuid
         })
             .then(() => {
-                complete();
+
+                let send = () => {
+
+                    /**
+                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                     * Fired by the {@link Chat#invite} method.
+                     * @event Me#$"."invite
+                     * @tutorial private
+                     * @example
+                     * me.direct.on('$.invite', (payload) => {
+                     *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                     * });
+                     */
+                    user.direct.emit('$.invite', {
+                        channel: this.channel
+                    });
+
+                };
+
+                if (!user.direct.connected) {
+                    user.direct.connect();
+                    user.direct.on('$.connected', send);
+                } else {
+                    send();
+                }
+
             })
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
@@ -260,16 +246,9 @@ class Chat extends Emitter {
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);
 
-        axios.post(this.chatEngine.ceConfig.endpoint, {
-            global: this.chatEngine.ceConfig.globalChannel,
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: this.chatEngine.me.uuid,
-            authData: this.chatEngine.me.authData,
+
+        this.chatEngine.request('post', 'chat', {
             chat: this.objectify()
-        }, {
-            params: {
-                route: 'chat'
-            }
         }).then(() => {
         }).catch((error) => {
             this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
