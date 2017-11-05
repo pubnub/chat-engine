@@ -120,7 +120,7 @@ module.exports = (ceConfig, pnConfig) => {
         b = Object.assign(b, body);
         p = Object.assign(p, query);
 
-        if (method === 'get') {
+        if (method === 'get' || method === 'delete') {
             p = Object.assign(p, b);
             return axios[method](ceConfig.endpoint, { params: p });
         } else {
@@ -189,12 +189,6 @@ module.exports = (ceConfig, pnConfig) => {
 
         let complete = (chatData) => {
 
-            console.log('complete')
-
-            ChatEngine.onAny((a) => {
-                console.log(a)
-            })
-
             ChatEngine.pubnub = new PubNub(pnConfig);
 
             // create a new chat to use as global chat
@@ -238,8 +232,8 @@ module.exports = (ceConfig, pnConfig) => {
                 ];
 
                 ChatEngine.pubnub.subscribe({
-                    callback: function(m){
-                        console.log('subscribe cb', m)
+                    callback: function (m) {
+                        console.log('subscribe cb', m);
                     },
                     channelGroups: chanGroups,
                     withPresence: true
@@ -368,13 +362,10 @@ module.exports = (ceConfig, pnConfig) => {
                 }).catch(next);
             },
             (next) => {
-                ChatEngine.request('post', 'group').then(() => {
-                    console.log('complete')
-                    complete();
-                }).catch(next);
+                ChatEngine.request('post', 'group').then(complete).catch(next);
             }
-        ], (err) => {
-            if (err) {
+        ], (error) => {
+            if (error) {
                 ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
             }
         });

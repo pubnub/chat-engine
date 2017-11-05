@@ -30,12 +30,14 @@ class Me extends User {
          */
         this.session = {};
 
-        this.direct.on('$.server.chat.created', (payload) => {
+        this.direct.on('$.session.chat.join', (payload) => {
             this.addChatToSession(payload.chat);
+            this.trigger('$.session.chat.join', payload);
         });
 
-        this.direct.on('$.server.chat.deleted', (payload) => {
+        this.direct.on('$.session.chat.leave', (payload) => {
             this.removeChatFromSession(payload.chat);
+            this.trigger('$.session.chat.leave', payload);
         });
 
     }
@@ -106,9 +108,9 @@ class Me extends User {
             * // Logged in as "Ian" in second window
             * new ChatEngine.Chat('another-chat');
             */
-            this.trigger('$.session.chat.join', {
-                chat: this.session[chat.group][chat.channel]
-            });
+            // this.trigger('$.session.chat.join', {
+            //     chat: this.session[chat.group][chat.channel]
+            // });
         }
 
     }
@@ -131,11 +133,7 @@ class Me extends User {
             * Fired when another identical instance of {@link ChatEngine} with an identical {@link Me} leaves a {@link Chat} via {@link Chat#leave}.
             * @event Me#$"."session"."chat"."leave
             */
-            this.trigger('$.session.chat.leave', {
-                chat: targetChat
-            });
 
-            // don't delete from chatengine.chats, because we can still get events from this chat
             delete this.chatEngine.chats[chat.channel];
             delete this.session[chat.group][chat.channel];
 

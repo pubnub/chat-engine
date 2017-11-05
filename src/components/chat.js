@@ -190,7 +190,6 @@ class Chat extends Emitter {
             }
         })
             .then(() => {
-                console.log('did it work?')
                 complete();
             })
             .catch((error) => {
@@ -420,13 +419,18 @@ class Chat extends Emitter {
             channels: [this.channel]
         });
 
-        // this.chatEngine.request('delete', 'chat', { chat: this.objectify() }, null, (error) => {
-        //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-        // });
+        this.chatEngine.request('delete', 'chat', { channel: this.channel })
+            .then(() => {
 
-        this.connected = false;
+                this.connected = false;
 
-        this.trigger('$.disconnected');
+                this.trigger('$.disconnected');
+                this.chatEngine.me.direct.emit('$.session.chat.leave');
+
+            })
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            });
 
     }
 
@@ -552,6 +556,8 @@ class Chat extends Emitter {
          */
         this.trigger('$.connected');
 
+        this.chatEngine.me.direct.emit('$.session.chat.join');
+
         this.connected = true;
 
         if (this.channel !== this.chatEngine.global.channel) {
@@ -576,8 +582,6 @@ class Chat extends Emitter {
         });
 
     }
-
-
 
     /**
      * Connect to PubNub servers to initialize the chat.

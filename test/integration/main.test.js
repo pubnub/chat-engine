@@ -236,7 +236,7 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        let i = 0;
+        // let i = 0;
         // while (i < 200) {
 
         //     chatHistory.emit('tester', {
@@ -274,7 +274,7 @@ describe('history', () => {
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
 
-        let i = 0;
+        // let i = 0;
         // while (i < 200) {
 
         //     chatHistory2.emit('tester', {
@@ -344,7 +344,7 @@ describe('remote chat list', () => {
             throwErrors: false
         });
 
-        ChatEngineClone.connect(username, { works: true }, 'ian-authtoken'  + new Date().getTime());
+        ChatEngineClone.connect(username, { works: true }, 'ian-authtoken' + new Date().getTime());
 
         ChatEngineClone.on('$.ready', () => {
             syncChat = new ChatEngineClone.Chat('some-channel' + new Date().getTime(), true, true);
@@ -356,12 +356,12 @@ describe('remote chat list', () => {
 
         this.timeout(10000);
 
-        ChatEngine.me.once('$.session.chat.leave', () => {
+        ChatEngine.me.once('$.session.chat.leave', (payload) => {
 
             setTimeout(() => {
 
                 assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                assert.isUndefined(ChatEngine.me.session.default[syncChat.channel]);
+                assert.isUndefined(ChatEngine.me.session.custom[syncChat.channel]);
 
             }, 1000);
 
@@ -369,10 +369,8 @@ describe('remote chat list', () => {
         });
 
         setTimeout(() => {
-
             syncChat.leave();
-
-        }, 1000);
+        }, 3000);
 
 
     });
