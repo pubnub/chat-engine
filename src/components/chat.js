@@ -343,27 +343,21 @@ class Chat extends Emitter {
      */
     connect() {
 
-        axios.get(this.chatEngine.ceConfig.endpoint, {
-            params: {
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.me.uuid,
-                authData: this.chatEngine.me.authData,
-                channel: this.channel,
-                route: 'chat'
-            }
-        }).then((response) => {
+        this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+            .then((response) => {
 
-            if (response.data.found) {
-                this.meta = response.data.chat.meta;
-            } else {
-                this.update(this.meta);
-            }
+                if (response.data.found) {
+                    this.meta = response.data.chat.meta;
+                } else {
+                    this.update(this.meta);
+                }
 
-            this.grant();
+                this.grant();
 
-        }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        });
+            })
+            .catch(() => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            });
 
     }
 
@@ -511,24 +505,9 @@ class Chat extends Emitter {
             channels: [this.channel]
         });
 
-        // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint, {
-            data: {
-                global: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            },
-            params: {
-                route: 'chat'
-            }
-        })
-            .then(() => {})
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
-            });
-
+        // this.chatEngine.request('delete', 'chat', { chat: this.objectify() }, null, (error) => {
+        //     this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+        // });
 
         this.connected = false;
 

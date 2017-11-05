@@ -104,7 +104,7 @@ module.exports = (ceConfig, pnConfig) => {
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
-    ChatEngine.request = (method, route, body = {}, query = {}, next) => {
+    ChatEngine.request = (method, route, body = {}, query = {}) => {
 
         let b = {
             uuid: pnConfig.uuid,
@@ -120,12 +120,13 @@ module.exports = (ceConfig, pnConfig) => {
         b = Object.assign(b, body);
         p = Object.assign(p, query);
 
-        return axios[method](ceConfig.endpoint, b, { params: p })
-            .then((response) => {
-                next(null, response);
-            }).catch((error) => {
-                next(error);
-            });
+        if (method === 'get') {
+            p = Object.assign(p, b);
+            return axios[method](ceConfig.endpoint, { params: p });
+        } else {
+            return axios[method](ceConfig.endpoint, b, { params: p });
+        }
+
 
     };
 
@@ -187,6 +188,12 @@ module.exports = (ceConfig, pnConfig) => {
         };
 
         let complete = (chatData) => {
+
+            console.log('complete')
+
+            ChatEngine.onAny((a) => {
+                console.log(a)
+            })
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
@@ -346,25 +353,38 @@ module.exports = (ceConfig, pnConfig) => {
 
         async.waterfall([
             (next) => {
-                ChatEngine.request('post', 'bootstrap', null, null, next);
-            },
-            (bootstrap, next) => {
-                ChatEngine.request('post', 'user_read', null, null, (err) => {
+                ChatEngine.request('post', 'bootstrap').then(() => {
+                    next(null);
+                }).catch((err) => {
                     next(err);
                 });
             },
             (next) => {
-                ChatEngine.request('post', 'user_write', null, null, (err) => {
+                ChatEngine.request('post', 'user_read').then(() => {
+                    next(null);
+                }).catch((err) => {
                     next(err);
                 });
             },
             (next) => {
-                ChatEngine.request('post', 'group', null, null, (err) => {
+                ChatEngine.request('post', 'user_write').then(() => {
+                    next(null);
+                }).catch((err) => {
+                    next(err);
+                });
+            },
+            (next) => {
+                ChatEngine.request('post', 'group').then(() => {
+                    console.log('complete')
+                    complete();
+                }).catch((err) => {
                     next(err);
                 });
             }
-        ], (error) => {
-            ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+        ], (err) => {
+            if (err) {
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+            }
         });
 
     };
