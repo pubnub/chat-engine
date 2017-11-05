@@ -231,19 +231,7 @@ export default (request, response) => {
 
     controllers.chat.post = () => {
 
-        let chan = [body.global, 'user', body.uuid, 'write.', 'direct'].join('#');
-
         db.set('meta:'+body.chat.channel, body.chat, 525600);
-
-        console.log('posting to', chan);
-
-        pubnub.publish({
-            channel: chan,
-            message: {
-                event: '$.server.chat.created',
-                chat: body.chat
-            }
-        });
 
         response.status = 200;
         return response.send();
@@ -252,9 +240,11 @@ export default (request, response) => {
 
     controllers.chat.delete = () => {
 
-        console.log('hit');
+        return db.get('meta:'+body.chat.channel).then((value) => {
 
-        return response.send();
+            return response.send();
+
+        });
 
     };
 
@@ -263,14 +253,19 @@ export default (request, response) => {
         return db.get('meta:'+request.params.channel).then((value) => {
 
             if(value) {
+
                 return response.send({
                     found: true,
                     chat: value
                 });
+
             } else {
+
+                // client will create chat
                 return response.send({
                     found: false
                 });
+
             }
 
         }).catch((err) => {
@@ -292,7 +287,7 @@ export default (request, response) => {
     // GET request with empty route returns the homepage
     // If a requested route or method for a route does not exist, return 404
     if (!route && method === 'get') {
-        return controllers.index.GET();
+        return controllers.index.get();
     } else if (controllers[route] && controllers[route][method]) {
 
         return authPolicy().then(() => {
