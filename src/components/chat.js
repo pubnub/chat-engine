@@ -53,6 +53,8 @@ class Chat extends Emitter {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
+        console.log('made chat with chan', this.channel)
+
         this.meta = {};
 
         /**
@@ -150,7 +152,8 @@ class Chat extends Emitter {
     invite(user) {
 
         this.chatEngine.request('post', 'invite', {
-            to: user.uuid
+            to: user.uuid,
+            chat: this.objectify()
         })
             .then(() => {
 

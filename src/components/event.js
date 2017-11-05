@@ -72,8 +72,6 @@ class Event {
                 this.chat.trigger('$.publish.success', m);
             } else {
 
-                console.log(status)
-
                 /**
                  * There was a problem publishing over the PubNub network.
                  * @event Chat#$"."error"."publish
