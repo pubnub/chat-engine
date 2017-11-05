@@ -9828,8 +9828,6 @@ class Chat extends Emitter {
             this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
         }
 
-        console.log('made chat with chan', this.channel)
-
         this.meta = {};
 
         /**
