@@ -10039,6 +10039,9 @@ class Chat extends Emitter {
       * });
      */
     emit(event, data) {
+        if (event === 'message' && typeof data !== 'object') {
+            throw new Error('the payload has to be an object');
+        }
 
         // create a standardized payload object
         let payload = {

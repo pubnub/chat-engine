@@ -1,3 +1,10 @@
+
+# PubNub ChatEngine
+
+PubNub ChatEngine is an object oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
+
+The real time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
+
 # New in v0.7.0
 
 - {@link Chat#search New Search (History) Class}
@@ -21,74 +28,6 @@
     - Docs migrated from 0.4.x -> 0.6.x
     - Improved hyperlinks between events and methods
     - Docs build process in gulp (```compile_docs```, ```watch_docs```, ```serve_docs```, and ```docs_dev``` to do all three).
-
-# Development
-
-## Cloning
-
-Clone repos (chat-engine and plugins).
-
-All repos should be siblings of one another. This is required for rendering docs
-properly.
-
-```
-chat-engine
-chat-engine-desktop-notifications
-chat-engine-emoji
-chat-engine-examples
-chat-engine-gravatar
-chat-engine-markdown
-chat-engine-marketing
-chat-engine-online-user-search
-chat-engine-plugin
-chat-engine-random-username
-chat-engine-tutorial
-chat-engine-typing-indicator
-chat-engine-unread-messages
-chat-engine-uploadcare
-```
-
-## Setting up environment
-
-```
-nvm use v6
-```
-
-run ```http-server``` from my ```/development``` directory which has all chat-engine repos:
-
-
-```cd chat-engine```
-
-```node server.js```
-
-load http://localhost:8080 in browser and navigate to /chat-engine-examples/jquery/kitchen-sink
-
-
-## Running Anything
-
-1. Must have ```server.js``` running.
-2. If working with history, deploy the code in ```/functions``` to PubNub blocks. See ```/functions/readme.md```.
-
-## Compiling
-
-Run ```gulp``` to compile, but you should probably run ```gulp watch``` to get consistent changes.
-
-## Running Tests
-
-Run ```gulp test```.
-
-## Releasing a patch (chat engine and plugins)
-
-```
-npm version patch && git push origin master --tags
-```
-
-
-# PubNub Chat Engine
-
-PubNub Chat Engine is an object oriented event emitter based framework for building chat applications in Javascript. PubNub Chat Engine makes it easy to build Slack, Flowdock, Discord, Skype, Snapchat, or WhatsApp with ease.
-
-The real time server component is provided by Socket.io or PubNub. PubNub Chat Engine is extensible and includes a plugin framework to make dropping in features simple.
 
 # Getting Started
 
@@ -152,3 +91,66 @@ Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-exampl
 ## Other usage examples
 
 [Test.js](test.js) includes some usage examples
+
+
+
+# Development
+
+## Cloning
+
+Clone repos (chat-engine and plugins).
+
+All repos should be siblings of one another. This is required for rendering docs
+properly.
+
+```
+chat-engine
+chat-engine-desktop-notifications
+chat-engine-emoji
+chat-engine-examples
+chat-engine-gravatar
+chat-engine-markdown
+chat-engine-marketing
+chat-engine-online-user-search
+chat-engine-plugin
+chat-engine-random-username
+chat-engine-tutorial
+chat-engine-typing-indicator
+chat-engine-unread-messages
+chat-engine-uploadcare
+```
+
+## Setting up environment
+
+```
+nvm use v6
+```
+
+run ```http-server``` from my ```/development``` directory which has all chat-engine repos:
+
+
+```cd chat-engine```
+
+```node server.js```
+
+load http://localhost:8080 in browser and navigate to /chat-engine-examples/jquery/kitchen-sink
+
+
+## Running Anything
+
+1. Must have ```server.js``` running.
+2. If working with history, deploy the code in ```/functions``` to PubNub blocks. See ```/functions/readme.md```.
+
+## Compiling
+
+Run ```gulp``` to compile, but you should probably run ```gulp watch``` to get consistent changes.
+
+## Running Tests
+
+Run ```gulp test```.
+
+## Releasing a patch (chat engine and plugins)
+
+```
+npm version patch && git push origin master --tags
+```

@@ -36,7 +36,7 @@ The ```$``` represents a "system" event. You can read more about system events i
 When {@link ChatEngine#on} is fired, {@link Me} is supplied as ```data.me``` in the response.
 
 ```js
-ChatEngine.connect('ian', {team: 'red'});s
+ChatEngine.connect('ian', {team: 'red'});
 ChatEngine.on('$.ready', (data) => {
     let me = data.me; // ian
 });
