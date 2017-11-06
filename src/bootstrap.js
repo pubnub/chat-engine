@@ -101,6 +101,33 @@ module.exports = (ceConfig, pnConfig) => {
     };
 
     /**
+     * Get the internal channel name of supplied string
+     * @private
+     * @param  {[type]}  original  [description]
+     * @param  {Boolean} isPrivate [description]
+     * @return {[type]}            [description]
+     */
+    ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = true) => {
+
+        let channel = original.toString();
+
+        // public.* has PubNub permissions for everyone to read and write
+        // private.* is totally locked down and users must be granted access one by one
+        let chanPrivString = 'public.';
+
+        if (isPrivate) {
+            chanPrivString = 'private.';
+        }
+
+        if (channel.indexOf(ChatEngine.ceConfig.globalChannel) === -1) {
+            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        }
+
+        return channel;
+
+    };
+
+    /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
@@ -301,17 +328,27 @@ module.exports = (ceConfig, pnConfig) => {
      */
     ChatEngine.Chat = class extends Chat {
         constructor(...args) {
-            super(ChatEngine, ...args);
 
-            /**
-            * Fired when a {@link Chat} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."chat
-            * @example
-            * ChatEngine.on('$.created.chat', (data, chat) => {
-            *     console.log('Chat was created', chat);
-            * });
-            */
-            this.onConstructed();
+            let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
+
+            if (ChatEngine.chats[internalChannel]) {
+                return ChatEngine.chats[internalChannel];
+            } else {
+
+                super(ChatEngine, ...args);
+
+                /**
+                * Fired when a {@link Chat} has been created within ChatEngine.
+                * @event ChatEngine#$"."created"."chat
+                * @example
+                * ChatEngine.on('$.created.chat', (data, chat) => {
+                *     console.log('Chat was created', chat);
+                * });
+                */
+                this.onConstructed();
+
+            }
+
         }
     };
 

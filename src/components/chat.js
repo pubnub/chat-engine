@@ -9,7 +9,7 @@ const Search = require('../components/search');
  This is the root {@link Chat} class that represents a chat room
 
  @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [needGrant=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
+ @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @class Chat
@@ -22,7 +22,7 @@ const Search = require('../components/search');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
+    constructor(chatEngine, channel, isPrivate = true, autoConnect = true, group = 'default') {
 
         super(chatEngine);
 
@@ -31,31 +31,19 @@ class Chat extends Emitter {
         this.name = 'Chat';
 
         /**
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
+        * @type Boolean
+        * @readonly
+        */
+        this.isPrivate = isPrivate;
+
+        /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
          * @type String
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
-        this.channel = channel.toString();
-
-        // public.* has PubNub permissions for everyone to read and write
-        // private.* is totally locked down and users must be granted access one by one
-        let chanPrivString = 'public.';
-
-        if (needGrant) {
-            chanPrivString = 'private.';
-        }
-
-        if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
-            this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
-        }
-
-        /**
-        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
-        * @type Boolean
-        * @readonly
-        */
-        this.isPrivate = needGrant;
+        this.channel = this.chatEngine.augmentChannel(channel, isPrivate);
 
         /**
         * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
@@ -86,6 +74,7 @@ class Chat extends Emitter {
         this.chatEngine.chats[this.channel] = this;
 
     }
+
     /**
      Updates list of {@link User}s in this {@link Chat}
      based on who is online now.
@@ -345,7 +334,8 @@ class Chat extends Emitter {
             data, // the data supplied from params
             sender: this.chatEngine.me.uuid, // my own uuid
             chat: this, // an instance of this chat
-            version: this.chatEngine.package.version
+            event,
+            chatengineSDK: this.chatEngine.package.version
         };
 
         // run the plugin queue to modify the event
