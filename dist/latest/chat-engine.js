@@ -7786,12 +7786,6 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.ready = false;
 
     /**
-    * A map of {@link Chat}s that this instance of ChatEngine is representing.
-    * @type {Object}
-    */
-    ChatEngine.session = {};
-
-    /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
      */
