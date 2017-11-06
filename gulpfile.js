@@ -29,8 +29,7 @@ let readme = ['README.md'];
 gulp.task('compile', () => {
     return gulp.src('src/index.js')
         .pipe(webpack(require('./webpack.config.js')))
-        .pipe(gulp.dest('./dist/latest/'))
-        .pipe(gulp.dest('./dist/v/' + packageJSON.version));
+        .pipe(gulp.dest('./dist/'));
 
 });
 
