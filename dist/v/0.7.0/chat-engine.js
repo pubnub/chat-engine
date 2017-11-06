@@ -7735,7 +7735,7 @@ const async = __webpack_require__(16);
  @extends RootEmitter
  @return {ChatEngine} Returns an instance of {@link ChatEngine}
  */
-module.exports = (ceConfig, pnConfig) => {
+module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     // Create the root ChatEngine object
     let ChatEngine = new RootEmitter();
@@ -7804,6 +7804,12 @@ module.exports = (ceConfig, pnConfig) => {
         self[cb](['$', 'error', key].join('.'), payload);
 
     };
+
+    if (ceConfig.debug) {
+        ChatEngine.onAny((event, payload) => {
+            console.info('debug:', event, payload);
+        });
+    }
 
     ChatEngine.protoPlugins = {};
 
