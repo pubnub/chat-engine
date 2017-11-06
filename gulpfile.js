@@ -26,11 +26,16 @@ let guideFiles = ['guide/**/*'];
 let readme = ['README.md'];
 
 // task
-gulp.task('compile', () => {
+gulp.task('build', () => {
     return gulp.src('src/index.js')
         .pipe(webpack(require('./webpack.config.js')))
         .pipe(gulp.dest('./dist/'));
+});
 
+gulp.task('compile', () => {
+    return gulp.src('src/index.js')
+        .pipe(webpack(require('./webpack.config.js')))
+        .pipe(gulp.dest('./dev/'));
 });
 
 gulp.task('lint_code', [], () => {
