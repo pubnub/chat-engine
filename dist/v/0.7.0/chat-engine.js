@@ -80,7 +80,7 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var bind = __webpack_require__(11);
+var bind = __webpack_require__(10);
 var isBuffer = __webpack_require__(34);
 
 /*global toString:true*/
@@ -577,149 +577,6 @@ process.umask = function() { return 0; };
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(10);
-const Emitter = __webpack_require__(6);
-
-/**
- This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
- If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
- @class User
- @extends Emitter
- @extends RootEmitter
- @param uuid
- @param state
- */
-class User extends Emitter {
-
-    constructor(chatEngine, uuid, state = {}) {
-
-        super();
-
-        this.chatEngine = chatEngine;
-
-        this.name = 'User';
-
-        /**
-         The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
-         Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-
-         @readonly
-         @type String
-         */
-        this.uuid = uuid;
-
-        /**
-         * Gets the user state. See {@link Me#update} for how to assign state values.
-         * @return {Object} Returns a generic JSON object containing state information.
-         * @example
-         *
-         * // State
-         * let state = user.state;
-         */
-        this.state = {};
-
-        /**
-         * Feed is a Chat that only streams things a User does, like
-         * 'startTyping' or 'idle' events for example. Anybody can subscribe
-         * to a User's feed, but only the User can publish to it. Users will
-         * not be able to converse in this channel.
-         *
-         * @type Chat
-         * @example
-         * // me
-         * me.feed.emit('update', 'I may be away from my computer right now');
-         *
-         * // another instance
-         * them.feed.connect();
-         * them.feed.on('update', (payload) => {})
-         */
-
-        // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
-
-        /**
-         * Direct is a private channel that anybody can publish to but only
-         * the user can subscribe to. Great for pushing notifications or
-         * inviting to other chats. Users will not be able to communicate
-         * with one another inside of this chat. Check out the
-         * {@link Chat#invite} method for private chats utilizing
-         * {@link User#direct}.
-         *
-         * @type Chat
-         * @example
-         * // me
-         * me.direct.on('private-message', (payload) -> {
-                *     console.log(payload.sender.uuid, 'sent your a direct message');
-                * });
-         *
-         * // another instance
-         * them.direct.connect();
-         * them.direct.emit('private-message', {secret: 42});
-         */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
-
-        // if the user does not exist at all and we get enough
-        // information to build the user
-        if (!chatEngine.users[uuid]) {
-            chatEngine.users[uuid] = this;
-        }
-
-        // update this user's state in it's created context
-        this.assign(state);
-
-        return this;
-
-    }
-
-    /**
-     * @private
-     * @param {Object} state The new state for the user
-     * @param {Chat} chat Chatroom to retrieve state from
-     */
-    update(state) {
-        let oldState = this.state || {};
-        this.state = Object.assign(oldState, state);
-    }
-
-    /**
-     this is only called from network updates
-
-     @private
-     */
-    assign(state) {
-        this.update(state);
-    }
-
-    _hasState() {
-        return Object.keys(this.state).length > 0;
-    }
-
-    /**
-    Get stored user state from remote server.
-    @private
-    */
-    _getState(chat, callback) {
-        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
-        axios.get(url)
-            .then((response) => {
-                this.assign(response.data);
-                callback();
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
-            });
-
-    }
-
-}
-
-module.exports = User;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
@@ -740,10 +597,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(12);
+    adapter = __webpack_require__(11);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(12);
+    adapter = __webpack_require__(11);
   }
   return adapter;
 }
@@ -817,7 +674,7 @@ module.exports = defaults;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports) {
 
 var g;
@@ -844,7 +701,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -872,13 +729,12 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const waterfall = __webpack_require__(56);
-const RootEmitter = __webpack_require__(16);
-const Event = __webpack_require__(25);
-// const User = require('../components/user');
+const RootEmitter = __webpack_require__(15);
+const Event = __webpack_require__(24);
 
 /**
  An ChatEngine generic emitter that supports plugins and forwards
@@ -1047,15 +903,13 @@ class Emitter extends RootEmitter {
             if (payload.sender) {
 
                 // this use already exists in memory
-                if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._hasState()) {
+                if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._stateFetched) {
                     payload.sender = this.chatEngine.users[payload.sender];
                     complete();
                 } else {
 
-                    let User = __webpack_require__(2);
-
                     // the user doesn't exist, create it
-                    payload.sender = new User(this.chatEngine, payload.sender);
+                    payload.sender = new this.chatEngine.User(payload.sender);
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {
@@ -1135,7 +989,7 @@ module.exports = Emitter;
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1157,10 +1011,10 @@ function slice(arrayLike, start) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(27),
+var Symbol = __webpack_require__(26),
     getRawTag = __webpack_require__(66),
     objectToString = __webpack_require__(67);
 
@@ -1191,7 +1045,7 @@ module.exports = baseGetTag;
 
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports) {
 
 /**
@@ -1226,13 +1080,13 @@ module.exports = isObjectLike;
 
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(33);
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1250,7 +1104,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1261,7 +1115,7 @@ var settle = __webpack_require__(37);
 var buildURL = __webpack_require__(39);
 var parseHeaders = __webpack_require__(40);
 var isURLSameOrigin = __webpack_require__(41);
-var createError = __webpack_require__(13);
+var createError = __webpack_require__(12);
 var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(42);
 
 module.exports = function xhrAdapter(config) {
@@ -1438,7 +1292,7 @@ module.exports = function xhrAdapter(config) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1463,7 +1317,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1475,7 +1329,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1501,7 +1355,7 @@ module.exports = Cancel;
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -1651,7 +1505,7 @@ module.exports = RootEmitter;
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(setImmediate, process, global, module) {(function (global, factory) {
@@ -7230,10 +7084,10 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate, __webpack_require__(1), __webpack_require__(4), __webpack_require__(5)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17).setImmediate, __webpack_require__(1), __webpack_require__(3), __webpack_require__(4)(module)))
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -7292,7 +7146,7 @@ exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports) {
 
 /**
@@ -7324,7 +7178,7 @@ module.exports = isArray;
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 /**
@@ -7347,7 +7201,7 @@ module.exports = noop;
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7368,7 +7222,7 @@ function once(fn) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7389,7 +7243,7 @@ function onlyOnce(fn) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7420,7 +7274,7 @@ exports.default = wrapAsync;
 exports.isAsync = isAsync;
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports) {
 
 /**
@@ -7457,7 +7311,7 @@ module.exports = isObject;
 
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports) {
 
 /**
@@ -7551,11 +7405,11 @@ module.exports = Event;
 
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var isFunction = __webpack_require__(65),
-    isLength = __webpack_require__(30);
+    isLength = __webpack_require__(29);
 
 /**
  * Checks if `value` is array-like. A value is considered array-like if it's
@@ -7590,10 +7444,10 @@ module.exports = isArrayLike;
 
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var root = __webpack_require__(28);
+var root = __webpack_require__(27);
 
 /** Built-in value references. */
 var Symbol = root.Symbol;
@@ -7602,10 +7456,10 @@ module.exports = Symbol;
 
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var freeGlobal = __webpack_require__(29);
+var freeGlobal = __webpack_require__(28);
 
 /** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -7617,7 +7471,7 @@ module.exports = root;
 
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
@@ -7625,10 +7479,10 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 
 module.exports = freeGlobal;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports) {
 
 /** Used as references for various `Number` constants. */
@@ -7666,6 +7520,149 @@ function isLength(value) {
 }
 
 module.exports = isLength;
+
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const axios = __webpack_require__(9);
+const Emitter = __webpack_require__(5);
+
+/**
+ This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
+ If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
+ @class User
+ @extends Emitter
+ @extends RootEmitter
+ @param uuid
+ @param state
+ */
+class User extends Emitter {
+
+    constructor(chatEngine, uuid, state = {}) {
+
+        super();
+
+        this.chatEngine = chatEngine;
+
+        this.name = 'User';
+
+        /**
+         The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
+         Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+
+         @readonly
+         @type String
+         */
+        this.uuid = uuid;
+
+        /**
+         * Gets the user state. See {@link Me#update} for how to assign state values.
+         * @return {Object} Returns a generic JSON object containing state information.
+         * @example
+         *
+         * // State
+         * let state = user.state;
+         */
+        this.state = {};
+
+        this._stateFetched = false;
+
+        /**
+         * Feed is a Chat that only streams things a User does, like
+         * 'startTyping' or 'idle' events for example. Anybody can subscribe
+         * to a User's feed, but only the User can publish to it. Users will
+         * not be able to converse in this channel.
+         *
+         * @type Chat
+         * @example
+         * // me
+         * me.feed.emit('update', 'I may be away from my computer right now');
+         *
+         * // another instance
+         * them.feed.connect();
+         * them.feed.on('update', (payload) => {})
+         */
+
+        // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
+        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+
+        /**
+         * Direct is a private channel that anybody can publish to but only
+         * the user can subscribe to. Great for pushing notifications or
+         * inviting to other chats. Users will not be able to communicate
+         * with one another inside of this chat. Check out the
+         * {@link Chat#invite} method for private chats utilizing
+         * {@link User#direct}.
+         *
+         * @type Chat
+         * @example
+         * // me
+         * me.direct.on('private-message', (payload) -> {
+        *     console.log(payload.sender.uuid, 'sent your a direct message');
+        * });
+         *
+         * // another instance
+         * them.direct.connect();
+         * them.direct.emit('private-message', {secret: 42});
+         */
+        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+
+        // if the user does not exist at all and we get enough
+        // information to build the user
+        if (!chatEngine.users[uuid]) {
+            chatEngine.users[uuid] = this;
+        }
+
+        // update this user's state in it's created context
+        this.assign(state);
+
+        return this;
+
+    }
+
+    /**
+     * @private
+     * @param {Object} state The new state for the user
+     * @param {Chat} chat Chatroom to retrieve state from
+     */
+    update(state) {
+        let oldState = this.state || {};
+        this.state = Object.assign(oldState, state);
+    }
+
+    /**
+     this is only called from network updates
+
+     @private
+     */
+    assign(state) {
+        this.update(state);
+    }
+
+    /**
+    Get stored user state from remote server.
+    @private
+    */
+    _getState(chat, callback) {
+        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
+        axios.get(url)
+            .then((response) => {
+                this.assign(response.data);
+
+                this._stateFetched = true;
+                callback();
+            })
+            .catch((error) => {
+                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+            });
+
+    }
+
+}
+
+module.exports = User;
 
 
 /***/ }),
@@ -7723,15 +7720,15 @@ module.exports = {
 /* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(10);
+const axios = __webpack_require__(9);
 const PubNub = __webpack_require__(51);
 const pack = __webpack_require__(52);
 
-const RootEmitter = __webpack_require__(16);
+const RootEmitter = __webpack_require__(15);
 const Chat = __webpack_require__(54);
 const Me = __webpack_require__(88);
-const User = __webpack_require__(2);
-const async = __webpack_require__(17);
+const User = __webpack_require__(30);
+const async = __webpack_require__(16);
 
 /**
  @class ChatEngine
@@ -8164,9 +8161,9 @@ module.exports = (ceConfig, pnConfig) => {
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(11);
+var bind = __webpack_require__(10);
 var Axios = __webpack_require__(35);
-var defaults = __webpack_require__(3);
+var defaults = __webpack_require__(2);
 
 /**
  * Create an instance of Axios
@@ -8199,9 +8196,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(15);
+axios.Cancel = __webpack_require__(14);
 axios.CancelToken = __webpack_require__(49);
-axios.isCancel = __webpack_require__(14);
+axios.isCancel = __webpack_require__(13);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -8249,7 +8246,7 @@ function isSlowBuffer (obj) {
 "use strict";
 
 
-var defaults = __webpack_require__(3);
+var defaults = __webpack_require__(2);
 var utils = __webpack_require__(0);
 var InterceptorManager = __webpack_require__(44);
 var dispatchRequest = __webpack_require__(45);
@@ -8361,7 +8358,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(13);
+var createError = __webpack_require__(12);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -8780,8 +8777,8 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(46);
-var isCancel = __webpack_require__(14);
-var defaults = __webpack_require__(3);
+var isCancel = __webpack_require__(13);
+var defaults = __webpack_require__(2);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -8933,7 +8930,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(15);
+var Cancel = __webpack_require__(14);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -9771,10 +9768,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const async = __webpack_require__(17);
-const Emitter = __webpack_require__(6);
-const Event = __webpack_require__(25);
-const User = __webpack_require__(2);
+const async = __webpack_require__(16);
+const Emitter = __webpack_require__(5);
+const Event = __webpack_require__(24);
 const Search = __webpack_require__(60);
 
 /**
@@ -10085,7 +10081,7 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         this.chatEngine.users[uuid].assign(state);
 
@@ -10130,7 +10126,7 @@ class Chat extends Emitter {
     userUpdate(uuid, state) {
 
         // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         // if we don't know about this user
         if (!this.users[uuid]) {
@@ -10360,7 +10356,7 @@ class Chat extends Emitter {
             (next) => {
 
                 this.chatEngine.request('post', 'grant', { chat: this.objectify() })
-                    .then((response) => {
+                    .then(() => {
                         next();
                     })
                     .catch(next);
@@ -10594,7 +10590,7 @@ module.exports = Chat;
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(1)))
 
 /***/ }),
 /* 56 */
@@ -10629,27 +10625,27 @@ exports.default = function (tasks, callback) {
     nextTask([]);
 };
 
-var _isArray = __webpack_require__(19);
+var _isArray = __webpack_require__(18);
 
 var _isArray2 = _interopRequireDefault(_isArray);
 
-var _noop = __webpack_require__(20);
+var _noop = __webpack_require__(19);
 
 var _noop2 = _interopRequireDefault(_noop);
 
-var _once = __webpack_require__(21);
+var _once = __webpack_require__(20);
 
 var _once2 = _interopRequireDefault(_once);
 
-var _slice = __webpack_require__(7);
+var _slice = __webpack_require__(6);
 
 var _slice2 = _interopRequireDefault(_slice);
 
-var _onlyOnce = __webpack_require__(22);
+var _onlyOnce = __webpack_require__(21);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
-var _wrapAsync = __webpack_require__(23);
+var _wrapAsync = __webpack_require__(22);
 
 var _wrapAsync2 = _interopRequireDefault(_wrapAsync);
 
@@ -10727,7 +10723,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = asyncify;
 
-var _isObject = __webpack_require__(24);
+var _isObject = __webpack_require__(23);
 
 var _isObject2 = _interopRequireDefault(_isObject);
 
@@ -10850,7 +10846,7 @@ exports.default = function (fn) {
     };
 };
 
-var _slice = __webpack_require__(7);
+var _slice = __webpack_require__(6);
 
 var _slice2 = _interopRequireDefault(_slice);
 
@@ -10872,7 +10868,7 @@ exports.hasNextTick = exports.hasSetImmediate = undefined;
 exports.fallback = fallback;
 exports.wrap = wrap;
 
-var _slice = __webpack_require__(7);
+var _slice = __webpack_require__(6);
 
 var _slice2 = _interopRequireDefault(_slice);
 
@@ -10905,13 +10901,13 @@ if (hasSetImmediate) {
 }
 
 exports.default = wrap(_defer);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(18).setImmediate, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(17).setImmediate, __webpack_require__(1)))
 
 /***/ }),
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Emitter = __webpack_require__(6);
+const Emitter = __webpack_require__(5);
 const eachSeries = __webpack_require__(61);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
@@ -11216,7 +11212,7 @@ var _withoutIndex = __webpack_require__(86);
 
 var _withoutIndex2 = _interopRequireDefault(_withoutIndex);
 
-var _wrapAsync = __webpack_require__(23);
+var _wrapAsync = __webpack_require__(22);
 
 var _wrapAsync2 = _interopRequireDefault(_wrapAsync);
 
@@ -11259,11 +11255,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = _eachOfLimit;
 
-var _noop = __webpack_require__(20);
+var _noop = __webpack_require__(19);
 
 var _noop2 = _interopRequireDefault(_noop);
 
-var _once = __webpack_require__(21);
+var _once = __webpack_require__(20);
 
 var _once2 = _interopRequireDefault(_once);
 
@@ -11271,7 +11267,7 @@ var _iterator = __webpack_require__(64);
 
 var _iterator2 = _interopRequireDefault(_iterator);
 
-var _onlyOnce = __webpack_require__(22);
+var _onlyOnce = __webpack_require__(21);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
@@ -11336,7 +11332,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = iterator;
 
-var _isArrayLike = __webpack_require__(26);
+var _isArrayLike = __webpack_require__(25);
 
 var _isArrayLike2 = _interopRequireDefault(_isArrayLike);
 
@@ -11392,8 +11388,8 @@ module.exports = exports['default'];
 /* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(8),
-    isObject = __webpack_require__(24);
+var baseGetTag = __webpack_require__(7),
+    isObject = __webpack_require__(23);
 
 /** `Object#toString` result references. */
 var asyncTag = '[object AsyncFunction]',
@@ -11435,7 +11431,7 @@ module.exports = isFunction;
 /* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Symbol = __webpack_require__(27);
+var Symbol = __webpack_require__(26);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -11536,7 +11532,7 @@ module.exports = exports['default'];
 
 var arrayLikeKeys = __webpack_require__(70),
     baseKeys = __webpack_require__(81),
-    isArrayLike = __webpack_require__(26);
+    isArrayLike = __webpack_require__(25);
 
 /**
  * Creates an array of the own enumerable property names of `object`.
@@ -11579,7 +11575,7 @@ module.exports = keys;
 
 var baseTimes = __webpack_require__(71),
     isArguments = __webpack_require__(72),
-    isArray = __webpack_require__(19),
+    isArray = __webpack_require__(18),
     isBuffer = __webpack_require__(74),
     isIndex = __webpack_require__(76),
     isTypedArray = __webpack_require__(77);
@@ -11659,7 +11655,7 @@ module.exports = baseTimes;
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseIsArguments = __webpack_require__(73),
-    isObjectLike = __webpack_require__(9);
+    isObjectLike = __webpack_require__(8);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -11700,8 +11696,8 @@ module.exports = isArguments;
 /* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(8),
-    isObjectLike = __webpack_require__(9);
+var baseGetTag = __webpack_require__(7),
+    isObjectLike = __webpack_require__(8);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]';
@@ -11724,7 +11720,7 @@ module.exports = baseIsArguments;
 /* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(28),
+/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(27),
     stubFalse = __webpack_require__(75);
 
 /** Detect free variable `exports`. */
@@ -11763,7 +11759,7 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 module.exports = isBuffer;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module)))
 
 /***/ }),
 /* 75 */
@@ -11854,9 +11850,9 @@ module.exports = isTypedArray;
 /* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseGetTag = __webpack_require__(8),
-    isLength = __webpack_require__(30),
-    isObjectLike = __webpack_require__(9);
+var baseGetTag = __webpack_require__(7),
+    isLength = __webpack_require__(29),
+    isObjectLike = __webpack_require__(8);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -11940,7 +11936,7 @@ module.exports = baseUnary;
 /* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(29);
+/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(28);
 
 /** Detect free variable `exports`. */
 var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -11963,7 +11959,7 @@ var nodeUtil = (function() {
 
 module.exports = nodeUtil;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)(module)))
 
 /***/ }),
 /* 81 */
@@ -12113,7 +12109,7 @@ module.exports = exports["default"];
 /* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const User = __webpack_require__(2);
+const User = __webpack_require__(30);
 
 /**
  Represents the client connection as a special {@link User} with write permissions.

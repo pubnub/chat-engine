@@ -1,7 +1,6 @@
 const waterfall = require('async/waterfall');
 const RootEmitter = require('./root_emitter');
 const Event = require('../components/event');
-// const User = require('../components/user');
 
 /**
  An ChatEngine generic emitter that supports plugins and forwards
@@ -170,15 +169,13 @@ class Emitter extends RootEmitter {
             if (payload.sender) {
 
                 // this use already exists in memory
-                if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._hasState()) {
+                if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._stateFetched) {
                     payload.sender = this.chatEngine.users[payload.sender];
                     complete();
                 } else {
 
-                    let User = require('../components/user');
-
                     // the user doesn't exist, create it
-                    payload.sender = new User(this.chatEngine, payload.sender);
+                    payload.sender = new this.chatEngine.User(payload.sender);
 
                     // try to get stored state from server
                     payload.sender._getState(this, () => {

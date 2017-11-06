@@ -1,7 +1,6 @@
 const async = require('async');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
-const User = require('../components/user');
 const Search = require('../components/search');
 
 /**
@@ -312,7 +311,7 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         this.chatEngine.users[uuid].assign(state);
 
@@ -357,7 +356,7 @@ class Chat extends Emitter {
     userUpdate(uuid, state) {
 
         // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         // if we don't know about this user
         if (!this.users[uuid]) {
@@ -587,7 +586,7 @@ class Chat extends Emitter {
             (next) => {
 
                 this.chatEngine.request('post', 'grant', { chat: this.objectify() })
-                    .then((response) => {
+                    .then(() => {
                         next();
                     })
                     .catch(next);

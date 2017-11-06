@@ -39,6 +39,8 @@ class User extends Emitter {
          */
         this.state = {};
 
+        this._stateFetched = false;
+
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -70,8 +72,8 @@ class User extends Emitter {
          * @example
          * // me
          * me.direct.on('private-message', (payload) -> {
-                *     console.log(payload.sender.uuid, 'sent your a direct message');
-                * });
+        *     console.log(payload.sender.uuid, 'sent your a direct message');
+        * });
          *
          * // another instance
          * them.direct.connect();
@@ -111,10 +113,6 @@ class User extends Emitter {
         this.update(state);
     }
 
-    _hasState() {
-        return Object.keys(this.state).length > 0;
-    }
-
     /**
     Get stored user state from remote server.
     @private
@@ -124,6 +122,8 @@ class User extends Emitter {
         axios.get(url)
             .then((response) => {
                 this.assign(response.data);
+
+                this._stateFetched = true;
                 callback();
             })
             .catch((error) => {
