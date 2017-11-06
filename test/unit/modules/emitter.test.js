@@ -50,4 +50,49 @@ describe('#emitter', () => {
         assert(emitterInstance.plugins.length === 1, 'plugin works!');
         done();
     });
+
+    it('should get a string state', (done) => {
+        emitterInstance.set('stringKey', 'hello world');
+        assert(emitterInstance.get('stringKey') === 'hello world', 'got the expected value');
+        done();
+    });
+
+    it('should get an object state', (done) => {
+        emitterInstance.set('objectKey', { users: 12, chatName: 'test' });
+        assert.deepEqual(emitterInstance.get('objectKey'), { users: 12, chatName: 'test' });
+        done();
+    });
+
+    it('should remove a state', (done) => {
+        emitterInstance.set('integerKey', 10);
+        emitterInstance.set('integerKey', null);
+
+        assert.isUndefined(emitterInstance.get('integerKey'));
+        done();
+    });
+
+    it('should manage state from a plugin', (done) => {
+
+        let plugin = () => {
+            class extension {
+                construct() {
+                    this.set('stringKey', 'plugin state');
+                }
+            }
+
+            return {
+                namespace: 'demo_plugin',
+                extends: {
+                    Emitter: extension
+                }
+            };
+        };
+
+        emitterInstance.plugin(plugin());
+
+        assert(emitterInstance.plugins.length === 1, 'plugin works!');
+        assert(emitterInstance.demo_plugin.get('stringKey') === 'plugin state', 'got the expected value');
+
+        done();
+    });
 });
