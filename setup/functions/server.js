@@ -17,8 +17,6 @@ export default (request, response) => {
     const route = request.params.route;
     const method = request.method.toLowerCase();
 
-    console.log(route, method)
-
     const body = JSON.parse(request.body);
 
     function quote(s) {
@@ -33,8 +31,6 @@ export default (request, response) => {
         const signString = `${request.subkey}\n${request.pubkey}\n${path}\n${params}`;
 
         return vault.get('secretKey').then((secretKey) => {
-
-            console.log(secretKey)
 
             return crypto.hmac(base64Codec.btoa(secretKey), signString, crypto.ALGORITHM.HMAC_SHA256).then((signature) => {
 
