@@ -192,21 +192,12 @@ class Emitter extends RootEmitter {
             // if we should try to restore the sender property
             if (payload.sender) {
 
-                // this use already exists in memory
-                if (this.chatEngine.users[payload.sender] && this.chatEngine.users[payload.sender]._stateFetched) {
-                    payload.sender = this.chatEngine.users[payload.sender];
+                // the user doesn't exist, create it
+                payload.sender = new this.chatEngine.User(payload.sender);
+
+                payload.sender._getState(() => {
                     complete();
-                } else {
-
-                    // the user doesn't exist, create it
-                    payload.sender = new this.chatEngine.User(payload.sender);
-
-                    // try to get stored state from server
-                    payload.sender._getState(this, () => {
-                        complete();
-                    });
-
-                }
+                });
 
             } else {
                 // there's no "sender" in this object, move on

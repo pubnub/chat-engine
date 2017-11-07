@@ -415,6 +415,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
             if (ChatEngine.chats[internalChannel]) {
+
                 return ChatEngine.chats[internalChannel];
             } else {
 
@@ -446,7 +447,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             if (ChatEngine.me.uuid === args[0]) {
                 return ChatEngine.me;
+            } else if (ChatEngine.users[args[0]]) {
+                return ChatEngine.users[args[0]];
             } else {
+
                 super(ChatEngine, ...args);
 
                 /**

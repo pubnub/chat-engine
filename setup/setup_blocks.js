@@ -24,7 +24,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
           block_id: block.id,
           type: 'js',
           event: 'js-after-presence',
-          channels: 'chat-engine-global',
+          channels: '*',
           name: 'chat-engine-state',
           code: code,
           output: 'output-state-to-kv-' + (new Date()).getTime()
