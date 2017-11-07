@@ -72,9 +72,6 @@ onProvisionSuccess = function(err, data) {
         output += "ChatEngine = ChatEngineCore.create({\n";
         output += "    publishKey: '" + data.pub + "',\n";
         output += "    subscribeKey: '" + data.sub + "'\n";
-        output += "}, {\n";
-        output += "    globalChannel: 'global',\n";
-        output += "    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/" + data.sub + "/server'\n";
         output += "});\n";
 
         analytics.track('chat_engine_activation');

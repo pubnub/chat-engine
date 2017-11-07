@@ -55,10 +55,9 @@ describe('config', () => {
     it('should be configured', () => {
 
         ChatEngine = ChatEngineCore.create({
-            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
-            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
+            publishKey: 'pub-c-ba506880-c7fc-4ed7-9cbc-84b251947faf',
+            subscribeKey: 'sub-c-26bd01b2-c3f2-11e7-a957-6e5a35a6e3d1'
         }, {
-            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });
@@ -239,19 +238,19 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        // let i = 0;
-        // while (i < 200) {
+        let i = 0;
+        while (i < 200) {
 
-        //     chatHistory.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory.emit('not-tester', {
-        //         text: 'hello world ' + i
-        //     });
+            chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('not-tester', {
+                text: 'hello world ' + i
+            });
 
-        //     i += 1;
+            i += 1;
 
-        // }
+        }
 
         chatHistory.search({
             event: 'tester',
@@ -277,19 +276,19 @@ describe('history', () => {
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
-        // let i = 0;
-        // while (i < 200) {
+        let i = 0;
+        while (i < 200) {
 
-        //     chatHistory2.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory2.emit('not-tester', {
-        //         text: 'hello world ' + i
-        //     });
+            chatHistory2.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
 
-        //     i += 1;
+            i += 1;
 
-        // }
+        }
 
         chatHistory2.search({
             event: 'tester',
@@ -336,10 +335,9 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         ChatEngineClone = ChatEngineCore.create({
-            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
-            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
+            publishKey: 'pub-c-ba506880-c7fc-4ed7-9cbc-84b251947faf',
+            subscribeKey: 'sub-c-26bd01b2-c3f2-11e7-a957-6e5a35a6e3d1'
         }, {
-            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });
@@ -407,10 +405,9 @@ describe('invite', () => {
         this.timeout(5000);
 
         ChatEngineYou = ChatEngineCore.create({
-            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
-            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
+            publishKey: 'pub-c-ba506880-c7fc-4ed7-9cbc-84b251947faf',
+            subscribeKey: 'sub-c-26bd01b2-c3f2-11e7-a957-6e5a35a6e3d1'
         }, {
-            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });

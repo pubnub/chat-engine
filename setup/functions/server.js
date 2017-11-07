@@ -75,7 +75,7 @@ export default (request, response) => {
                 body: JSON.stringify(request)
             };
 
-            const url = `https://pubsub.pubnub.com/v1/blocks/sub-key/${request.subkey}/auth`;
+            const url = `https://pubsub.pubnub.com/v1/blocks/sub-key/${request.subkey}/chat-engine-auth`;
 
             return xhr.fetch(url, httpOptions).then((res) => {
                 if (res.status === 200) {
