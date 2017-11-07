@@ -14,11 +14,11 @@ export default (request, response) => {
         return who && record && record.length > 0 && record.indexOf(who) > -1;
     };
 
-    let authInChannel = (record, who) => {
+    let authInChannel = (record = [], who) => {
 
         let key = ['authed', proxyBody.chat.channel].join(':');
 
-        record.push(proxyBody.uuid);
+        record.push(who);
         return db.set(key, record, 525600);
     };
 
@@ -33,7 +33,8 @@ export default (request, response) => {
 
         let key = ['authed', proxyBody.chat.channel].join(':');
         db.get(key).then((record) => {
-            if(isAuthed(record, proxyBody.uuid)) {
+
+            if (isAuthed(record, proxyBody.uuid)) {
 
                 return authInChannel(record, proxyBody.to).then(() => {
                     response.status = 200;
@@ -49,8 +50,7 @@ export default (request, response) => {
                 return response.send();
 
             }
-        }).catch((err) => {
-
+        }).catch(() => {
             response.status = 500;
             return response.send();
         });
@@ -66,7 +66,7 @@ export default (request, response) => {
             let key = ['authed', proxyBody.chat.channel].join(':');
             db.get(key).then((record) => {
 
-                if(isAuthed(record, proxyBody.uuid)) {
+                if (isAuthed(record, proxyBody.uuid)) {
 
                     response.status = 200;
                     return response.send();
@@ -77,12 +77,12 @@ export default (request, response) => {
                     return response.send();
                 }
 
-            }).catch((err) => {
+            }).catch(() => {
 
                 return authInChannel(record, proxyBody.uuid).then(() => {
                     response.status = 200;
                     return response.send();
-                }).catch((err) => {
+                }).catch(() => {
                     response.status = 500;
                     return response.send();
                 });
@@ -96,7 +96,7 @@ export default (request, response) => {
     return request.json().then((body) => {
         return response.send(body);
     }).catch(() => {
-        return response.send("Malformed JSON body.");
+        return response.send('Malformed JSON body');
     });
 
 };

@@ -21,14 +21,14 @@ export default (request, response) => {
     const body = JSON.parse(request.body);
 
     function quote(s) {
-      return encodeURIComponent(s).replace(/[!~*'()]/g, (c) => `%${c.charCodeAt(0).toString(16)}`);
+        return encodeURIComponent(s).replace(/[!~*'()]/g, c => `%${c.charCodeAt(0).toString(16)}`);
     }
 
     const signedRequest = (path, options = {}) => {
 
         options.timestamp = Math.floor(Date.now() / 1000);
 
-        const params = Object.keys(options).sort().map((k) => `${k}=${quote(options[k])}`).join('&');
+        const params = Object.keys(options).sort().map(k => `${k}=${quote(options[k])}`).join('&');
         const signString = `${request.subkey}\n${request.pubkey}\n${path}\n${params}`;
 
         return crypto.hmac(base64Codec.btoa(secretKey), signString, crypto.ALGORITHM.HMAC_SHA256).then((signature) => {
@@ -38,7 +38,7 @@ export default (request, response) => {
 
             return xhr.fetch(`https://ps.pndsn.com${path}?${query}`);
 
-        })
+        });
 
     };
 
@@ -62,30 +62,29 @@ export default (request, response) => {
 
         return new Promise((resolve, reject) => {
 
-            const http_options = {
-                "method": "POST",
-                "headers": {
-                    "Content-Type": "application/json"
-                 },
-                "body": JSON.stringify(request)
+            const httpOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request)
             };
 
             const url = `https://pubsub.pubnub.com/v1/blocks/sub-key/${request.subkey}/auth`;
 
-            return xhr.fetch(url, http_options).then((response) => {
-                if(response.status == 200) {
-                    resolve(response);
+            return xhr.fetch(url, httpOptions).then((res) => {
+                if (res.status === 200) {
+                    resolve(res);
                 } else {
-                    reject(response);
+                    reject(res);
                 }
             }).catch((err) => {
-                console.log('err', err)
                 reject(err);
             });
 
         });
 
-    }
+    };
 
     let handleStatus = (status) => {
 
@@ -97,13 +96,13 @@ export default (request, response) => {
             return response.send();
         }
 
-    }
+    };
 
     let handleError = (err) => {
         console.log('PAM Error: ', err);
         response.status = 500;
         return response.send('Internal Server Error');
-    }
+    };
 
     controllers.index.get = () => {
         return response.send(200);
@@ -120,9 +119,7 @@ export default (request, response) => {
             read: true, // false to disallow
             write: false,
             ttl: 0
-        })
-        .then(handleStatus)
-        .catch(handleError);
+        }).then(handleStatus).catch(handleError);
 
     };
 
@@ -137,11 +134,9 @@ export default (request, response) => {
             write: true, // false to disallow
             read: false,
             ttl: 0
-        })
-        .then(handleStatus)
-        .catch(handleError);
+        }).then(handleStatus).catch(handleError);
 
-    }
+    };
 
     controllers.bootstrap.post = () => {
 
@@ -160,9 +155,7 @@ export default (request, response) => {
             write: true, // false to disallow,
             authKeys: [body.authKey],
             ttl: 0
-        })
-        .then(handleStatus)
-        .catch(handleError);
+        }).then(handleStatus).catch(handleError);
 
     };
 
@@ -176,9 +169,7 @@ export default (request, response) => {
             write: true, // false to disallow,
             authKeys: [body.authKey],
             ttl: 0
-        })
-        .then(handleStatus)
-        .catch(handleError);
+        }).then(handleStatus).catch(handleError);
 
     };
 
@@ -206,13 +197,15 @@ export default (request, response) => {
 
         let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
 
-        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {add: body.chat.channel, uuid: body.uuid})
-            .then((serverResponse) => {
-                return response.send();
-            }).catch((err) => {
-                console.log(err)
-                return response.send();
-            });
+        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {
+            add: body.chat.channel,
+            uuid: body.uuid
+        }).then(() => {
+            return response.send();
+        }).catch((err) => {
+            console.log(err);
+            return response.send();
+        });
 
     };
 
@@ -221,19 +214,20 @@ export default (request, response) => {
 
         let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
 
-        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {remove: body.chat.channel, uuid: body.uuid})
-            .then((serverResponse) => {
-                return response.send();
-            }).catch((err) => {
-                console.log(err)
-                return response.send();
-            });
+        return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {
+            remove: body.chat.channel,
+            uuid: body.uuid
+        }).then(() => {
+            return response.send();
+        }).catch(() => {
+            return response.send();
+        });
 
     };
 
     controllers.chat.post = () => {
 
-        db.set('meta:'+body.chat.channel, body.chat, 525600);
+        db.set('meta:' + body.chat.channel, body.chat, 525600);
 
         response.status = 200;
         return response.send();
@@ -242,9 +236,9 @@ export default (request, response) => {
 
     controllers.chat.get = () => {
 
-        return db.get('meta:'+request.params.channel).then((value) => {
+        return db.get('meta:' + request.params.channel).then((value) => {
 
-            if(value) {
+            if (value) {
 
                 return response.send({
                     found: true,
@@ -260,8 +254,7 @@ export default (request, response) => {
 
             }
 
-        }).catch((err) => {
-            console.log(err)
+        }).catch(() => {
             response.status = 500;
             return response.send();
         });
@@ -285,7 +278,7 @@ export default (request, response) => {
             response.status = 200;
             return response.send();
 
-        }).catch((err) => {
+        }).catch(() => {
 
             response.status = 500;
             return response.send();
@@ -307,10 +300,10 @@ export default (request, response) => {
 
         return db.get(key).then((state) => {
             return response.send(state);
-        }).catch((err) => {
+        }).catch(() => {
             response.status = 500;
             return response.send();
-        })
+        });
 
     };
 
@@ -322,10 +315,10 @@ export default (request, response) => {
 
         return authPolicy().then(() => {
             return controllers[route][method]();
-        }).catch((err) => {
+        }).catch(() => {
             response.status = 401;
             return response.send();
-        })
+        });
 
     } else {
         response.status = 404;
