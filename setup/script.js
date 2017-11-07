@@ -35,7 +35,7 @@ provisionElement.submit(() => {
             output += "    subscribeKey: '" + data.sub + "'\n";
             output += "}, {\n";
             output += "    globalChannel: 'global',\n";
-            output += "    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/" + data.sub + "/chat-engine-server'\n";
+            output += "    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/" + data.sub + "/server'\n";
             output += "});\n";
 
             codeElement.text(output);

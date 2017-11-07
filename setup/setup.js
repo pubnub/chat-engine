@@ -139,11 +139,11 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                 key_id: key.id,
                                                 block_id: block.id,
                                                 type: 'js',
-                                                event: 'js-after-publish',
-                                                channels: 'global',
+                                                event: 'js-on-rest',
+                                                path: 'state',
                                                 name: 'get-kv-state',
                                                 code: code,
-                                                output: 'output-get-kv-state-' + Math.round((new Date()).getTime())
+                                                output: 'output-get-kv-state-endpoint-' + Math.round((new Date()).getTime())
                                             }
                                         }, (err, response) => {
 
@@ -162,7 +162,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                         code: code,
                                                         type: 'js',
                                                         name: 'chat-engine-server',
-                                                        path: 'chat-engine-server',
+                                                        path: 'server',
                                                         event: 'js-on-rest',
                                                         output: 'output-server-endpoint-' + Math.round((new Date()).getTime())
                                                     }
@@ -186,9 +186,26 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                             callback('Could not start PubNub Function. Please contact support@pubnub.com.');
                                                         }
 
-                                                        status('Done!');
+                                                        status('Adding Secret Key to Functions Vault...');
 
-                                                        callback(null, { pub: key.publish_key, sub: key.subscribe_key });
+                                                        api.request('put',['api','vault', key.subscribe_key, 'key', 'secretKey?key_id='+key.id], {
+                                                            contentType: 'application/json',
+                                                            data: JSON.stringify({
+                                                                keyName : 'secretKey',
+                                                                key_id : key.id,
+                                                                subscribeKey : key.subscribe_key,
+                                                                value : key.secret_key
+                                                            })
+                                                        }, (err, response) => {
+
+                                                            if (err) {
+                                                                callback('Could not add Secret Key to Functions Vault. Please contact support@pubnub.com');
+                                                            }
+
+                                                            status('Success!');
+
+                                                            callback(null, { pub: key.publish_key, sub: key.subscribe_key });
+                                                        });
                                                     });
                                                 });
 
