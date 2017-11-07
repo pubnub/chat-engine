@@ -118,7 +118,7 @@ export default (request, response) => {
             channels: chanEverybodyR,
             read: true, // false to disallow
             write: false,
-            ttl: 0
+            ttl: 10080
         }).then(handleStatus).catch(handleError);
 
     };
@@ -133,7 +133,7 @@ export default (request, response) => {
             channels: chanEverybodyW,
             write: true, // false to disallow
             read: false,
-            ttl: 0
+            ttl: 10080
         }).then(handleStatus).catch(handleError);
 
     };
@@ -154,7 +154,7 @@ export default (request, response) => {
             read: true, // false to disallow
             write: true, // false to disallow,
             authKeys: [body.authKey],
-            ttl: 0
+            ttl: 10080
         }).then(handleStatus).catch(handleError);
 
     };
@@ -168,7 +168,7 @@ export default (request, response) => {
             read: false, // false to disallow
             write: true, // false to disallow,
             authKeys: [body.authKey],
-            ttl: 0
+            ttl: 10080
         }).then(handleStatus).catch(handleError);
 
     };
@@ -187,7 +187,7 @@ export default (request, response) => {
         return pubnub.grant({
             channelGroups: groups,
             authKeys: [body.authkey],
-            ttl: 0,
+            ttl: 10080,
             read: true
         }).then(handleStatus).catch(handleError);
 
@@ -268,7 +268,7 @@ export default (request, response) => {
             read: true,
             write: true,
             authKeys: [body.authKey],
-            ttl: 0
+            ttl: 10080
         }).then((status) => {
 
             if (status && status.message === 'Success') {

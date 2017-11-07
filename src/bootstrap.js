@@ -263,9 +263,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 ];
 
                 ChatEngine.pubnub.subscribe({
-                    callback: function (m) {
-                        console.log('subscribe cb', m);
-                    },
                     channelGroups: chanGroups,
                     withPresence: true
                 });
