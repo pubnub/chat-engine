@@ -65,7 +65,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                     let key;
 
                     for (let item of apps) {
-                        if (item.id == app.id) {
+                        if (item.id === app.id) {
                             key = item.keys[0];
                         }
                     }
@@ -122,7 +122,7 @@ let Provision = (email, password, callback = function () {}, status = function (
                                         channels: 'global',
                                         name: 'state-to-kv',
                                         code: code,
-                                        output: 'output-0.5823105682419438'
+                                        output: 'output-state-to-kv-' + (new Date()).getTime()
                                     }
                                 }, (err, response) => {
 
@@ -139,11 +139,11 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                 key_id: key.id,
                                                 block_id: block.id,
                                                 type: 'js',
-                                                event: 'js-after-publish',
-                                                channels: 'global',
+                                                event: 'js-on-rest',
+                                                path: 'state',
                                                 name: 'get-kv-state',
                                                 code: code,
-                                                output: 'output-0.5823105682419438'
+                                                output: 'output-get-kv-state-endpoint-' + Math.round((new Date()).getTime())
                                             }
                                         }, (err, response) => {
 
@@ -151,24 +151,65 @@ let Provision = (email, password, callback = function () {}, status = function (
                                                 callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
                                             }
 
-                                            status('Starting Pubnub Function...');
+                                            status('Creating new on-request Event Handler...');
 
-                                            api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
-                                                data: {
-                                                    block_id: block.id,
-                                                    key_id: key.id,
-                                                    action: 'start'
-                                                }
-                                            }, (err, response) => {
+                                            $.get('functions/server.js', (code) => {
 
-                                                if (err) {
-                                                    callback('Could not start PubNub Function. Please contact support@pubnub.com.');
-                                                }
+                                                api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
+                                                    data: {
+                                                        key_id: key.id,
+                                                        block_id: block.id,
+                                                        code: code,
+                                                        type: 'js',
+                                                        name: 'chat-engine-server',
+                                                        path: 'server',
+                                                        event: 'js-on-rest',
+                                                        output: 'output-server-endpoint-' + Math.round((new Date()).getTime())
+                                                    }
+                                                }, (err, response) => {
 
-                                                status('Done!');
+                                                    if (err) {
+                                                        callback('Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.');
+                                                    }
 
-                                                callback(null, { pub: key.publish_key, sub: key.subscribe_key });
-                                            });
+                                                    status('Starting Pubnub Function...');
+
+                                                    api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
+                                                        data: {
+                                                            block_id: block.id,
+                                                            key_id: key.id,
+                                                            action: 'start'
+                                                        }
+                                                    }, (err, response) => {
+
+                                                        if (err) {
+                                                            callback('Could not start PubNub Function. Please contact support@pubnub.com.');
+                                                        }
+
+                                                        status('Adding Secret Key to Functions Vault...');
+
+                                                        api.request('put', ['api', 'vault', key.subscribe_key, 'key', 'secretKey'], {
+                                                            contentType: 'application/json',
+                                                            data: JSON.stringify({
+                                                                keyName: 'secretKey',
+                                                                key_id: key.id,
+                                                                subscribeKey: key.subscribe_key,
+                                                                value: key.secret_key
+                                                            })
+                                                        }, (err, response) => {
+
+                                                            if (err) {
+                                                                callback('Could not add Secret Key to Functions Vault. Please contact support@pubnub.com');
+                                                            }
+
+                                                            status('Success!');
+
+                                                            callback(null, { pub: key.publish_key, sub: key.subscribe_key });
+                                                        });
+                                                    });
+                                                });
+
+                                            }, 'text');
                                         });
                                     }, 'text');
                                 });
@@ -179,4 +220,4 @@ let Provision = (email, password, callback = function () {}, status = function (
             });
         });
     });
-}
+};

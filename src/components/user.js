@@ -39,6 +39,8 @@ class User extends Emitter {
          */
         this.state = {};
 
+        this._stateFetched = false;
+
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -56,7 +58,7 @@ class User extends Emitter {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', 'feed');
+        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -70,14 +72,14 @@ class User extends Emitter {
          * @example
          * // me
          * me.direct.on('private-message', (payload) -> {
-                *     console.log(payload.sender.uuid, 'sent your a direct message');
-                * });
+        *     console.log(payload.sender.uuid, 'sent your a direct message');
+        * });
          *
          * // another instance
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', 'direct');
+        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -87,6 +89,8 @@ class User extends Emitter {
 
         // update this user's state in it's created context
         this.assign(state);
+
+        return this;
 
     }
 
@@ -109,20 +113,19 @@ class User extends Emitter {
         this.update(state);
     }
 
-    _hasState() {
-        return Object.keys(this.state).length > 0;
-    }
-
     /**
     Get stored user state from remote server.
     @private
     */
     _getState(chat, callback) {
-        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
-        axios.get(url)
+
+        this.chatEngine.request('get', 'user_state', { user: this.uuid })
             .then((response) => {
+
                 this.assign(response.data);
+                this._stateFetched = true;
                 callback();
+
             })
             .catch(() => {
                 this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));

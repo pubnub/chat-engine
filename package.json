@@ -53,7 +53,8 @@
     "axios": "^0.16.2",
     "eventemitter2": "^2.2.1",
     "isparta": "^4.0.0",
-    "pubnub": "^4.13.0",
+    "pubnub": "^4.17.0",
+    "pubnub-functions-mock": "^0.0.2",
     "request": "^2.82.0"
   }
 }

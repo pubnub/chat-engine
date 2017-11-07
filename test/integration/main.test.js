@@ -14,6 +14,8 @@ let ChatEngine;
 let ChatEngineYou;
 let globalChannel = 'global';
 
+let username = 'ian' + new Date().getTime();
+
 let examplePlugin = () => {
 
     class extension {
@@ -53,13 +55,17 @@ describe('config', () => {
     it('should be configured', () => {
 
         ChatEngine = ChatEngineCore.create({
-            publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
-            subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
+            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
+            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
         }, {
-            endpoint: 'http://localhost:3000/insecure',
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });
+
+        // ChatEngine.onAny((a,b) => {
+        //     console.log(a, b)
+        // })
 
         assert.isOk(ChatEngine);
 
@@ -73,7 +79,7 @@ describe('connect', () => {
 
     it('should be identified as new user', function beIdentified(done) {
 
-        this.timeout(4000);
+        this.timeout(6000);
 
         ChatEngine.on('$.ready', (data) => {
 
@@ -83,7 +89,7 @@ describe('connect', () => {
             done();
         });
 
-        ChatEngine.connect('ian', { works: true }, 'ian-authtoken');
+        ChatEngine.connect(username, { works: true }, username);
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
@@ -94,13 +100,13 @@ describe('connect', () => {
 
     it('should notify chatengine on created', function join(done) {
 
-        this.timeout(4000);
+        this.timeout(6000);
 
         ChatEngine.on('$.created.chat', (data, source) => {
 
             assert.isObject(source);
 
-            if (source.channel === 'global#chat#private.#this-is-only-a-test-3') {
+            if (source.channel === globalChannel + '#chat#private.#this-is-only-a-test-3') {
                 done();
             }
 
@@ -129,9 +135,12 @@ describe('connect', () => {
 
     });
 
-    it('should notify chatengine on disconnected', (done) => {
+    it('should notify chatengine on disconnected', function disconnected(done) {
 
-        ChatEngine.once('$.disconnected', (data, source) => {
+        this.timeout(4000)
+
+        ChatEngine.on('$.disconnected', (data, source) => {
+
             assert.isObject(source);
             if (source.channel === createdEventChat2.channel) {
                 done();
@@ -159,14 +168,17 @@ describe('chat', () => {
 
         chat = new ChatEngine.Chat('chat-teser');
 
-        chat.once('$.online.*', (p) => {
-            assert(p.user.uuid === ChatEngine.me.uuid, 'this online event is me');
-            done();
+        chat.on('$.online.*', (p) => {
+
+            if (p.user.uuid === ChatEngine.me.uuid) {
+                done();
+            }
+
         });
 
     });
 
-    it('should get ready callback', function getReadyCallback(done) {
+    it('should get connected callback', function getReadyCallback(done) {
 
         this.timeout(5000);
 
@@ -227,6 +239,20 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
+        // let i = 0;
+        // while (i < 200) {
+
+        //     chatHistory.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
+
+        //     i += 1;
+
+        // }
+
         chatHistory.search({
             event: 'tester',
             limit: 50
@@ -242,6 +268,7 @@ describe('history', () => {
         });
 
     });
+
     it('should get 200 messages', function get200(done) {
 
         let count = 0;
@@ -249,6 +276,20 @@ describe('history', () => {
         this.timeout(10000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+
+        // let i = 0;
+        // while (i < 200) {
+
+        //     chatHistory2.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory2.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
+
+        //     i += 1;
+
+        // }
 
         chatHistory2.search({
             event: 'tester',
@@ -286,66 +327,68 @@ describe('history', () => {
 let ChatEngineClone;
 let syncChat;
 
+let newChannel = 'sync-chat' + new Date().getTime();
+
 describe('remote chat list', () => {
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
         this.timeout(10000);
 
-        // first instance looking or new chats
-        ChatEngine.me.once('$.session.chat.join', () => {
-            done();
-        });
-
-        // create a new chat within some other instance
         ChatEngineClone = ChatEngineCore.create({
-            publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
-            subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
+            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
+            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
         }, {
-            endpoint: 'http://localhost:3000/insecure',
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });
 
-        ChatEngineClone.connect('ian', { works: true }, 'ian-authtoken');
+        ChatEngineClone.connect(username, { works: true }, username);
+
+        // first instance looking or new chats
+        ChatEngine.me.on('$.session.chat.join', (payload) => {
+
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+                done();
+            }
+
+        });
 
         ChatEngineClone.on('$.ready', () => {
-            syncChat = new ChatEngineClone.Chat('some channel' + new Date().getTime(), true, true);
+
+            syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+
         });
-
-    });
-
-    it('should keep delete in sync', function deleteSync(done) {
-
-        this.timeout(10000);
-
-        ChatEngine.me.once('$.session.chat.leave', () => {
-
-            setTimeout(() => {
-
-                assert.isUndefined(ChatEngine.chats[syncChat.channel]);
-                assert.isUndefined(ChatEngine.me.session.default[syncChat.channel]);
-
-            }, 1000);
-
-            done();
-        });
-
-        setTimeout(() => {
-
-            syncChat.leave();
-
-        }, 1000);
-
 
     });
 
     it('should be populated', (done) => {
 
-        assert.isObject(ChatEngine.me.session.global);
-        assert.isObject(ChatEngine.me.session.default);
+        assert.isObject(ChatEngine.me.session.system);
+        assert.isObject(ChatEngine.me.session.custom);
         // assert.isObject(ChatEngine.me.session.fixed);
         done();
+
+    });
+
+    it('should get delete event', function deleteSync(done) {
+
+        this.timeout(10000);
+
+        ChatEngine.me.on('$.session.chat.leave', (payload) => {
+
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+
+                done();
+            }
+
+        });
+
+        setTimeout(() => {
+            syncChat.leave();
+        }, 3000);
+
 
     });
 
@@ -355,19 +398,24 @@ let myChat;
 
 let yourChat;
 
+let privChannel = 'secret-channel-' + new Date().getTime();
+
 describe('invite', () => {
 
-    it('should be created', (done) => {
+    it('should be created', function createIt(done) {
+
+        this.timeout(5000);
 
         ChatEngineYou = ChatEngineCore.create({
-            publishKey: 'pub-c-c6303bb2-8bf8-4417-aac7-e83b52237ea6',
-            subscribeKey: 'sub-c-67db0e7a-50be-11e7-bf50-02ee2ddab7fe',
+            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
+            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
         }, {
-            endpoint: 'http://localhost:3000/insecure',
-            globalChannel
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
+            globalChannel,
+            throwErrors: false
         });
 
-        ChatEngineYou.connect('stephen', { works: true }, 'stephen-authtoken');
+        ChatEngineYou.connect('stephen' + new Date().getTime(), { works: true }, 'stephen-authtoken');
 
         ChatEngineYou.on('$.ready', () => {
             done();
@@ -377,7 +425,7 @@ describe('invite', () => {
 
     it('should create chat', (done) => {
 
-        yourChat = new ChatEngineYou.Chat('secret-channel-');
+        yourChat = new ChatEngineYou.Chat(privChannel);
 
         yourChat.on('$.connected', () => {
             done();
@@ -388,8 +436,6 @@ describe('invite', () => {
     it('should invite other users', (done) => {
 
         me.direct.on('$.invite', (payload) => {
-
-            assert.isObject(payload.chat);
 
             myChat = new ChatEngine.Chat(payload.data.channel);
 
@@ -409,6 +455,7 @@ describe('invite', () => {
         this.timeout(5000);
 
         yourChat.on('message', (payload) => {
+
             assert.equal(payload.data.text, 'sup?');
             done();
         });
@@ -423,7 +470,7 @@ describe('invite', () => {
 
         this.timeout(10000);
 
-        let targetChan = 'super-secret-channel-';
+        let targetChan = 'super-secret-channel-' + new Date().getTime();
 
         let yourSecretChat = new ChatEngineYou.Chat(targetChan);
 

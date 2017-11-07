@@ -6,13 +6,14 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
+const async = require('async');
 
 /**
  @class ChatEngine
  @extends RootEmitter
  @return {ChatEngine} Returns an instance of {@link ChatEngine}
  */
-module.exports = (ceConfig, pnConfig) => {
+module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     // Create the root ChatEngine object
     let ChatEngine = new RootEmitter();
@@ -63,12 +64,6 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.ready = false;
 
     /**
-    * A map of {@link Chat}s that this instance of ChatEngine is representing.
-    * @type {Object}
-    */
-    ChatEngine.session = {};
-
-    /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
      */
@@ -78,6 +73,7 @@ module.exports = (ceConfig, pnConfig) => {
 
         if (ceConfig.throwErrors) {
             // throw ceError;
+            console.error(payload);
             throw ceError;
         }
 
@@ -86,6 +82,12 @@ module.exports = (ceConfig, pnConfig) => {
         self[cb](['$', 'error', key].join('.'), payload);
 
     };
+
+    if (ceConfig.debug) {
+        ChatEngine.onAny((event, payload) => {
+            console.info('debug:', event, payload);
+        });
+    }
 
     ChatEngine.protoPlugins = {};
 
@@ -98,6 +100,44 @@ module.exports = (ceConfig, pnConfig) => {
     ChatEngine.proto = (className, plugin) => {
         ChatEngine.protoPlugins[className] = ChatEngine.protoPlugins[className] || [];
         ChatEngine.protoPlugins[className].push(plugin);
+    };
+
+    ChatEngine.request = (method, route, inputBody = {}, inputParams = {}) => {
+
+        let body = {
+            uuid: pnConfig.uuid,
+            global: ceConfig.globalChannel,
+            authData: ChatEngine.me.authData,
+            authKey: pnConfig.authKey
+        };
+
+        let params = {
+            route
+        };
+
+        body = Object.assign(body, inputBody);
+        params = Object.assign(params, inputParams);
+
+        if (method === 'get' || method === 'delete') {
+            params = Object.assign(params, body);
+            return axios[method](ceConfig.endpoint, { params });
+        } else {
+            return axios[method](ceConfig.endpoint, body, { params });
+        }
+
+
+    };
+
+    ChatEngine.parseChannel = (channel) => {
+
+        let info = channel.split('#');
+
+        return {
+            global: info[0],
+            type: info[1],
+            private: info[2] === 'private.'
+        };
+
     };
 
     /**
@@ -145,13 +185,46 @@ module.exports = (ceConfig, pnConfig) => {
 
         pnConfig.authKey = authKey || pnConfig.uuid;
 
+        let restoreSession = () => {
+
+            let groups = ['custom', 'rooms', 'system'];
+
+            groups.forEach((group) => {
+
+                let channelGroup = [ceConfig.globalChannel, pnConfig.uuid, group].join('#');
+
+                ChatEngine.pubnub.channelGroups.listChannels({
+                    channelGroup
+                }, (status, response) => {
+
+                    if (status.error) {
+                        console.log('operation failed w/ error:', status);
+                        return;
+                    }
+
+                    response.channels.forEach((channel) => {
+
+                        ChatEngine.me.addChatToSession({
+                            channel,
+                            private: ChatEngine.parseChannel(channel).private,
+                            group
+                        });
+
+                    });
+
+                });
+
+            });
+
+        };
+
         let complete = (chatData) => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
             // create a new chat to use as global chat
             // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, 'global');
+            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
 
             // build the current user
             ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
@@ -167,22 +240,37 @@ module.exports = (ceConfig, pnConfig) => {
             */
             ChatEngine.me.onConstructed();
 
-            /**
-             *  Fired when ChatEngine is connected to the internet and ready to go!
-             * @event ChatEngine#$"."ready
-             * @example
-             * ChatEngine.on('$.ready', (data) => {
-             *     let me = data.me;
-             * })
-             */
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
-            });
+            ChatEngine.global.on('$.connected', () => {
 
-            ChatEngine.ready = true;
+                /**
+                 *  Fired when ChatEngine is connected to the internet and ready to go!
+                 * @event ChatEngine#$"."ready
+                 * @example
+                 * ChatEngine.on('$.ready', (data) => {
+                 *     let me = data.me;
+                 * })
+                 */
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
+                });
 
-            chatData.forEach((chatItem) => {
-                ChatEngine.me.addChatToSession(chatItem);
+                ChatEngine.global.getUserUpdates();
+
+                let chanGroups = [
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
+                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+                ];
+
+                ChatEngine.pubnub.subscribe({
+                    channelGroups: chanGroups,
+                    withPresence: true
+                });
+
+                ChatEngine.ready = true;
+
+                restoreSession();
+
             });
 
             /**
@@ -285,38 +373,30 @@ module.exports = (ceConfig, pnConfig) => {
             });
         };
 
-        let getChats = () => {
-
-            axios.get(ceConfig.endpoint + '/chats?uuid=' + pnConfig.uuid)
-                .then((response) => { complete(response.data); })
-                .catch((error) => {
-
-                    /**
-                     * There was a problem retrieving your session from the server.
-                     * @event ChatEngine#$"."error"."session
-                     */
-                    ChatEngine.throwError(ChatEngine, '_emit', 'session', new Error('There was a problem getting session from the server (' + ceConfig.endpoint + ').'), {
-                        error
-                    });
-
-                });
-        };
-
-        axios.post(ceConfig.endpoint + '/grant', {
-            uuid: pnConfig.uuid,
-            channel: ceConfig.globalChannel,
-            authData: ChatEngine.me.authData,
-            authKey: pnConfig.authKey
-        })
-            .then((response) => { getChats(response.data); })
-            .catch((error) => {
-
-                /**
-                 * There was a problem logging in to the server.
-                 * @event ChatEngine#$"."error"."auth
-                 */
+        async.parallel([
+            (next) => {
+                ChatEngine.request('post', 'bootstrap').then(() => {
+                    next(null);
+                }).catch(next);
+            },
+            (next) => {
+                ChatEngine.request('post', 'user_read').then(() => {
+                    next(null);
+                }).catch(next);
+            },
+            (next) => {
+                ChatEngine.request('post', 'user_write').then(() => {
+                    next(null);
+                }).catch(next);
+            },
+            (next) => {
+                ChatEngine.request('post', 'group').then(complete).catch(next);
+            }
+        ], (error) => {
+            if (error) {
                 ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
-            });
+            }
+        });
 
     };
 

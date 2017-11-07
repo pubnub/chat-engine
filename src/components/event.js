@@ -35,6 +35,8 @@ class Event {
             message: this.onMessage.bind(this)
         });
 
+        return this;
+
     }
 
     onMessage(m) {

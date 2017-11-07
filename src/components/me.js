@@ -30,13 +30,17 @@ class Me extends User {
          */
         this.session = {};
 
-        this.direct.on('$.server.chat.created', (payload) => {
-            this.addChatToSession(payload.chat);
+        this.sync = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
+
+        this.sync.on('$.session.chat.join', (payload) => {
+            this.addChatToSession(payload.data.subject);
         });
 
-        this.direct.on('$.server.chat.deleted', (payload) => {
-            this.removeChatFromSession(payload.chat);
+        this.sync.on('$.session.chat.leave', (payload) => {
+            this.removeChatFromSession(payload.data.subject);
         });
+
+        return this;
 
     }
 
@@ -77,7 +81,7 @@ class Me extends User {
     */
     addChatToSession(chat) {
 
-        // create the chat if it doesn't exist
+        // create the chat group if it doesn't exist
         this.session[chat.group] = this.session[chat.group] || {};
 
         // check the chat exists within the global list but is not grouped
@@ -88,8 +92,9 @@ class Me extends User {
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;
         } else {
+
             // otherwise, try to recreate it with the server information
-            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.group);
+            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
 
             /**
             Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
@@ -106,9 +111,12 @@ class Me extends User {
             * // Logged in as "Ian" in second window
             * new ChatEngine.Chat('another-chat');
             */
-            this.trigger('$.session.chat.join', {
-                chat: this.session[chat.group][chat.channel]
-            });
+            // this.trigger('$.session.chat.join', {
+            //     chat: this.session[chat.group][chat.channel]
+            // });
+            //
+            this.trigger('$.session.chat.join', { chat: this.session[chat.group][chat.channel] });
+
         }
 
     }
@@ -121,22 +129,18 @@ class Me extends User {
 
         if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
 
-            let targetChat = this.session[chat.group][chat.channel] || chat;
+            chat = this.session[chat.group][chat.channel] || chat;
 
             /**
             * Fired when another identical instance of {@link ChatEngine} with an identical {@link Me} leaves a {@link Chat} via {@link Chat#leave}.
             * @event Me#$"."session"."chat"."leave
             */
-            this.trigger('$.session.chat.leave', {
-                chat: targetChat
-            });
 
-            // don't delete from chatengine.chats, because we can still get events from this chat
             delete this.chatEngine.chats[chat.channel];
             delete this.session[chat.group][chat.channel];
 
-        } else {
-            this.chatEngine.throwError(this, 'trigger', 'removeChat', new Error('Trying to remove a chat from session, but chat or group does not exist.'));
+            this.trigger('$.session.chat.leave', { chat });
+
         }
 
     }

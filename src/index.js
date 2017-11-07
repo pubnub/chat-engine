@@ -20,6 +20,7 @@ ChatEngine = ChatEngineCore.create({
     globalChannel: 'chat-engine-global-channel'
 });
 */
+
 const create = (pnConfig, ceConfig = {}) => {
 
     if (ceConfig.globalChannel) {

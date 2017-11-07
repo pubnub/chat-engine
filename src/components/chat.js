@@ -1,8 +1,6 @@
-const axios = require('axios');
-
+const async = require('async');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
-const User = require('../components/user');
 const Search = require('../components/search');
 
 /**
@@ -22,13 +20,17 @@ const Search = require('../components/search');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel, isPrivate = true, autoConnect = true, group = 'default') {
+    constructor(chatEngine, channel = new Date().getTime(), isPrivate = true, autoConnect = true, meta = {}, group = 'custom') {
 
         super(chatEngine);
 
         this.chatEngine = chatEngine;
 
         this.name = 'Chat';
+
+        this.meta = meta;
+
+        this.group = group;
 
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
@@ -43,14 +45,17 @@ class Chat extends Emitter {
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
-        this.channel = this.chatEngine.augmentChannel(channel, isPrivate);
+
+        this.meta = {};
 
         /**
-        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
-        * @type String
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
+        * @type Boolean
         * @readonly
         */
-        this.group = group;
+        this.isPrivate = isPrivate;
+
+        this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -67,11 +72,13 @@ class Chat extends Emitter {
          */
         this.connected = false;
 
+        this.chatEngine.chats[this.channel] = this;
+
         if (autoConnect) {
             this.connect();
         }
 
-        this.chatEngine.chats[this.channel] = this;
+        return this;
 
     }
 
@@ -116,7 +123,8 @@ class Chat extends Emitter {
         return {
             channel: this.channel,
             group: this.group,
-            private: this.isPrivate
+            private: this.isPrivate,
+            meta: this.meta
         };
 
     }
@@ -137,44 +145,37 @@ class Chat extends Emitter {
      */
     invite(user) {
 
-        let complete = () => {
-
-            let send = () => {
-
-                /**
-                 * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
-                 * Fired by the {@link Chat#invite} method.
-                 * @event Me#$"."invite
-                 * @tutorial private
-                 * @example
-                 * me.direct.on('$.invite', (payload) => {
-                              *    let privChat = new ChatEngine.Chat(payload.data.channel));
-                              * });
-                 */
-                user.direct.emit('$.invite', {
-                    channel: this.channel
-                });
-
-            };
-
-            if (!user.direct.connected) {
-                user.direct.connect();
-                user.direct.on('$.connected', send);
-            } else {
-                send();
-            }
-
-        };
-
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: user.uuid,
-            myUUID: this.chatEngine.me.uuid,
-            authData: this.chatEngine.me.authData,
+        this.chatEngine.request('post', 'invite', {
+            to: user.uuid,
             chat: this.objectify()
         })
             .then(() => {
-                complete();
+
+                let send = () => {
+
+                    /**
+                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                     * Fired by the {@link Chat#invite} method.
+                     * @event Me#$"."invite
+                     * @tutorial private
+                     * @example
+                     * me.direct.on('$.invite', (payload) => {
+                     *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                     * });
+                     */
+                    user.direct.emit('$.invite', {
+                        channel: this.channel
+                    });
+
+                };
+
+                if (!user.direct.connected) {
+                    user.direct.connect();
+                    user.direct.on('$.connected', send);
+                } else {
+                    send();
+                }
+
             })
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
@@ -237,78 +238,18 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     * @private
-     */
-    onPrep() {
+    update(data) {
 
-        if (!this.connected) {
+        let oldMeta = this.meta || {};
+        this.meta = Object.assign(oldMeta, data);
 
-            if (!this.chatEngine.pubnub) {
-                this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
-            }
-
-            // this will trigger ready callbacks
-
-            // subscribe to the PubNub channel for this Chat
-            this.chatEngine.pubnub.subscribe({
-                channels: [this.channel],
-                withPresence: true
-            });
-
-        }
-
-    }
-
-    /**
-     * @private
-     */
-    grant() {
-
-        let createChat = () => {
-
-            axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            })
-                .then(() => {
-                    this.onPrep();
-                })
-                .catch((error) => {
-                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-                });
-        };
-
-        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
-            globalChannel: this.chatEngine.ceConfig.globalChannel,
-            authKey: this.chatEngine.pnConfig.authKey,
-            uuid: this.chatEngine.pnConfig.uuid,
-            authData: this.chatEngine.me.authData,
+        this.chatEngine.request('post', 'chat', {
             chat: this.objectify()
-        })
-            .then(() => {
-                createChat();
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            });
+        }).then(() => {
+        }).catch((error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        });
 
-    }
-
-    /**
-     * Connect to PubNub servers to initialize the chat.
-     * @example
-     * // create a new chatroom, but don't connect to it automatically
-     * let chat = new Chat('some-chat', false)
-     *
-     * // connect to the chat when we feel like it
-     * chat.connect();
-     */
-    connect() {
-        this.grant();
     }
 
     /**
@@ -321,8 +262,8 @@ class Chat extends Emitter {
      * @example
      * chat.emit('custom-event', {value: true});
      * chat.on('custom-event', (payload) => {
-          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
-          * });
+      *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
+      * });
      */
     emit(event, data) {
         if (event === 'message' && typeof data !== 'object') {
@@ -371,7 +312,7 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         this.chatEngine.users[uuid].assign(state);
 
@@ -416,7 +357,7 @@ class Chat extends Emitter {
     userUpdate(uuid, state) {
 
         // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         // if we don't know about this user
         if (!this.users[uuid]) {
@@ -459,24 +400,19 @@ class Chat extends Emitter {
             channels: [this.channel]
         });
 
-        // delete the chat in the remote list
-        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
-            data: {
-                globalChannel: this.chatEngine.ceConfig.globalChannel,
-                authKey: this.chatEngine.pnConfig.authKey,
-                uuid: this.chatEngine.pnConfig.uuid,
-                authData: this.chatEngine.me.authData,
-                chat: this.objectify()
-            } })
-            .then(() => {})
+        this.chatEngine.request('post', 'leave', { chat: this.objectify() })
+            .then(() => {
+
+                this.connected = false;
+
+                this.trigger('$.disconnected');
+
+                this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
+
+            })
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
             });
-
-
-        this.connected = false;
-
-        this.trigger('$.disconnected');
 
     }
 
@@ -602,7 +538,17 @@ class Chat extends Emitter {
          */
         this.trigger('$.connected');
 
+        this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
+
         this.connected = true;
+
+        if (this.channel !== this.chatEngine.global.channel) {
+            this.getUserUpdates();
+        }
+
+    }
+
+    getUserUpdates() {
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
@@ -615,6 +561,66 @@ class Chat extends Emitter {
         // listen to all PubNub events for this Chat
         this.chatEngine.pubnub.addListener({
             presence: this.onPresence.bind(this)
+        });
+
+    }
+
+    /**
+     * Connect to PubNub servers to initialize the chat.
+     * @example
+     * // create a new chatroom, but don't connect to it automatically
+     * let chat = new Chat('some-chat', false)
+     *
+     * // connect to the chat when we feel like it
+     * chat.connect();
+     */
+    connect() {
+
+        async.waterfall([
+            (next) => {
+                if (!this.chatEngine.pubnub) {
+                    next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
+                } else {
+                    next();
+                }
+            },
+            (next) => {
+
+                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
+                    .then(() => {
+                        next();
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                this.chatEngine.request('post', 'join', { chat: this.objectify() })
+                    .then(() => {
+                        this.onConnectionReady();
+                    })
+                    .catch(next);
+
+            },
+            (next) => {
+
+                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+                    .then((response) => {
+
+                        if (response.data.found) {
+                            this.meta = response.data.chat.meta;
+                        } else {
+                            this.update(this.meta);
+                        }
+
+                        next();
+
+                    })
+                    .catch(next);
+
+            }
+        ], (error) => {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
         });
 
     }
