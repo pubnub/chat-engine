@@ -597,7 +597,7 @@ class Chat extends Emitter {
 
                 this.chatEngine.request('post', 'join', { chat: this.objectify() })
                     .then(() => {
-                        this.onConnectionReady();
+                        next();
                     })
                     .catch(next);
 
@@ -613,7 +613,7 @@ class Chat extends Emitter {
                             this.update(this.meta);
                         }
 
-                        next();
+                        this.onConnectionReady();
 
                     })
                     .catch(next);

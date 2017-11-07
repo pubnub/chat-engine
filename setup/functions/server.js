@@ -279,7 +279,8 @@ export default (request, response) => {
         let key = request.params.global + ':' + request.params.user + ':state';
 
         return db.get(key).then((state) => {
-            return response.send(state);
+            response.status = 200;
+            return response.send(state || {});
         }).catch(() => {
             response.status = 500;
             return response.send();
