@@ -24,8 +24,8 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
           block_id: block.id,
           type: 'js',
           event: 'js-after-presence',
-          channels: 'global',
-          name: 'state-to-kv',
+          channels: 'chat-engine-global',
+          name: 'chat-engine-state',
           code: code,
           output: 'output-state-to-kv-' + (new Date()).getTime()
         }
@@ -45,8 +45,8 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
               block_id: block.id,
               type: 'js',
               event: 'js-on-rest',
-              path: 'auth',
-              name: 'auth',
+              path: 'chat-engine-auth',
+              name: 'chat-engine-auth',
               code: code,
               output: 'auth-' + Math.round((new Date()).getTime())
             }
@@ -67,7 +67,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
                   code: code,
                   type: 'js',
                   name: 'chat-engine-server',
-                  path: 'server',
+                  path: 'chat-engine-server',
                   event: 'js-on-rest',
                   output: 'output-server-endpoint-' + Math.round((new Date()).getTime())
                 }

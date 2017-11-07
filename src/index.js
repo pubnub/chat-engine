@@ -15,9 +15,6 @@ Global object used to create an instance of {@link ChatEngine}.
 ChatEngine = ChatEngineCore.create({
     publishKey: 'demo',
     subscribeKey: 'demo'
-}, {
-    endpoint: 'http://localhost/auth',
-    globalChannel: 'chat-engine-global-channel'
 });
 */
 

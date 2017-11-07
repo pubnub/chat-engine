@@ -21,6 +21,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig = ceConfig;
     ChatEngine.pnConfig = pnConfig;
 
+    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
+    ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
+
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
      * @type {Object}
