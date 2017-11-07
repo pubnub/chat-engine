@@ -125,7 +125,7 @@ onSetup = function() {
   errorElement.hide();
   statusElement.empty();
 
-  Provision(client, userId, onProvisionSuccess, displayStatus);
+  ProvisionAccount(client, userId, onProvisionSuccess, displayStatus);
 
   return false;
 }
