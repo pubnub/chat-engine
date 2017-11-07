@@ -239,19 +239,19 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        let i = 0;
-        while (i < 200) {
+        // let i = 0;
+        // while (i < 200) {
 
-            chatHistory.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     chatHistory.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-            i += 1;
+        //     i += 1;
 
-        }
+        // }
 
         chatHistory.search({
             event: 'tester',
@@ -277,20 +277,19 @@ describe('history', () => {
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
+        // let i = 0;
+        // while (i < 200) {
 
-        let i = 0;
-        while (i < 200) {
+        //     chatHistory2.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory2.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     i += 1;
 
-            i += 1;
-
-        }
+        // }
 
         chatHistory2.search({
             event: 'tester',
