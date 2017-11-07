@@ -37,7 +37,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
 
         status('Creating new after-publish Event Handler...');
 
-        $.get('functions/get-kv-state.js', (code) => {
+        $.get('functions/auth.js', (code) => {
 
           api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
             data: {
@@ -45,10 +45,10 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
               block_id: block.id,
               type: 'js',
               event: 'js-on-rest',
-              path: 'state',
-              name: 'get-kv-state',
+              path: 'auth',
+              name: 'auth',
               code: code,
-              output: 'output-get-kv-state-endpoint-' + Math.round((new Date()).getTime())
+              output: 'auth-' + Math.round((new Date()).getTime())
             }
           }, (err, response) => {
 

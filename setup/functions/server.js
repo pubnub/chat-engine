@@ -6,8 +6,7 @@ export default (request, response) => {
     const crypto = require('crypto');
     const queryStringCodec = require('codec/query_string');
     const base64Codec = require('codec/base64');
-
-    const secretKey = 'sec-c-YmZkYmNhMzEtZjc0YS00MWRhLTliOTMtZjFlZTJjZjU2NjU2';
+    const vault = require('vault');
 
     response.headers['Access-Control-Allow-Origin'] = '*';
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
@@ -17,6 +16,8 @@ export default (request, response) => {
     // Execute the controller function in the controllers object
     const route = request.params.route;
     const method = request.method.toLowerCase();
+
+    console.log(route, method)
 
     const body = JSON.parse(request.body);
 
@@ -31,13 +32,22 @@ export default (request, response) => {
         const params = Object.keys(options).sort().map(k => `${k}=${quote(options[k])}`).join('&');
         const signString = `${request.subkey}\n${request.pubkey}\n${path}\n${params}`;
 
-        return crypto.hmac(base64Codec.btoa(secretKey), signString, crypto.ALGORITHM.HMAC_SHA256).then((signature) => {
+        return vault.get('secretKey').then((secretKey) => {
 
-            options.signature = signature;
-            const query = queryStringCodec.stringify(options);
+            console.log(secretKey)
 
-            return xhr.fetch(`https://ps.pndsn.com${path}?${query}`);
+            return crypto.hmac(base64Codec.btoa(secretKey), signString, crypto.ALGORITHM.HMAC_SHA256).then((signature) => {
 
+                options.signature = signature;
+                const query = queryStringCodec.stringify(options);
+
+                return xhr.fetch(`https://ps.pndsn.com${path}?${query}`);
+
+            });
+
+        }).catch(() => {
+            response.status = 500;
+            return response.send('Internal Server Error');
         });
 
     };
