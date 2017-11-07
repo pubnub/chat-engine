@@ -202,8 +202,8 @@ export default (request, response) => {
             uuid: body.uuid
         }).then(() => {
             return response.send();
-        }).catch((err) => {
-            console.log(err);
+        }).catch(() => {
+            response.status = 500;
             return response.send();
         });
 
@@ -220,6 +220,7 @@ export default (request, response) => {
         }).then(() => {
             return response.send();
         }).catch(() => {
+            response.status = 500;
             return response.send();
         });
 
@@ -227,10 +228,12 @@ export default (request, response) => {
 
     controllers.chat.post = () => {
 
-        db.set('meta:' + body.chat.channel, body.chat, 525600);
-
-        response.status = 200;
-        return response.send();
+        return db.set('meta:' + body.chat.channel, body.chat, 525600).then(() => {
+            return response.send();
+        }).catch(() => {
+            response.status = 500;
+            return response.send();
+        });
 
     };
 
@@ -269,21 +272,7 @@ export default (request, response) => {
             write: true,
             authKeys: [body.authKey],
             ttl: 10080
-        }).then((status) => {
-
-            if (status && status.message === 'Success') {
-                return response.send();
-            }
-
-            response.status = 200;
-            return response.send();
-
-        }).catch(() => {
-
-            response.status = 500;
-            return response.send();
-
-        });
+        }).then(handleStatus).catch(handleError);
 
     };
 

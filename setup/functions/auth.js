@@ -14,7 +14,7 @@ export default (request, response) => {
         return who && record && record.length > 0 && record.indexOf(who) > -1;
     };
 
-    let authInChannel = (record = [], who) => {
+    let authInChannel = (record, who) => {
 
         let key = ['authed', proxyBody.chat.channel].join(':');
 
@@ -79,7 +79,7 @@ export default (request, response) => {
 
             }).catch(() => {
 
-                return authInChannel(record, proxyBody.uuid).then(() => {
+                return authInChannel([], proxyBody.uuid).then(() => {
                     response.status = 200;
                     return response.send();
                 }).catch(() => {
