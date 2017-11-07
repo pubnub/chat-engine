@@ -1,4 +1,4 @@
-let ProvisionBlocks = (api, userId, key, callback = function() {}, status = function() {}) => {
+var ProvisionBlocks = function (api, userId, key, callback = function() {}, status = function() {}) {
 
   var block = null;
 
@@ -15,7 +15,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
         subscribeKey: key.subscribe_key,
         value: key.secret_key
       })
-    }, (err, response) => {
+    }, function (err, response) {
 
       if (err) {
         callback('Could not add Secret Key to Functions Vault. Please contact support@pubnub.com');
@@ -40,7 +40,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
         key_id: key.id,
         action: 'start'
       }
-    }, (err, response) => {
+    }, function (err, response) {
       if (err) {
         callback('Could not start PubNub Function. Please contact support@pubnub.com.');
         return;
@@ -64,7 +64,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
         code: stateCodeResult[0],
         output: 'output-state-to-kv-' + (new Date()).getTime()
       }
-    }, (err, response) => {
+    }, function (err, response) {
       if (err) {
         callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
       }
@@ -80,7 +80,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
           code: authCodeResult[0],
           output: 'auth-' + Math.round((new Date()).getTime())
         }
-      }, (err, response) => {
+      }, function (err, response) {
         if (err) {
           callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
         }
@@ -98,7 +98,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
             event: 'js-on-rest',
             output: 'output-server-endpoint-' + Math.round((new Date()).getTime())
           }
-        }, (err, response) => {
+        }, function (err, response) {
           if (err) {
             callback('Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.');
             return;
@@ -115,7 +115,7 @@ let ProvisionBlocks = (api, userId, key, callback = function() {}, status = func
       name: 'ChatEngine Function',
       key_id: key.id
     }
-  }, (err, response) => {
+  }, function (err, response) {
 
     if (err) {
       callback('Could not create new PubNub Function. Please contact support@pubnub.com.');
