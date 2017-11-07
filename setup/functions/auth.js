@@ -1,13 +1,6 @@
 export default (request, response) => {
 
     const db = require('kvstore');
-    const pubnub = require('pubnub');
-    const xhr = require('xhr');
-    const crypto = require('crypto');
-    const queryStringCodec = require('codec/query_string');
-    const base64Codec = require('codec/base64');
-
-    const secretKey = 'sec-c-ZjVlYmI3MTktMjQ0OS00YzUyLWI5ZDgtY2JmZmViZWE2MzAy';
 
     response.headers['Access-Control-Allow-Origin'] = '*';
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
@@ -40,7 +33,7 @@ export default (request, response) => {
 
         });
 
-    }
+    };
 
     let authInChannel = (record, who) => {
 
@@ -48,11 +41,11 @@ export default (request, response) => {
 
         record.push(proxyBody.uuid);
         return db.set(key, record, 525600);
-    }
+    };
 
-    if(proxyParams.route == 'invite') {
+    if (proxyParams.route === 'invite') {
 
-        if(!proxyBody.chat.private) {
+        if (!proxyBody.chat.private) {
             response.status = 200;
             return response.send();
         }
@@ -79,9 +72,9 @@ export default (request, response) => {
 
     }
 
-    if(proxyParams.route == 'grant') {
+    if (proxyParams.route === 'grant') {
 
-        if(!proxyBody.chat.private) {
+        if (!proxyBody.chat.private) {
             response.status = 200;
             return response.send();
         }
@@ -95,7 +88,7 @@ export default (request, response) => {
 
         }).catch((record) => {
 
-            if(!record.length) {
+            if (!record.length) {
 
                 console.log('!!!!', 'The auth list is empty, so permit them');
 
@@ -121,7 +114,7 @@ export default (request, response) => {
 
     return request.json().then((body) => {
         return response.send(body);
-    }).catch((err) => {
+    }).catch(() => {
         // console.log(err)
         return response.send("Malformed JSON body.");
     });
