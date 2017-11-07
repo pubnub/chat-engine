@@ -55,13 +55,17 @@ describe('config', () => {
     it('should be configured', () => {
 
         ChatEngine = ChatEngineCore.create({
-            publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
-            subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
+            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
+            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
         }, {
-            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });
+
+        // ChatEngine.onAny((a,b) => {
+        //     console.log(a, b)
+        // })
 
         assert.isOk(ChatEngine);
 
@@ -332,10 +336,10 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         ChatEngineClone = ChatEngineCore.create({
-            publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
-            subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
+            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
+            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
         }, {
-            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });
@@ -403,10 +407,10 @@ describe('invite', () => {
         this.timeout(5000);
 
         ChatEngineYou = ChatEngineCore.create({
-            publishKey: 'pub-c-311175ef-cdc1-4da9-9b70-f3e129bb220e',
-            subscribeKey: 'sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700',
+            publishKey: 'pub-c-bbe4e111-b4c6-4b27-9aeb-d7f102bc8260',
+            subscribeKey: 'sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00',
         }, {
-            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-a3da7f1c-bfe7-11e7-a9bc-9af884579700/insecure',
+            endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-ff866d48-c35d-11e7-b683-b67c7dbcdd00/endpoint',
             globalChannel,
             throwErrors: false
         });

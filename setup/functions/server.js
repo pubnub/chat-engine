@@ -7,7 +7,7 @@ export default (request, response) => {
     const queryStringCodec = require('codec/query_string');
     const base64Codec = require('codec/base64');
 
-    const secretKey = 'sec-c-ZjVlYmI3MTktMjQ0OS00YzUyLWI5ZDgtY2JmZmViZWE2MzAy';
+    const secretKey = 'sec-c-YmZkYmNhMzEtZjc0YS00MWRhLTliOTMtZjFlZTJjZjU2NjU2';
 
     response.headers['Access-Control-Allow-Origin'] = '*';
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
@@ -43,10 +43,12 @@ export default (request, response) => {
     };
 
     let controllers = {
+        auth: {},
         index: {},
         bootstrap: {},
         user_read: {},
         user_write: {},
+        user_state: {},
         grant: {},
         chat: {},
         group: {},
@@ -58,19 +60,31 @@ export default (request, response) => {
 
     let authPolicy = () => {
 
-        const http_options = {
-            "method": "POST",
-            "headers": {
-                "Content-Type": "application/json"
-             },
-            "body": JSON.stringify(request)
-        };
+        return new Promise((resolve, reject) => {
 
-        const url = `https://pubsub.pubnub.com/v1/blocks/sub-key/${request.subkey}/auth`;
+            const http_options = {
+                "method": "POST",
+                "headers": {
+                    "Content-Type": "application/json"
+                 },
+                "body": JSON.stringify(request)
+            };
 
-        console.log(url);
+            const url = `https://pubsub.pubnub.com/v1/blocks/sub-key/${request.subkey}/auth`;
 
-        return xhr.fetch(url, http_options);
+            return xhr.fetch(url, http_options).then((response) => {
+                if(response.status == 200) {
+                    resolve(response);
+                } else {
+                    reject(response);
+                }
+            }).catch((err) => {
+                console.log('err', err)
+                reject(err);
+            });
+
+        });
+
     }
 
     let handleStatus = (status) => {
@@ -131,8 +145,6 @@ export default (request, response) => {
 
     controllers.bootstrap.post = () => {
 
-        console.log('performing global grant for', body.uuid, 'on', body.global);
-
         let chanMeRW = [
             body.global,
             body.global + '-pnpres',
@@ -154,6 +166,22 @@ export default (request, response) => {
 
     };
 
+    controllers.auth.post = () => {
+
+        let requestChan = [body.global, 'request'].join('#');
+
+        return pubnub.grant({
+            channels: [requestChan],
+            read: false, // false to disallow
+            write: true, // false to disallow,
+            authKeys: [body.authKey],
+            ttl: 0
+        })
+        .then(handleStatus)
+        .catch(handleError);
+
+    };
+
     controllers.group.post = () => {
 
         let groups = [
@@ -165,29 +193,12 @@ export default (request, response) => {
             body.global + '#' + body.uuid + '#custom-pnpres'
         ];
 
-        console.log('granting on', groups);
-
         return pubnub.grant({
             channelGroups: groups,
             authKeys: [body.authkey],
             ttl: 0,
             read: true
-        }).then((status) => {
-
-            if (status && status.message === 'Success') {
-                return response.send();
-            }
-
-            response.status = 500;
-            return response.send();
-
-        }).catch((err) => {
-
-            console.log(err);
-            response.status = 500;
-            return response.send();
-
-        });
+        }).then(handleStatus).catch(handleError);
 
     };
 
@@ -195,11 +206,8 @@ export default (request, response) => {
 
         let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
 
-        console.log('adding', body.chat.channel, 'to', group);
-
         return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {add: body.chat.channel, uuid: body.uuid})
             .then((serverResponse) => {
-                // console.log(serverResponse)
                 return response.send();
             }).catch((err) => {
                 console.log(err)
@@ -213,11 +221,8 @@ export default (request, response) => {
 
         let group = encodeURIComponent([body.global, body.uuid, body.chat.group].join('#'));
 
-        console.log('leaving', body.chat.channel, 'to', group);
-
         return signedRequest(`/v1/channel-registration/sub-key/${request.subkey}/channel-group/${group}`, {remove: body.chat.channel, uuid: body.uuid})
             .then((serverResponse) => {
-                // console.log(serverResponse)
                 return response.send();
             }).catch((err) => {
                 console.log(err)
@@ -256,7 +261,6 @@ export default (request, response) => {
             }
 
         }).catch((err) => {
-            console.log('KV Error');
             console.log(err)
             response.status = 500;
             return response.send();
@@ -265,8 +269,6 @@ export default (request, response) => {
     };
 
     controllers.grant.post = () => {
-
-        console.log('grant for', body.authKey, 'on', body.chat.channel);
 
         return pubnub.grant({
             channels: [body.chat.channel, body.chat.channel + '-pnpres'],
@@ -285,7 +287,6 @@ export default (request, response) => {
 
         }).catch((err) => {
 
-            console.log(err);
             response.status = 500;
             return response.send();
 
@@ -300,14 +301,16 @@ export default (request, response) => {
 
     };
 
-    controllers.reset.get = () => {
+    controllers.user_state.get = () => {
 
-        return pubnub.grant({
-            read: false, // false to disallow
-            write: false // false to disallow
+        let key = request.params.global + ':' + request.params.user + ':state';
+
+        return db.get(key).then((state) => {
+            return response.send(state);
+        }).catch((err) => {
+            response.status = 500;
+            return response.send();
         })
-        .then(handleStatus)
-        .catch(handleError);
 
     };
 
@@ -320,14 +323,12 @@ export default (request, response) => {
         return authPolicy().then(() => {
             return controllers[route][method]();
         }).catch((err) => {
-            console.log(err)
             response.status = 401;
             return response.send();
         })
 
     } else {
         response.status = 404;
-        console.log('not found', route, method);
         return response.send();
     }
 };

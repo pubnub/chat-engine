@@ -118,15 +118,16 @@ class User extends Emitter {
     @private
     */
     _getState(chat, callback) {
-        const url = 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + this.chatEngine.pnConfig.subscribeKey + '/state?globalChannel=' + this.chatEngine.ceConfig.globalChannel + '&uuid=' + this.uuid;
-        axios.get(url)
-            .then((response) => {
-                this.assign(response.data);
 
+        this.chatEngine.request('get', 'user_state', { user: this.uuid })
+            .then((response) => {
+
+                this.assign(response.data);
                 this._stateFetched = true;
                 callback();
+
             })
-            .catch((error) => {
+            .catch(() => {
                 this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
             });
 

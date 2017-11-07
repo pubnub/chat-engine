@@ -10,38 +10,18 @@ export default (request, response) => {
     let proxyBody = JSON.parse(proxyRequest.body);
     let proxyParams = proxyRequest.params;
 
-    let key = ['authed', proxyBody.chat.channel].join(':');
-
-    let isAuthed = (who) => {
-
-        return new Promise((resolve, reject) => {
-
-            return db.get(key).then((record) => {
-
-                record = record || [];
-
-                // check that record exists, and this uuid is inside it
-                if (who && record && record.length > 0 && record.indexOf(who) > -1) {
-                    return resolve(record);
-                } else {
-                    return reject(record || false);
-                }
-
-            }).catch(() => {
-                reject(false);
-            });
-
-        });
-
+    let isAuthed = (record, who) => {
+        return who && record && record.length > 0 && record.indexOf(who) > -1;
     };
 
     let authInChannel = (record, who) => {
 
-        console.log('authorizing', who, 'in', key);
+        let key = ['authed', proxyBody.chat.channel].join(':');
 
         record.push(proxyBody.uuid);
         return db.set(key, record, 525600);
     };
+
 
     if (proxyParams.route === 'invite') {
 
@@ -50,49 +30,12 @@ export default (request, response) => {
             return response.send();
         }
 
-        return isAuthed(proxyBody.uuid).then((record) => {
 
-            console.log('!!!!', proxyBody.uuid, 'is permitted to invite', key);
+        let key = ['authed', proxyBody.chat.channel].join(':');
+        db.get(key).then((record) => {
+            if(isAuthed(record, proxyBody.uuid)) {
 
-            return authInChannel(record, proxyBody.to).then(() => {
-                response.status = 200;
-                return response.send();
-            }).catch(() => {
-                response.status = 500;
-                return response.send();
-            });
-
-        }).catch(() => {
-
-            console.log(proxyBody.uuid, 'is NOT permitted to invite in', key);
-
-            response.status = 401;
-            return response.send();
-        });
-
-    }
-
-    if (proxyParams.route === 'grant') {
-
-        if (!proxyBody.chat.private) {
-            response.status = 200;
-            return response.send();
-        }
-
-        return isAuthed(proxyBody.uuid).then(() => {
-
-            console.log('!!!!', proxyBody.uuid, 'is permitted in', key);
-
-            response.status = 200;
-            return response.send();
-
-        }).catch((record) => {
-
-            if (!record.length) {
-
-                console.log('!!!!', 'The auth list is empty, so permit them');
-
-                return authInChannel(record, proxyBody.uuid).then(() => {
+                return authInChannel(record, proxyBody.to).then(() => {
                     response.status = 200;
                     return response.send();
                 }).catch(() => {
@@ -102,20 +45,57 @@ export default (request, response) => {
 
             } else {
 
-                console.log('And the auth list is full');
-
                 response.status = 401;
                 return response.send();
-            }
 
+            }
+        }).catch((err) => {
+
+            response.status = 500;
+            return response.send();
         });
+
+    } else if (proxyParams.route === 'grant') {
+
+        if (!proxyBody.chat.private) {
+
+            response.status = 200;
+            return response.send();
+        } else {
+
+            let key = ['authed', proxyBody.chat.channel].join(':');
+            db.get(key).then((record) => {
+
+                if(isAuthed(record, proxyBody.uuid)) {
+
+                    response.status = 200;
+                    return response.send();
+
+                } else {
+
+                    response.status = 401;
+                    return response.send();
+                }
+
+            }).catch((err) => {
+
+                return authInChannel(record, proxyBody.uuid).then(() => {
+                    response.status = 200;
+                    return response.send();
+                }).catch((err) => {
+                    response.status = 500;
+                    return response.send();
+                });
+
+            });
+
+        }
 
     }
 
     return request.json().then((body) => {
         return response.send(body);
     }).catch(() => {
-        // console.log(err)
         return response.send("Malformed JSON body.");
     });
 
