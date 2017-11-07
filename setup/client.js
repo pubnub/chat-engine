@@ -23,7 +23,7 @@ let Client = function (options) {
 
     self.endpoint = options.endpoint || 'https://admin.pubnub.com';
 
-    self.session = false;
+    self.session = options.session || false;
 
     self.request = function (method, url, opts, holla) {
 
@@ -42,7 +42,7 @@ let Client = function (options) {
         //     'Basic cHVibnViLWJldGE6YmxvY2tzMjAxNg===';
 
         if (self.session) {
-            opts.headers['X-Session-Token'] = self.session.token;
+            opts.headers['X-Session-Token'] = self.session;
         }
 
         // clog('-- URL:'.yellow);
@@ -77,7 +77,7 @@ let Client = function (options) {
             } else if (err) {
                 holla(err);
             } else {
-                self.session = body.result;
+                self.session = body.result.token;
                 holla(null, body);
             }
 

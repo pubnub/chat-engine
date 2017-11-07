@@ -57,3 +57,7 @@ body {
 #status {
     text-align: center;
 }
+
+#setup {
+  display: none
+}
