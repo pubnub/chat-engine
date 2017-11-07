@@ -102,27 +102,27 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
-    ChatEngine.request = (method, route, body = {}, query = {}) => {
+    ChatEngine.request = (method, route, inputBody = {}, inputParams = {}) => {
 
-        let b = {
+        let body = {
             uuid: pnConfig.uuid,
             global: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
             authKey: pnConfig.authKey
         };
 
-        let p = {
+        let params = {
             route
         };
 
-        b = Object.assign(b, body);
-        p = Object.assign(p, query);
+        body = Object.assign(body, inputBody);
+        params = Object.assign(params, inputParams);
 
         if (method === 'get' || method === 'delete') {
-            p = Object.assign(p, b);
-            return axios[method](ceConfig.endpoint, { params: p });
+            params = Object.assign(params, body);
+            return axios[method](ceConfig.endpoint, { params });
         } else {
-            return axios[method](ceConfig.endpoint, b, { params: p });
+            return axios[method](ceConfig.endpoint, body, { params });
         }
 
 
