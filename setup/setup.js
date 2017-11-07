@@ -188,13 +188,13 @@ let Provision = (email, password, callback = function () {}, status = function (
 
                                                         status('Adding Secret Key to Functions Vault...');
 
-                                                        api.request('put',['api','vault', key.subscribe_key, 'key', 'secretKey?key_id='+key.id], {
+                                                        api.request('put', ['api', 'vault', key.subscribe_key, 'key', 'secretKey'], {
                                                             contentType: 'application/json',
                                                             data: JSON.stringify({
-                                                                keyName : 'secretKey',
-                                                                key_id : key.id,
-                                                                subscribeKey : key.subscribe_key,
-                                                                value : key.secret_key
+                                                                keyName: 'secretKey',
+                                                                key_id: key.id,
+                                                                subscribeKey: key.subscribe_key,
+                                                                value: key.secret_key
                                                             })
                                                         }, (err, response) => {
 
