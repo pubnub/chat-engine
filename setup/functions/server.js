@@ -43,7 +43,6 @@ export default (request, response) => {
     };
 
     let controllers = {
-        auth: {},
         index: {},
         bootstrap: {},
         user_read: {},
@@ -152,20 +151,6 @@ export default (request, response) => {
         return pubnub.grant({
             channels: chanMeRW,
             read: true, // false to disallow
-            write: true, // false to disallow,
-            authKeys: [body.authKey],
-            ttl: 10080
-        }).then(handleStatus).catch(handleError);
-
-    };
-
-    controllers.auth.post = () => {
-
-        let requestChan = [body.global, 'request'].join('#');
-
-        return pubnub.grant({
-            channels: [requestChan],
-            read: false, // false to disallow
             write: true, // false to disallow,
             authKeys: [body.authKey],
             ttl: 10080
