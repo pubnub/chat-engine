@@ -50,118 +50,114 @@ describe('#server', () => {
     });
 
     it('requests controllers.index.get', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
- 
+
         let correctResult = {
             "status": 200 
         };
- 
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests invalid route - should return 404', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'invalid-route';
- 
-        let correctResult = {
-            "status": 404 
-        };
- 
+
+        let correctResult = { "status": 404 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.user_read.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'user_read';
         request.method = 'POST';
- 
-        let correctResult = {
-            "status": 200 
-        };
- 
+
+        let correctResult = { "status": 200 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.user_write.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'user_write';
         request.method = 'POST';
- 
-        let correctResult = {
-            "status": 200 
-        };
- 
+
+        let correctResult = { "status": 200 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.bootstrap.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'bootstrap';
         request.method = 'POST';
- 
-        let correctResult = {
-            "status": 200 
-        };
- 
+
+        let correctResult = { "status": 200 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.group.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'group';
         request.method = 'POST';
- 
-        let correctResult = {
-            "status": 200 
-        };
- 
+
+        let correctResult = { "status": 200 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.join.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'join';
@@ -173,21 +169,20 @@ describe('#server', () => {
                 "group":"test"
             }
         });
- 
-        let correctResult = {
-            "status": 200 
-        };
- 
+
+        let correctResult = { "status": 200 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.leave.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'leave';
@@ -199,21 +194,20 @@ describe('#server', () => {
                 "group":"test"
             }
         });
- 
-        let correctResult = {
-            "status": 200 
-        };
- 
+
+        let correctResult = { "status": 200 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.chat.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'chat';
@@ -225,37 +219,37 @@ describe('#server', () => {
                 "group":"test"
             }
         });
- 
-        let correctResult = {
-            "status": 200 
-        };
- 
+
+        let correctResult = { "status": 200 };
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.chat.get', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'chat';
- 
+
         let correctResult = { "status": 200 };
- 
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.grant.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'grant';
@@ -265,48 +259,51 @@ describe('#server', () => {
                 "channel":"test"
             }
         });
- 
+
         let correctResult = { "status": 200 };
- 
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.invite.post', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'invite';
         request.method = 'POST';
- 
+
         let correctResult = { "status": 200 };
- 
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
     it('requests controllers.user_state.get', (done) => {
-        
+
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.params.route = 'user_state';
- 
+
         let correctResult = { "status": 200 };
- 
+
         server(request, response).then((testResult) => {
- 
+
             assert.equal(testResult.status, correctResult.status, 'status');
- 
+
             done();
         });
+
     });
 
 });
