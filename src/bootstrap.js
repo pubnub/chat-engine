@@ -423,30 +423,30 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link Chat}
      */
-    ChatEngine.Chat = class extends Chat {
-        constructor(...args) {
+    ChatEngine.Chat = function (...args) {
 
-            let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
+        let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
-            if (ChatEngine.chats[internalChannel]) {
-                return ChatEngine.chats[internalChannel];
-            } else {
+        if (ChatEngine.chats[internalChannel]) {
+            return ChatEngine.chats[internalChannel];
+        } else {
 
-                super(ChatEngine, ...args);
+            let newChat = new Chat(ChatEngine, ...args);
 
-                /**
-                * Fired when a {@link Chat} has been created within ChatEngine.
-                * @event ChatEngine#$"."created"."chat
-                * @example
-                * ChatEngine.on('$.created.chat', (data, chat) => {
-                *     console.log('Chat was created', chat);
-                * });
-                */
-                this.onConstructed();
+            /**
+            * Fired when a {@link Chat} has been created within ChatEngine.
+            * @event ChatEngine#$"."created"."chat
+            * @example
+            * ChatEngine.on('$.created.chat', (data, chat) => {
+            *     console.log('Chat was created', chat);
+            * });
+            */
+            newChat.onConstructed();
 
-            }
+            return newChat;
 
         }
+
     };
 
     /**
@@ -455,29 +455,30 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link User}
      */
-    ChatEngine.User = class extends User {
-        constructor(...args) {
+    ChatEngine.User = function (...args) {
 
-            if (ChatEngine.me.uuid === args[0]) {
-                return ChatEngine.me;
-            } else if (ChatEngine.users[args[0]]) {
-                return ChatEngine.users[args[0]];
-            } else {
+        if (ChatEngine.me.uuid === args[0]) {
+            return ChatEngine.me;
+        } else if (ChatEngine.users[args[0]]) {
+            return ChatEngine.users[args[0]];
+        } else {
 
-                super(ChatEngine, ...args);
+            let newUser = new User(ChatEngine, ...args);
 
-                /**
-                * Fired when a {@link User} has been created within ChatEngine.
-                * @event ChatEngine#$"."created"."user
-                * @example
-                * ChatEngine.on('$.created.user', (data, user) => {
-                *     console.log('Chat was created', user);
-                * });
-                */
-                this.onConstructed();
-            }
+            /**
+            * Fired when a {@link User} has been created within ChatEngine.
+            * @event ChatEngine#$"."created"."user
+            * @example
+            * ChatEngine.on('$.created.user', (data, user) => {
+            *     console.log('Chat was created', user);
+            * });
+            */
+            newUser.onConstructed();
+
+            return newUser;
 
         }
+
     };
 
     return ChatEngine;
