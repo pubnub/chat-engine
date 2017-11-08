@@ -25,7 +25,7 @@ export default (request, response) => {
         return response.send();
     };
 
-    let reject = () => {
+    let unauthorized = () => {
         response.status = 401;
         return response.send();
     };
@@ -48,7 +48,8 @@ export default (request, response) => {
             return db.set(key, record, 525600).then(() => {
                 return allow();
             }).catch((err) => {
-                return die(err);
+                console.error(err);
+                return die('Internal Server Error');
             });
 
         } else {
@@ -60,8 +61,7 @@ export default (request, response) => {
     if (proxyParams.route === 'invite') {
 
         if (!proxyBody.chat.private) {
-            response.status = 200;
-            return response.send();
+            return allow();
         } else {
 
             let key = ['authed', proxyBody.chat.channel].join(':');
@@ -70,10 +70,11 @@ export default (request, response) => {
                 if (isAuthed(record, proxyBody.uuid)) {
                     return authInChannel(record, proxyBody.to);
                 } else {
-                    return reject();
+                    return unauthorized();
                 }
             }).catch((err) => {
-                return die(err);
+                console.error(err);
+                return die('Internal Server Error');
             });
 
         }
@@ -86,10 +87,11 @@ export default (request, response) => {
                 if (isAuthed(record, proxyBody.uuid)) {
                     return authInChannel(record, proxyBody.uuid);
                 } else {
-                    return reject();
+                    return unauthorized();
                 }
             }).catch((err) => {
-                return die(err);
+                console.error(err);
+                return die('Internal Server Error');
             });
         } else {
             return allow();
