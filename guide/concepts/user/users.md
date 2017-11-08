@@ -41,7 +41,7 @@ ChatEngine.global.on('$.state', (payload) => {
 
 ```
 
-You can set {@link Me#staet} during connection by supplying the second param of {@link ChatEngine#connect}.
+You can set {@link Me#state} during connection by supplying the second param of {@link ChatEngine#connect}.
 
 ```js
 ChatEngine.connect('ian-jennings', {color: getColor()});
