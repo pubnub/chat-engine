@@ -8,6 +8,9 @@ globals:
   afterEach: true
   Promise: true
   window: true
+  $: true
+  document: true
+  analytics: true
 rules:
   indent:
     - error

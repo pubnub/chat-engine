@@ -32,6 +32,12 @@ gulp.task('build', () => {
         .pipe(gulp.dest('./dist/'));
 });
 
+gulp.task('build_setup', () => {
+    return gulp.src('setup/src/script.js')
+        .pipe(webpack(require('./webpack_setup.config.js')))
+        .pipe(gulp.dest('./setup/lib/'));
+});
+
 gulp.task('compile', () => {
     return gulp.src('src/index.js')
         .pipe(webpack(require('./webpack.config.js')))
