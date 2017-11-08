@@ -1,7 +1,7 @@
 {
   "author": "PubNub",
   "name": "chat-engine",
-  "version": "0.7.0",
+  "version": "0.8.3",
   "description": "ChatEngine",
   "main": "src/index.js",
   "scripts": {
@@ -43,6 +43,8 @@
     "jsdoc": "^3.5.5",
     "mocha": "^3.1.2",
     "proxyquire": "^1.8.0",
+    "pubnub-functions-mock": "^0.0.6",
+    "request": "^2.82.0",
     "run-sequence": "^2.2.0",
     "sinon": "^4.0.0",
     "stats-webpack-plugin": "^0.6.1",
@@ -54,9 +56,6 @@
     "async": "^2.1.2",
     "axios": "^0.16.2",
     "eventemitter2": "^2.2.1",
-    "isparta": "^4.0.0",
-    "pubnub": "^4.17.0",
-    "pubnub-functions-mock": "^0.0.6",
-    "request": "^2.82.0"
+    "pubnub": "^4.17.0"
   }
 }
