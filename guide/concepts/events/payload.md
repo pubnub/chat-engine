@@ -14,7 +14,7 @@ data.
 
 You can find the actual message contents supplied to {@link Chat#emit} within the ```payload.data``` property.
 
-ChatEngine event payloads are augmented with additional information supplied by the framework. Most of the time these are ```payload.sender``` and ```payload.chat.
+ChatEngine event payloads are augmented with additional information supplied by the framework. Most of the time these are ```payload.sender``` and ```payload.chat```.
 
 The property ```payload.chat``` is the {@link Chat} that event was broadcast broadcast on, and the ```payload.sender``` is the {@link User} that broadcast the message via {@link Chat#emit}.
 
