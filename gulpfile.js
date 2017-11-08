@@ -1,5 +1,6 @@
 const gulp = require('gulp');
 const packageJSON = require('./package.json');
+const clean = require('gulp-clean');
 const eslint = require('gulp-eslint');
 const mocha = require('gulp-mocha');
 const istanbul = require('gulp-istanbul');
@@ -9,6 +10,8 @@ const webpack = require('webpack-stream');
 const jsdoc = require('gulp-jsdoc3');
 const httpServer = require('http-server');
 const path = require('path');
+const uglify = require('gulp-uglify-es').default;
+const rename = require('gulp-rename');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
@@ -26,7 +29,7 @@ let guideFiles = ['guide/**/*'];
 let readme = ['README.md'];
 
 // task
-gulp.task('build', () => {
+gulp.task('build_code', () => {
     return gulp.src('src/index.js')
         .pipe(webpack(require('./webpack.config.js')))
         .pipe(gulp.dest('./dist/'));
@@ -38,10 +41,16 @@ gulp.task('build_setup', () => {
         .pipe(gulp.dest('./setup/lib/'));
 });
 
-gulp.task('compile', () => {
-    return gulp.src('src/index.js')
-        .pipe(webpack(require('./webpack.config.js')))
-        .pipe(gulp.dest('./dev/'));
+gulp.task('clean', () => {
+    return gulp.src(['setup/lib', 'dist'], { read: false })
+        .pipe(clean());
+});
+
+gulp.task('minify_code', () => {
+    return gulp.src('dist/chat-engine.js')
+        .pipe(uglify({ mangle: true, compress: true }))
+        .pipe(rename('chat-engine.min.js'))
+        .pipe(gulp.dest('dist'));
 });
 
 gulp.task('lint_code', [], () => {
@@ -110,6 +119,10 @@ gulp.task('serve_docs', () => {
 
     server.listen(8080);
 
+});
+
+gulp.task('compile', (done) => {
+    runSequence('clean', 'build_code', 'build_setup', 'minify_code', done);
 });
 
 gulp.task('docs_dev', () => {
