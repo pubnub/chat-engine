@@ -1,6 +1,10 @@
+// polyfill Promise
+require('es6-promise/auto');
+
 const Client = require('./client');
 const ProvisionAccount = require('./setup_account');
 const utils = require('./utils');
+
 
 const extractError = (err) => {
     if (err && err.responseJSON && err.responseJSON.error) {

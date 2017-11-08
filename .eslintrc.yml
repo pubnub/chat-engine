@@ -12,6 +12,7 @@ globals:
   document: true
   analytics: true
 rules:
+  import/no-extraneous-dependencies: [error, { devDependencies: true }]
   indent:
     - error
     - 4

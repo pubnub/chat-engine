@@ -1,4 +1,5 @@
 let StatsPlugin = require('stats-webpack-plugin');
+let Uglify = require('uglifyjs-webpack-plugin');
 
 let config = {
     module: {
@@ -15,7 +16,8 @@ let config = {
         new StatsPlugin('stats.json', {
             chunkModules: true,
             exclude: ['node_modules']
-        })
+        }),
+        new Uglify({})
     ],
     externals: [],
     profile: true

@@ -77,4 +77,28 @@ module.exports = class {
             }
         });
     }
+
+    /* shortcuts to avoid pollution of executors */
+    startFunction({ block, key }, callback) {
+        this.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
+            data: {
+                block_id: block.id,
+                key_id: key.id,
+                action: 'start'
+            }
+        }, callback);
+    }
+
+    storeSecretKey({ key }, callback) {
+        this.request('put', ['api', 'vault', key.subscribe_key, 'key', 'secretKey'], {
+            contentType: 'application/json',
+            data: JSON.stringify({
+                keyName: 'secretKey',
+                key_id: key.id,
+                subscribeKey: key.subscribe_key,
+                value: key.secret_key
+            }, callback)
+        });
+    }
+
 };

@@ -7,15 +7,7 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
     let addSecretKeyToVault = () => {
         status('Adding Secret Key to Functions Vault...');
 
-        api.request('put', ['api', 'vault', key.subscribe_key, 'key', 'secretKey'], {
-            contentType: 'application/json',
-            data: JSON.stringify({
-                keyName: 'secretKey',
-                key_id: key.id,
-                subscribeKey: key.subscribe_key,
-                value: key.secret_key
-            })
-        }, (err, response) => {
+        api.storeSecretKey({ key }, (err) => {
             if (err) {
                 callback('Could not add Secret Key to Functions Vault. Please contact support@pubnub.com');
                 return;
@@ -33,13 +25,7 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
     let startPubNubFunction = () => {
         status('Starting Pubnub Function...');
 
-        api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'block', block.id, 'start'], {
-            data: {
-                block_id: block.id,
-                key_id: key.id,
-                action: 'start'
-            }
-        }, (err, response) => {
+        api.startFunction({ block, key }, (err) => {
             if (err) {
                 callback('Could not start PubNub Function. Please contact support@pubnub.com.');
                 return;
