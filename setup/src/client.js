@@ -97,8 +97,8 @@ module.exports = class {
                 key_id: key.id,
                 subscribeKey: key.subscribe_key,
                 value: key.secret_key
-            }, callback)
-        });
+            })
+        }, callback);
     }
 
 };
