@@ -12,6 +12,7 @@ const httpServer = require('http-server');
 const path = require('path');
 const uglify = require('gulp-uglify-es').default;
 const rename = require('gulp-rename');
+const surge = require('gulp-surge');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
@@ -45,6 +46,13 @@ gulp.task('clean', () => {
     return gulp.src(['setup/lib', 'dist'], { read: false })
         .pipe(clean());
 });
+
+gulp.task('deploy', [], function () {
+  return surge({
+    project: './setup',         // Path to your static build directory
+    domain: 'ce-setup.surge.sh'  // Your domain or Surge subdomain
+  })
+})
 
 gulp.task('minify_code', () => {
     return gulp.src('dist/chat-engine.js')
