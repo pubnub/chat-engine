@@ -117,19 +117,54 @@ class User extends Emitter {
     Get stored user state from remote server.
     @private
     */
-    _getState(chat, callback) {
+    _getState(callback) {
 
-        this.chatEngine.request('get', 'user_state', { user: this.uuid })
-            .then((response) => {
+        if (!this._stateFetched) {
 
-                this.assign(response.data);
-                this._stateFetched = true;
-                callback();
+            this.chatEngine.pubnub.getState({
+                uuid: this.uuid,
+                channels: [this.chatEngine.global.channel]
+            }, (status, response) => {
 
-            })
-            .catch(() => {
-                this.chatEngine.throwError(chat, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+                if (status.statusCode === 200) {
+
+                    let pnState = response.channels[this.chatEngine.global.channel];
+                    if (Object.keys(pnState).length) {
+
+                        this.assign(response.data);
+
+                        this._stateFetched = true;
+                        callback(this.state);
+
+                    } else {
+
+                        this.chatEngine.request('get', 'user_state', {
+                            user: this.uuid
+                        })
+                            .then((res) => {
+
+                                this.assign(res.data);
+
+                                this._stateFetched = true;
+                                callback(this.state);
+
+                            })
+                            .catch((err) => {
+                                // console.log('this is hte err', err);
+                                this.chatEngine.throwError(this, 'trigger', 'getState', err);
+                            });
+
+                    }
+
+                } else {
+                    this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+                }
+
             });
+
+        } else {
+            callback(this.state);
+        }
 
     }
 
