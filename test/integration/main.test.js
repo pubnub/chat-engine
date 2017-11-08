@@ -149,12 +149,13 @@ describe('connect', () => {
         ChatEngine.on('$.disconnected', (data, source) => {
 
             assert.isObject(source);
+
             if (source.channel === createdEventChat2.channel) {
                 done();
             }
         });
 
-        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2');
+        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date());
 
         createdEventChat2.on('$.connected', () => {
             createdEventChat2.leave();
