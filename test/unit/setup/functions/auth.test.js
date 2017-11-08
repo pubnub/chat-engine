@@ -83,10 +83,16 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
 
+        let testChannel = "testChannel";
+        let testUuid = "testUuid";
+        let wrongUuid = "wrongUuid";
+
         let proxyBody = JSON.stringify({
             "chat": {
-                "private": true
-            }
+                "private": true,
+                "channel": testChannel
+            },
+            "uuid": testUuid
         });
 
         request.body = JSON.stringify({
@@ -95,6 +101,12 @@ describe('#auth', () => {
                 "route": "invite"
             }
         });
+
+        let preExistingValue = {};
+
+        preExistingValue['authed:' + testChannel] = [wrongUuid];
+
+        auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
             "status": 401 
@@ -183,10 +195,17 @@ describe('#auth', () => {
 
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
+        
+        let testChannel = "testChannel";
+        let testUuid = "testUuid";
+        let wrongUuid = "wrongUuid";
+
         let proxyBody = JSON.stringify({
             "chat": {
-                "private": true
-            }
+                "private": true,
+                "channel": testChannel
+            },
+            "uuid": testUuid
         });
 
         request.body = JSON.stringify({
@@ -195,6 +214,12 @@ describe('#auth', () => {
                 "route": "grant"
             }
         });
+
+        let preExistingValue = {};
+
+        preExistingValue['authed:' + testChannel] = [wrongUuid];
+
+        auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
             "status": 401 
