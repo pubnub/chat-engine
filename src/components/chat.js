@@ -310,10 +310,8 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
-        if (!this.chatEngine.users[uuid]) {
-            this.chatEngine.users[uuid] = new this.chatEngine.User(uuid);
-            this.chatEngine.users[uuid].assign(state);
-        }
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
+        this.chatEngine.users[uuid].assign(state);
 
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
