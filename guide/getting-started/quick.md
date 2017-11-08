@@ -59,7 +59,7 @@ This will create a new {@link Chat}. We'll be connected to it automatically.
 
 So how do we see other other people online? Well {@link Me} is automatically
 recorded as joining our {@link Chat}, and any other person who runs this program
-will see 'ian' as a {@link User} online ihe {@link Chat}.
+will see 'ian' as a {@link User} online on the {@link Chat}.
 
 You can get a list of online users via {@link Chat#users}.
 
@@ -152,7 +152,7 @@ let stephen = lobby.users['stephen'];
 ```
 
 Ok, let's make a new chat and invite him to it. We'll create a new {@link Chat}
-and then fire the {@link Chat#invite} which invites a {@link User} to a {@link Chat}.}
+and then fire the {@link Chat#invite} which invites a {@link User} to a {@link Chat}.
 
 ```js
 let privateChat = new ChatEngine.Chat('private');
