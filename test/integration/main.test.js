@@ -96,23 +96,26 @@ describe('connect', () => {
 
     });
 
-
     it('should notify chatengine on created', function join(done) {
 
         this.timeout(6000);
 
+        let newChat = 'this-is-only-a-test-3' + new Date().getTime();
+        let a = false;
+
         ChatEngine.on('$.created.chat', (data, source) => {
 
-            assert.isObject(source);
+            let lookingFor = globalChannel + '#chat#private.#' + newChat;
 
-            if (source.channel === globalChannel + '#chat#private.#this-is-only-a-test-3') {
+            if (source.channel === lookingFor) {
                 done();
             }
 
         });
 
+        a = new ChatEngine.Chat(newChat);
+
         setTimeout(() => {
-            let a = new ChatEngine.Chat('this-is-only-a-test-3');
             a.leave();
         }, 1000);
 
@@ -130,7 +133,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test');
+        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test' + new Date());
 
     });
 
@@ -141,12 +144,13 @@ describe('connect', () => {
         ChatEngine.on('$.disconnected', (data, source) => {
 
             assert.isObject(source);
+
             if (source.channel === createdEventChat2.channel) {
                 done();
             }
         });
 
-        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2');
+        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date());
 
         createdEventChat2.on('$.connected', () => {
             createdEventChat2.leave();
@@ -165,7 +169,7 @@ describe('chat', () => {
 
         this.timeout(10000);
 
-        chat = new ChatEngine.Chat('chat-teser');
+        chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
         chat.on('$.online.*', (p) => {
 
@@ -181,7 +185,7 @@ describe('chat', () => {
 
         this.timeout(5000);
 
-        let chat2 = new ChatEngine.Chat('chat2');
+        let chat2 = new ChatEngine.Chat('chat2' + new Date().getTime());
         chat2.on('$.connected', () => {
 
             done();
