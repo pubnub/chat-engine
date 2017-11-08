@@ -415,7 +415,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
             if (ChatEngine.chats[internalChannel]) {
-
                 return ChatEngine.chats[internalChannel];
             } else {
 
