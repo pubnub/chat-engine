@@ -192,49 +192,47 @@ class Chat extends Emitter {
     onPresence(presenceEvent) {
 
         // make sure channel matches this channel
-        if (this.channel === presenceEvent.channel) {
 
-            // someone joins channel
-            if (presenceEvent.action === 'join') {
+        // someone joins channel
+        if (presenceEvent.action === 'join') {
 
-                let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
+            let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
 
-                /**
-                 * Fired when a {@link User} has joined the room.
-                 *
-                 * @event Chat#$"."online"."join
-                 * @param {Object} data The payload returned by the event
-                 * @param {User} data.user The {@link User} that came online
-                 * @example
-                 * chat.on('$.join', (data) => {
-                              *     console.log('User has joined the room!', data.user);
-                              * });
-                 */
+            /**
+             * Fired when a {@link User} has joined the room.
+             *
+             * @event Chat#$"."online"."join
+             * @param {Object} data The payload returned by the event
+             * @param {User} data.user The {@link User} that came online
+             * @example
+             * chat.on('$.join', (data) => {
+                          *     console.log('User has joined the room!', data.user);
+                          * });
+             */
 
-                // It's possible for PubNub to send us both a join and have the user appear in here_now
-                // Avoid firing duplicate $.online events.
-                if (!this.users[user.uuid]) {
-                    this.trigger('$.online.join', { user });
-                }
-
-            }
-
-            // someone leaves channel
-            if (presenceEvent.action === 'leave') {
-                this.userLeave(presenceEvent.uuid);
-            }
-
-            // someone timesout
-            if (presenceEvent.action === 'timeout') {
-                this.userDisconnect(presenceEvent.uuid);
-            }
-
-            // someone's state is updated
-            if (presenceEvent.action === 'state-change') {
-                this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+            // It's possible for PubNub to send us both a join and have the user appear in here_now
+            // Avoid firing duplicate $.online events.
+            if (!this.users[user.uuid]) {
+                this.trigger('$.online.join', { user });
             }
 
         }
+
+        // someone leaves channel
+        if (presenceEvent.action === 'leave') {
+            this.userLeave(presenceEvent.uuid);
+        }
+
+        // someone timesout
+        if (presenceEvent.action === 'timeout') {
+            this.userDisconnect(presenceEvent.uuid);
+        }
+
+        // someone's state is updated
+        if (presenceEvent.action === 'state-change') {
+            this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+        }
+
 
     }
 
@@ -312,9 +310,10 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-
-        this.chatEngine.users[uuid].assign(state);
+        if (!this.chatEngine.users[uuid]) {
+            this.chatEngine.users[uuid] = new this.chatEngine.User(uuid);
+            this.chatEngine.users[uuid].assign(state);
+        }
 
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
@@ -542,8 +541,17 @@ class Chat extends Emitter {
 
         this.connected = true;
 
-        if (this.channel !== this.chatEngine.global.channel) {
+        this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
+
+        this.trigger('$.online.join', {
+            user: this.chatEngine.me
+        });
+
+        if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
             this.getUserUpdates();
+            setTimeout(() => {
+                this.getUserUpdates();
+            }, 5000);
         }
 
     }
@@ -557,11 +565,6 @@ class Chat extends Emitter {
             includeUUIDs: true,
             includeState: true
         }, this.onHereNow.bind(this));
-
-        // listen to all PubNub events for this Chat
-        this.chatEngine.pubnub.addListener({
-            presence: this.onPresence.bind(this)
-        });
 
     }
 

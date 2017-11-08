@@ -21,6 +21,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig = ceConfig;
     ChatEngine.pnConfig = pnConfig;
 
+    ChatEngine.pnConfig.heartbeatInterval = 30;
+    ChatEngine.pnConfig.presenceTimeout = 60;
+
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
@@ -264,6 +267,19 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                     ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
                     ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
                 ];
+
+                // listen to all PubNub events for this Chat
+                ChatEngine.pubnub.addListener({
+                    presence: (payload) => {
+
+                        if (ChatEngine.chats[payload.channel]) {
+                            ChatEngine.chats[payload.channel].onPresence(payload);
+                        } else {
+                            console.log('that chat does not exist')
+                        }
+
+                    }
+                });
 
                 ChatEngine.pubnub.subscribe({
                     channelGroups: chanGroups,
