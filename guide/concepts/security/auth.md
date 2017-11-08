@@ -18,7 +18,7 @@ const ChatEngine = ChatEngineCore.create({
 ChatEngine.connect(username, {}, 'auth-key');
 ```
 
-, it authorizes PubNub PAM permissions for the supplied authentication key on all read and write channels. See {@tutorial topology}.
+It authorizes PubNub PAM permissions for the supplied authentication key on all read and write channels. See {@tutorial topology}.
 
 
 When the endpoint responds and ChatEngine successfully connects to PubNub, {@link ChatEngine}
