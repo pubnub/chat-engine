@@ -63,7 +63,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -80,7 +80,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -98,7 +98,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -116,7 +116,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -134,7 +134,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -152,7 +152,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -177,7 +177,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -202,7 +202,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -227,7 +227,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -244,7 +244,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -267,7 +267,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -285,7 +285,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -302,7 +302,7 @@ describe('#server', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
