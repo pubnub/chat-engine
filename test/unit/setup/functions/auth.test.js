@@ -24,10 +24,6 @@ const endpointRequestObject = {
     }
 };
 
-// endpointRequestObject.json = () => {
-//     return Promise.resolve(JSON.parse(endpointRequestObject.body || null));
-// }
-
 describe('#auth', () => {
     let auth;
 
@@ -49,29 +45,28 @@ describe('#auth', () => {
         let testUuid = "testUuid";
 
         let proxyBody = JSON.stringify({
-            "to": testUuid,
             "chat": {
                 "private": true,
                 "channel": testChannel
-            }
+            },
+            "uuid": testUuid
         });
 
         request.body = JSON.stringify({
             "body": proxyBody,
             "params": {
                 "route": "invite"
-            },
-            "uuid": testUuid
+            }
         });
 
         let preExistingValue = {};
 
-        preExistingValue['authed:' + testChannel] = testUuid;
+        preExistingValue['authed:' + testChannel] = [testUuid];
 
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 401 
+            "status": 200 
         };
 
         auth(request, response).then((testResult) => {
@@ -79,7 +74,7 @@ describe('#auth', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -110,7 +105,7 @@ describe('#auth', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -118,15 +113,16 @@ describe('#auth', () => {
 
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
-        request.body = `{
-            \"body\":\"{\\\"chat\\\":{}}\",
-            \"message\":{},
-            \"params\":{ \"route\":\"invite\" },
-            \"chat\":{},
-            \"uuid\":\"test\",
-            \"to\":\"test\",
-            \"method\":\"POST\"
-        }`;
+        let proxyBody = JSON.stringify({
+            "chat": {}
+        });
+
+        request.body = JSON.stringify({
+            "body": proxyBody,
+            "params": {
+                "route": "invite"
+            }
+        });
 
         let correctResult = {
             "status": 200 
@@ -137,7 +133,7 @@ describe('#auth', () => {
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
 
     });
 
@@ -145,15 +141,88 @@ describe('#auth', () => {
 
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
-        request.body = `{
-            \"body\":\"{\\\"chat\\\":{}}\",
-            \"message\":{},
-            \"params\":{ \"route\":\"grant\" },
-            \"chat\":{},
-            \"uuid\":\"test\",
-            \"to\":\"test\",
-            \"method\":\"POST\"
-        }`;
+
+        let testChannel = "testChannel";
+        let testUuid = "testUuid";
+
+        let proxyBody = JSON.stringify({
+            "chat": {
+                "private": true,
+                "channel": testChannel
+            },
+            "uuid": testUuid
+        });
+
+        request.body = JSON.stringify({
+            "body": proxyBody,
+            "params": {
+                "route": "grant"
+            }
+        });
+
+        let preExistingValue = {};
+
+        preExistingValue['authed:' + testChannel] = [testUuid];
+
+        auth.mockKVStoreData(preExistingValue);
+
+        let correctResult = {
+            "status": 200 
+        };
+
+        auth(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests auth grant unauthorized', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        let proxyBody = JSON.stringify({
+            "chat": {
+                "private": true
+            }
+        });
+
+        request.body = JSON.stringify({
+            "body": proxyBody,
+            "params": {
+                "route": "grant"
+            }
+        });
+
+        let correctResult = {
+            "status": 401 
+        };
+
+        auth(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests auth grant not private', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        let proxyBody = JSON.stringify({
+            "chat": {}
+        });
+
+        request.body = JSON.stringify({
+            "body": proxyBody,
+            "params": {
+                "route": "grant"
+            }
+        });
 
         let correctResult = {
             "status": 200 
@@ -172,15 +241,12 @@ describe('#auth', () => {
 
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
-        request.body = `{
-            \"body\":\"{\\\"chat\\\":{}}\",
-            \"message\":{},
-            \"params\":{ \"route\":\"\" },
-            \"chat\":{},
-            \"uuid\":\"test\",
-            \"to\":\"test\",
-            \"method\":\"POST\"
-        }`;
+        request.body = JSON.stringify({
+            "body": "\"\"",
+            "params": {
+                "route": ""
+            }
+        });
 
         let correctResult = {
             "status": 200 
