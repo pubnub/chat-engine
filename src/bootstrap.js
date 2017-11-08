@@ -224,7 +224,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         };
 
-        let complete = (chatData) => {
+        let complete = () => {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
@@ -274,8 +274,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                         if (ChatEngine.chats[payload.channel]) {
                             ChatEngine.chats[payload.channel].onPresence(payload);
-                        } else {
-                            console.log('that chat does not exist')
                         }
 
                     }
