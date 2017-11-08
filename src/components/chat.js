@@ -539,17 +539,24 @@ class Chat extends Emitter {
 
         this.connected = true;
 
+        // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
 
+        // trigger my own online event
         this.trigger('$.online.join', {
             user: this.chatEngine.me
         });
 
+        // global channel updates are triggered manually, only get presence on custom chats
         if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+
             this.getUserUpdates();
+
+            // we may miss updates, so call this again 5 seconds later
             setTimeout(() => {
                 this.getUserUpdates();
             }, 5000);
+
         }
 
     }
