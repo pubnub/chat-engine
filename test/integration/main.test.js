@@ -103,14 +103,9 @@ describe('connect', () => {
         let newChat = 'this-is-only-a-test-3' + new Date().getTime();
         let a = false;
 
-        // console.log('creating', newChat)
-
         ChatEngine.on('$.created.chat', (data, source) => {
 
             let lookingFor = globalChannel + '#chat#private.#' + newChat;
-
-            // console.log(source.channel)
-            // console.log(lookingFor)
 
             if (source.channel === lookingFor) {
                 done();
@@ -122,7 +117,7 @@ describe('connect', () => {
 
         setTimeout(() => {
             a.leave();
-        }, 3000);
+        }, 1000);
 
     });
 
