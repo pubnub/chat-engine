@@ -4,26 +4,44 @@ const Mock = require('pubnub-functions-mock');
 const endpointResponseObject = {
     "headers": {},
     "status": 200,
-    "send": function ( body ) {
-      return {
-        "body": body || "",
-        "status": this.status
-      }
+    "send": function (body) {
+        return new Promise((resolve, reject) => {
+            resolve({
+                "body": body || "",
+                "status": this.status
+            });
+        });
     }
 };
 
 const endpointRequestObject = {
     "body": "{}",
     "message": {},
-    "method": null,
+    "method": 'GET',
     "params": {}
 };
 
 describe('#server', () => {
-    let server = null;
+    let server;
+
+    // Overrides the default XHR and Crypto modules in all tests
+    let xhr = {
+        fetch: () => {
+            return Promise.resolve({ "status": 200 });
+        }
+    };
+
+    let crypto = {
+        hmac: () => {
+            return Promise.resolve({ "signature": "signature" });
+        },
+        ALGORITHM: {
+            HMAC_SHA256: ""
+        }
+    };
 
     beforeEach(() => {
-        server = Mock('./setup/functions/server');
+        server = Mock('./setup/functions/server.js', { xhr, crypto });
     });
 
     it('creates server event handler of type Function', (done) => {
@@ -31,226 +49,261 @@ describe('#server', () => {
         done();
     });
 
-    it('returns the "home page"', (done) => {
-        
-        let request = Object.assign({}, endpointRequestObject);
-        request.method = 'get';
+    it('requests controllers.index.get', (done) => {
 
+        let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
 
         let correctResult = {
-            "body": "Hello World!",
             "status": 200 
         };
 
-        let testResult = server(request, response);
+        server(request, response).then((testResult) => {
 
-        assert.equal(testResult.status, correctResult.status, 'status');
-        assert.equal(testResult.body, correctResult.body, 'response body');
+            assert.equal(testResult.status, correctResult.status, 'status');
 
-        done();
+            done();
+        }).catch(done);
+
     });
 
-    it('returns 404 - based on request method', (done) => {
-        
-        let request = Object.assign({}, endpointRequestObject);
-        request.method = 'post';
+    it('requests invalid route - should return 404', (done) => {
 
+        let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'invalid-route';
 
-        let correctResult = {
-            "body": "",
-            "status": 404 
-        };
+        let correctResult = { "status": 404 };
 
-        let testResult = server(request, response);
+        server(request, response).then((testResult) => {
 
-        assert.equal(testResult.status, correctResult.status, 'status');
-        assert.equal(testResult.body, correctResult.body, 'response body');
+            assert.equal(testResult.status, correctResult.status, 'status');
 
-        done();
+            done();
+        }).catch(done);
+
     });
 
-    it('returns 404 - based on request route', (done) => {
-        
-        let request = Object.assign({}, endpointRequestObject);
-        request.method = 'get';
-        request.params.route = '/invalid-route';
+    it('requests controllers.user_read.post', (done) => {
 
+        let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
-
-        let correctResult = {
-            "body": "",
-            "status": 404 
-        };
-
-        let testResult = server(request, response);
-
-        assert.equal(testResult.status, correctResult.status, 'status');
-        assert.equal(testResult.body, correctResult.body, 'response body');
-
-        done();
-    });
-
-    it('confirms valid requests for "/insecure/grant"', (done) => {
-        
-        let request = Object.assign({}, endpointRequestObject);
+        request.params.route = 'user_read';
         request.method = 'POST';
-        request.params.route = '/insecure/grant';
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests controllers.user_write.post', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'user_write';
+        request.method = 'POST';
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests controllers.bootstrap.post', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'bootstrap';
+        request.method = 'POST';
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests controllers.group.post', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'group';
+        request.method = 'POST';
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests controllers.join.post', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'join';
+        request.method = 'POST';
         request.body = JSON.stringify({
-            "channel": "test",
-            "uuid": "test",
-            "authKey": "test"
+            "global": "test",
+            "uuid":"test",
+            "chat": {
+                "group":"test"
+            }
         });
 
-        let response = Object.assign({}, endpointResponseObject);
+        let correctResult = { "status": 200 };
 
-        let correctResult = {
-            "body": "",
-            "status": 200 
-        };
-
-        // Good request
         server(request, response).then((testResult) => {
-            assert.equal(testResult.status, correctResult.status, 'status');
-            assert.equal(testResult.body, correctResult.body, 'response body');
 
-            // bad http method
-            request.method = 'get';
-            testResult = server(request, response);
-            correctResult = {
-                "status": 404 
-            };
-            assert.equal(testResult.status, correctResult.status, 'status');
-
-            // bad request contents
-            request.body = "{}";
-            request.method = 'post';
-            testResult = server(request, response);
-            correctResult = {
-                "status": 422 
-            };
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
+        }).catch(done);
+
     });
 
-    it('confirms valid requests for "/insecure/chats"', (done) => {
-        
-        let request = Object.assign({}, endpointRequestObject);
-        request.method = 'GET';
-        request.params.route = '/insecure/chats';
-        request.params.uuid = 'test';
+    it('requests controllers.leave.post', (done) => {
 
+        let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
-
-        let correctResult = {
-            "body": "",
-            "status": 200 
-        };
-
-        // Get - valid
-        server(request, response).then((testResult) => {
-            assert.equal(testResult.status, correctResult.status, 'status');
-
-            // Post - valid
-            request.method = 'POST';
-            request.body = JSON.stringify({
-                "chat": {
-                    "channel": "test"
-                },
-                "uuid": "test"
-            });
-            return server(request, response)
-        }).then((testResult) => {
-            assert.equal(testResult.status, correctResult.status, 'status');
-            
-            // Delete - valid
-            request.method = 'DELETE';
-            request.body = JSON.stringify({
-                "chat": {
-                    "channel": "test"
-                },
-                "uuid": "test",
-                "globalChannel": "test"
-            });
-            return server(request, response)
-        }).then((testResult) => {
-            assert.equal(testResult.status, correctResult.status, 'status');
-            done();
-        });
-    });
-
-    it('confirms valid requests for "/insecure/chat/grant"', (done) => {
-        
-        let request = Object.assign({}, endpointRequestObject);
+        request.params.route = 'leave';
         request.method = 'POST';
-        request.params.route = '/insecure/chat/grant';
-        request.params.uuid = 'test';
+        request.body = JSON.stringify({
+            "global": "test",
+            "uuid":"test",
+            "chat": {
+                "group":"test"
+            }
+        });
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests controllers.chat.post', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'chat';
+        request.method = 'POST';
+        request.body = JSON.stringify({
+            "global": "test",
+            "uuid":"test",
+            "chat": {
+                "group":"test"
+            }
+        });
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests controllers.chat.get', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'chat';
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
+    it('requests controllers.grant.post', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'grant';
+        request.method = 'POST';
         request.body = JSON.stringify({
             "chat": {
-                "channel": "test"
-            },
-            "uuid": "test",
-            "authKey": "test"
+                "channel":"test"
+            }
         });
 
-        let response = Object.assign({}, endpointResponseObject);
+        let correctResult = { "status": 200 };
 
-        let correctResult = {
-            "body": "",
-            "status": 200 
-        };
-
-        // Post - valid: global chat
-        let testResult =  server(request, response);
-        
-        assert.equal(testResult.status, correctResult.status, 'status');
-
-        // Post - valid: private chat
-        request.body = JSON.stringify({
-            "chat": {
-                "channel": "test",
-                "private": true
-            },
-            "uuid": "test",
-            "authKey": "test"
-        });
         server(request, response).then((testResult) => {
+
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
- 
+        }).catch(done);
+
     });
 
-    it('confirms valid requests for "/insecure/chat/invite"', (done) => {
-        
+    it('requests controllers.invite.post', (done) => {
+
         let request = Object.assign({}, endpointRequestObject);
-        request.method = 'POST';
-        request.params.route = '/insecure/chat/invite';
-        request.params.uuid = 'test';
-        request.body = JSON.stringify({
-            "chat": {
-                "channel": "test"
-            },
-            "uuid": "test",
-            "authKey": "test"
-        });
-
         let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'invite';
+        request.method = 'POST';
 
-        let correctResult = {
-            "body": "",
-            "status": 200 
-        };
+        let correctResult = { "status": 200 };
 
         server(request, response).then((testResult) => {
+
             assert.equal(testResult.status, correctResult.status, 'status');
 
             done();
-        });
- 
+        }).catch(done);
+
     });
+
+    it('requests controllers.user_state.get', (done) => {
+
+        let request = Object.assign({}, endpointRequestObject);
+        let response = Object.assign({}, endpointResponseObject);
+        request.params.route = 'user_state';
+
+        let correctResult = { "status": 200 };
+
+        server(request, response).then((testResult) => {
+
+            assert.equal(testResult.status, correctResult.status, 'status');
+
+            done();
+        }).catch(done);
+
+    });
+
 });
