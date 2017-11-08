@@ -40,8 +40,14 @@ describe('#server', () => {
         }
     };
 
+    let vault = {
+        get: () => {
+            return Promise.resolve("testSignature");
+        }
+    };
+
     beforeEach(() => {
-        server = Mock('./setup/functions/server.js', { xhr, crypto });
+        server = Mock('./setup/functions/server.js', { xhr, crypto, vault });
     });
 
     it('creates server event handler of type Function', (done) => {
