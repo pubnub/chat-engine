@@ -8186,30 +8186,30 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link Chat}
      */
-    ChatEngine.Chat = class extends Chat {
-        constructor(...args) {
+    ChatEngine.Chat = function (...args) {
 
-            let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
+        let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
-            if (ChatEngine.chats[internalChannel]) {
-                return ChatEngine.chats[internalChannel];
-            } else {
+        if (ChatEngine.chats[internalChannel]) {
+            return ChatEngine.chats[internalChannel];
+        } else {
 
-                super(ChatEngine, ...args);
+            let newChat = new Chat(ChatEngine, ...args);
 
-                /**
-                * Fired when a {@link Chat} has been created within ChatEngine.
-                * @event ChatEngine#$"."created"."chat
-                * @example
-                * ChatEngine.on('$.created.chat', (data, chat) => {
-                *     console.log('Chat was created', chat);
-                * });
-                */
-                this.onConstructed();
+            /**
+            * Fired when a {@link Chat} has been created within ChatEngine.
+            * @event ChatEngine#$"."created"."chat
+            * @example
+            * ChatEngine.on('$.created.chat', (data, chat) => {
+            *     console.log('Chat was created', chat);
+            * });
+            */
+            newChat.onConstructed();
 
-            }
+            return newChat;
 
         }
+
     };
 
     /**
@@ -8218,29 +8218,30 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link User}
      */
-    ChatEngine.User = class extends User {
-        constructor(...args) {
+    ChatEngine.User = function (...args) {
 
-            if (ChatEngine.me.uuid === args[0]) {
-                return ChatEngine.me;
-            } else if (ChatEngine.users[args[0]]) {
-                return ChatEngine.users[args[0]];
-            } else {
+        if (ChatEngine.me.uuid === args[0]) {
+            return ChatEngine.me;
+        } else if (ChatEngine.users[args[0]]) {
+            return ChatEngine.users[args[0]];
+        } else {
 
-                super(ChatEngine, ...args);
+            let newUser = new User(ChatEngine, ...args);
 
-                /**
-                * Fired when a {@link User} has been created within ChatEngine.
-                * @event ChatEngine#$"."created"."user
-                * @example
-                * ChatEngine.on('$.created.user', (data, user) => {
-                *     console.log('Chat was created', user);
-                * });
-                */
-                this.onConstructed();
-            }
+            /**
+            * Fired when a {@link User} has been created within ChatEngine.
+            * @event ChatEngine#$"."created"."user
+            * @example
+            * ChatEngine.on('$.created.user', (data, user) => {
+            *     console.log('Chat was created', user);
+            * });
+            */
+            newUser.onConstructed();
+
+            return newUser;
 
         }
+
     };
 
     return ChatEngine;
@@ -9134,7 +9135,7 @@ module.exports = function spread(callback) {
 /* 52 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.2","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-uglify":"^2.0.0","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.6","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.3","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-uglify":"^2.0.0","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.6","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
 
 /***/ }),
 /* 53 */
