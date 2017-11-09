@@ -15,7 +15,7 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
 
         let account = response.result.accounts[0];
 
-        status('Using account ' + account.properties.company + ', if this is incorrent deploy manually or log in as another user');
+        status('Using account ' + account.properties.company + ', if this is incorrect, deploy manually or log in as another user');
         status('Creating new PubNub app...');
 
         api.request('post', ['api', 'apps'], {
