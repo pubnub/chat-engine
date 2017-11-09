@@ -27,12 +27,12 @@ export default (request, response) => {
         return response.send(error);
     };
 
-    if (proxyParams.route === 'invite') {
+    if (params.route === 'invite') {
 
         // can this user invite?
         return allow();
 
-    } else if (proxyParams.route === 'grant') {
+    } else if (params.route === 'grant') {
 
         // is this user allowed in the channel they're trying to join?
         return allow();
