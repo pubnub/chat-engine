@@ -23,4 +23,4 @@ const extractError = (err, defaultMessage) => {
     }
 };
 
-module.exports = { findCookie };
+module.exports = { findCookie, extractError };

@@ -70,19 +70,51 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports) {
+
+
+const findCookie = (name) => {
+    let cookies = document.cookie.split(';');
+    let result = null;
+
+    cookies.forEach((cookie) => {
+        let cookieName = cookie.split('=')[0];
+        let cookieValue = cookie.split('=')[1];
+
+        if (cookieName.endsWith(name)) {
+            result = cookieValue;
+        }
+    });
+
+    return result;
+};
+
+const extractError = (err, defaultMessage) => {
+    if (err && err.responseJSON && err.responseJSON.message) {
+        return err.responseJSON.message;
+    } else {
+        return defaultMessage;
+    }
+};
+
+module.exports = { findCookie };
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // polyfill Promise
-__webpack_require__(1);
+__webpack_require__(2);
 
-const Client = __webpack_require__(6);
-const ProvisionAccount = __webpack_require__(7);
-const utils = __webpack_require__(9);
+const Client = __webpack_require__(7);
+const ProvisionAccount = __webpack_require__(8);
+const utils = __webpack_require__(0);
 
 
 const extractError = (err) => {
@@ -209,18 +241,18 @@ module.exports = class {
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 // This file can be required in Browserify and Node.js for automatic polyfill
 // To use it:  require('es6-promise/auto');
 
-module.exports = __webpack_require__(2).polyfill();
+module.exports = __webpack_require__(3).polyfill();
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process, global) {var require;/*!
@@ -360,7 +392,7 @@ function flush() {
 function attemptVertx() {
   try {
     var r = require;
-    var vertx = __webpack_require__(5);
+    var vertx = __webpack_require__(6);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -1381,10 +1413,10 @@ return Promise$2;
 
 //# sourceMappingURL=es6-promise.map
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4), __webpack_require__(5)))
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1574,7 +1606,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 var g;
@@ -1601,13 +1633,13 @@ module.exports = g;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = class {
@@ -1717,10 +1749,11 @@ module.exports = class {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const ProvisionBlocks = __webpack_require__(8);
+const ProvisionBlocks = __webpack_require__(9);
+const utils = __webpack_require__(0);
 
 module.exports = (api, userId, callback = () => {}, status = () => {}) => {
     api.request('get', ['api', 'accounts'], {
@@ -1730,7 +1763,9 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
     }, (err, response) => {
 
         if (err) {
-            return callback('Could not get PubNub accounts. Please contact support@pubnub.com.');
+            const defaultMessage = 'Could not get PubNub accounts. Please contact support@pubnub.com.';
+            const message = utils.extractError(err, defaultMessage);
+            return callback(message);
         }
 
         let account = response.result.accounts[0];
@@ -1745,9 +1780,10 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
                 properties: {}
             }
         }, (err, response) => {
-
             if (err) {
-                return callback('Could not create new PubNub app. Please contact support@pubnub.com.');
+                const defaultMessage = 'Could not create new PubNub app. Please contact support@pubnub.com.';
+                const message = utils.extractError(err, defaultMessage);
+                return callback(message);
             }
 
             let app = response.result;
@@ -1759,9 +1795,11 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
                     owner_id: account.id
                 }
             }, (err, response) => {
-
                 if (err) {
-                    return callback('Could not get PubNub keys. Please contact support@pubnub.com.');
+                    const defaultMessage = 'Could not get PubNub keys. Please contact support@pubnub.com.';
+                    const message = utils.extractError(err, defaultMessage);
+                    callback(message);
+                    return;
                 }
 
                 let apps = response.result;
@@ -1791,10 +1829,11 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
 
                 api.request('put', ['api', 'keys', key.id], {
                     data: key
-                }, (err, response) => {
-
+                }, (err) => {
                     if (err) {
-                        callback('Could not enable PubNub features. Please contact support@pubnub.com.');
+                        const defaultMessage = 'Could not enable PubNub features. Please contact support@pubnub.com.';
+                        const message = utils.extractError(err, defaultMessage);
+                        return callback(message);
                     }
 
                     ProvisionBlocks(api, userId, key, callback, status);
@@ -1807,8 +1846,10 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
 
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports) {
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const utils = __webpack_require__(0);
 
 module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
 
@@ -1863,6 +1904,9 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
             }
         }, (err, response) => {
             if (err) {
+                const defaultMessage = 'Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.';
+                const message = utils.extractError(err, defaultMessage);
+                return callback(message);
                 callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
             }
 
@@ -1879,7 +1923,9 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                 }
             }, (err, response) => {
                 if (err) {
-                    callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
+                    const defaultMessage = 'Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.';
+                    const message = utils.extractError(err, defaultMessage);
+                    return callback(message);
                 }
 
                 status('Creating new on-request Event Handler...');
@@ -1897,8 +1943,9 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                     }
                 }, (err, response) => {
                     if (err) {
-                        callback('Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.');
-                        return;
+                        const defaultMessage = 'Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.';
+                        const message = utils.extractError(err, defaultMessage);
+                        return callback(message);
                     }
 
                     startPubNubFunction();
@@ -1913,13 +1960,11 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
             key_id: key.id
         }
     }, (err, response) => {
+
         if (err) {
-            if (err.responseJSON && err.responseJSON.message) {
-                callback(err.responseJSON.message);
-            } else {
-                callback('Could not create new PubNub Function. Please contact support@pubnub.com.');
-            }
-            return;
+            const defaultMessage = 'Could not create new PubNub Function. Please contact support@pubnub.com.';
+            const message = utils.extractError(err, defaultMessage);
+            return callback(message);
         }
 
         block = response.payload;
@@ -1935,30 +1980,6 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
             });
     });
 };
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-
-const findCookie = (name) => {
-    let cookies = document.cookie.split(';');
-    let result = null;
-
-    cookies.forEach((cookie) => {
-        let cookieName = cookie.split('=')[0];
-        let cookieValue = cookie.split('=')[1];
-
-        if (cookieName.endsWith(name)) {
-            result = cookieValue;
-        }
-    });
-
-    return result;
-};
-
-module.exports = { findCookie };
 
 
 /***/ })
