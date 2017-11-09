@@ -33,7 +33,7 @@ describe('#me', () => {
             done();
         });
 
-        me.direct._emit('$.server.chat.created', { chat: { group: 'default', channel: 'test' } });
+        me.sync.trigger('$.session.chat.join', { chat: { group: 'default', channel: 'test' } });
 
     });
 
@@ -46,7 +46,7 @@ describe('#me', () => {
             done();
         });
 
-        me.direct._emit('$.server.chat.deleted', { chat: { group: 'default', channel: 'test' } });
+        me.sync.trigger('$.session.chat.leave', { chat: { group: 'default', channel: 'test' } });
 
     });
 });
