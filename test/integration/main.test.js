@@ -105,7 +105,7 @@ describe('connect', () => {
 
         ChatEngine.on('$.created.chat', (data, source) => {
 
-            let lookingFor = globalChannel + '#chat#private.#' + newChat;
+            let lookingFor = globalChannel + '#chat#public.#' + newChat;
 
             if (source.channel === lookingFor) {
                 done();
