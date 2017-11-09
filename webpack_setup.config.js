@@ -17,7 +17,7 @@ let config = {
             chunkModules: true,
             exclude: ['node_modules']
         }),
-        // new Uglify({})
+        new Uglify({})
     ],
     externals: [],
     profile: true
