@@ -467,32 +467,4 @@ describe('invite', () => {
 
     });
 
-    it('should not be able to join another chat', function dontJoin(done) {
-
-        this.timeout(10000);
-
-        let targetChan = 'super-secret-channel-' + new Date().getTime();
-
-        let yourSecretChat = new ChatEngineYou.Chat(targetChan);
-
-        yourSecretChat.on('$.connected', () => {
-
-            let illegalAccessChat = new ChatEngine.Chat(targetChan);
-
-            illegalAccessChat.on('$.connected', () => {
-
-                done(new Error('This user should not be able to join', illegalAccessChat.channel));
-
-            });
-
-            illegalAccessChat.once('$.error.publish', () => {
-                done();
-            });
-
-            illegalAccessChat.emit('message', { message: 'hello' });
-
-        });
-
-    });
-
 });
