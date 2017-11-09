@@ -79,7 +79,7 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                         code: functionCodeResult[0],
                         type: 'js',
                         name: 'chat-engine-server',
-                        path: 'server',
+                        path: 'chat-engine-server',
                         event: 'js-on-rest',
                         output: 'output-server-endpoint-' + Math.round((new Date()).getTime())
                     }
