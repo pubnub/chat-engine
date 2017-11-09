@@ -10,8 +10,7 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
 
         if (err) {
             const defaultMessage = 'Could not get PubNub accounts. Please contact support@pubnub.com.';
-            const message = utils.extractError(err, defaultMessage);
-            return callback(message);
+            return utils.callbackWithError(err, defaultMessage, callback);
         }
 
         let account = response.result.accounts[0];
@@ -28,8 +27,7 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
         }, (err, response) => {
             if (err) {
                 const defaultMessage = 'Could not create new PubNub app. Please contact support@pubnub.com.';
-                const message = utils.extractError(err, defaultMessage);
-                return callback(message);
+                return utils.callbackWithError(err, defaultMessage, callback);
             }
 
             let app = response.result;
@@ -43,9 +41,7 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
             }, (err, response) => {
                 if (err) {
                     const defaultMessage = 'Could not get PubNub keys. Please contact support@pubnub.com.';
-                    const message = utils.extractError(err, defaultMessage);
-                    callback(message);
-                    return;
+                    return utils.callbackWithError(err, defaultMessage, callback);
                 }
 
                 let apps = response.result;
@@ -78,8 +74,7 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
                 }, (err) => {
                     if (err) {
                         const defaultMessage = 'Could not enable PubNub features. Please contact support@pubnub.com.';
-                        const message = utils.extractError(err, defaultMessage);
-                        return callback(message);
+                        return utils.callbackWithError(err, defaultMessage, callback);
                     }
 
                     ProvisionBlocks(api, userId, key, callback, status);

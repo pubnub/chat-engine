@@ -11,8 +11,8 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
 
         api.storeSecretKey({ key }, (err) => {
             if (err) {
-                callback('Could not add Secret Key to Functions Vault. Please contact support@pubnub.com');
-                return;
+                const defaultMessage = 'Could not add Secret Key to Functions Vault. Please contact support@pubnub.com';
+                return utils.callbackWithError(err, defaultMessage, callback);
             }
 
             status('Success!');
@@ -29,8 +29,8 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
 
         api.startFunction({ block, key }, (err) => {
             if (err) {
-                callback('Could not start PubNub Function. Please contact support@pubnub.com.');
-                return;
+                const defaultMessage = 'Could not start PubNub Function. Please contact support@pubnub.com.';
+                return utils.callbackWithError(err, defaultMessage, callback);
             }
 
             addSecretKeyToVault();
@@ -54,9 +54,7 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
         }, (err, response) => {
             if (err) {
                 const defaultMessage = 'Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.';
-                const message = utils.extractError(err, defaultMessage);
-                return callback(message);
-                callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
+                return utils.callbackWithError(err, defaultMessage, callback);
             }
 
             api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
@@ -73,8 +71,7 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
             }, (err, response) => {
                 if (err) {
                     const defaultMessage = 'Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.';
-                    const message = utils.extractError(err, defaultMessage);
-                    return callback(message);
+                    return utils.callbackWithError(err, defaultMessage, callback);
                 }
 
                 status('Creating new on-request Event Handler...');
@@ -93,8 +90,7 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                 }, (err, response) => {
                     if (err) {
                         const defaultMessage = 'Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.';
-                        const message = utils.extractError(err, defaultMessage);
-                        return callback(message);
+                        return utils.callbackWithError(err, defaultMessage, callback);
                     }
 
                     startPubNubFunction();
@@ -112,8 +108,7 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
 
         if (err) {
             const defaultMessage = 'Could not create new PubNub Function. Please contact support@pubnub.com.';
-            const message = utils.extractError(err, defaultMessage);
-            return callback(message);
+            return utils.callbackWithError(err, defaultMessage, callback);
         }
 
         block = response.payload;

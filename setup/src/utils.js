@@ -15,12 +15,12 @@ const findCookie = (name) => {
     return result;
 };
 
-const extractError = (err, defaultMessage) => {
+const callbackWithError = (err, defaultMessage, callback) => {
     if (err && err.responseJSON && err.responseJSON.message) {
-        return err.responseJSON.message;
+        return callback(err.responseJSON.message);
     } else {
-        return defaultMessage;
+        return callback(defaultMessage);
     }
 };
 
-module.exports = { findCookie, extractError };
+module.exports = { findCookie, callbackWithError };
