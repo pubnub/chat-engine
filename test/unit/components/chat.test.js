@@ -85,18 +85,6 @@ describe('#chat', () => {
         chatInstance.userUpdate('user2', { state: 'not disturb' });
     });
 
-    it('update occupancies', (done) => {
-        chatInstance.on('$.connected', () => {
-            setTimeout(() => {
-                assert(chatInstance.users.user123.state.state === 'active', 'got the expected value');
-                done();
-            }, 50);
-        });
-
-        chatInstance.onConnectionReady();
-        chatEngineInstance.pubnub.hereNow.args[0][1]({ error: false }, { channels: { [chatInstance.channel]: { occupants: [{ uuid: 'user123', state: { state: 'active' } }] } } });
-    });
-
     describe('history', () => {
         it('fetches history', (done) => {
 

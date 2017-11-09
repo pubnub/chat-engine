@@ -66,7 +66,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 200 
+            "status": 200
         };
 
         auth(request, response).then((testResult) => {
@@ -109,7 +109,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 401 
+            "status": 200
         };
 
         auth(request, response).then((testResult) => {
@@ -137,7 +137,7 @@ describe('#auth', () => {
         });
 
         let correctResult = {
-            "status": 200 
+            "status": 200
         };
 
         auth(request, response).then((testResult) => {
@@ -179,7 +179,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 200 
+            "status": 200
         };
 
         auth(request, response).then((testResult) => {
@@ -195,7 +195,7 @@ describe('#auth', () => {
 
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
-        
+
         let testChannel = "testChannel";
         let testUuid = "testUuid";
         let wrongUuid = "wrongUuid";
@@ -222,7 +222,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 401 
+            "status": 200
         };
 
         auth(request, response).then((testResult) => {
@@ -250,7 +250,7 @@ describe('#auth', () => {
         });
 
         let correctResult = {
-            "status": 200 
+            "status": 200
         };
 
         auth(request, response).then((testResult) => {
@@ -274,7 +274,7 @@ describe('#auth', () => {
         });
 
         let correctResult = {
-            "status": 200 
+            "status": 200
         };
 
         auth(request, response).then((testResult) => {

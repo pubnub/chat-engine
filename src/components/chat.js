@@ -20,7 +20,7 @@ const Search = require('../components/search');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), isPrivate = true, autoConnect = true, meta = {}, group = 'custom') {
+    constructor(chatEngine, channel = new Date().getTime(), isPrivate = false, autoConnect = true, meta = {}, group = 'custom') {
 
         super(chatEngine);
 
