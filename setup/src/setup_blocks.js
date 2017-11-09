@@ -44,8 +44,8 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                 block_id: block.id,
                 type: 'js',
                 event: 'js-after-presence',
-                channels: 'global',
-                name: 'state-to-kv',
+                channels: '*',
+                name: 'chat-engine-state',
                 code: stateCodeResult[0],
                 output: 'output-state-to-kv-' + (new Date()).getTime()
             }
