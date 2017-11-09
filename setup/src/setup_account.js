@@ -1,4 +1,5 @@
 const ProvisionBlocks = require('./setup_blocks.js');
+const utils = require('./utils');
 
 module.exports = (api, userId, callback = () => {}, status = () => {}) => {
     api.request('get', ['api', 'accounts'], {
@@ -8,7 +9,9 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
     }, (err, response) => {
 
         if (err) {
-            return callback('Could not get PubNub accounts. Please contact support@pubnub.com.');
+            const defaultMessage = 'Could not get PubNub accounts. Please contact support@pubnub.com.';
+            const message = utils.extractError(err, defaultMessage);
+            return callback(message);
         }
 
         let account = response.result.accounts[0];
@@ -23,9 +26,10 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
                 properties: {}
             }
         }, (err, response) => {
-
             if (err) {
-                return callback('Could not create new PubNub app. Please contact support@pubnub.com.');
+                const defaultMessage = 'Could not create new PubNub app. Please contact support@pubnub.com.';
+                const message = utils.extractError(err, defaultMessage);
+                return callback(message);
             }
 
             let app = response.result;
@@ -37,9 +41,11 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
                     owner_id: account.id
                 }
             }, (err, response) => {
-
                 if (err) {
-                    return callback('Could not get PubNub keys. Please contact support@pubnub.com.');
+                    const defaultMessage = 'Could not get PubNub keys. Please contact support@pubnub.com.';
+                    const message = utils.extractError(err, defaultMessage);
+                    callback(message);
+                    return;
                 }
 
                 let apps = response.result;
@@ -69,10 +75,11 @@ module.exports = (api, userId, callback = () => {}, status = () => {}) => {
 
                 api.request('put', ['api', 'keys', key.id], {
                     data: key
-                }, (err, response) => {
-
+                }, (err) => {
                     if (err) {
-                        callback('Could not enable PubNub features. Please contact support@pubnub.com.');
+                        const defaultMessage = 'Could not enable PubNub features. Please contact support@pubnub.com.';
+                        const message = utils.extractError(err, defaultMessage);
+                        return callback(message);
                     }
 
                     ProvisionBlocks(api, userId, key, callback, status);

@@ -1,3 +1,5 @@
+const utils = require('./utils');
+
 module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
 
     let block = null;
@@ -51,6 +53,9 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
             }
         }, (err, response) => {
             if (err) {
+                const defaultMessage = 'Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.';
+                const message = utils.extractError(err, defaultMessage);
+                return callback(message);
                 callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
             }
 
@@ -67,7 +72,9 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                 }
             }, (err, response) => {
                 if (err) {
-                    callback('Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.');
+                    const defaultMessage = 'Could not create new PubNub after-publish Event Handler. Please contact support@pubnub.com.';
+                    const message = utils.extractError(err, defaultMessage);
+                    return callback(message);
                 }
 
                 status('Creating new on-request Event Handler...');
@@ -85,8 +92,9 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                     }
                 }, (err, response) => {
                     if (err) {
-                        callback('Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.');
-                        return;
+                        const defaultMessage = 'Could not create new Pubnub on-request Event Handler. Please contact support@pubnub.com.';
+                        const message = utils.extractError(err, defaultMessage);
+                        return callback(message);
                     }
 
                     startPubNubFunction();
@@ -103,7 +111,9 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
     }, (err, response) => {
 
         if (err) {
-            callback('Could not create new PubNub Function. Please contact support@pubnub.com.');
+            const defaultMessage = 'Could not create new PubNub Function. Please contact support@pubnub.com.';
+            const message = utils.extractError(err, defaultMessage);
+            return callback(message);
         }
 
         block = response.payload;
