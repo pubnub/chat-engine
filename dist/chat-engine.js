@@ -7852,10 +7852,32 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    let countObject = {};
+
     if (ceConfig.debug) {
+
         ChatEngine.onAny((event, payload) => {
+
             console.info('debug:', event, payload);
+
+            countObject['event: ' + event] = countObject[event] || 0;
+            countObject['event: ' + event] += 1;
+
         });
+
+    }
+
+    if (ceConfig.profiling) {
+
+        setInterval(() => {
+
+            countObject.chats = Object.keys(ChatEngine.chats).length;
+            countObject.users = Object.keys(ChatEngine.users).length;
+
+            console.table(countObject);
+
+        }, 1000);
+
     }
 
     ChatEngine.protoPlugins = {};
