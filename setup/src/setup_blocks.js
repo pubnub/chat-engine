@@ -22,7 +22,6 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                 sub: key.subscribe_key
             });
 
-            // addSecretKeyToVault();
         });
     };
 
