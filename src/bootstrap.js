@@ -349,7 +349,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                      * @event ChatEngine#$"."network"."down"."denied
                      */
 
-                    // map the pubnub events into chat engine events
+                    // map the pubnub events into ChatEngine events
                     let categories = {
                         PNNetworkUpCategory: 'up.online',
                         PNNetworkDownCategory: 'down.offline',
