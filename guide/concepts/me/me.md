@@ -1,4 +1,4 @@
-To authorize this client as a Chat Engine User, use the ```connect``` function.
+To authorize this client as a ChatEngine User, use the ```connect``` function.
 
 ```js
 let me = ChatEngine.connect('ian');
