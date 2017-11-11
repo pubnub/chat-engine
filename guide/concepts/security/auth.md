@@ -1,4 +1,4 @@
-ChatEngine supports full permissions based management supported by PubNub PAM.
+ChatEngine supports full permissions based management supported by PubNub Access Manager.
 
 ## Fresh
 
@@ -18,7 +18,7 @@ const ChatEngine = ChatEngineCore.create({
 ChatEngine.connect(username, {}, 'auth-key');
 ```
 
-It authorizes PubNub PAM permissions for the supplied authentication key on all read and write channels. See {@tutorial topology}.
+It authorizes PubNub Access Manager permissions for the supplied authentication key on all read and write channels. See {@tutorial topology}.
 
 
 When the endpoint responds and ChatEngine successfully connects to PubNub, {@link ChatEngine}
