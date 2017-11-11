@@ -1,11 +1,10 @@
-# PubNub Chat Engine Tutorial
+# PubNub ChatEngine Tutorial
 
-Hey there and welcome to the PubNub Chat Engine tutorial. Today we'll be walking through the steps to build a super charged chat application
-with PubNub Chat Engine.
+Hey there and welcome to the PubNub ChatEngine tutorial. Today we'll be walking through the steps to build a super charged chat application with PubNub ChatEngine.
 
-## What is PubNub Chat Engine
+## What is PubNub ChatEngine
 
-The PubNub Chat Engine is a new Javascript framework that sits on top of the PubNub SDK. The PubNub JS SDK is a low level toolset for creating realtime Javascript applications. PubNub Chat Engine wraps those tools into handy features made especially for chat applications.
+The PubNub ChatEngine is a new Javascript framework that sits on top of the PubNub SDK. The PubNub JS SDK is a low level toolset for creating realtime Javascript applications. PubNub ChatEngine wraps those tools into handy features made especially for chat applications.
 
 ## What is PubNub?
 
