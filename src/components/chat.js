@@ -72,6 +72,11 @@ class Chat extends Emitter {
          */
         this.connected = false;
 
+        /**
+         * Keep a record if we've every successfully connected to this chat before.
+         */
+        this.hasConnected = false;
+
         this.chatEngine.chats[this.channel] = this;
 
         if (autoConnect) {
@@ -178,7 +183,7 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                this.chatEngine.throwError(this, 'trigger', 'search', new Error('Something went wrong while making a request to authentication server.'), { error });
             });
 
     }
@@ -245,7 +250,7 @@ class Chat extends Emitter {
             chat: this.objectify()
         }).then(() => {
         }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('You must wait for the $.connected event before calling Chat#search'), { error });
         });
 
     }
@@ -520,7 +525,11 @@ class Chat extends Emitter {
     });
      */
     search(config) {
-        return new Search(this.chatEngine, this, config);
+        if(this.hasConnected) {
+            return new Search(this.chatEngine, this, config);
+        } else {
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+        }
     }
 
     onConnectionReady() {
@@ -538,6 +547,7 @@ class Chat extends Emitter {
         this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
 
         this.connected = true;
+        this.hasConnected = true;
 
         // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
