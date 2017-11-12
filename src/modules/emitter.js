@@ -4,7 +4,7 @@ const Event = require('../components/event');
 
 /**
  An ChatEngine generic emitter that supports plugins and duplicates
- events to the root emitter.
+ events on the root emitter.
  @class Emitter
  @extends RootEmitter
  */

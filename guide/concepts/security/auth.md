@@ -11,17 +11,23 @@ When {@link ChatEngine#connect} is called, it connects to PubNub functions and a
 
 ```js
 const ChatEngine = ChatEngineCore.create({
-    publishKey: 'demo',
-    subscribeKey: 'demo'
+    publishKey: 'YOUR_PUB_KEY',
+    subscribeKey: 'YOUR_SUB_KEY'
 });
 
-ChatEngine.connect(username, {}, 'auth-key');
+ChatEngine.connect(username, {}, 'YOUR_AUTH_KEY');
 ```
 
 It authorizes PubNub Access Manager permissions for the supplied authentication key on all read and write channels. See {@tutorial topology}.
 
+```YOUR_AUTH_KEY``` is typically a session based token that should be cycled frequently. Providing a consistent auth key is not recommended.
+
+## Successful Authentication
+
 When the endpoint responds and ChatEngine successfully connects to PubNub, {@link ChatEngine}
 emits the ```$.ready``` event.
+
+## Authentication Failure
 
 If the authentication call fails, {@link ChatEngine} emits ```$.error.auth```.
 
