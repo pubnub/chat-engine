@@ -180,7 +180,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
-     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
+     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
      * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial authentication} for more.
      * @param {Object} [authData] Additional data to send to the authentication endpoint to help verify a valid session. ChatEngine SDK does not make use of this, but you might!
