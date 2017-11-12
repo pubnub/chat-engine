@@ -29,8 +29,12 @@ class Chat extends Emitter {
 
         this.name = 'Chat';
 
-        this.meta = meta;
-
+        /**
+        * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
+        * @type Boolean
+        * @readonly
+        * @private
+        */
         this.group = group;
 
         /**
@@ -45,7 +49,7 @@ class Chat extends Emitter {
          * @type Object
          * @readonly
          */
-        this.meta = {};
+        this.meta = meta || {};
 
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly granted access.
@@ -242,6 +246,10 @@ class Chat extends Emitter {
 
     }
 
+    /**
+     * Update the {@link Chat} metadata on the server.
+     * @param  {object} data JSON object representing chat metadta.
+     */
     update(data) {
 
         let oldMeta = this.meta || {};
@@ -529,6 +537,9 @@ class Chat extends Emitter {
         return new Search(this.chatEngine, this, config);
     }
 
+    /**
+     * @private
+     */
     onConnectionReady() {
 
         /**
@@ -536,8 +547,8 @@ class Chat extends Emitter {
          * @event Chat#$"."connected
          * @example
          * chat.on('$.connected', () => {
-                *     console.log('chat is ready to go!');
-                * });
+         *     console.log('chat is ready to go!');
+         * });
          */
         this.trigger('$.connected');
 
