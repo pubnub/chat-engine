@@ -42,7 +42,7 @@ You can find the full docs on [the full documentation website](https://chat-engi
 
 ## NodeJS + Chatbot
 
-* [NodeJS ChatBot](https://pubnub.github.io/chat-engine/examples/bot.js)
+* [NodeJS ChatBot](https://github.com/pubnub/chat-engine-examples/blob/master/nodejs/bot.js)
 
 ## Plugins
 
