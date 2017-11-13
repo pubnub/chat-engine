@@ -344,6 +344,7 @@ describe('remote chat list', () => {
         ChatEngineClone = ChatEngineCore.create({
             publishKey: pubkey,
             subscribeKey: subkey
+
         }, {
             globalChannel,
             throwErrors: false
