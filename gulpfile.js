@@ -15,7 +15,7 @@ const rename = require('gulp-rename');
 const surge = require('gulp-surge');
 
 let sourceFiles = ['src/**/*.js'];
-let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
+let testFiles = ['test/integration/**/*.js', 'test/unit/**/*.js'];
 let pluginFiles = [
     '../chat-engine-uploadcare/src/plugin.js',
     '../chat-engine-typing-indicator/src/plugin.js',
