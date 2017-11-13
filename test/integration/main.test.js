@@ -55,8 +55,8 @@ describe('config', () => {
     it('should be configured', () => {
 
         ChatEngine = ChatEngineCore.create({
-            publishKey: 'pub-c-2f5ff6dd-d800-466b-87c2-8ed39d8837ca',
-            subscribeKey: 'sub-c-06f1af24-c4ea-11e7-9178-bafd478c18bc'
+            publishKey: 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92',
+            subscribeKey: 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c'
         }, {
             globalChannel,
             throwErrors: false
@@ -339,8 +339,8 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         ChatEngineClone = ChatEngineCore.create({
-            publishKey: 'pub-c-2f5ff6dd-d800-466b-87c2-8ed39d8837ca',
-            subscribeKey: 'sub-c-06f1af24-c4ea-11e7-9178-bafd478c18bc'
+            publishKey: 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92',
+            subscribeKey: 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c'
         }, {
             globalChannel,
             throwErrors: false
@@ -409,8 +409,8 @@ describe('invite', () => {
         this.timeout(5000);
 
         ChatEngineYou = ChatEngineCore.create({
-            publishKey: 'pub-c-2f5ff6dd-d800-466b-87c2-8ed39d8837ca',
-            subscribeKey: 'sub-c-06f1af24-c4ea-11e7-9178-bafd478c18bc'
+            publishKey: 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92',
+            subscribeKey: 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c'
         }, {
             globalChannel,
             throwErrors: false
