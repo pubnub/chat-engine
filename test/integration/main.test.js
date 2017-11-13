@@ -194,7 +194,9 @@ describe('chat', () => {
 
     });
 
-    it('should get message', (done) => {
+    it('should get message', function getMessage(done) {
+
+        this.timeout(6000);
 
         chat.once('something', (payload) => {
 
@@ -451,7 +453,7 @@ describe('invite', () => {
 
     });
 
-    it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
+    it('two users are able to talk to each other in chat', function twoUsersTalk(done) {
 
         this.timeout(5000);
 
