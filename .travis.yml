@@ -6,7 +6,6 @@ node_js:
   - '8'
 cache: yarn
 script:
-  - node server.js &
   - gulp test
 after_success:
   - npm install codecov codacy-coverage
