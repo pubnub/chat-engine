@@ -43,32 +43,7 @@ module.exports = class {
             this.loginElement.hide();
 
             // analytics.identify(this.userId);
-            let analyticsData = {
-                type: 'identify',
-                anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
-                context: {
-                    library: {
-                        name: 'PubNub Functions',
-                        version: '0.0.1'
-                    },
-                    page: {
-                        path: location.pathname,
-                        url: location.href,
-                        title: document.title,
-                        search: location.search,
-                        referrer: document.referrer
-                    },
-                    userAgent: navigator.userAgent
-                },
-                userId: this.userId
-            };
-            $.ajax({
-                type: 'POST',
-                url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
-                data: JSON.stringify(analyticsData),
-                success: function(){console.log('success');},
-                contentType: "application/json; charset=utf-8"
-            });
+            this.identify(this.userId);
         }
 
     }
@@ -105,33 +80,7 @@ module.exports = class {
             output += '});\n';
 
             // analytics.track('chat_engine_activation');
-            let analyticsData = {
-                type: 'track',
-                anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
-                event: 'chat_engine_activation',
-                context: {
-                    library: {
-                        name: 'PubNub Functions',
-                        version: '0.0.1'
-                    },
-                    page: {
-                        path: location.pathname,
-                        url: location.href,
-                        title: document.title,
-                        search: location.search,
-                        referrer: document.referrer
-                    },
-                    userAgent: navigator.userAgent
-                },
-                userId: this.userId
-            };
-            $.ajax({
-                type: 'POST',
-                url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
-                data: JSON.stringify(analyticsData),
-                success: function(){console.log('success');},
-                contentType: "application/json; charset=utf-8"
-            });
+            this.track('chat_engine_activation');
 
             this.codeElement.text(output);
             this.outputElement.show();
@@ -160,32 +109,8 @@ module.exports = class {
                 this.userId = response.result.user_id;
 
                 // analytics.identify(this.userId);
-                let analyticsData = {
-                    type: 'identify',
-                    anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
-                    context: {
-                        library: {
-                            name: 'PubNub Functions',
-                            version: '0.0.1'
-                        },
-                        page: {
-                            path: location.pathname,
-                            url: location.href,
-                            title: document.title,
-                            search: location.search,
-                            referrer: document.referrer
-                        },
-                        userAgent: navigator.userAgent
-                    },
-                    userId: this.userId
-                };
-                $.ajax({
-                    type: 'POST',
-                    url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
-                    data: JSON.stringify(analyticsData),
-                    success: function(){console.log('success');},
-                    contentType: "application/json; charset=utf-8"
-                });
+                this.identify(this.userId);
+                
 
                 this.provisionElement.show();
                 this.loginElement.hide();
@@ -206,6 +131,65 @@ module.exports = class {
         ProvisionAccount(this.client, this.userId, this.onProvisionSuccess.bind(this), this.displayStatus.bind(this));
 
         return false;
+    }
+
+    identify(id) {
+        const analyticsData = {
+            type: 'identify',
+            anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
+            context: {
+                library: {
+                    name: 'PubNub Functions',
+                    version: '0.0.1'
+                },
+                page: {
+                    path: location.pathname,
+                    url: location.href,
+                    title: document.title,
+                    search: location.search,
+                    referrer: document.referrer
+                },
+                userAgent: navigator.userAgent
+            },
+            userId: id
+        };
+        $.ajax({
+            type: 'POST',
+            url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
+            data: JSON.stringify(analyticsData),
+            success: function(){console.log('success');},
+            contentType: "application/json; charset=utf-8"
+        });
+    }
+
+    track(event) {
+        const analyticsData = {
+            type: 'track',
+            anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
+            event: event,
+            context: {
+                library: {
+                    name: 'PubNub Functions',
+                    version: '0.0.1'
+                },
+                page: {
+                    path: location.pathname,
+                    url: location.href,
+                    title: document.title,
+                    search: location.search,
+                    referrer: document.referrer
+                },
+                userAgent: navigator.userAgent
+            },
+            userId: this.userId
+        };
+        $.ajax({
+            type: 'POST',
+            url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
+            data: JSON.stringify(analyticsData),
+            success: function(){console.log('success');},
+            contentType: "application/json; charset=utf-8"
+        });
     }
 
 };
