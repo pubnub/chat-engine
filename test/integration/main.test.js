@@ -457,7 +457,7 @@ describe('invite', () => {
 
     });
 
-    it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
+    it('two users are able to talk to each other in chat', function twoUsersTalk(done) {
 
         this.timeout(8000);
 
