@@ -20,8 +20,8 @@
     </script>
 
     <script type="text/javascript">
-      let data = {
-        anonymousId: 'e19f4991-fd83-4834-a108-98add2cb0ec0',
+    let data = {
+        anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
         properties: {
             path: location.pathname,
             url: location.href,
@@ -43,8 +43,8 @@
             },
             userAgent: navigator.userAgent
         }
-      };
-      $.ajax({
+    };
+    $.ajax({
         type: 'POST',
         url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
         data: JSON.stringify(data),
