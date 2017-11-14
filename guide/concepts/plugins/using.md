@@ -21,7 +21,7 @@ someChatroom.plugin(myPlugin(config));
 You'll need the ```chat-engine-plugin``` tool described in the next section to
 build the package for web.
 
-Once you build the pckage you would include the plugin with a ```<script>``` tag like:
+Once you build the package you would include the plugin with a ```<script>``` tag like:
 
 ```html
 <script src="/web/plugin.js"></script>
