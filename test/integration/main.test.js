@@ -1,8 +1,8 @@
 const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
 
-const pubkey = "pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92";
-const subkey = "sub-c-696d9116-c668-11e7-afd4-56ea5891403c";
+const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
+const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
 
 describe('import', () => {
 
@@ -142,7 +142,7 @@ describe('connect', () => {
 
     it('should notify chatengine on disconnected', function disconnected(done) {
 
-        this.timeout(4000)
+        this.timeout(4000);
 
         ChatEngine.on('$.disconnected', (data, source) => {
 
@@ -197,7 +197,9 @@ describe('chat', () => {
 
     });
 
-    it('should get message', (done) => {
+    it('should get message', function (done) {
+
+        this.timeout(8000);
 
         chat.once('something', (payload) => {
 
@@ -457,7 +459,7 @@ describe('invite', () => {
 
     it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
 
-        this.timeout(5000);
+        this.timeout(8000);
 
         yourChat.on('message', (payload) => {
 
