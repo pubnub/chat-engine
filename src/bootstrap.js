@@ -108,9 +108,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
-    /**
-     * @private
-     */
     ChatEngine.request = (method, route, inputBody = {}, inputParams = {}) => {
 
         let body = {
@@ -137,10 +134,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    /**
-     * Parse a channel name into chat object parts
-     * @private
-     */
     ChatEngine.parseChannel = (channel) => {
 
         let info = channel.split('#');
@@ -156,6 +149,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     /**
      * Get the internal channel name of supplied string
      * @private
+     * @param  {[type]}  original  [description]
+     * @param  {Boolean} isPrivate [description]
+     * @return {[type]}            [description]
      */
     ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = true) => {
 
@@ -180,9 +176,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
-     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
+     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
      * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
-     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
+     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
      * @param {Object} [authData] Additional data to send to the authentication endpoint to help verify a valid session. ChatEngine SDK does not make use of this, but you might!
      * @fires $"."connected
      */
@@ -190,6 +186,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
+
         pnConfig.uuid = uuid;
 
         pnConfig.authKey = authKey || pnConfig.uuid;
@@ -352,7 +349,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                      * @event ChatEngine#$"."network"."down"."denied
                      */
 
-                    // map the pubnub events into ChatEngine events
+                    // map the pubnub events into chat engine events
                     let categories = {
                         PNNetworkUpCategory: 'up.online',
                         PNNetworkDownCategory: 'down.offline',
@@ -421,7 +418,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     };
 
     /**
-     * The {@link Chat} class. Creates a new Chat when initialized, or returns an existing instance if chat has already been created.
+     * The {@link Chat} class.
      * @member {Chat} Chat
      * @memberof ChatEngine
      * @see {@link Chat}
@@ -453,7 +450,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     };
 
     /**
-     * The {@link User} class. Creates a new User when initialized, or returns an existing instance if chat has already been created.
+     * The {@link User} class.
      * @member {User} User
      * @memberof ChatEngine
      * @see {@link User}

@@ -5,7 +5,7 @@
 You can grab the latest version of ChatEngine by hotlinking to the GitHub pages hosted version of ChatEngine
 
 ```js
-<script src="https://cdn.jsdelivr.net/npm/chat-engine@0.8.4/dist/chat-engine.min.js"></script>
+<script src="//pubnub.github.io/chat-engine/dist/0.6.1/chat-engine.js"></script>
 ```
 
 The ChatEngine library will then be available as ```window.ChatEngineCore```.
@@ -33,4 +33,4 @@ Or in NodeJS:
 ```js
 let ChatEngineCore = require('chat-engine');
 ```
-
+  

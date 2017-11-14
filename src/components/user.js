@@ -1,13 +1,13 @@
 const Emitter = require('../modules/emitter');
 
 /**
-This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
-If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
-@class User
-@extends Emitter
-@extends RootEmitter
-@param {User#uuid} uuid A unique identifier for this user.
-@param {User#state} state The {@link User}'s state object synchronized between all clients of the chat.
+ This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
+ If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
+ @class User
+ @extends Emitter
+ @extends RootEmitter
+ @param uuid
+ @param state
  */
 class User extends Emitter {
 

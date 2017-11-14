@@ -6,10 +6,9 @@ const Search = require('../components/search');
 /**
  This is the root {@link Chat} class that represents a chat room
 
- @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
+ @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
  @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
- @param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @class Chat
  @extends Emitter
@@ -29,12 +28,8 @@ class Chat extends Emitter {
 
         this.name = 'Chat';
 
-        /**
-        * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
-        * @type Boolean
-        * @readonly
-        * @private
-        */
+        this.meta = meta;
+
         this.group = group;
 
         /**
@@ -45,26 +40,21 @@ class Chat extends Emitter {
         this.isPrivate = isPrivate;
 
         /**
-         * Chat metadata persisted on the server. Useful for storing things like the name and description. Call {@link Chat#update} to update the remote information.
-         * @type Object
-         * @readonly
-         */
-        this.meta = meta || {};
-
-        /**
-        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly granted access.
-        * @type Boolean
-        * @see  {@tutorial privacy}
-        * @readonly
-        */
-        this.isPrivate = isPrivate;
-
-        /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
          * @type String
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
+
+        this.meta = {};
+
+        /**
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
+        * @type Boolean
+        * @readonly
+        */
+        this.isPrivate = isPrivate;
+
         this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
 
         /**
@@ -246,10 +236,6 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     * Update the {@link Chat} metadata on the server.
-     * @param  {object} data JSON object representing chat metadta.
-     */
     update(data) {
 
         let oldMeta = this.meta || {};
@@ -537,9 +523,6 @@ class Chat extends Emitter {
         return new Search(this.chatEngine, this, config);
     }
 
-    /**
-     * @private
-     */
     onConnectionReady() {
 
         /**
@@ -547,8 +530,8 @@ class Chat extends Emitter {
          * @event Chat#$"."connected
          * @example
          * chat.on('$.connected', () => {
-         *     console.log('chat is ready to go!');
-         * });
+                *     console.log('chat is ready to go!');
+                * });
          */
         this.trigger('$.connected');
 
