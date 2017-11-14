@@ -44,7 +44,10 @@ class Me extends User {
 
     }
 
-    // assign updates from network
+    /**
+     * assign updates from network
+     * @private
+     */
     assign(state) {
         // we call "update" because calling "super.assign"
         // will direct back to "this.update" which creates

@@ -1,0 +1,105 @@
+--- 
+changelog: 
+  - 
+    changes: 
+      - 
+        text: "New Search (History) Class: chat.search({event: 'message'}).on('messsage', () => {})."
+        type: feature
+      - 
+        text: "New Search (History) Class: Search returns event emitter for superior code quality."
+        type: feature
+      - 
+        text: "New Search (History) Class: Search now pages to iterate over complete history."
+        type: improvement
+      - 
+        text: "New Search (History) Class: Ability to search between dates."
+        type: improvement
+      - 
+        text: "New Search (History) Class: Events for $.search.start and $.page.request."
+        type: feature
+      - 
+        text: "Functions auto setup in setup.js."
+        type: improvement
+      - 
+        text: "Unit testing coverage."
+        type: improvement
+      - 
+        text: "Ability to subscribe to events indicating a class was created locally."
+        type: improvement
+      - 
+        text: "Source of ChatEngine events available as second param in callback: ChatEngine.on('$.created.chat', (payload, chat) => {})"
+        type: improvement
+      - 
+        text: "Full es6 class syntax."
+        type: improvement
+      - 
+        text: "protoPlugin() -> ChatEngine#proto."
+        type: improvement
+    date: Nov 6, 17
+    version: v0.7.0
+  - 
+    changes: 
+      - 
+        text: "Stop rendering date on footer to avoid large diffs."
+        type: improvement
+      - 
+        text: "Document $.created methodS."
+        type: improvement
+      - 
+        text: "Revert docs compiled for better diff."
+        type: improvement
+      - 
+        text: "Revert dist dir."
+        type: improvement
+      - 
+        text: "Add guids to docs gulp task, replace code references to classes with docs links."
+        type: improvement
+      - 
+        text: "Render me."
+        type: improvement
+      - 
+        text: "More editing to me page."
+        type: improvement
+      - 
+        text: "Finish users tutorial updates."
+        type: improvement
+      - 
+        text: "Get to online-loist."
+        type: feature
+      - 
+        text: "First edit of concepts."
+        type: improvement
+      - 
+        text: "Better event output in guides."
+        type: improvement
+      - 
+        text: "Edits to $.created docs."
+        type: improvement
+      - 
+        text: "Add notes about 0.6.x into readme top."
+        type: improvement
+      - 
+        text: "Make linters happy."
+        type: improvement
+      - 
+        text: "Fix uploadcare example dustin pointed out."
+        type: bug
+      - 
+        text: "Remove dates from footers."
+        type: improvement
+    date: Oct 28, 17
+    version: v0.6.1
+supported-platforms:
+  -
+    version: Pubnub Javascript for Web
+    platforms:
+      - Safari 10 and up
+      - Mozilla Firefox 51 and up
+      - Google Chrome 56 and up
+      - Opera 41  and up
+      - IE 9 and up
+      - Microsoft Edge 38 and up
+name: chat-engine
+schema: 1
+scm: github.com/pubnub/chat-engine
+version: “0.7.0”
