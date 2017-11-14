@@ -163,7 +163,7 @@ module.exports = class {
     track(event) {
         const analyticsData = {
             type: 'track',
-            anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4, document.cookie.indexOf(';')-3),
+            anonymousId: document.cookie.substring(document.cookie.indexOf('=') + 4, document.cookie.indexOf(';') - 3),
             event: event,
             context: {
                 library: {
