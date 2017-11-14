@@ -3,8 +3,8 @@ const RootEmitter = require('./root_emitter');
 const Event = require('../components/event');
 
 /**
- An ChatEngine generic emitter that supports plugins and duplicates
- events on the root emitter.
+ An ChatEngine generic emitter that supports plugins and forwards
+ events to the root emitter.
  @class Emitter
  @extends RootEmitter
  */
@@ -58,13 +58,13 @@ class Emitter extends RootEmitter {
          *
          * // Get notified whenever someone joins the room
          * object.on('event', (payload) => {
-         *     console.log('event was fired').
-         * })
+                *     console.log('event was fired').
+                * })
          *
          * // Get notified of event.a and event.b
          * object.on('event.*', (payload) => {
-         *     console.log('event.a or event.b was fired').;
-         * })
+                *     console.log('event.a or event.b was fired').;
+                * })
          */
         this.on = (event, cb) => {
 

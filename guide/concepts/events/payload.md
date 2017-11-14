@@ -22,7 +22,7 @@ The {@link User} and {@link Chat} properties are both fully interactive instance
 
 ## Simple Example
 
-In this demo we'll mock up a user named 'Ian' emitting the 'like' event on a user named 'Alex'.
+In this demo we'll mock up a user named 'Ian' emitting the 'like' event on a user named 'Emily'.
 
 On Ian's page:
 
@@ -32,21 +32,21 @@ ChatEngine.connect('ian', {fullName: 'Ian Jennings'});
 
 // emit a 'like' event over global chat
 ChatEngine.global.emit('like', {
-    who: 'alex'
+    who: 'emily'
 });
 ```
 
-On Alex's page:
+On Emily's page:
 
 ```js
-// connect with UUID 'alex'
-ChatEngine.connect('alex');
+// connect with UUID 'emily'
+ChatEngine.connect('emily');
 
 // when we received a 'like' event on global chat
 ChatEngine.global.on('like', (payload) => {
 
-    // if that event matches 'alex'
-    if(payload.data.who == 'alex') {
+    // if that event matches 'emily'
+    if(payload.data.who == 'emily') {
 
         // opens an alert that says "ian likes you!""
         alert(payload.sender.uuid + ' likes you!');

@@ -75,8 +75,14 @@ gulp.task('lint_tests', [], () => {
         .pipe(eslint.failAfterError());
 });
 
-gulp.task('run_tests', () => {
-    return gulp.src(testFiles, { read: false })
+gulp.task('run_unit_tests', () => {
+    return gulp.src(testFiles[0], { read: false })
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports());
+});
+
+gulp.task('run_integration_tests', () => {
+    return gulp.src(testFiles[1], { read: false })
         .pipe(mocha({ reporter: 'spec' }))
         .pipe(istanbul.writeReports());
 });
@@ -92,7 +98,7 @@ gulp.task('pre-test', () => {
 });
 
 gulp.task('test', () => {
-    runSequence('pre-test', 'run_tests', 'validate', () => {
+    runSequence('pre-test', 'run_unit_tests', 'run_integration_tests', 'validate', () => {
         process.exit();
     });
 });

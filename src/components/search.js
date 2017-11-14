@@ -2,14 +2,17 @@ const Emitter = require('../modules/emitter');
 const eachSeries = require('async/eachSeries');
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
-Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
-@class Search
-@extends Emitter
-@extends RootEmitter
-@param {ChatEngine} chatEngine This instance of the {@link ChatEngine} object.
-@param {Chat} chat The {@link Chat} object to search.
-@param {Object} config The configuration object. See {@link Chat#search} for a list of parameters.
-*/
+
+
+ Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
+
+ @class Search
+ @extends Emitter
+ @extends RootEmitter
+ @param chatEngine
+ @param chat
+ @param config
+ */
 class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {

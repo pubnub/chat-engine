@@ -4,23 +4,20 @@ const proxyquire = require('proxyquire');
 
 const mock = {
     get: () => {
-        return new Promise((resolve) => {
-            resolve({ data: [] });
-        });
+        return Promise.resolve({ data: {} });
     },
     post: () => {
-        return new Promise((resolve) => {
-            resolve({ data: {} });
-        });
+        return Promise.resolve({ data: {} });
     }
 };
 
-const Bootstrap = proxyquire('../../src/bootstrap', { axios: mock });
-
 describe('#bootstrap', () => {
     let chatEngineInstance = null;
+    let Bootstrap = null;
 
     beforeEach(() => {
+        Bootstrap = proxyquire('../../src/bootstrap', { axios: mock });
+
         chatEngineInstance = Bootstrap({ globalChannel: 'common' }, { publishKey: 'demo', subscribeKey: 'demo' });
 
         // mock pubnub
@@ -33,7 +30,9 @@ describe('#bootstrap', () => {
     });
 
     it('imported', () => {
-        assert.isNotNull(Bootstrap, 'was successfully imported');
+        setTimeout(() => {
+            assert.isNotNull(Bootstrap, 'was successfully imported');
+        }, 1000);
     });
 
     it('chat created', (done) => {
