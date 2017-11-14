@@ -23,7 +23,7 @@
     // analytics.page();
     let analyticsData = {
         type: 'page',
-        anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
+        anonymousId: document.cookie.substring(document.cookie.indexOf('=') + 4, document.cookie.indexOf(';') - 3),
         properties: {
             path: location.pathname,
             url: location.href,
@@ -50,8 +50,7 @@
         type: 'POST',
         url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
         data: JSON.stringify(analyticsData),
-        success: function(){console.log('success');},
-        contentType: "application/json; charset=utf-8"
+        contentType: 'application/json; charset=utf-8'
     });
     </script>
     <link rel="stylesheet" href="styles.css">

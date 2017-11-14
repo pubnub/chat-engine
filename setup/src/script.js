@@ -110,7 +110,6 @@ module.exports = class {
 
                 // analytics.identify(this.userId);
                 this.identify(this.userId);
-                
 
                 this.provisionElement.show();
                 this.loginElement.hide();
@@ -136,7 +135,7 @@ module.exports = class {
     identify(id) {
         const analyticsData = {
             type: 'identify',
-            anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
+            anonymousId: document.cookie.substring(document.cookie.indexOf('=') + 4, document.cookie.indexOf(';') - 3),
             context: {
                 library: {
                     name: 'PubNub Functions',
@@ -157,15 +156,14 @@ module.exports = class {
             type: 'POST',
             url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
             data: JSON.stringify(analyticsData),
-            success: function(){console.log('success');},
-            contentType: "application/json; charset=utf-8"
+            contentType: 'application/json; charset=utf-8'
         });
     }
 
     track(event) {
         const analyticsData = {
             type: 'track',
-            anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4,document.cookie.indexOf(';')-3),
+            anonymousId: document.cookie.substring(document.cookie.indexOf('=')+4, document.cookie.indexOf(';')-3),
             event: event,
             context: {
                 library: {
@@ -187,8 +185,7 @@ module.exports = class {
             type: 'POST',
             url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
             data: JSON.stringify(analyticsData),
-            success: function(){console.log('success');},
-            contentType: "application/json; charset=utf-8"
+            contentType: 'application/json; charset=utf-8'
         });
     }
 
