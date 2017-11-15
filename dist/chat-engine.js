@@ -737,8 +737,8 @@ const RootEmitter = __webpack_require__(14);
 const Event = __webpack_require__(23);
 
 /**
- An ChatEngine generic emitter that supports plugins and forwards
- events to the root emitter.
+ An ChatEngine generic emitter that supports plugins and duplicates
+ events on the root emitter.
  @class Emitter
  @extends RootEmitter
  */
@@ -792,13 +792,13 @@ class Emitter extends RootEmitter {
          *
          * // Get notified whenever someone joins the room
          * object.on('event', (payload) => {
-                *     console.log('event was fired').
-                * })
+         *     console.log('event was fired').
+         * })
          *
          * // Get notified of event.a and event.b
          * object.on('event.*', (payload) => {
-                *     console.log('event.a or event.b was fired').;
-                * })
+         *     console.log('event.a or event.b was fired').;
+         * })
          */
         this.on = (event, cb) => {
 
@@ -7538,13 +7538,13 @@ module.exports = isLength;
 const Emitter = __webpack_require__(5);
 
 /**
- This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
- If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
- @class User
- @extends Emitter
- @extends RootEmitter
- @param uuid
- @param state
+This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
+If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
+@class User
+@extends Emitter
+@extends RootEmitter
+@param {User#uuid} uuid A unique identifier for this user.
+@param {User#state} state The {@link User}'s state object synchronized between all clients of the chat.
  */
 class User extends Emitter {
 
@@ -7721,15 +7721,16 @@ Global object used to create an instance of {@link ChatEngine}.
 
 @alias ChatEngineCore
 @param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/java-se-java/api-reference-configuration).
-@param ceConfig {Object} A list of chat engine specific config options.
+@param ceConfig {Object} A list of ChatEngine specific configuration options.
 @param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link ChatEngine.global}
 @param [ceConfig.throwErrors=true] {Boolean} Throws errors in JS console.
-@param [ceConfig.endpoint] {String} The root URL used to manage permissions for private channels.
+@param [ceConfig.endpoint='https://pubsub.pubnub.com/v1/blocks/sub-key/YOUR_SUB_KEY/chat-engine-server'] {String} The root URL of the server used to manage permissions for private channels. Set by default to match the PubNub functions deployed to your account. See {@tutorial privacy} for more.
+@param [ceConfig.debug] {Boolean} Logs all ChatEngine events to the console.
 @return {ChatEngine} Returns an instance of {@link ChatEngine}
 @example
 ChatEngine = ChatEngineCore.create({
-    publishKey: 'demo',
-    subscribeKey: 'demo'
+    publishKey: 'YOUR_PUB_KEY',
+    subscribeKey: 'YOUR_SUB_KEY'
 });
 */
 
@@ -7876,7 +7877,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             console.table(countObject);
 
-        }, 1000);
+        }, 3000);
 
     }
 
@@ -7893,6 +7894,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
+    /**
+     * @private
+     */
     ChatEngine.request = (method, route, inputBody = {}, inputParams = {}) => {
 
         let body = {
@@ -7919,6 +7923,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * Parse a channel name into chat object parts
+     * @private
+     */
     ChatEngine.parseChannel = (channel) => {
 
         let info = channel.split('#');
@@ -7934,9 +7942,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     /**
      * Get the internal channel name of supplied string
      * @private
-     * @param  {[type]}  original  [description]
-     * @param  {Boolean} isPrivate [description]
-     * @return {[type]}            [description]
      */
     ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = true) => {
 
@@ -7961,9 +7966,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
-     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc.
+     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
      * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
-     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token or password. This is different from UUID as a user can have a single UUID but multiple auth keys.
+     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
      * @param {Object} [authData] Additional data to send to the authentication endpoint to help verify a valid session. ChatEngine SDK does not make use of this, but you might!
      * @fires $"."connected
      */
@@ -7971,7 +7976,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
-
         pnConfig.uuid = uuid;
 
         pnConfig.authKey = authKey || pnConfig.uuid;
@@ -8134,7 +8138,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                      * @event ChatEngine#$"."network"."down"."denied
                      */
 
-                    // map the pubnub events into chat engine events
+                    // map the pubnub events into ChatEngine events
                     let categories = {
                         PNNetworkUpCategory: 'up.online',
                         PNNetworkDownCategory: 'down.offline',
@@ -8203,7 +8207,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     };
 
     /**
-     * The {@link Chat} class.
+     * The {@link Chat} class. Creates a new Chat when initialized, or returns an existing instance if chat has already been created.
      * @member {Chat} Chat
      * @memberof ChatEngine
      * @see {@link Chat}
@@ -8235,7 +8239,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     };
 
     /**
-     * The {@link User} class.
+     * The {@link User} class. Creates a new User when initialized, or returns an existing instance if chat has already been created.
      * @member {User} User
      * @memberof ChatEngine
      * @see {@link User}
@@ -9157,7 +9161,7 @@ module.exports = function spread(callback) {
 /* 52 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.4","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.6","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.4","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
 
 /***/ }),
 /* 53 */
@@ -9900,9 +9904,10 @@ const Search = __webpack_require__(60);
 /**
  This is the root {@link Chat} class that represents a chat room
 
- @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
+ @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
  @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
+ @param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
  @class Chat
  @extends Emitter
@@ -9922,8 +9927,12 @@ class Chat extends Emitter {
 
         this.name = 'Chat';
 
-        this.meta = meta;
-
+        /**
+        * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
+        * @type Boolean
+        * @readonly
+        * @private
+        */
         this.group = group;
 
         /**
@@ -9934,21 +9943,26 @@ class Chat extends Emitter {
         this.isPrivate = isPrivate;
 
         /**
+         * Chat metadata persisted on the server. Useful for storing things like the name and description. Call {@link Chat#update} to update the remote information.
+         * @type Object
+         * @readonly
+         */
+        this.meta = meta || {};
+
+        /**
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly granted access.
+        * @type Boolean
+        * @see  {@tutorial privacy}
+        * @readonly
+        */
+        this.isPrivate = isPrivate;
+
+        /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
          * @type String
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
-
-        this.meta = {};
-
-        /**
-        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
-        * @type Boolean
-        * @readonly
-        */
-        this.isPrivate = isPrivate;
-
         this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
 
         /**
@@ -10130,6 +10144,10 @@ class Chat extends Emitter {
 
     }
 
+    /**
+     * Update the {@link Chat} metadata on the server.
+     * @param  {object} data JSON object representing chat metadta.
+     */
     update(data) {
 
         let oldMeta = this.meta || {};
@@ -10417,6 +10435,9 @@ class Chat extends Emitter {
         return new Search(this.chatEngine, this, config);
     }
 
+    /**
+     * @private
+     */
     onConnectionReady() {
 
         /**
@@ -10424,8 +10445,8 @@ class Chat extends Emitter {
          * @event Chat#$"."connected
          * @example
          * chat.on('$.connected', () => {
-                *     console.log('chat is ready to go!');
-                * });
+         *     console.log('chat is ready to go!');
+         * });
          */
         this.trigger('$.connected');
 
@@ -11044,17 +11065,14 @@ const Emitter = __webpack_require__(5);
 const eachSeries = __webpack_require__(61);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
-
-
- Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
-
- @class Search
- @extends Emitter
- @extends RootEmitter
- @param chatEngine
- @param chat
- @param config
- */
+Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
+@class Search
+@extends Emitter
+@extends RootEmitter
+@param {ChatEngine} chatEngine This instance of the {@link ChatEngine} object.
+@param {Chat} chat The {@link Chat} object to search.
+@param {Object} config The configuration object. See {@link Chat#search} for a list of parameters.
+*/
 class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {
@@ -12288,7 +12306,10 @@ class Me extends User {
 
     }
 
-    // assign updates from network
+    /**
+     * assign updates from network
+     * @private
+     */
     assign(state) {
         // we call "update" because calling "super.assign"
         // will direct back to "this.update" which creates
