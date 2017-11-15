@@ -264,7 +264,7 @@ class Chat extends Emitter {
             chat: this.objectify()
         }).then(() => {
         }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
         });
 
     }
@@ -427,7 +427,7 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+                this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
             });
 
     }
@@ -542,7 +542,7 @@ class Chat extends Emitter {
         if(this.hasConnected) {
             return new Search(this.chatEngine, this, config);
         } else {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('You must wait for the $.connected event before calling Chat#search'), { error });
+            this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'), { error });
         }
     }
 
