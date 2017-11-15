@@ -6,7 +6,8 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
-const async = require('async');
+
+const parallel = require('async/parallel');
 
 /**
  @class ChatEngine
@@ -393,7 +394,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             });
         };
 
-        async.parallel([
+        parallel([
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
