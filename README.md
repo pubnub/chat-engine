@@ -6,6 +6,8 @@ The real time server component is provided by PubNub. ChatEngine is designed to 
 
 # Getting Started
 
+[![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
+
 Check out [the getting started guide](https://github.com/pubnub/chat-engine-tutorial).
 
 #   Docs
