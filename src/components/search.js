@@ -147,23 +147,25 @@ class Search extends Emitter {
         /**
          * @private
          */
-        this.triggerHistory = (message, cb) => {
+        this.triggerHistory = (message) => {
+            return new Promise((resolve) => {
 
-            if (this.needleCount < this.config.limit) {
+                if (this.needleCount < this.config.limit) {
 
-                this.trigger(message.entry.event, message.entry, (reject) => {
+                    this.trigger(message.entry.event, message.entry, (rej) => {
 
-                    if (!reject) {
-                        this.needleCount += 1;
-                    }
-                    cb();
+                        if (!rej) {
+                            this.needleCount += 1;
+                        }
+                        resolve();
 
-                });
+                    });
 
-            } else {
-                cb();
-            }
+                } else {
+                    resolve();
+                }
 
+            });
         };
 
         this.maxPage = 10;
@@ -188,7 +190,26 @@ class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                eachSeries(response.messages, this.triggerHistory, () => {
+                return new Promise((resolve, reject) => {
+
+                    let iteration = 0;
+                    let collection = response.messages;
+
+                    let forEachSeries = (iteratee, toRun) => {
+                        toRun(iteratee).then(() => {
+                            if (iteration < collection.length - 1) {
+                                iteration++;
+                                forEachSeries(response.messages[iteration], this.triggerHistory);
+                            } else {
+                                resolve();
+                            }
+                        })
+                            .catch(reject);
+                    };
+
+                    forEachSeries(response.messages[iteration], this.triggerHistory);
+
+                }).then(() => {
 
                     if (this.numPage === this.maxPage) {
                         this._emit('$.search.pause');
