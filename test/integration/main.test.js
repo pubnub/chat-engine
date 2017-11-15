@@ -1,6 +1,9 @@
 const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
 
+const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
+const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
+
 describe('import', () => {
 
     it('ChatEngine should be imported', () => {
@@ -55,16 +58,12 @@ describe('config', () => {
     it('should be configured', () => {
 
         ChatEngine = ChatEngineCore.create({
-            publishKey: 'pub-c-2f5ff6dd-d800-466b-87c2-8ed39d8837ca',
-            subscribeKey: 'sub-c-06f1af24-c4ea-11e7-9178-bafd478c18bc'
+            publishKey: pubkey,
+            subscribeKey: subkey
         }, {
             globalChannel,
             throwErrors: false
         });
-
-        // ChatEngine.onAny((a,b) => {
-        //     console.log(a, b)
-        // })
 
         assert.isOk(ChatEngine);
 
@@ -139,7 +138,7 @@ describe('connect', () => {
 
     it('should notify chatengine on disconnected', function disconnected(done) {
 
-        this.timeout(4000)
+        this.timeout(4000);
 
         ChatEngine.on('$.disconnected', (data, source) => {
 
@@ -194,7 +193,9 @@ describe('chat', () => {
 
     });
 
-    it('should get message', (done) => {
+    it('should get message', function (done) {
+
+        this.timeout(12000);
 
         chat.once('something', (payload) => {
 
@@ -203,9 +204,11 @@ describe('chat', () => {
 
         });
 
-        chat.emit('something', {
-            text: 'hello world'
-        });
+        setTimeout(() => {
+            chat.emit('something', {
+                text: 'hello world'
+            });
+        }, 1000);
 
     });
 
@@ -238,12 +241,11 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(10000);
+        this.timeout(16000);
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        let i = 0;
-        while (i < 200) {
+        for (let i = 0; i < 200; i++) {
 
             chatHistory.emit('tester', {
                 text: 'hello world ' + i
@@ -251,8 +253,6 @@ describe('history', () => {
             chatHistory.emit('not-tester', {
                 text: 'hello world ' + i
             });
-
-            i += 1;
 
         }
 
@@ -276,12 +276,11 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(10000);
+        this.timeout(16000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
-        let i = 0;
-        while (i < 200) {
+        for (let i = 0; i < 200; i++) {
 
             chatHistory2.emit('tester', {
                 text: 'hello world ' + i
@@ -289,8 +288,6 @@ describe('history', () => {
             chatHistory2.emit('not-tester', {
                 text: 'hello world ' + i
             });
-
-            i += 1;
 
         }
 
@@ -339,8 +336,9 @@ describe('remote chat list', () => {
         this.timeout(10000);
 
         ChatEngineClone = ChatEngineCore.create({
-            publishKey: 'pub-c-2f5ff6dd-d800-466b-87c2-8ed39d8837ca',
-            subscribeKey: 'sub-c-06f1af24-c4ea-11e7-9178-bafd478c18bc'
+            publishKey: pubkey,
+            subscribeKey: subkey
+
         }, {
             globalChannel,
             throwErrors: false
@@ -409,8 +407,8 @@ describe('invite', () => {
         this.timeout(5000);
 
         ChatEngineYou = ChatEngineCore.create({
-            publishKey: 'pub-c-2f5ff6dd-d800-466b-87c2-8ed39d8837ca',
-            subscribeKey: 'sub-c-06f1af24-c4ea-11e7-9178-bafd478c18bc'
+            publishKey: pubkey,
+            subscribeKey: subkey
         }, {
             globalChannel,
             throwErrors: false
@@ -453,7 +451,7 @@ describe('invite', () => {
 
     it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
 
-        this.timeout(5000);
+        this.timeout(16000);
 
         yourChat.on('message', (payload) => {
 
@@ -461,9 +459,11 @@ describe('invite', () => {
             done();
         });
 
-        myChat.emit('message', {
-            text: 'sup?'
-        });
+        setTimeout(() => {
+            myChat.emit('message', {
+                text: 'sup?'
+            });
+        }, 1000);
 
     });
 
