@@ -65,10 +65,6 @@ describe('config', () => {
             throwErrors: false
         });
 
-        // ChatEngine.onAny((a,b) => {
-        //     console.log(a, b)
-        // })
-
         assert.isOk(ChatEngine);
 
     });
@@ -199,7 +195,7 @@ describe('chat', () => {
 
     it('should get message', function (done) {
 
-        this.timeout(8000);
+        this.timeout(12000);
 
         chat.once('something', (payload) => {
 
@@ -208,9 +204,11 @@ describe('chat', () => {
 
         });
 
-        chat.emit('something', {
-            text: 'hello world'
-        });
+        setTimeout(() => {
+            chat.emit('something', {
+                text: 'hello world'
+            });
+        }, 1000);
 
     });
 
@@ -243,12 +241,11 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(10000);
+        this.timeout(16000);
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        let i = 0;
-        while (i < 200) {
+        for (let i = 0; i < 200; i++) {
 
             chatHistory.emit('tester', {
                 text: 'hello world ' + i
@@ -256,8 +253,6 @@ describe('history', () => {
             chatHistory.emit('not-tester', {
                 text: 'hello world ' + i
             });
-
-            i += 1;
 
         }
 
@@ -281,12 +276,11 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(10000);
+        this.timeout(16000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
-        let i = 0;
-        while (i < 200) {
+        for (let i = 0; i < 200; i++) {
 
             chatHistory2.emit('tester', {
                 text: 'hello world ' + i
@@ -294,8 +288,6 @@ describe('history', () => {
             chatHistory2.emit('not-tester', {
                 text: 'hello world ' + i
             });
-
-            i += 1;
 
         }
 
@@ -459,7 +451,7 @@ describe('invite', () => {
 
     it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
 
-        this.timeout(8000);
+        this.timeout(16000);
 
         yourChat.on('message', (payload) => {
 
@@ -467,9 +459,11 @@ describe('invite', () => {
             done();
         });
 
-        myChat.emit('message', {
-            text: 'sup?'
-        });
+        setTimeout(() => {
+            myChat.emit('message', {
+                text: 'sup?'
+            });
+        }, 1000);
 
     });
 

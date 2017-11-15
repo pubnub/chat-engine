@@ -17,6 +17,7 @@ rules:
     - error
     - 4
   max-len: 0
+  no-plusplus: 0
   global-require: 0
   vars-on-top: 0
   padded-blocks: 0
