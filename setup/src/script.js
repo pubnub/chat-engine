@@ -22,6 +22,7 @@ module.exports = class {
         this.errorOutElement = $('#error-out');
         this.statusElement = $('#status');
         this.codeElement = $('#code');
+		this.codePreElement = $('#code-pre');
         this.outputElement = $('#output');
         this.emailElement = $('#email');
         this.passwordElement = $('#password');
@@ -41,10 +42,14 @@ module.exports = class {
         if (this.userId && tokenCookie) {
             this.provisionElement.show();
             this.loginElement.hide();
-
-            // analytics.identify(this.userId);
-            this.identify(this.userId);
-        }
+            analytics.identify(this.userId);
+			$('#setup-tip').text("Please click the Setup button below to get your account configured for ChatEngine.");
+			if(window.location.hash == 'setup'){
+             this.provisionElement.attr('tabindex', 1).focus().blur();
+			}
+        }else{
+			$('#setup-tip').text("Please click the button below to login if you have an account or register for a new one.");
+		}
 
     }
 
@@ -73,16 +78,16 @@ module.exports = class {
             this.loadElement.hide();
 
             let output = '';
-            output += '// Make sure to import ChatEngine first!\n';
+            output += '';
             output += 'ChatEngine = ChatEngineCore.create({\n';
             output += "    publishKey: '" + data.pub + "',\n";
             output += "    subscribeKey: '" + data.sub + "'\n";
             output += '});\n';
-
-            // analytics.track('chat_engine_activation');
-            this.track('chat_engine_activation');
+            
+            analytics.track('chat_engine_activation');
 
             this.codeElement.text(output);
+			$('#cp-btn').attr('data-clipboard-text',output);
             this.outputElement.show();
         }
     }
@@ -107,10 +112,7 @@ module.exports = class {
                 this.raiseError(extractError(err));
             } else {
                 this.userId = response.result.user_id;
-
-                // analytics.identify(this.userId);
-                this.identify(this.userId);
-
+                analytics.identify(this.userId);
                 this.provisionElement.show();
                 this.loginElement.hide();
             }
@@ -130,63 +132,6 @@ module.exports = class {
         ProvisionAccount(this.client, this.userId, this.onProvisionSuccess.bind(this), this.displayStatus.bind(this));
 
         return false;
-    }
-
-    identify(id) {
-        const analyticsData = {
-            type: 'identify',
-            anonymousId: document.cookie.substring(document.cookie.indexOf('=') + 4, document.cookie.indexOf(';') - 3),
-            context: {
-                library: {
-                    name: 'PubNub Functions',
-                    version: '0.0.1'
-                },
-                page: {
-                    path: location.pathname,
-                    url: location.href,
-                    title: document.title,
-                    search: location.search,
-                    referrer: document.referrer
-                },
-                userAgent: navigator.userAgent
-            },
-            userId: id
-        };
-        $.ajax({
-            type: 'POST',
-            url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
-            data: JSON.stringify(analyticsData),
-            contentType: 'application/json; charset=utf-8'
-        });
-    }
-
-    track(event) {
-        const analyticsData = {
-            type: 'track',
-            anonymousId: document.cookie.substring(document.cookie.indexOf('=') + 4, document.cookie.indexOf(';') - 3),
-            event: event,
-            context: {
-                library: {
-                    name: 'PubNub Functions',
-                    version: '0.0.1'
-                },
-                page: {
-                    path: location.pathname,
-                    url: location.href,
-                    title: document.title,
-                    search: location.search,
-                    referrer: document.referrer
-                },
-                userAgent: navigator.userAgent
-            },
-            userId: this.userId
-        };
-        $.ajax({
-            type: 'POST',
-            url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
-            data: JSON.stringify(analyticsData),
-            contentType: 'application/json; charset=utf-8'
-        });
     }
 
 };
