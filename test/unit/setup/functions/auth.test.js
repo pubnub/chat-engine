@@ -1,25 +1,23 @@
-const assert   = require('chai').assert;
+const assert = require('chai').assert;
 const Mock = require('pubnub-functions-mock');
 
 const endpointResponseObject = {
-    "headers": {},
-    "status": 200,
-    "send": function (body) {
-        return new Promise((resolve, reject) => {
-            resolve({
-                "body": body || "",
-                "status": this.status
-            });
+    headers: {},
+    status: 200,
+    send: function (body) {
+        return Promise.resolve({
+            body: body || '',
+            status: this.status
         });
     }
 };
 
 const endpointRequestObject = {
-    "body": "{}",
-    "message": {},
-    "method": 'GET',
-    "params": {},
-    "json": () => {
+    body: '{}',
+    message: {},
+    method: 'GET',
+    params: {},
+    json: () => {
         return Promise.resolve(JSON.parse(this.body || null));
     }
 };
@@ -41,21 +39,21 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
 
-        let testChannel = "testChannel";
-        let testUuid = "testUuid";
+        let testChannel = 'testChannel';
+        let testUuid = 'testUuid';
 
         let proxyBody = JSON.stringify({
-            "chat": {
-                "private": true,
-                "channel": testChannel
+            chat: {
+                private: true,
+                channel: testChannel
             },
-            "uuid": testUuid
+            uuid: testUuid
         });
 
         request.body = JSON.stringify({
-            "body": proxyBody,
-            "params": {
-                "route": "invite"
+            body: proxyBody,
+            params: {
+                route: 'invite'
             }
         });
 
@@ -66,7 +64,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 200
+            status: 200
         };
 
         auth(request, response).then((testResult) => {
@@ -83,22 +81,22 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
 
-        let testChannel = "testChannel";
-        let testUuid = "testUuid";
-        let wrongUuid = "wrongUuid";
+        let testChannel = 'testChannel';
+        let testUuid = 'testUuid';
+        let wrongUuid = 'wrongUuid';
 
         let proxyBody = JSON.stringify({
-            "chat": {
-                "private": true,
-                "channel": testChannel
+            chat: {
+                private: true,
+                channel: testChannel
             },
-            "uuid": testUuid
+            uuid: testUuid
         });
 
         request.body = JSON.stringify({
-            "body": proxyBody,
-            "params": {
-                "route": "invite"
+            body: proxyBody,
+            params: {
+                route: 'invite'
             }
         });
 
@@ -109,7 +107,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 200
+            status: 200
         };
 
         auth(request, response).then((testResult) => {
@@ -126,18 +124,18 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         let proxyBody = JSON.stringify({
-            "chat": {}
+            chat: {}
         });
 
         request.body = JSON.stringify({
-            "body": proxyBody,
-            "params": {
-                "route": "invite"
+            body: proxyBody,
+            params: {
+                route: 'invite'
             }
         });
 
         let correctResult = {
-            "status": 200
+            status: 200
         };
 
         auth(request, response).then((testResult) => {
@@ -154,21 +152,21 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
 
-        let testChannel = "testChannel";
-        let testUuid = "testUuid";
+        let testChannel = 'testChannel';
+        let testUuid = 'testUuid';
 
         let proxyBody = JSON.stringify({
-            "chat": {
-                "private": true,
-                "channel": testChannel
+            chat: {
+                private: true,
+                channel: testChannel
             },
-            "uuid": testUuid
+            uuid: testUuid
         });
 
         request.body = JSON.stringify({
-            "body": proxyBody,
-            "params": {
-                "route": "grant"
+            body: proxyBody,
+            params: {
+                route: 'grant'
             }
         });
 
@@ -179,7 +177,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 200
+            status: 200
         };
 
         auth(request, response).then((testResult) => {
@@ -196,22 +194,22 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
 
-        let testChannel = "testChannel";
-        let testUuid = "testUuid";
-        let wrongUuid = "wrongUuid";
+        let testChannel = 'testChannel';
+        let testUuid = 'testUuid';
+        let wrongUuid = 'wrongUuid';
 
         let proxyBody = JSON.stringify({
-            "chat": {
-                "private": true,
-                "channel": testChannel
+            chat: {
+                private: true,
+                channel: testChannel
             },
-            "uuid": testUuid
+            uuid: testUuid
         });
 
         request.body = JSON.stringify({
-            "body": proxyBody,
-            "params": {
-                "route": "grant"
+            body: proxyBody,
+            params: {
+                route: 'grant'
             }
         });
 
@@ -222,7 +220,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            "status": 200
+            status: 200
         };
 
         auth(request, response).then((testResult) => {
@@ -239,18 +237,18 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         let proxyBody = JSON.stringify({
-            "chat": {}
+            chat: {}
         });
 
         request.body = JSON.stringify({
-            "body": proxyBody,
-            "params": {
-                "route": "grant"
+            body: proxyBody,
+            params: {
+                route: 'grant'
             }
         });
 
         let correctResult = {
-            "status": 200
+            status: 200
         };
 
         auth(request, response).then((testResult) => {
@@ -267,14 +265,14 @@ describe('#auth', () => {
         let request = Object.assign({}, endpointRequestObject);
         let response = Object.assign({}, endpointResponseObject);
         request.body = JSON.stringify({
-            "body": "\"\"",
-            "params": {
-                "route": ""
+            body: '""',
+            params: {
+                route: ''
             }
         });
 
         let correctResult = {
-            "status": 200
+            status: 200
         };
 
         auth(request, response).then((testResult) => {

@@ -3,7 +3,7 @@
 This is an example of a public chat any {@link User} can join.
 
 ```js
-new Chat('channel', false);
+new Chat('channel');
 ```
 
 ### Private Chat

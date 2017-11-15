@@ -43,3 +43,6 @@ chat.search({
     end: '123123123133'
 });
 ```
+
+Search will stop after looking through ```1,0000``` events and then emit the ```$.search.pause``` event.
+To search an additional 1,000 events, call {@link Search#next}.
