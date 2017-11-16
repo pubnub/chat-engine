@@ -1720,7 +1720,7 @@ const pack = __webpack_require__(35);
 
 const RootEmitter = __webpack_require__(10);
 const Chat = __webpack_require__(37);
-const Me = __webpack_require__(52);
+const Me = __webpack_require__(53);
 const User = __webpack_require__(12);
 
 /**
@@ -2265,7 +2265,7 @@ module.exports.default = axios;
 /*!
  * Determine if an object is a Buffer
  *
- * @author   Feross Aboukhadijeh <https://feross.org>
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
  * @license  MIT
  */
 
@@ -5211,6 +5211,7 @@ module.exports = g;
 /***/ (function(module, exports, __webpack_require__) {
 
 const Emitter = __webpack_require__(3);
+const forEachSeries = __webpack_require__(52);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
@@ -5401,26 +5402,7 @@ class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                return new Promise((resolve, reject) => {
-
-                    let iteration = 0;
-                    let collection = response.messages;
-
-                    let forEachSeries = (iteratee, toRun) => {
-                        toRun(iteratee).then(() => {
-                            if (iteration < collection.length - 1) {
-                                iteration++;
-                                forEachSeries(response.messages[iteration], this.triggerHistory);
-                            } else {
-                                resolve();
-                            }
-                        })
-                            .catch(reject);
-                    };
-
-                    forEachSeries(response.messages[iteration], this.triggerHistory);
-
-                }).then(() => {
+                return forEachSeries(response.messages, this.triggerHistory).then(() => {
 
                     if (this.numPage === this.maxPage) {
                         this._emit('$.search.pause');
@@ -5471,6 +5453,48 @@ module.exports = Search;
 
 /***/ }),
 /* 52 */
+/***/ (function(module, exports) {
+
+/**
+ *
+ * Runs the loop
+ *
+ * @private
+ * @param {Array} collection of items.
+ * @param {number} iteration index.
+ * @param {Function} function to execute on an array item, must return Promise.
+ * @return {Promise} completed all or errored during a function execution
+ *
+ */
+let forEachSeries = (collection, iteration, toRun) => {
+    return new Promise((resolve, reject) => {
+        toRun(collection[iteration]).then(() => {
+            if (iteration < collection.length - 1) {
+                iteration++;
+                forEachSeries(collection, iteration, toRun).then(resolve);
+            } else {
+                resolve();
+            }
+        }).catch(reject);
+    });
+};
+
+/**
+ *
+ * Execute a function on each member of an array in series.
+ *
+ * @param {Array} collection of items.
+ * @param {Function} function to execute on an array item, must return Promise.
+ * @return {Promise} completed all or errored during a function execution
+ *
+ */
+module.exports = (collection, toRun) => {
+    return forEachSeries(collection, 0, toRun);
+};
+
+
+/***/ }),
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const User = __webpack_require__(12);
