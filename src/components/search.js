@@ -1,5 +1,4 @@
 const Emitter = require('../modules/emitter');
-const eachSeries = require('async/eachSeries');
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
