@@ -8325,7 +8325,7 @@ module.exports.default = axios;
 /*!
  * Determine if an object is a Buffer
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
 
@@ -9139,13 +9139,13 @@ module.exports = function spread(callback) {
 /* 52 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.4","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.6","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.4","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
 
 /***/ }),
 /* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+/* WEBPACK VAR INJECTION */(function(process) {var __WEBPACK_AMD_DEFINE_RESULT__;/*!
  * EventEmitter2
  * https://github.com/hij1nx/EventEmitter2
  *
@@ -9171,7 +9171,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
       this._conf = conf;
 
       conf.delimiter && (this.delimiter = conf.delimiter);
-      this._events.maxListeners = conf.maxListeners !== undefined ? conf.maxListeners : defaultMaxListeners;
+      this._maxListeners = conf.maxListeners !== undefined ? conf.maxListeners : defaultMaxListeners;
+
       conf.wildcard && (this.wildcard = conf.wildcard);
       conf.newListener && (this.newListener = conf.newListener);
       conf.verboseMemoryLeak && (this.verboseMemoryLeak = conf.verboseMemoryLeak);
@@ -9180,24 +9181,31 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
         this.listenerTree = {};
       }
     } else {
-      this._events.maxListeners = defaultMaxListeners;
+      this._maxListeners = defaultMaxListeners;
     }
   }
 
   function logPossibleMemoryLeak(count, eventName) {
     var errorMsg = '(node) warning: possible EventEmitter memory ' +
-        'leak detected. %d listeners added. ' +
+        'leak detected. ' + count + ' listeners added. ' +
         'Use emitter.setMaxListeners() to increase limit.';
 
     if(this.verboseMemoryLeak){
-      errorMsg += ' Event name: %s.';
-      console.error(errorMsg, count, eventName);
-    } else {
-      console.error(errorMsg, count);
+      errorMsg += ' Event name: ' + eventName + '.';
     }
 
-    if (console.trace){
-      console.trace();
+    if(typeof process !== 'undefined' && process.emitWarning){
+      var e = new Error(errorMsg);
+      e.name = 'MaxListenersExceededWarning';
+      e.emitter = this;
+      e.count = count;
+      process.emitWarning(e);
+    } else {
+      console.error(errorMsg);
+
+      if (console.trace){
+        console.trace();
+      }
     }
   }
 
@@ -9358,8 +9366,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
           if (
             !tree._listeners.warned &&
-            this._events.maxListeners > 0 &&
-            tree._listeners.length > this._events.maxListeners
+            this._maxListeners > 0 &&
+            tree._listeners.length > this._maxListeners
           ) {
             tree._listeners.warned = true;
             logPossibleMemoryLeak.call(this, tree._listeners.length, name);
@@ -9383,8 +9391,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
   EventEmitter.prototype.setMaxListeners = function(n) {
     if (n !== undefined) {
-      this._events || init.call(this);
-      this._events.maxListeners = n;
+      this._maxListeners = n;
       if (!this._conf) this._conf = {};
       this._conf.maxListeners = n;
     }
@@ -9392,12 +9399,29 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
   EventEmitter.prototype.event = '';
 
+
   EventEmitter.prototype.once = function(event, fn) {
-    this.many(event, 1, fn);
+    return this._once(event, fn, false);
+  };
+
+  EventEmitter.prototype.prependOnceListener = function(event, fn) {
+    return this._once(event, fn, true);
+  };
+
+  EventEmitter.prototype._once = function(event, fn, prepend) {
+    this._many(event, 1, fn, prepend);
     return this;
   };
 
   EventEmitter.prototype.many = function(event, ttl, fn) {
+    return this._many(event, ttl, fn, false);
+  }
+
+  EventEmitter.prototype.prependMany = function(event, ttl, fn) {
+    return this._many(event, ttl, fn, true);
+  }
+
+  EventEmitter.prototype._many = function(event, ttl, fn, prepend) {
     var self = this;
 
     if (typeof fn !== 'function') {
@@ -9408,12 +9432,12 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
       if (--ttl === 0) {
         self.off(event, listener);
       }
-      fn.apply(this, arguments);
+      return fn.apply(this, arguments);
     }
 
     listener._origin = fn;
 
-    this.on(event, listener);
+    this._on(event, listener, prepend);
 
     return self;
   };
@@ -9589,6 +9613,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
         promises.push(handler.apply(this, args));
       }
     } else if (handler && handler.length) {
+      handler = handler.slice();
       if (al > 3) {
         args = new Array(al - 1);
         for (j = 1; j < al; j++) args[j - 1] = arguments[j];
@@ -9621,8 +9646,45 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
   };
 
   EventEmitter.prototype.on = function(type, listener) {
+    return this._on(type, listener, false);
+  };
+
+  EventEmitter.prototype.prependListener = function(type, listener) {
+    return this._on(type, listener, true);
+  };
+
+  EventEmitter.prototype.onAny = function(fn) {
+    return this._onAny(fn, false);
+  };
+
+  EventEmitter.prototype.prependAny = function(fn) {
+    return this._onAny(fn, true);
+  };
+
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+  EventEmitter.prototype._onAny = function(fn, prepend){
+    if (typeof fn !== 'function') {
+      throw new Error('onAny only accepts instances of Function');
+    }
+
+    if (!this._all) {
+      this._all = [];
+    }
+
+    // Add the function to the event listener collection.
+    if(prepend){
+      this._all.unshift(fn);
+    }else{
+      this._all.push(fn);
+    }
+
+    return this;
+  }
+
+  EventEmitter.prototype._on = function(type, listener, prepend) {
     if (typeof type === 'function') {
-      this.onAny(type);
+      this._onAny(type, listener);
       return this;
     }
 
@@ -9650,14 +9712,18 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
         this._events[type] = [this._events[type]];
       }
 
-      // If we've already got an array, just append.
-      this._events[type].push(listener);
+      // If we've already got an array, just add
+      if(prepend){
+        this._events[type].unshift(listener);
+      }else{
+        this._events[type].push(listener);
+      }
 
       // Check for listener leak
       if (
         !this._events[type].warned &&
-        this._events.maxListeners > 0 &&
-        this._events[type].length > this._events.maxListeners
+        this._maxListeners > 0 &&
+        this._events[type].length > this._maxListeners
       ) {
         this._events[type].warned = true;
         logPossibleMemoryLeak.call(this, this._events[type].length, type);
@@ -9665,23 +9731,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
     }
 
     return this;
-  };
-
-  EventEmitter.prototype.onAny = function(fn) {
-    if (typeof fn !== 'function') {
-      throw new Error('onAny only accepts instances of Function');
-    }
-
-    if (!this._all) {
-      this._all = [];
-    }
-
-    // Add the function to the event listener collection.
-    this._all.push(fn);
-    return this;
-  };
-
-  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+  }
 
   EventEmitter.prototype.off = function(type, listener) {
     if (typeof listener !== 'function') {
@@ -9838,6 +9888,10 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
     return this._events[type];
   };
 
+  EventEmitter.prototype.eventNames = function(){
+    return Object.keys(this._events);
+  }
+
   EventEmitter.prototype.listenerCount = function(type) {
     return this.listeners(type).length;
   };
@@ -9869,6 +9923,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
   }
 }();
 
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 54 */
