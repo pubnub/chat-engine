@@ -9,7 +9,7 @@ commit_website_files() {
   git checkout master
   gulp compile
   git add .
-  git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
+  git commit --message "Build: $TRAVIS_BUILD_NUMBER"
 }
 
 upload_files() {
