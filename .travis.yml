@@ -1,14 +1,22 @@
 language: node_js
 sudo: false
 node_js:
-  - '6'
-  - '7'
-  - '8'
+- '6'
+- '7'
+- '8'
 cache: yarn
 script:
-  - gulp test
+- gulp test
 after_success:
-  - npm install codecov codacy-coverage
-  - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
+- npm install codecov codacy-coverage
+- cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
 addons:
   srcclr: true
+deploy:
+  provider: npm
+  email: ian@meetjennings.com
+  api_key:
+    secure: K8arkb1DQzummqdESSD39rOW3tDp+U+LGa948OnGr5oa63YbAGT+3ZUpw5uh5sRQhACl4+JadRvP/GQWDmsg0zYzYwvLNJaeA7gYC0ykQpuLW88FsooS+nqRmMEQqYdRTMLerZMM9KLe+zaeXPlfI5aj78fCRk7atRN95KebE05BnUbe4oqlEv/nmTPgC3warISLSC9+ccYE/1P78e/JFeVkcrnymBidC0AmhEW9dGEJ7I0k//A7QqH5szUeYpfI4MiwpXMowF9B9vgGqCxQoA9te4ZcBzBACx09yc9HczSTGguzT/ccRDybZEM98Scc/ifcf4UI+c3x8eWK1EpctNiMgUfW61kBAsiRQzNkqq72pmZF1I/67ZRLl21pqudXOfh+EOP8Gh2FM/eoH0/mQUdEI3CWxpJHqNKtDNmJMf/Yi1WFZtBKiaAMUV7+OkhFOeZZRk3LtBkZCyNbWvdQTxuz+krXfi3acKCiRTsPW3TsyPB62WkZF1KoNf4pEnFCCZ3y68jTlhzFEkQ3Q/oi0Wlu72YgUVhw8XuSeMvSNdgQt3yaNSjYWoddF6eVAnF6AvIDKoh3FeQ5s+QDKmKuAYMIH9YjUjarNjHA16g8ZWo+QLcfsVguAWDIAknKK5x0fTqyJdDjiGNEQ+mongnGww8QpSG71qzvD/kHh2pomJI=
+  on:
+    tags: true
+    repo: pubnub/chat-engine
