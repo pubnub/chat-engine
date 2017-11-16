@@ -242,7 +242,7 @@ describe('chat', () => {
             subscribeKey: subkey
         }, {
             globalChannel,
-            throwErrors: true,
+            throwErrors: false,
             endpoint: 'bad' // this points the XHR urls at a bad endpoint for sure failure
         });
 
