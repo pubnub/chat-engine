@@ -24,3 +24,6 @@ deploy:
     branch: staging
     tags: true
     repo: pubnub/chat-engine
+env:
+  global:
+    secure: KulIdbPEiYkR/HYL+8DEqQkyjjhMYt4B5SmOSxLbOfDEo8RLOUXhNCeJ8yyeBZKo7AygsiwLVdxUEmfugG/2jKEggFH3ierQ6FuAdjISEehMCC/l36/lmh/4Kr/Y0VWuEkOlEmf7Hx0LNXWe5TJ1eRmGL3EzDRT5xZp/TAueBHuX+nTnswyP0HySksJ+/3dB9b7idT19qCHV0d87bBPZ5bynwSdhUKjBrS0q+d103EmN/gFChKNvjunN5b6nZZAavNaTRkqssn42WNFWZREltW2nKmCGYvaEF+1HtpmBEhCMwwyPbkyvK1OeZaE7q36nbiP9N5ayGjMtZDjCi8XhAvBHRFsAqmsmdKa9br2/Kq7mZ1y8veo5xTGUD+Gb1vQGAWjCNMIcM17+sMbgx3lbFCzb7bvNMwUzlK2Zb7zXzEE/75L44/GraWeW/wEqDCRHoBJurkjaRQtVjL1fX7trcQqbNulbu+TI3p92pBJk7TrYbhju5tWFb4xAE0UGoGC3ewPzmqgcXxCgiIaxACAGVScXJPMXfbsAZJwiH868gcTq/+kNmA3IsyHIadEI0m3RuwIRGZCvLgm7cHeQuaUv2s5tImY5D/6xD86m43YY95tMS2OO2BFYSiVnXAVAGeVWbWA9lm66iQMlxhyKI3mCmDU30fz9whk3SB8EAi+JHnU=
