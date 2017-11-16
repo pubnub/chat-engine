@@ -7,8 +7,6 @@ const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
 
-const parallel = require('async/parallel');
-
 /**
  @class ChatEngine
  @extends RootEmitter
@@ -241,13 +239,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.me.update(state);
 
             /**
-            * Fired when a {@link Me} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."me
-            * @example
-            * ChatEngine.on('$.created.me', (data, me) => {
-            *     console.log('Me was created', me);
-            * });
-            */
+             * Fired when a {@link Me} has been created within ChatEngine.
+             * @event ChatEngine#$"."created"."me
+             * @example
+             * ChatEngine.on('$.created.me', (data, me) => {
+             *     console.log('Me was created', me);
+             * });
+             */
             ChatEngine.me.onConstructed();
 
             ChatEngine.global.on('$.connected', () => {
@@ -394,26 +392,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             });
         };
 
-        parallel([
-            (next) => {
-                ChatEngine.request('post', 'bootstrap').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_read').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_write').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'group').then(complete).catch(next);
-            }
-        ], (error) => {
+        Promise.all([
+            ChatEngine.request('post', 'bootstrap'),
+            ChatEngine.request('post', 'user_read'),
+            ChatEngine.request('post', 'user_write'),
+            ChatEngine.request('post', 'group')]).then(complete).catch((error) => {
             if (error) {
                 ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
             }
@@ -438,13 +421,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             let newChat = new Chat(ChatEngine, ...args);
 
             /**
-            * Fired when a {@link Chat} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."chat
-            * @example
-            * ChatEngine.on('$.created.chat', (data, chat) => {
-            *     console.log('Chat was created', chat);
-            * });
-            */
+             * Fired when a {@link Chat} has been created within ChatEngine.
+             * @event ChatEngine#$"."created"."chat
+             * @example
+             * ChatEngine.on('$.created.chat', (data, chat) => {
+             *     console.log('Chat was created', chat);
+             * });
+             */
             newChat.onConstructed();
 
             return newChat;
@@ -470,13 +453,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             let newUser = new User(ChatEngine, ...args);
 
             /**
-            * Fired when a {@link User} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."user
-            * @example
-            * ChatEngine.on('$.created.user', (data, user) => {
-            *     console.log('Chat was created', user);
-            * });
-            */
+             * Fired when a {@link User} has been created within ChatEngine.
+             * @event ChatEngine#$"."created"."user
+             * @example
+             * ChatEngine.on('$.created.user', (data, user) => {
+             *     console.log('Chat was created', user);
+             * });
+             */
             newUser.onConstructed();
 
             return newUser;

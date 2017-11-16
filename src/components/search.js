@@ -1,5 +1,5 @@
 const Emitter = require('../modules/emitter');
-const eachSeries = require('async/eachSeries');
+const forEachSeries = require('../utilities/forEachSeries');
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
@@ -147,23 +147,25 @@ class Search extends Emitter {
         /**
          * @private
          */
-        this.triggerHistory = (message, cb) => {
+        this.triggerHistory = (message) => {
+            return new Promise((resolve) => {
 
-            if (this.needleCount < this.config.limit) {
+                if (this.needleCount < this.config.limit) {
 
-                this.trigger(message.entry.event, message.entry, (reject) => {
+                    this.trigger(message.entry.event, message.entry, (rej) => {
 
-                    if (!reject) {
-                        this.needleCount += 1;
-                    }
-                    cb();
+                        if (!rej) {
+                            this.needleCount += 1;
+                        }
+                        resolve();
 
-                });
+                    });
 
-            } else {
-                cb();
-            }
+                } else {
+                    resolve();
+                }
 
+            });
         };
 
         this.maxPage = 10;
@@ -188,7 +190,7 @@ class Search extends Emitter {
                     response.messages.reverse();
                 }
 
-                eachSeries(response.messages, this.triggerHistory, () => {
+                return forEachSeries(response.messages, this.triggerHistory).then(() => {
 
                     if (this.numPage === this.maxPage) {
                         this._emit('$.search.pause');

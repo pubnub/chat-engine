@@ -73,6 +73,8 @@ describe('config', () => {
 
 let createdEventChat1;
 let createdEventChat2;
+
+let badChat;
 describe('connect', () => {
 
     it('should be identified as new user', function beIdentified(done) {
@@ -153,6 +155,27 @@ describe('connect', () => {
 
         createdEventChat2.on('$.connected', () => {
             createdEventChat2.leave();
+        });
+
+    });
+
+    it('should trigger $.error.auth on bad connect', function badConnect(done) {
+
+        this.timeout(8000);
+
+        badChat = ChatEngineCore.create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false,
+            endpoint: 'bad' // this points the XHR urls at a bad endpoint for sure failure
+        });
+
+        badChat.connect(username, { works: true }, username);
+
+        badChat.on('$.error.auth', (err) => {
+            done();
         });
 
     });
