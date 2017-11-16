@@ -2108,19 +2108,15 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             });
         };
 
-        ChatEngine.request('post', 'bootstrap').then(() => {
-            return ChatEngine.request('post', 'user_read');
-        }).then(() => {
-            return ChatEngine.request('post', 'user_write');
-        }).then(() => {
-            return ChatEngine.request('post', 'group');
-        })
-            .then(complete)
-            .catch((error) => {
-                if (error) {
-                    ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
-                }
-            });
+        Promise.all([
+            ChatEngine.request('post', 'bootstrap'),
+            ChatEngine.request('post', 'user_read'),
+            ChatEngine.request('post', 'user_write'),
+            ChatEngine.request('post', 'group')]).then(complete).catch((error) => {
+            if (error) {
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+            }
+        });
 
     };
 
@@ -2265,7 +2261,7 @@ module.exports.default = axios;
 /*!
  * Determine if an object is a Buffer
  *
- * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @author   Feross Aboukhadijeh <https://feross.org>
  * @license  MIT
  */
 
