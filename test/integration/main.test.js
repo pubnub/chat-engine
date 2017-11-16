@@ -175,7 +175,6 @@ describe('connect', () => {
         badChat.connect(username, { works: true }, username);
 
         badChat.on('$.error.auth', (err) => {
-            console.log('myerrr', err);
             done();
         });
 
