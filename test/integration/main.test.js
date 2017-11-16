@@ -160,6 +160,7 @@ describe('connect', () => {
 });
 
 let chat;
+let badChat;
 
 describe('chat', () => {
 
@@ -229,6 +230,28 @@ describe('chat', () => {
 
         assert(newChat.constructWorks, 'bound to construct');
         assert(newChat.testPlugin.newMethod(), 'new method added');
+
+    });
+
+    it('should trigger $.error.auth on bad connect', function badConnect(done) {
+
+        this.timeout(8000);
+
+        badChat = ChatEngineCore.create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: true,
+            endpoint: 'bad' // this points the XHR urls at a bad endpoint for sure failure
+        });
+
+        badChat.connect(username, { works: true }, username);
+
+        badChat.on('$.error.auth', (err) => {
+            console.log('myerrr', err);
+            done();
+        });
 
     });
 
