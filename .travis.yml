@@ -18,7 +18,7 @@ deploy:
     skip_cleanup: true
     script: ./staging.sh
     on:
-      branch: master
+      branch: master-test
   # deploy master to production
   - provider: npm
     email: ian@meetjennings.com
