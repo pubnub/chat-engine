@@ -1,24 +1,19 @@
 language: node_js
+script:
+  - gulp test
+after_success:
+  - npm install codecov codacy-coverage
+  - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
+addons:
+  srcclr: true
 sudo: false
 node_js:
   - '6'
   - '7'
   - '8'
 cache: yarn
-addons:
-  srcclr: true
-deploy:
-  # deploy develop to the staging environment
-  - provider: script
-
 jobs:
   include:
-    - stage: test
-      script:
-        - gulp test
-      after_success:
-        - npm install codecov codacy-coverage
-        - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
     - stage: deploy
       if: branch = master-test
       skip_cleanup: true
