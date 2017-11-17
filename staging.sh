@@ -19,6 +19,8 @@ upload_files() {
   git push --quiet --set-upstream origin-travis staging
 }
 
+if [ "${TRAVIS_NODE_VERSION}" = "8" ];
+
 setup_git
 commit_website_files
 upload_files
