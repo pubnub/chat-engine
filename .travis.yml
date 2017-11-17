@@ -16,6 +16,6 @@ deploy:
   # deploy develop to the staging environment
   - provider: script
     skip_cleanup: true
-    script: ./staging.sh
+    script: staging.sh
     on:
       branch: master-test
