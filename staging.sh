@@ -1,8 +1,8 @@
 #!/bin/sh
 
 setup_git() {
-  git config --global user.email "travis@travis-ci.org"
-  git config --global user.name "Mr. Travis"
+  git config --global user.email "ian+teal+seal@pubnub.com"
+  git config --global user.name "TEAL SEAL"
 }
 
 commit_website_files() {
