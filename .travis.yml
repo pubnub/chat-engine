@@ -19,16 +19,3 @@ deploy:
     script: ./staging.sh
     on:
       branch: master-test
-  # deploy master to production
-  - provider: npm
-    email: ian@meetjennings.com
-    skip_cleanup: true
-    api_key:
-      secure: K8arkb1DQzummqdESSD39rOW3tDp+U+LGa948OnGr5oa63YbAGT+3ZUpw5uh5sRQhACl4+JadRvP/GQWDmsg0zYzYwvLNJaeA7gYC0ykQpuLW88FsooS+nqRmMEQqYdRTMLerZMM9KLe+zaeXPlfI5aj78fCRk7atRN95KebE05BnUbe4oqlEv/nmTPgC3warISLSC9+ccYE/1P78e/JFeVkcrnymBidC0AmhEW9dGEJ7I0k//A7QqH5szUeYpfI4MiwpXMowF9B9vgGqCxQoA9te4ZcBzBACx09yc9HczSTGguzT/ccRDybZEM98Scc/ifcf4UI+c3x8eWK1EpctNiMgUfW61kBAsiRQzNkqq72pmZF1I/67ZRLl21pqudXOfh+EOP8Gh2FM/eoH0/mQUdEI3CWxpJHqNKtDNmJMf/Yi1WFZtBKiaAMUV7+OkhFOeZZRk3LtBkZCyNbWvdQTxuz+krXfi3acKCiRTsPW3TsyPB62WkZF1KoNf4pEnFCCZ3y68jTlhzFEkQ3Q/oi0Wlu72YgUVhw8XuSeMvSNdgQt3yaNSjYWoddF6eVAnF6AvIDKoh3FeQ5s+QDKmKuAYMIH9YjUjarNjHA16g8ZWo+QLcfsVguAWDIAknKK5x0fTqyJdDjiGNEQ+mongnGww8QpSG71qzvD/kHh2pomJI=
-    on:
-      branch: staging
-      tags: true
-      repo: pubnub/chat-engine
-env:
-  global:
-    secure: KulIdbPEiYkR/HYL+8DEqQkyjjhMYt4B5SmOSxLbOfDEo8RLOUXhNCeJ8yyeBZKo7AygsiwLVdxUEmfugG/2jKEggFH3ierQ6FuAdjISEehMCC/l36/lmh/4Kr/Y0VWuEkOlEmf7Hx0LNXWe5TJ1eRmGL3EzDRT5xZp/TAueBHuX+nTnswyP0HySksJ+/3dB9b7idT19qCHV0d87bBPZ5bynwSdhUKjBrS0q+d103EmN/gFChKNvjunN5b6nZZAavNaTRkqssn42WNFWZREltW2nKmCGYvaEF+1HtpmBEhCMwwyPbkyvK1OeZaE7q36nbiP9N5ayGjMtZDjCi8XhAvBHRFsAqmsmdKa9br2/Kq7mZ1y8veo5xTGUD+Gb1vQGAWjCNMIcM17+sMbgx3lbFCzb7bvNMwUzlK2Zb7zXzEE/75L44/GraWeW/wEqDCRHoBJurkjaRQtVjL1fX7trcQqbNulbu+TI3p92pBJk7TrYbhju5tWFb4xAE0UGoGC3ewPzmqgcXxCgiIaxACAGVScXJPMXfbsAZJwiH868gcTq/+kNmA3IsyHIadEI0m3RuwIRGZCvLgm7cHeQuaUv2s5tImY5D/6xD86m43YY95tMS2OO2BFYSiVnXAVAGeVWbWA9lm66iQMlxhyKI3mCmDU30fz9whk3SB8EAi+JHnU=
