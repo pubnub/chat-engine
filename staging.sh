@@ -8,7 +8,7 @@ setup_git() {
 commit_website_files() {
   git checkout -b staging
   git fetch
-  git pull
+  git pull origin staging
   gulp compile
   git add .
   git commit --message "Build: $TRAVIS_BUILD_NUMBER"
