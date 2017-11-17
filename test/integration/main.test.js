@@ -424,6 +424,8 @@ describe('invite', () => {
 
     it('should create chat', (done) => {
 
+        this.timeout(6000);
+
         yourChat = new ChatEngineYou.Chat(privChannel);
 
         yourChat.on('$.connected', () => {
