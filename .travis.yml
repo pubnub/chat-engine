@@ -7,6 +7,8 @@ node_js:
 cache: yarn
 script:
   - gulp test
+  - cd $TRAVIS_BUILD_DIR
+  - chmod +x ./scripts/deploy.sh
 after_success:
   - npm install codecov codacy-coverage
   - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
@@ -15,7 +17,7 @@ addons:
 deploy:
   # deploy develop to the staging environment
   - provider: script
+    script: ./staging.sh
     skip_cleanup: true
-    script: sh staging.sh
     on:
       branch: master-test
