@@ -241,11 +241,11 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(16000);
+        this.timeout(20000);
 
         chatHistory = new ChatEngine.Chat('chat-history');
 
-        for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 50; i++) {
 
             chatHistory.emit('tester', {
                 text: 'hello world ' + i
@@ -256,19 +256,23 @@ describe('history', () => {
 
         }
 
-        chatHistory.search({
-            event: 'tester',
-            limit: 50
-        }).on('tester', (a) => {
+        setTimeout(() => {
 
-            assert.equal(a.event, 'tester');
+            chatHistory.search({
+                event: 'tester',
+                limit: 50
+            }).on('tester', (a) => {
 
-            count += 1;
+                assert.equal(a.event, 'tester');
 
-        }).on('$.search.finish', () => {
-            assert.equal(count, 50, 'correct # of results');
-            done();
+                count += 1;
+
+            }).on('$.search.finish', () => {
+                assert.equal(count, 50, 'correct # of results');
+                done();
         });
+
+        }, 6000);
 
     });
 
