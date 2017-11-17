@@ -61,7 +61,6 @@ describe('config', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            debug: true,
             globalChannel,
             throwErrors: false
         });
@@ -244,7 +243,7 @@ describe('history', () => {
 
         this.timeout(16000);
 
-        chatHistory = new ChatEngine.Chat('chat-history-8', false);
+        chatHistory = new ChatEngine.Chat('chat-history');
 
         for (let i = 0; i < 200; i++) {
 
@@ -277,9 +276,9 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(16000);
+        this.timeout(20000);
 
-        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+        let chatHistory2 = new ChatEngine.Chat('chat-history-2');
 
         for (let i = 0; i < 200; i++) {
 
@@ -292,18 +291,22 @@ describe('history', () => {
 
         }
 
-        chatHistory2.search({
-            event: 'tester',
-            limit: 200
-        }).on('tester', (a) => {
+        setTimeout(() => {
 
-            assert.equal(a.event, 'tester');
-            count += 1;
+            chatHistory2.search({
+                event: 'tester',
+                limit: 200
+            }).on('tester', (a) => {
 
-        }).on('$.search.finish', () => {
-            assert.equal(count, 200, 'correct # of results');
-            done();
-        });
+                assert.equal(a.event, 'tester');
+                count += 1;
+
+            }).on('$.search.finish', () => {
+                assert.equal(count, 200, 'correct # of results');
+                done();
+            });
+
+        }, 6000);
 
     });
 
@@ -341,7 +344,6 @@ describe('remote chat list', () => {
             subscribeKey: subkey
 
         }, {
-            debug: true,
             globalChannel,
             throwErrors: false
         });
@@ -412,7 +414,6 @@ describe('invite', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            debug: true,
             globalChannel,
             throwErrors: false
         });
