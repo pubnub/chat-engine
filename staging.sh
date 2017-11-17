@@ -6,8 +6,6 @@ setup_git() {
 }
 
 commit_website_files() {
-  git fetch
-  git pull origin master
   git checkout -b staging
   gulp compile
   git add .
