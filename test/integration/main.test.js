@@ -422,7 +422,7 @@ describe('invite', () => {
 
     });
 
-    it('should create chat', (done) => {
+    it('should create chat', function createdTheChat(done) {
 
         this.timeout(6000);
 
