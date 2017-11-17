@@ -8,7 +8,7 @@ cache: yarn
 script:
   - gulp test
   - cd $TRAVIS_BUILD_DIR
-  - chmod +x ./scripts/deploy.sh
+  - chmod +x ./staging.sh
 after_success:
   - npm install codecov codacy-coverage
   - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
