@@ -1,4 +1,4 @@
-# UPDATE 2
+# UPDATE
 
 ![](logo.png)
 

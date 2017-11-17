@@ -1,18 +1,15 @@
 #!/bin/sh
 
 setup_git() {
-  git config --global user.email "ian+teal+seal@pubnub.com"
-  git config --global user.name "TEAL SEAL"
+  git config --global user.email "ian@meetjennings.com"
+  git config --global user.name "Ian Jennings"
 }
 
 commit_website_files() {
-  git checkout master-test
-  git fetch
-  git pull
+  git checkout -b staging
   gulp compile
   git add .
   git commit --message "Build: $TRAVIS_BUILD_NUMBER"
-  git checkout -b staging
 }
 
 upload_files() {
