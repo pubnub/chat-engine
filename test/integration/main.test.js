@@ -422,7 +422,9 @@ describe('invite', () => {
 
     });
 
-    it('should create chat', (done) => {
+    it('should create chat', function createdTheChat(done) {
+
+        this.timeout(6000);
 
         yourChat = new ChatEngineYou.Chat(privChannel);
 
@@ -451,10 +453,9 @@ describe('invite', () => {
 
     it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
 
-        this.timeout(16000);
+        this.timeout(30000);
 
         yourChat.on('message', (payload) => {
-
             assert.equal(payload.data.text, 'sup?');
             done();
         });
@@ -463,7 +464,7 @@ describe('invite', () => {
             myChat.emit('message', {
                 text: 'sup?'
             });
-        }, 1000);
+        }, 3000);
 
     });
 
