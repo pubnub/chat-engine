@@ -1,8 +1,8 @@
 #!/bin/sh
 
 setup_git() {
-  git config --global user.email "ian@meetjennings.com"
-  git config --global user.name "Ian Jennings"
+  git config --global user.email "github-ops-codacy@pubnub.com"
+  git config --global user.name "PubNub Bot"
 }
 
 commit_website_files() {
