@@ -15,7 +15,7 @@ describe('import', () => {
 let me;
 let ChatEngine;
 let ChatEngineYou;
-let globalChannel = 'global' + new Date().getTime();
+let globalChannel = 'global';
 
 let username = 'ian' + new Date().getTime();
 
@@ -61,7 +61,6 @@ describe('config', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            debug: true,
             globalChannel,
             throwErrors: false
         });
@@ -88,7 +87,7 @@ describe('connect', () => {
             done();
         });
 
-        ChatEngine.connect(username, { works: true });
+        ChatEngine.connect(username, { works: true }, username);
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
@@ -100,7 +99,7 @@ describe('connect', () => {
 
         this.timeout(6000);
 
-        let newChat = 'public-chat';
+        let newChat = 'this-is-only-a-test-3' + new Date().getTime();
         let a = false;
 
         ChatEngine.on('$.created.chat', (data, source) => {
@@ -133,7 +132,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat1 = new ChatEngine.Chat('test-connection');
+        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test' + new Date());
 
     });
 
@@ -150,7 +149,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat2 = new ChatEngine.Chat('test-disconnection');
+        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date());
 
         createdEventChat2.on('$.connected', () => {
             createdEventChat2.leave();
@@ -169,7 +168,7 @@ describe('chat', () => {
 
         this.timeout(10000);
 
-        chat = new ChatEngine.Chat('get-self-event');
+        chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
         chat.on('$.online.*', (p) => {
 
@@ -185,7 +184,7 @@ describe('chat', () => {
 
         this.timeout(5000);
 
-        let chat2 = new ChatEngine.Chat('connected-callback');
+        let chat2 = new ChatEngine.Chat('chat2' + new Date().getTime());
         chat2.on('$.connected', () => {
 
             done();
@@ -328,7 +327,7 @@ describe('history', () => {
 let ChatEngineClone;
 let syncChat;
 
-let newChannel = 'session-chat';
+let newChannel = 'sync-chat' + new Date().getTime();
 
 describe('remote chat list', () => {
 
@@ -341,12 +340,11 @@ describe('remote chat list', () => {
             subscribeKey: subkey
 
         }, {
-            debug: true,
             globalChannel,
             throwErrors: false
         });
 
-        ChatEngineClone.connect(username, { works: true });
+        ChatEngineClone.connect(username, { works: true }, username);
 
         // first instance looking or new chats
         ChatEngine.me.on('$.session.chat.join', (payload) => {
@@ -400,7 +398,7 @@ let myChat;
 
 let yourChat;
 
-let privChannel = 'private-chat';
+let privChannel = 'secret-channel-' + new Date().getTime();
 
 describe('invite', () => {
 
@@ -412,12 +410,11 @@ describe('invite', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            debug: true,
             globalChannel,
             throwErrors: false
         });
 
-        ChatEngineYou.connect('stephen' + new Date().getTime(), { works: true });
+        ChatEngineYou.connect('stephen' + new Date().getTime(), { works: true }, 'stephen-authtoken');
 
         ChatEngineYou.on('$.ready', () => {
             done();
