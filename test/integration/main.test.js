@@ -270,7 +270,7 @@ describe('history', () => {
             }).on('$.search.finish', () => {
                 assert.equal(count, 50, 'correct # of results');
                 done();
-        });
+            });
 
         }, 6000);
 
