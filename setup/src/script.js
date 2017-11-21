@@ -25,6 +25,10 @@ module.exports = class {
         this.outputElement = $('#output');
         this.emailElement = $('#email');
         this.passwordElement = $('#password');
+        this.cpBtn = $('#cp-btn');
+        this.setupTip = $('#setup-tip');
+        this.setupTable = $('#chatEngine-setup');
+        this.automagicSetupClass = $('.automagicSetup');
 
         this.loginElement.submit(this.onLoginRegister.bind(this));
         this.provisionElement.submit(this.onSetup.bind(this));
@@ -44,7 +48,16 @@ module.exports = class {
 
             // analytics.identify(this.userId);
             this.identify(this.userId);
+            this.setupTip.text('Please click the Setup button below to get your account configured for ChatEngine.');
+            if(window.location.hash === 'setup') {
+                this.provisionElement.attr('tabindex', 1).focus().blur();
+            }
         }
+        else {
+            this.setupTip.text('Please click the button below to login if you have an account or register for a new one.');
+        }
+        this.setupTable.show().removeClass('hidden');
+        this.automagicSetupClass.show().removeClass('hidden');
 
     }
 
@@ -73,7 +86,6 @@ module.exports = class {
             this.loadElement.hide();
 
             let output = '';
-            output += '// Make sure to import ChatEngine first!\n';
             output += 'ChatEngine = ChatEngineCore.create({\n';
             output += "    publishKey: '" + data.pub + "',\n";
             output += "    subscribeKey: '" + data.sub + "'\n";
@@ -84,6 +96,7 @@ module.exports = class {
 
             this.codeElement.text(output);
             this.outputElement.show();
+            this.cpBtn.attr('data-clipboard-text',output);
         }
     }
 
