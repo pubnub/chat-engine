@@ -235,13 +235,13 @@ describe('chat', () => {
 });
 
 let chatHistory;
-describe('history', () => {
+describe('search', () => {
 
     it('should get 50 messages', function get50(done) {
 
         let count = 0;
 
-        this.timeout(20000);
+        this.timeout(30000);
 
         chatHistory = new ChatEngine.Chat('chat-history');
 
@@ -272,7 +272,7 @@ describe('history', () => {
                 done();
             });
 
-        }, 6000);
+        }, 1000);
 
     });
 
@@ -280,7 +280,7 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(20000);
+        this.timeout(30000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-2');
 
@@ -310,7 +310,7 @@ describe('history', () => {
                 done();
             });
 
-        }, 6000);
+        }, 10000);
 
     });
 
