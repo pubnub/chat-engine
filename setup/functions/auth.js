@@ -8,7 +8,7 @@ export default (request, response) => {
 
     let proxyRequest = JSON.parse(request.body);
     let proxyParams = proxyRequest.params;
-    let proxyBody = JSON.parse(proxyRequest.body) || proxyParams;
+    let proxyData = JSON.parse(proxyRequest.body) || proxyParams;
 
     let isAuthed = (record, who) => {
 
@@ -39,7 +39,7 @@ export default (request, response) => {
 
         record = record || [];
 
-        let key = ['authed', proxyBody.chat.channel].join(':');
+        let key = ['authed', proxyData.chat.channel].join(':');
 
         if (record.indexOf(who) === -1) {
 
@@ -60,16 +60,16 @@ export default (request, response) => {
 
     if (proxyParams.route === 'invite') {
 
-        if (!proxyBody.chat.private) {
+        if (!proxyData.chat.private) {
             return allow();
         } else {
 
-            let key = ['authed', proxyBody.chat.channel].join(':');
+            let key = ['authed', proxyData.chat.channel].join(':');
 
             return db.get(key).then((record) => {
 
-                if (isAuthed(record, proxyBody.uuid)) {
-                    return authInChannel(record, proxyBody.to);
+                if (isAuthed(record, proxyData.uuid)) {
+                    return authInChannel(record, proxyData.to);
                 } else {
                     return unauthorized();
                 }
@@ -82,13 +82,13 @@ export default (request, response) => {
 
     } else if (proxyParams.route === 'grant') {
 
-        if (proxyBody.chat.private) {
+        if (proxyData.chat.private) {
 
-            let key = ['authed', proxyBody.chat.channel].join(':');
+            let key = ['authed', proxyData.chat.channel].join(':');
 
             return db.get(key).then((record) => {
-                if (isAuthed(record, proxyBody.uuid)) {
-                    return authInChannel(record, proxyBody.uuid);
+                if (isAuthed(record, proxyData.uuid)) {
+                    return authInChannel(record, proxyData.uuid);
                 } else {
                     return unauthorized();
                 }
