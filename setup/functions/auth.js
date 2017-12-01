@@ -7,8 +7,7 @@ export default (request, response) => {
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE';
 
     let proxyRequest = JSON.parse(request.body);
-    let proxyBody = JSON.parse(proxyRequest.body);
-    let proxyParams = proxyRequest.params;
+    let proxyBody = JSON.parse(proxyRequest.body) || proxyRequest.params;
 
     let isAuthed = (record, who) => {
 
