@@ -7,7 +7,8 @@ export default (request, response) => {
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE';
 
     let proxyRequest = JSON.parse(request.body);
-    let proxyBody = JSON.parse(proxyRequest.body) || proxyRequest.params;
+    let proxyParams = proxyRequest.params;
+    let proxyBody = JSON.parse(proxyRequest.body) || proxyParams;
 
     let isAuthed = (record, who) => {
 
@@ -24,7 +25,7 @@ export default (request, response) => {
         return response.send();
     };
 
-    let disallow = () => {
+    let unauthorized = () => {
         response.status = 401;
         return response.send();
     };
@@ -70,9 +71,8 @@ export default (request, response) => {
                 if (isAuthed(record, proxyBody.uuid)) {
                     return authInChannel(record, proxyBody.to);
                 } else {
-                    return disallow();
+                    return unauthorized();
                 }
-
             }).catch((err) => {
                 console.error(err);
                 return die('Internal Server Error');
@@ -90,7 +90,7 @@ export default (request, response) => {
                 if (isAuthed(record, proxyBody.uuid)) {
                     return authInChannel(record, proxyBody.uuid);
                 } else {
-                    return disallow();
+                    return unauthorized();
                 }
             }).catch((err) => {
                 console.error(err);
