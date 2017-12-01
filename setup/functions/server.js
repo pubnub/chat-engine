@@ -19,8 +19,6 @@ export default (request, response) => {
 
     const body = JSON.parse(request.body);
 
-    const secretKey = 'SECRET_KEY';
-
     function quote(s) {
         return encodeURIComponent(s).replace(/[!~*'()]/g, c => `%${c.charCodeAt(0).toString(16)}`);
     }
@@ -32,13 +30,21 @@ export default (request, response) => {
         const params = Object.keys(options).sort().map(k => `${k}=${quote(options[k])}`).join('&');
         const signString = `${request.subkey}\n${request.pubkey}\n${path}\n${params}`;
 
-        return crypto.hmac(base64Codec.btoa(secretKey), signString, crypto.ALGORITHM.HMAC_SHA256).then((signature) => {
+        return vault.get('secretKey').then((secretKey) => {
 
-            options.signature = signature;
-            const query = queryStringCodec.stringify(options);
+            return crypto.hmac(base64Codec.btoa(secretKey), signString, crypto.ALGORITHM.HMAC_SHA256).then((signature) => {
 
-            return xhr.fetch(`https://ps.pndsn.com${path}?${query}`);
+                options.signature = signature;
+                const query = queryStringCodec.stringify(options);
 
+                return xhr.fetch(`https://ps.pndsn.com${path}?${query}`);
+
+            });
+
+        }).catch((err) => {
+            console.error(err);
+            response.status = 500;
+            return response.send('Internal Server Error');
         });
 
     };
