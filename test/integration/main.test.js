@@ -241,7 +241,7 @@ describe('search', () => {
 
         let count = 0;
 
-        this.timeout(16000);
+        this.timeout(25000);
 
         chatHistory = new ChatEngine.Chat('chat-history-8'+ new Date().getTime(), false);
 
@@ -256,19 +256,23 @@ describe('search', () => {
 
         }
 
-        chatHistory.search({
-            event: 'tester',
-            limit: 50
-        }).on('tester', (a) => {
+        setTimeout(() => {
 
-            assert.equal(a.event, 'tester');
+            chatHistory.search({
+                event: 'tester',
+                limit: 50
+            }).on('tester', (a) => {
 
-            count += 1;
+                assert.equal(a.event, 'tester');
 
-        }).on('$.search.finish', () => {
-            assert.equal(count, 50, 'correct # of results');
-            done();
-        });
+                count += 1;
+
+            }).on('$.search.finish', () => {
+                assert.equal(count, 50, 'correct # of results');
+                done();
+            });
+
+        }, 10000);
 
     });
 
