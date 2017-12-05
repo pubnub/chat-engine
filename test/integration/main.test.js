@@ -1,8 +1,8 @@
 const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
 
-const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
-const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
+const pubkey = 'pub-c-e467b7e1-bb8a-4198-b83c-52edaf96f81c';
+const subkey = 'sub-c-c2ca9c94-d6e5-11e7-bc29-aadf2d75771d';
 
 describe('import', () => {
 
@@ -87,7 +87,7 @@ describe('connect', () => {
             done();
         });
 
-        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.connect(username, { works: true });
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
@@ -225,7 +225,7 @@ describe('chat', () => {
 
         ChatEngine.proto('Chat', examplePlugin());
 
-        let newChat = new ChatEngine.Chat('some-other-chat');
+        let newChat = new ChatEngine.Chat('some-other-chat' + new Date().getTime());
 
         assert(newChat.constructWorks, 'bound to construct');
         assert(newChat.testPlugin.newMethod(), 'new method added');
@@ -235,15 +235,15 @@ describe('chat', () => {
 });
 
 let chatHistory;
-describe('history', () => {
+describe('search', () => {
 
     it('should get 50 messages', function get50(done) {
 
         let count = 0;
 
-        this.timeout(16000);
+        this.timeout(25000);
 
-        chatHistory = new ChatEngine.Chat('chat-history-8', false);
+        chatHistory = new ChatEngine.Chat('chat-history-8'+ new Date().getTime(), false);
 
         for (let i = 0; i < 200; i++) {
 
@@ -256,19 +256,23 @@ describe('history', () => {
 
         }
 
-        chatHistory.search({
-            event: 'tester',
-            limit: 50
-        }).on('tester', (a) => {
+        setTimeout(() => {
 
-            assert.equal(a.event, 'tester');
+            chatHistory.search({
+                event: 'tester',
+                limit: 50
+            }).on('tester', (a) => {
 
-            count += 1;
+                assert.equal(a.event, 'tester');
 
-        }).on('$.search.finish', () => {
-            assert.equal(count, 50, 'correct # of results');
-            done();
-        });
+                count += 1;
+
+            }).on('$.search.finish', () => {
+                assert.equal(count, 50, 'correct # of results');
+                done();
+            });
+
+        }, 10000);
 
     });
 
@@ -276,9 +280,9 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(16000);
+        this.timeout(30000);
 
-        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+        let chatHistory2 = new ChatEngine.Chat('chat-history-3'+ new Date().getTime(), false);
 
         for (let i = 0; i < 200; i++) {
 
@@ -291,18 +295,22 @@ describe('history', () => {
 
         }
 
-        chatHistory2.search({
-            event: 'tester',
-            limit: 200
-        }).on('tester', (a) => {
+        setTimeout(() => {
 
-            assert.equal(a.event, 'tester');
-            count += 1;
+            chatHistory2.search({
+                event: 'tester',
+                limit: 200
+            }).on('tester', (a) => {
 
-        }).on('$.search.finish', () => {
-            assert.equal(count, 200, 'correct # of results');
-            done();
-        });
+                assert.equal(a.event, 'tester');
+                count += 1;
+
+            }).on('$.search.finish', () => {
+                assert.equal(count, 200, 'correct # of results');
+                done();
+            });
+
+        }, 10000);
 
     });
 
@@ -465,6 +473,37 @@ describe('invite', () => {
                 text: 'sup?'
             });
         }, 3000);
+
+    });
+
+    it('should not be able to join another chat', function dontJoin(done) {
+
+        this.timeout(10000);
+
+        let targetChan = 'super-secret-channel-' + new Date().getTime();
+
+        let yourSecretChat = new ChatEngineYou.Chat(targetChan, true);
+
+        yourSecretChat.on('$.connected', () => {
+
+            // remove ,true from this
+            let illegalAccessChat = new ChatEngine.Chat(targetChan, true);
+
+            illegalAccessChat.onAny((a) => {
+                console.log(a);
+            });
+
+            illegalAccessChat.on('$.connected', () => {
+                done(new Error('This user should not be able to join', illegalAccessChat.channel));
+            });
+
+            illegalAccessChat.once('$.error.publish', () => {
+                done();
+            });
+
+            illegalAccessChat.emit('message', { message: 'hello' });
+
+        });
 
     });
 

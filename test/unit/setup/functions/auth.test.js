@@ -107,7 +107,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            status: 200
+            status: 401
         };
 
         auth(request, response).then((testResult) => {
@@ -220,7 +220,7 @@ describe('#auth', () => {
         auth.mockKVStoreData(preExistingValue);
 
         let correctResult = {
-            status: 200
+            status: 401
         };
 
         auth(request, response).then((testResult) => {

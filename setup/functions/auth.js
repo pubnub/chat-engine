@@ -1,16 +1,24 @@
 export default (request, response) => {
 
+    const db = require('kvstore');
+
     response.headers['Access-Control-Allow-Origin'] = '*';
     response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept';
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE';
 
     let proxyRequest = JSON.parse(request.body);
+    let proxyParams = proxyRequest.params;
+    let proxyData = JSON.parse(proxyRequest.body) || proxyParams;
 
-    // body from oritinal auth request
-    let body = JSON.parse(proxyRequest.body);
+    let isAuthed = (record, who) => {
 
-    // query params from original auth request
-    let params = proxyRequest.params;
+        if (!record) {
+            return true;
+        } else {
+            return who && record && record.length > 0 && record.indexOf(who) > -1;
+        }
+
+    };
 
     let allow = () => {
         response.status = 200;
@@ -27,21 +35,73 @@ export default (request, response) => {
         return response.send(error);
     };
 
-    if (params.route === 'invite') {
+    let authInChannel = (record, who) => {
 
-        // can this user invite?
-        return allow();
+        record = record || [];
 
-    } else if (params.route === 'grant') {
+        let key = ['authed', proxyData.chat.channel].join(':');
 
-        // is this user allowed in the channel they're trying to join?
-        return allow();
+        if (record.indexOf(who) === -1) {
+
+            record.push(who);
+
+            return db.set(key, record, 525600).then(() => {
+                return allow();
+            }).catch((err) => {
+                console.error(err);
+                return die('Internal Server Error');
+            });
+
+        } else {
+            return allow();
+        }
+
+    };
+
+    if (proxyParams.route === 'invite') {
+
+        if (!proxyData.chat.private) {
+            return allow();
+        } else {
+
+            let key = ['authed', proxyData.chat.channel].join(':');
+
+            return db.get(key).then((record) => {
+
+                if (isAuthed(record, proxyData.uuid)) {
+                    return authInChannel(record, proxyData.to);
+                } else {
+                    return unauthorized();
+                }
+            }).catch((err) => {
+                console.error(err);
+                return die('Internal Server Error');
+            });
+
+        }
+
+    } else if (proxyParams.route === 'grant') {
+
+        if (proxyData.chat.private) {
+
+            let key = ['authed', proxyData.chat.channel].join(':');
+
+            return db.get(key).then((record) => {
+                if (isAuthed(record, proxyData.uuid)) {
+                    return authInChannel(record, proxyData.uuid);
+                } else {
+                    return unauthorized();
+                }
+            }).catch((err) => {
+                console.error(err);
+                return die('Internal Server Error');
+            });
+        } else {
+            return allow();
+        }
 
     } else {
-
-        // all other requests
         return allow();
-
     }
 
 };

@@ -38,8 +38,9 @@ class Chat extends Emitter {
         this.group = group;
 
         /**
-        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly granted access.
         * @type Boolean
+        * @see  {@tutorial privacy}
         * @readonly
         */
         this.isPrivate = isPrivate;
@@ -50,14 +51,6 @@ class Chat extends Emitter {
          * @readonly
          */
         this.meta = meta || {};
-
-        /**
-        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly granted access.
-        * @type Boolean
-        * @see  {@tutorial privacy}
-        * @readonly
-        */
-        this.isPrivate = isPrivate;
 
         /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
