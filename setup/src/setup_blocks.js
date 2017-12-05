@@ -6,12 +6,12 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
 
     status('Creating new PubNub Function...');
 
-    let startPubNubFunction = () => {
-        status('Starting Pubnub Function...');
+    let addSecretKeyToVault = () => {
+        status('Adding Secret Key to Functions Vault...');
 
-        api.startFunction({ block, key }, (err) => {
+        api.storeSecretKey({ key }, (err) => {
             if (err) {
-                const defaultMessage = 'Could not start PubNub Function. Please contact support@pubnub.com.';
+                const defaultMessage = 'Could not add Secret Key to Functions Vault. Please contact support@pubnub.com';
                 return utils.callbackWithError(err, defaultMessage, callback);
             }
 
@@ -21,6 +21,19 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                 pub: key.publish_key,
                 sub: key.subscribe_key
             });
+        });
+    };
+
+    let startPubNubFunction = () => {
+        status('Starting Pubnub Function...');
+
+        api.startFunction({ block, key }, (err) => {
+            if (err) {
+                const defaultMessage = 'Could not start PubNub Function. Please contact support@pubnub.com.';
+                return utils.callbackWithError(err, defaultMessage, callback);
+            }
+
+            addSecretKeyToVault();
 
         });
     };
@@ -63,8 +76,6 @@ module.exports = (api, userId, key, callback = () => {}, status = () => {}) => {
                 }
 
                 status('Creating new on-request Event Handler...');
-
-                functionCodeResult[0] = functionCodeResult[0].replace('SECRET_KEY', key.secret_key);
 
                 api.request('post', ['api', 'v1', 'blocks', 'key', key.id, 'event_handler'], {
                     data: {
