@@ -414,6 +414,35 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    ChatEngine.refreshAuth = (authKey) => {
+
+        // disconnect from old pubnub
+        ChatEngine.pubnub.unsubscribeAll();
+
+        // change pubnub auth key
+        ChatEngine.pnConfig.authKey = authKey;
+
+        // do the whole auth flow with the new authKey
+        ChatEngine.handshake(() => {
+
+            // overwrite pubnub again with new authkey
+            ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
+
+            ChatEngine.global.connect();
+
+            // this should fire again
+            ChatEngine.global.on('$.connected', () => {
+
+                // for every chat in ChatEngine.chats, call .connect()
+
+                ChatEngine.subscribeToPubNub();
+
+            });
+
+        });
+
+    };
+
     /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
@@ -427,7 +456,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // this creates a user known as Me and
         // connects to the global chatroom
         ChatEngine.pnConfig.uuid = uuid;
-
         ChatEngine.pnConfig.authKey = authKey || ChatEngine.pnConfig.uuid;
 
         ChatEngine.handshake(() => {
