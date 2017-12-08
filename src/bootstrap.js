@@ -126,6 +126,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         body = Object.assign(body, inputBody);
         params = Object.assign(params, inputParams);
 
+        console.log('request:', method, ceConfig.endpoint, route);
+
         if (method === 'get' || method === 'delete') {
             params = Object.assign(params, body);
             return axios[method](ceConfig.endpoint, { params });
@@ -199,7 +201,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             }
         ], (error) => {
             if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
             }
         });
 
@@ -386,7 +388,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         */
         ChatEngine.me.onConstructed();
 
-        ChatEngine.global.on('$.connected', () => {
+        ChatEngine.global.once('$.connected', () => {
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
@@ -431,9 +433,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.global.connect();
 
             // this should fire again
-            ChatEngine.global.on('$.connected', () => {
+            ChatEngine.global.once('$.connected', () => {
 
                 // for every chat in ChatEngine.chats, call .connect()
+                Object.keys(ChatEngine.chats).forEach((key) => {
+                    ChatEngine.chats[key].connect();
+                });
 
                 ChatEngine.subscribeToPubNub();
 
