@@ -472,7 +472,7 @@ let examplePlugin = () => {
 
 let ChatEngineRefresh;
 let persistChat;
-describe('refresh token', () => {
+describe('refresh setup', () => {
 
     it('should be configured', () => {
 
@@ -503,15 +503,11 @@ describe('refresh token', () => {
 
         ChatEngineRefresh.connect(username, { works: true }, username);
 
-        ChatEngineRefresh.onAny((e) => {
-            console.log(e);
-        });
-
     });
 
 });
 
-describe('refresh token', () => {
+describe('refresh auth reconnection', () => {
 
     it('should create new chat', function newChat(done) {
 
