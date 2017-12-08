@@ -82,6 +82,8 @@ class Chat extends Emitter {
          */
         this.connected = false;
 
+        this.isAsleep = false;
+
         this.chatEngine.chats[this.channel] = this;
 
         if (autoConnect) {
@@ -397,6 +399,32 @@ class Chat extends Emitter {
 
     }
 
+    // disconnect locally, but store in memory
+    sleep() {
+        this.onDisconnected();
+        this.isAsleep = true;
+    }
+
+    wake() {
+
+        if (this.isAsleep) {
+            this.handshake((response) => {
+                this.onConnected();
+            });
+        }
+
+    }
+
+    onConnected() {
+        this.connected = true;
+        this.trigger('$.connected');
+    }
+
+    onDisconnected() {
+        this.connected = false;
+        this.trigger('$.disconnected');
+    }
+
     /**
      * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
      * receiving events.
@@ -414,10 +442,7 @@ class Chat extends Emitter {
         this.chatEngine.request('post', 'leave', { chat: this.objectify() })
             .then(() => {
 
-                this.connected = false;
-
-                this.trigger('$.disconnected');
-
+                this.onDisconnected();
                 this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
 
             })
@@ -550,11 +575,9 @@ class Chat extends Emitter {
          *     console.log('chat is ready to go!');
          * });
          */
-        this.trigger('$.connected');
+        this.onConnected();
 
         this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
-
-        this.connected = true;
 
         // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
@@ -590,6 +613,22 @@ class Chat extends Emitter {
 
     }
 
+    connect() {
+
+        this.handshake((response) => {
+
+            if (response.data.found) {
+                this.meta = response.data.chat.meta;
+            } else {
+                this.update(this.meta);
+            }
+
+            this.onConnectionReady();
+
+        });
+
+    }
+
     /**
      * Connect to PubNub servers to initialize the chat.
      * @example
@@ -599,7 +638,7 @@ class Chat extends Emitter {
      * // connect to the chat when we feel like it
      * chat.connect();
      */
-    connect() {
+    handshake(callback) {
 
         async.waterfall([
             (next) => {
@@ -630,17 +669,7 @@ class Chat extends Emitter {
             (next) => {
 
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then((response) => {
-
-                        if (response.data.found) {
-                            this.meta = response.data.chat.meta;
-                        } else {
-                            this.update(this.meta);
-                        }
-
-                        this.onConnectionReady();
-
-                    })
+                    .then(callback)
                     .catch(next);
 
             }

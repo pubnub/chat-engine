@@ -419,6 +419,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // disconnect from old pubnub
         ChatEngine.pubnub.unsubscribeAll();
 
+        // for every chat in ChatEngine.chats, signal disconnected
+        Object.keys(ChatEngine.chats).forEach((key) => {
+            ChatEngine.chats[key].sleep();
+        });
+
         // change pubnub auth key
         ChatEngine.pnConfig.authKey = authKey;
 
@@ -435,7 +440,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                 // for every chat in ChatEngine.chats, call .connect()
                 Object.keys(ChatEngine.chats).forEach((key) => {
-                    ChatEngine.chats[key].connect();
+                    ChatEngine.chats[key].wake();
                 });
 
                 ChatEngine.subscribeToPubNub();
