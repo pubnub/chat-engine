@@ -7382,6 +7382,8 @@ class Event {
 
         m.event = this.event;
 
+        console.log('publish', this.channel, m)
+
         this.chatEngine.pubnub.publish({
             message: m,
             channel: this.channel
@@ -7878,10 +7880,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.request = (method, route, inputBody = {}, inputParams = {}) => {
 
         let body = {
-            uuid: pnConfig.uuid,
+            uuid: ChatEngine.pnConfig.uuid,
             global: ceConfig.globalChannel,
-            authData: ChatEngine.me.authData,
-            authKey: pnConfig.authKey
+            authKey: ChatEngine.pnConfig.authKey
         };
 
         let params = {
@@ -7941,221 +7942,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    /**
-     * Connect to realtime service and create instance of {@link Me}
-     * @method ChatEngine#connect
-     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
-     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
-     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
-     * @param {Object} [authData] Additional data to send to the authentication endpoint to help verify a valid session. ChatEngine SDK does not make use of this, but you might!
-     * @fires $"."connected
-     */
-    ChatEngine.connect = (uuid, state = {}, authKey = false, authData) => {
-
-        // this creates a user known as Me and
-        // connects to the global chatroom
-        pnConfig.uuid = uuid;
-
-        pnConfig.authKey = authKey || pnConfig.uuid;
-
-        let restoreSession = () => {
-
-            let groups = ['custom', 'rooms', 'system'];
-
-            groups.forEach((group) => {
-
-                let channelGroup = [ceConfig.globalChannel, pnConfig.uuid, group].join('#');
-
-                ChatEngine.pubnub.channelGroups.listChannels({
-                    channelGroup
-                }, (status, response) => {
-
-                    if (status.error) {
-                        console.log('operation failed w/ error:', status);
-                        return;
-                    }
-
-                    response.channels.forEach((channel) => {
-
-                        ChatEngine.me.addChatToSession({
-                            channel,
-                            private: ChatEngine.parseChannel(channel).private,
-                            group
-                        });
-
-                    });
-
-                });
-
-            });
-
-        };
-
-        let complete = () => {
-
-            ChatEngine.pubnub = new PubNub(pnConfig);
-
-            // create a new chat to use as global chat
-            // we don't do auth on this one because it's assumed to be done with the /auth request below
-            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
-
-            // build the current user
-            ChatEngine.me = new Me(ChatEngine, pnConfig.uuid, authData);
-            ChatEngine.me.update(state);
-
-            /**
-            * Fired when a {@link Me} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."me
-            * @example
-            * ChatEngine.on('$.created.me', (data, me) => {
-            *     console.log('Me was created', me);
-            * });
-            */
-            ChatEngine.me.onConstructed();
-
-            ChatEngine.global.on('$.connected', () => {
-
-                /**
-                 *  Fired when ChatEngine is connected to the internet and ready to go!
-                 * @event ChatEngine#$"."ready
-                 * @example
-                 * ChatEngine.on('$.ready', (data) => {
-                 *     let me = data.me;
-                 * })
-                 */
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.global.getUserUpdates();
-
-                let chanGroups = [
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
-                ];
-
-                // listen to all PubNub events for this Chat
-                ChatEngine.pubnub.addListener({
-                    presence: (payload) => {
-
-                        if (ChatEngine.chats[payload.channel]) {
-                            ChatEngine.chats[payload.channel].onPresence(payload);
-                        }
-
-                    }
-                });
-
-                ChatEngine.pubnub.subscribe({
-                    channelGroups: chanGroups,
-                    withPresence: true
-                });
-
-                ChatEngine.ready = true;
-
-                restoreSession();
-
-            });
-
-            /**
-             Fires when PubNub network connection changes.
-
-             @private
-             @param {Object} statusEvent The response status
-             */
-            ChatEngine.pubnub.addListener({
-                status: (statusEvent) => {
-
-                    /**
-                     * SDK detected that network is online.
-                     * @event ChatEngine#$"."network"."up"."online
-                     */
-
-                    /**
-                     * SDK detected that network is down.
-                     * @event ChatEngine#$"."network"."down"."offline
-                     */
-
-                    /**
-                     * A subscribe event experienced an exception when running.
-                     * @event ChatEngine#$"."network"."down"."issue
-                     */
-
-                    /**
-                     * SDK was able to reconnect to pubnub.
-                     * @event ChatEngine#$"."network"."up"."reconnected
-                     */
-
-                    /**
-                     * SDK subscribed with a new mix of channels.
-                     * @event ChatEngine#$"."network"."up"."connected
-                     */
-
-                    /**
-                     * JSON parsing crashed.
-                     * @event ChatEngine#$"."network"."down"."malformed
-                     */
-
-                    /**
-                     * Server rejected the request.
-                     * @event ChatEngine#$"."network"."down"."badrequest
-                     */
-
-                    /**
-                     * If using decryption strategies and the decryption fails.
-                     * @event ChatEngine#$"."network"."down"."decryption
-                     */
-
-                    /**
-                     * Request timed out.
-                     * @event ChatEngine#$"."network"."down"."timeout
-                     */
-
-                    /**
-                     * PAM permission failure.
-                     * @event ChatEngine#$"."network"."down"."denied
-                     */
-
-                    // map the pubnub events into ChatEngine events
-                    let categories = {
-                        PNNetworkUpCategory: 'up.online',
-                        PNNetworkDownCategory: 'down.offline',
-                        PNNetworkIssuesCategory: 'down.issue',
-                        PNReconnectedCategory: 'up.reconnected',
-                        PNConnectedCategory: 'up.connected',
-                        PNAccessDeniedCategory: 'down.denied',
-                        PNMalformedResponseCategory: 'down.malformed',
-                        PNBadRequestCategory: 'down.badrequest',
-                        PNDecryptionErrorCategory: 'down.decryption',
-                        PNTimeoutCategory: 'down.timeout'
-                    };
-
-                    let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
-
-                    if (statusEvent.affectedChannels) {
-                        statusEvent.affectedChannels.forEach((channel) => {
-
-                            let chat = ChatEngine.chats[channel];
-
-                            if (chat) {
-                                // connected category tells us the chat is ready
-                                if (statusEvent.category === 'PNConnectedCategory') {
-                                    chat.onConnectionReady();
-                                }
-
-                                // trigger the network events
-                                chat.trigger(eventName, statusEvent);
-
-                            } else {
-                                ChatEngine._emit(eventName, statusEvent);
-                            }
-                        });
-                    } else {
-                        ChatEngine._emit(eventName, statusEvent);
-                    }
-                }
-            });
-        };
+    ChatEngine.handshake = (complete) => {
 
         async.parallel([
             (next) => {
@@ -8178,8 +7965,264 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             }
         ], (error) => {
             if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
             }
+        });
+
+    };
+
+    ChatEngine.syncChats = () => {
+
+        let groups = ['custom', 'rooms', 'system'];
+
+        groups.forEach((group) => {
+
+            let channelGroup = [ceConfig.globalChannel, ChatEngine.pnConfig.uuid, group].join('#');
+
+            ChatEngine.pubnub.channelGroups.listChannels({
+                channelGroup
+            }, (status, response) => {
+
+                if (status.error) {
+                    console.log('operation failed w/ error:', status);
+                    return;
+                }
+
+                response.channels.forEach((channel) => {
+
+                    ChatEngine.me.addChatToSession({
+                        channel,
+                        private: ChatEngine.parseChannel(channel).private,
+                        group
+                    });
+
+                });
+
+            });
+
+        });
+
+    };
+
+    ChatEngine.listenToPubNub = () => {
+
+        /**
+         Fires when PubNub network connection changes.
+
+         @private
+         @param {Object} statusEvent The response status
+         */
+        ChatEngine.pubnub.addListener({
+            presence: (payload) => {
+
+                if (ChatEngine.chats[payload.channel]) {
+                    ChatEngine.chats[payload.channel].onPresence(payload);
+                }
+
+            },
+            status: (statusEvent) => {
+
+                /**
+                 * SDK detected that network is online.
+                 * @event ChatEngine#$"."network"."up"."online
+                 */
+
+                /**
+                 * SDK detected that network is down.
+                 * @event ChatEngine#$"."network"."down"."offline
+                 */
+
+                /**
+                 * A subscribe event experienced an exception when running.
+                 * @event ChatEngine#$"."network"."down"."issue
+                 */
+
+                /**
+                 * SDK was able to reconnect to pubnub.
+                 * @event ChatEngine#$"."network"."up"."reconnected
+                 */
+
+                /**
+                 * SDK subscribed with a new mix of channels.
+                 * @event ChatEngine#$"."network"."up"."connected
+                 */
+
+                /**
+                 * JSON parsing crashed.
+                 * @event ChatEngine#$"."network"."down"."malformed
+                 */
+
+                /**
+                 * Server rejected the request.
+                 * @event ChatEngine#$"."network"."down"."badrequest
+                 */
+
+                /**
+                 * If using decryption strategies and the decryption fails.
+                 * @event ChatEngine#$"."network"."down"."decryption
+                 */
+
+                /**
+                 * Request timed out.
+                 * @event ChatEngine#$"."network"."down"."timeout
+                 */
+
+                /**
+                 * PAM permission failure.
+                 * @event ChatEngine#$"."network"."down"."denied
+                 */
+
+                // map the pubnub events into ChatEngine events
+                let categories = {
+                    PNNetworkUpCategory: 'up.online',
+                    PNNetworkDownCategory: 'down.offline',
+                    PNNetworkIssuesCategory: 'down.issue',
+                    PNReconnectedCategory: 'up.reconnected',
+                    PNConnectedCategory: 'up.connected',
+                    PNAccessDeniedCategory: 'down.denied',
+                    PNMalformedResponseCategory: 'down.malformed',
+                    PNBadRequestCategory: 'down.badrequest',
+                    PNDecryptionErrorCategory: 'down.decryption',
+                    PNTimeoutCategory: 'down.timeout'
+                };
+
+                let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
+
+                if (statusEvent.affectedChannels) {
+                    statusEvent.affectedChannels.forEach((channel) => {
+
+                        let chat = ChatEngine.chats[channel];
+
+                        if (chat) {
+                            // connected category tells us the chat is ready
+                            if (statusEvent.category === 'PNConnectedCategory') {
+                                chat.onConnectionReady();
+                            }
+
+                            // trigger the network events
+                            chat.trigger(eventName, statusEvent);
+
+                        } else {
+                            ChatEngine._emit(eventName, statusEvent);
+                        }
+                    });
+                } else {
+                    ChatEngine._emit(eventName, statusEvent);
+                }
+            }
+        });
+
+    };
+
+    ChatEngine.subscribeToPubNub = () => {
+
+        let chanGroups = [
+            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
+            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
+            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+        ];
+
+        ChatEngine.pubnub.subscribe({
+            channelGroups: chanGroups,
+            withPresence: true
+        });
+
+    };
+
+    ChatEngine.firstConnect = (state) => {
+
+        ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
+
+        // create a new chat to use as global chat
+        // we don't do auth on this one because it's assumed to be done with the /auth request below
+        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
+
+        // build the current user
+        ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
+        ChatEngine.me.update(state);
+
+        /**
+        * Fired when a {@link Me} has been created within ChatEngine.
+        * @event ChatEngine#$"."created"."me
+        * @example
+        * ChatEngine.on('$.created.me', (data, me) => {
+        *     console.log('Me was created', me);
+        * });
+        */
+        ChatEngine.me.onConstructed();
+
+        ChatEngine.global.once('$.connected', () => {
+
+            /**
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (data) => {
+             *     let me = data.me;
+             * })
+             */
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
+            });
+
+            ChatEngine.ready = true;
+
+            ChatEngine.global.getUserUpdates();
+
+            ChatEngine.subscribeToPubNub();
+
+            ChatEngine.syncChats();
+
+        });
+
+        ChatEngine.listenToPubNub();
+
+    };
+
+    ChatEngine.refreshAuth = (authKey) => {
+
+        // disconnect from old pubnub
+        ChatEngine.pnConfig.authKey = authKey;
+        ChatEngine.pubnub.setAuthKey(authKey);
+
+        // for every chat in ChatEngine.chats, signal disconnected
+        Object.keys(ChatEngine.chats).forEach((key) => {
+            ChatEngine.chats[key].sleep();
+        });
+
+        // do the whole auth flow with the new authKey
+        ChatEngine.handshake(() => {
+
+            ChatEngine.global.wake();
+
+            // for every chat in ChatEngine.chats, call .connect()
+            Object.keys(ChatEngine.chats).forEach((key) => {
+                ChatEngine.chats[key].wake();
+            });
+
+            ChatEngine.subscribeToPubNub();
+
+        });
+
+    };
+
+    /**
+     * Connect to realtime service and create instance of {@link Me}
+     * @method ChatEngine#connect
+     * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
+     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
+     * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
+     * @fires $"."connected
+     */
+    ChatEngine.connect = (uuid, state = {}, authKey = false) => {
+
+        // this creates a user known as Me and
+        // connects to the global chatroom
+        ChatEngine.pnConfig.uuid = uuid;
+        ChatEngine.pnConfig.authKey = authKey || ChatEngine.pnConfig.uuid;
+
+        ChatEngine.handshake(() => {
+            ChatEngine.firstConnect(state);
         });
 
     };
@@ -10013,6 +10056,8 @@ class Chat extends Emitter {
          */
         this.connected = false;
 
+        this.isAsleep = false;
+
         this.chatEngine.chats[this.channel] = this;
 
         if (autoConnect) {
@@ -10328,6 +10373,33 @@ class Chat extends Emitter {
 
     }
 
+    // disconnect locally, but store in memory
+    sleep() {
+        this.onDisconnected();
+        this.isAsleep = true;
+    }
+
+    wake() {
+
+        if (this.isAsleep) {
+            this.handshake(() => {
+                this.onConnected();
+            });
+        }
+
+    }
+
+    onConnected() {
+        this.connected = true;
+        this.trigger('$.connected');
+        console.log('connected to', this.channel)
+    }
+
+    onDisconnected() {
+        this.connected = false;
+        this.trigger('$.disconnected');
+    }
+
     /**
      * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
      * receiving events.
@@ -10345,10 +10417,7 @@ class Chat extends Emitter {
         this.chatEngine.request('post', 'leave', { chat: this.objectify() })
             .then(() => {
 
-                this.connected = false;
-
-                this.trigger('$.disconnected');
-
+                this.onDisconnected();
                 this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
 
             })
@@ -10481,11 +10550,9 @@ class Chat extends Emitter {
          *     console.log('chat is ready to go!');
          * });
          */
-        this.trigger('$.connected');
+        this.onConnected();
 
         this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
-
-        this.connected = true;
 
         // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
@@ -10521,6 +10588,22 @@ class Chat extends Emitter {
 
     }
 
+    connect() {
+
+        this.handshake((response) => {
+
+            if (response.data.found) {
+                this.meta = response.data.chat.meta;
+            } else {
+                this.update(this.meta);
+            }
+
+            this.onConnectionReady();
+
+        });
+
+    }
+
     /**
      * Connect to PubNub servers to initialize the chat.
      * @example
@@ -10530,7 +10613,7 @@ class Chat extends Emitter {
      * // connect to the chat when we feel like it
      * chat.connect();
      */
-    connect() {
+    handshake(callback) {
 
         async.waterfall([
             (next) => {
@@ -10561,17 +10644,7 @@ class Chat extends Emitter {
             (next) => {
 
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then((response) => {
-
-                        if (response.data.found) {
-                            this.meta = response.data.chat.meta;
-                        } else {
-                            this.update(this.meta);
-                        }
-
-                        this.onConnectionReady();
-
-                    })
+                    .then(callback)
                     .catch(next);
 
             }
@@ -12309,14 +12382,13 @@ const User = __webpack_require__(29);
  */
 class Me extends User {
 
-    constructor(chatEngine, uuid, authData) {
+    constructor(chatEngine, uuid) {
 
         // call the User constructor
         super(chatEngine, uuid);
 
         this.name = 'Me';
 
-        this.authData = authData;
         this.chatEngine = chatEngine;
 
         /**

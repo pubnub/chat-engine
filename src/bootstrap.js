@@ -350,7 +350,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     ChatEngine.subscribeToPubNub = () => {
 
-
         let chanGroups = [
             ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
             ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
@@ -417,35 +416,25 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.refreshAuth = (authKey) => {
 
         // disconnect from old pubnub
-        ChatEngine.pubnub.unsubscribeAll();
+        ChatEngine.pnConfig.authKey = authKey;
+        ChatEngine.pubnub.setAuthKey(authKey);
 
         // for every chat in ChatEngine.chats, signal disconnected
         Object.keys(ChatEngine.chats).forEach((key) => {
             ChatEngine.chats[key].sleep();
         });
 
-        // change pubnub auth key
-        ChatEngine.pnConfig.authKey = authKey;
-
         // do the whole auth flow with the new authKey
         ChatEngine.handshake(() => {
 
-            // overwrite pubnub again with new authkey
-            ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
+            ChatEngine.global.wake();
 
-            ChatEngine.global.connect();
-
-            // this should fire again
-            ChatEngine.global.once('$.connected', () => {
-
-                // for every chat in ChatEngine.chats, call .connect()
-                Object.keys(ChatEngine.chats).forEach((key) => {
-                    ChatEngine.chats[key].wake();
-                });
-
-                ChatEngine.subscribeToPubNub();
-
+            // for every chat in ChatEngine.chats, call .connect()
+            Object.keys(ChatEngine.chats).forEach((key) => {
+                ChatEngine.chats[key].wake();
             });
+
+            ChatEngine.subscribeToPubNub();
 
         });
 

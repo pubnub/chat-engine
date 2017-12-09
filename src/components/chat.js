@@ -418,6 +418,7 @@ class Chat extends Emitter {
     onConnected() {
         this.connected = true;
         this.trigger('$.connected');
+        console.log('connected to', this.channel)
     }
 
     onDisconnected() {
