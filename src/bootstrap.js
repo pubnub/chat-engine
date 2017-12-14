@@ -413,16 +413,19 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    ChatEngine.refreshAuth = (authKey) => {
+    ChatEngine.disconnect = () => {
 
-        // disconnect from old pubnub
-        ChatEngine.pnConfig.authKey = authKey;
-        ChatEngine.pubnub.setAuthKey(authKey);
+        // nothing disconnects from pubnub!
+        ChatEngine.pubnub.unsubscribeAll();
 
         // for every chat in ChatEngine.chats, signal disconnected
         Object.keys(ChatEngine.chats).forEach((key) => {
             ChatEngine.chats[key].sleep();
         });
+
+    };
+
+    ChatEngine.reconnect = () => {
 
         // do the whole auth flow with the new authKey
         ChatEngine.handshake(() => {
@@ -437,6 +440,22 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.subscribeToPubNub();
 
         });
+
+    };
+
+    ChatEngine.setAuth = (authKey) => {
+
+        // disconnect from old pubnub
+        ChatEngine.pnConfig.authKey = authKey;
+        ChatEngine.pubnub.setAuthKey(authKey);
+
+    };
+
+    ChatEngine.refreshAuth = (authKey) => {
+
+        ChatEngine.disconnect();
+        ChatEngine.setAuth(authKey);
+        ChatEngine.reconnect();
 
     };
 
