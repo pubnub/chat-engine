@@ -477,7 +477,7 @@ describe('connection events', () => {
 
     it('I get your online event', function createIt(done) {
 
-        this.timeout(10000);
+        this.timeout(30000);
 
         myChatter = new ChatEngine.Chat(sharedChannel);
 
@@ -485,16 +485,13 @@ describe('connection events', () => {
         let youMe = false;
 
         let checkDone = () => {
-            console.log(meYou, youMe)
             if (meYou && youMe) {
                 done();
             }
         };
 
         // I get your online event
-        myChatter.on('$.online.*', () => {
-
-            console.log('mechat', 'online join', Object.keys(yourChatter.users))
+        myChatter.on('$.online.*', function(payload) {
 
             if (myChatter.users[ChatEngineYou.me.uuid]) {
                 meYou = true;
@@ -506,9 +503,7 @@ describe('connection events', () => {
         yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
         // You get my online event
-        yourChatter.on('$.online.*', () => {
-
-            console.log('youchat', 'online join', Object.keys(yourChatter.users))
+        yourChatter.on('$.online.*', function(payload) {
 
             if (yourChatter.users[ChatEngine.me.uuid]) {
                 youMe = true;
@@ -516,13 +511,6 @@ describe('connection events', () => {
             }
 
         });
-
-
-        setInterval(() => {
-            console.log(Object.keys(yourChatter.users));
-            console.log(Object.keys(myChatter.users));
-        }, 1000);
-
     });
 
 });

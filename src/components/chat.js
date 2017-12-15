@@ -223,6 +223,7 @@ class Chat extends Emitter {
             // It's possible for PubNub to send us both a join and have the user appear in here_now
             // Avoid firing duplicate $.online events.
             if (!this.users[user.uuid]) {
+
                 this.trigger('$.online.join', { user });
             }
 
@@ -327,8 +328,14 @@ class Chat extends Emitter {
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
         this.chatEngine.users[uuid].assign(state);
 
+        let userAlreadyHere = this.users[uuid];
+
+        // store this user in the chatroom
+        // this needs to happen before online.here because users may wish to render updated list
+        this.users[uuid] = this.chatEngine.users[uuid];
+
         // trigger the join event over this chatroom
-        if (!this.users[uuid]) {
+        if (!userAlreadyHere) {
 
             /**
              * Broadcast that a {@link User} has come online. This is when
@@ -344,15 +351,11 @@ class Chat extends Emitter {
                       *     console.log('User has come online:', data.user);
                       * });
              */
-
             this.trigger('$.online.here', {
                 user: this.chatEngine.users[uuid]
             });
 
         }
-
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
 
         // return the instance of this user
         return this.chatEngine.users[uuid];
