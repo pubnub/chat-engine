@@ -161,168 +161,168 @@ describe('connect', () => {
 
 let chat;
 
-// describe('chat', () => {
+describe('chat', () => {
 
 
-//     it('should get me as join event', function getMe(done) {
+    it('should get me as join event', function getMe(done) {
 
-//         this.timeout(10000);
+        this.timeout(10000);
 
-//         chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
+        chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
-//         chat.on('$.online.*', (p) => {
+        chat.on('$.online.*', (p) => {
 
-//             if (p.user.uuid === ChatEngine.me.uuid) {
-//                 done();
-//             }
+            if (p.user.uuid === ChatEngine.me.uuid) {
+                done();
+            }
 
-//         });
+        });
 
-//     });
+    });
 
-//     it('should get connected callback', function getReadyCallback(done) {
+    it('should get connected callback', function getReadyCallback(done) {
 
-//         this.timeout(5000);
+        this.timeout(5000);
 
-//         let chat2 = new ChatEngine.Chat('chat2' + new Date().getTime());
-//         chat2.on('$.connected', () => {
+        let chat2 = new ChatEngine.Chat('chat2' + new Date().getTime());
+        chat2.on('$.connected', () => {
 
-//             done();
+            done();
 
-//         });
+        });
 
-//     });
+    });
 
-//     it('should get message', function (done) {
+    it('should get message', function (done) {
 
-//         this.timeout(12000);
+        this.timeout(12000);
 
-//         chat.once('something', (payload) => {
+        chat.once('something', (payload) => {
 
-//             assert.isObject(payload);
-//             done();
+            assert.isObject(payload);
+            done();
 
-//         });
+        });
 
-//         setTimeout(() => {
-//             chat.emit('something', {
-//                 text: 'hello world'
-//             });
-//         }, 1000);
+        setTimeout(() => {
+            chat.emit('something', {
+                text: 'hello world'
+            });
+        }, 1000);
 
-//     });
+    });
 
-//     it('should bind a plugin', () => {
+    it('should bind a plugin', () => {
 
-//         chat.plugin(examplePlugin());
+        chat.plugin(examplePlugin());
 
-//         assert(chat.constructWorks, 'bound to construct');
-//         assert(chat.testPlugin.newMethod(), 'new method added');
+        assert(chat.constructWorks, 'bound to construct');
+        assert(chat.testPlugin.newMethod(), 'new method added');
 
-//     });
+    });
 
-//     it('should bind a prototype plugin', () => {
+    it('should bind a prototype plugin', () => {
 
-//         ChatEngine.proto('Chat', examplePlugin());
+        ChatEngine.proto('Chat', examplePlugin());
 
-//         let newChat = new ChatEngine.Chat('some-other-chat');
+        let newChat = new ChatEngine.Chat('some-other-chat');
 
-//         assert(newChat.constructWorks, 'bound to construct');
-//         assert(newChat.testPlugin.newMethod(), 'new method added');
+        assert(newChat.constructWorks, 'bound to construct');
+        assert(newChat.testPlugin.newMethod(), 'new method added');
 
-//     });
+    });
 
-// });
+});
 
-// let chatHistory;
-// describe('history', () => {
+let chatHistory;
+describe('history', () => {
 
-//     it('should get 50 messages', function get50(done) {
+    it('should get 50 messages', function get50(done) {
 
-//         let count = 0;
+        let count = 0;
 
-//         this.timeout(16000);
+        this.timeout(16000);
 
-//         chatHistory = new ChatEngine.Chat('chat-history-8', false);
+        chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-//         for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 200; i++) {
 
-//             chatHistory.emit('tester', {
-//                 text: 'hello world ' + i
-//             });
-//             chatHistory.emit('not-tester', {
-//                 text: 'hello world ' + i
-//             });
+            chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('not-tester', {
+                text: 'hello world ' + i
+            });
 
-//         }
+        }
 
-//         chatHistory.search({
-//             event: 'tester',
-//             limit: 50
-//         }).on('tester', (a) => {
+        chatHistory.search({
+            event: 'tester',
+            limit: 50
+        }).on('tester', (a) => {
 
-//             assert.equal(a.event, 'tester');
+            assert.equal(a.event, 'tester');
 
-//             count += 1;
+            count += 1;
 
-//         }).on('$.search.finish', () => {
-//             assert.equal(count, 50, 'correct # of results');
-//             done();
-//         });
+        }).on('$.search.finish', () => {
+            assert.equal(count, 50, 'correct # of results');
+            done();
+        });
 
-//     });
+    });
 
-//     it('should get 200 messages', function get200(done) {
+    it('should get 200 messages', function get200(done) {
 
-//         let count = 0;
+        let count = 0;
 
-//         this.timeout(16000);
+        this.timeout(16000);
 
-//         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
-//         for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 200; i++) {
 
-//             chatHistory2.emit('tester', {
-//                 text: 'hello world ' + i
-//             });
-//             chatHistory2.emit('not-tester', {
-//                 text: 'hello world ' + i
-//             });
+            chatHistory2.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
 
-//         }
+        }
 
-//         chatHistory2.search({
-//             event: 'tester',
-//             limit: 200
-//         }).on('tester', (a) => {
+        chatHistory2.search({
+            event: 'tester',
+            limit: 200
+        }).on('tester', (a) => {
 
-//             assert.equal(a.event, 'tester');
-//             count += 1;
+            assert.equal(a.event, 'tester');
+            count += 1;
 
-//         }).on('$.search.finish', () => {
-//             assert.equal(count, 200, 'correct # of results');
-//             done();
-//         });
+        }).on('$.search.finish', () => {
+            assert.equal(count, 200, 'correct # of results');
+            done();
+        });
 
-//     });
+    });
 
-//     it('should get messages without event', function get50(done) {
+    it('should get messages without event', function get50(done) {
 
-//         this.timeout(10000);
+        this.timeout(10000);
 
-//         chatHistory.search({
-//             limit: 10
-//         }).on('tester', (a) => {
+        chatHistory.search({
+            limit: 10
+        }).on('tester', (a) => {
 
-//             assert.equal(a.event, 'tester');
+            assert.equal(a.event, 'tester');
 
-//         }).on('$.search.finish', () => {
-//             done();
-//         });
+        }).on('$.search.finish', () => {
+            done();
+        });
 
-//     });
+    });
 
-// });
+});
 
 let ChatEngineClone;
 let syncChat;
@@ -475,7 +475,7 @@ let myChatter;
 let yourChatter;
 describe('connection events', () => {
 
-    it('I get your online event', function createIt(done) {
+    it('get eachothers\'s online events', function createIt(done) {
 
         this.timeout(30000);
 
@@ -491,7 +491,7 @@ describe('connection events', () => {
         };
 
         // I get your online event
-        myChatter.on('$.online.*', function(payload) {
+        myChatter.on('$.online.*', function (payload) {
 
             if (myChatter.users[ChatEngineYou.me.uuid]) {
                 meYou = true;
@@ -503,7 +503,7 @@ describe('connection events', () => {
         yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
         // You get my online event
-        yourChatter.on('$.online.*', function(payload) {
+        yourChatter.on('$.online.*', function (payload) {
 
             if (yourChatter.users[ChatEngine.me.uuid]) {
                 youMe = true;
@@ -511,6 +511,27 @@ describe('connection events', () => {
             }
 
         });
+    });
+
+
+    it('Get your offline event', function createIt(done) {
+
+        this.timeout(90000);
+
+        // I get your online event
+        myChatter.on('$.offline.disconnect', function (payload) {
+
+            // make sure your user no longer in list of users
+            if(Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
+                done();
+            }
+
+        });
+
+        // this should be firing $.offline.leave()
+        // see https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
+        yourChatter.leave();
+
     });
 
 });

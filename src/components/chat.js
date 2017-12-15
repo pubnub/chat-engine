@@ -230,6 +230,10 @@ class Chat extends Emitter {
         }
 
         // someone leaves channel
+
+        // @todo this is not always fired on clean .leave()
+        // https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
+
         if (presenceEvent.action === 'leave') {
             this.userLeave(presenceEvent.uuid);
         }
@@ -442,6 +446,11 @@ class Chat extends Emitter {
 
             // if a user leaves, trigger the event
 
+            let cacheUser = this.users[uuid];
+
+            // remove the user from the local list of users
+            delete this.users[uuid];
+
             /**
              * Fired when a {@link User} intentionally leaves a {@link Chat}.
              *
@@ -454,11 +463,8 @@ class Chat extends Emitter {
                       * });
              */
             this.trigger('$.offline.leave', {
-                user: this.users[uuid]
+                user: cacheUser
             });
-
-            // remove the user from the local list of users
-            delete this.users[uuid];
 
             // we don't remove the user from the global list,
             // because they may be online in other channels
@@ -483,6 +489,11 @@ class Chat extends Emitter {
         // make sure this event is real, user may have already left
         if (this.users[uuid]) {
 
+            let cacheUser = this.users[uuid];
+
+            // remove the user from the local list of users
+            delete this.users[uuid];
+
             /**
              * Fired specifically when a {@link User} looses network connection
              * to the {@link Chat} involuntarily.
@@ -496,7 +507,8 @@ class Chat extends Emitter {
                       * });
              */
 
-            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
+            this.trigger('$.offline.disconnect', { user: cacheUser });
+
         }
 
     }
