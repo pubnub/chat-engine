@@ -30,6 +30,8 @@ class Search extends Emitter {
         */
         this.chat = chat;
 
+        this.plugins = this.chat.plugins;
+
         /**
         An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
         @type {Object}

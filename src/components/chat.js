@@ -534,9 +534,7 @@ class Chat extends Emitter {
     });
      */
     search(config) {
-        let searchInstance = new Search(this.chatEngine, this, config);
-        searchInstance.plugins = this.plugins;
-        return searchInstance;
+        return new Search(this.chatEngine, this, config);
     }
 
     /**

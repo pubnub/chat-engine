@@ -10465,9 +10465,7 @@ class Chat extends Emitter {
     });
      */
     search(config) {
-        let searchInstance = new Search(this.chatEngine, this, config);
-        searchInstance.plugins = this.plugins;
-        return searchInstance;
+        return new Search(this.chatEngine, this, config);
     }
 
     /**
@@ -11127,6 +11125,8 @@ class Search extends Emitter {
         @type Chat
         */
         this.chat = chat;
+
+        this.plugins = this.chat.plugins;
 
         /**
         An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
