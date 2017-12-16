@@ -15,10 +15,8 @@ class Event {
          */
         this.channel = chat.channel;
 
-        this.chatEngine = chatEngine;
-
         this.CE = () => {
-            return this.chatEngine;
+            return chatEngine;
         };
 
         this.chat = chat;

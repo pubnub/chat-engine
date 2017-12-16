@@ -7342,10 +7342,8 @@ class Event {
          */
         this.channel = chat.channel;
 
-        this.chatEngine = chatEngine;
-
         this.CE = () => {
-            return this.chatEngine;
+            return chatEngine;
         };
 
         this.chat = chat;
@@ -7716,8 +7714,6 @@ module.exports = User;
 /***/ }),
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
-
-console.log('updated')
 
 // allows asynchronous execution flow.
 const init = __webpack_require__(31);
