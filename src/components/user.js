@@ -13,9 +13,7 @@ class User extends Emitter {
 
     constructor(chatEngine, uuid, state = {}) {
 
-        super();
-
-        this.chatEngine = chatEngine;
+        super(chatEngine);
 
         this.name = 'User';
 
@@ -57,7 +55,7 @@ class User extends Emitter {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+        this.feed = this.CE().Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -78,7 +76,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+        this.direct = this.CE().Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -120,14 +118,14 @@ class User extends Emitter {
 
         if (!this._stateFetched) {
 
-            this.chatEngine.pubnub.getState({
+            this.CE().pubnub.getState({
                 uuid: this.uuid,
-                channels: [this.chatEngine.global.channel]
+                channels: [this.CE().global.channel]
             }, (status, response) => {
 
                 if (status.statusCode === 200) {
 
-                    let pnState = response.channels[this.chatEngine.global.channel];
+                    let pnState = response.channels[this.CE().global.channel];
                     if (Object.keys(pnState).length) {
 
                         this.assign(response.data);
@@ -137,7 +135,7 @@ class User extends Emitter {
 
                     } else {
 
-                        this.chatEngine.request('get', 'user_state', {
+                        this.CE().request('get', 'user_state', {
                             user: this.uuid
                         })
                             .then((res) => {
@@ -150,13 +148,13 @@ class User extends Emitter {
                             })
                             .catch((err) => {
                                 // console.log('this is hte err', err);
-                                this.chatEngine.throwError(this, 'trigger', 'getState', err);
+                                this.CE().throwError(this, 'trigger', 'getState', err);
                             });
 
                     }
 
                 } else {
-                    this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+                    this.CE().throwError(this, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
                 }
 
             });

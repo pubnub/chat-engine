@@ -14,7 +14,9 @@ class Emitter extends RootEmitter {
 
         super();
 
-        this.chatEngine = chatEngine;
+        this.CE = () => {
+            return chatEngine;
+        };
 
         this.name = 'Emitter';
 
@@ -40,7 +42,7 @@ class Emitter extends RootEmitter {
 
             // all events are forwarded to ChatEngine object
             // so you can globally bind to events with ChatEngine.on()
-            this.chatEngine._emit(event, data, this);
+            this.CE()._emit(event, data, this);
 
             // emit the event from the object that created it
             this.emitter.emit(event, data);
@@ -69,7 +71,7 @@ class Emitter extends RootEmitter {
         this.on = (event, cb) => {
 
             // keep track of all events on this emitter
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+            this.events[event] = this.events[event] || new Event(this.CE(), this, event);
 
             // call the private _on property
             this._on(event, cb);
@@ -128,7 +130,7 @@ class Emitter extends RootEmitter {
             // under their namespace
             this.addChild(module.namespace, new module.extends[this.name]());
 
-            this[module.namespace].ChatEngine = this.chatEngine;
+            this[module.namespace].ChatEngine = this.CE();
 
             // if the plugin has a special construct function
             // run it
@@ -144,9 +146,9 @@ class Emitter extends RootEmitter {
 
     bindProtoPlugins() {
 
-        if (this.chatEngine.protoPlugins[this.name]) {
+        if (this.CE().protoPlugins[this.name]) {
 
-            this.chatEngine.protoPlugins[this.name].forEach((module) => {
+            this.CE().protoPlugins[this.name].forEach((module) => {
                 this.plugin(module);
             });
 
@@ -193,7 +195,7 @@ class Emitter extends RootEmitter {
             if (payload.sender) {
 
                 // the user doesn't exist, create it
-                payload.sender = new this.chatEngine.User(payload.sender);
+                payload.sender = this.CE().User(payload.sender);
 
                 payload.sender._getState(() => {
                     complete();

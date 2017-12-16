@@ -14,9 +14,7 @@ class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {
 
-        super();
-
-        this.chatEngine = chatEngine;
+        super(chatEngine);
 
         /**
         Handy property to identify what this class is.
@@ -84,7 +82,7 @@ class Search extends Emitter {
 
             this.firstPage = false;
 
-            this.chatEngine.pubnub.history(this.config, (status, response) => {
+            this.CE().pubnub.history(this.config, (status, response) => {
 
                 /**
                  * PubNub History returned a response.
@@ -98,7 +96,7 @@ class Search extends Emitter {
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    this.chatEngine.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
+                    this.CE().throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
 
                 } else {
 

@@ -17,6 +17,10 @@ class Event {
 
         this.chatEngine = chatEngine;
 
+        this.CE = () => {
+            return this.chatEngine;
+        };
+
         this.chat = chat;
 
         this.event = event;
@@ -31,7 +35,7 @@ class Event {
          */
 
         // call onMessage when PubNub receives an event
-        this.chatEngine.pubnub.addListener({
+        this.CE().pubnub.addListener({
             message: this.onMessage.bind(this)
         });
 
@@ -57,7 +61,7 @@ class Event {
 
         m.event = this.event;
 
-        this.chatEngine.pubnub.publish({
+        this.CE().pubnub.publish({
             message: m,
             channel: this.channel
         }, (status) => {
@@ -76,7 +80,7 @@ class Event {
                  * There was a problem publishing over the PubNub network.
                  * @event Chat#$"."error"."publish
                  */
-                this.chatEngine.throwError(this.chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
+                this.CE().throwError(this.chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
             }
 
         });

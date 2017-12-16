@@ -22,7 +22,6 @@ class Me extends User {
         this.name = 'Me';
 
         this.authData = authData;
-        this.chatEngine = chatEngine;
 
         /**
          * Stores a map of {@link Chat} objects that this {@link Me} has joined across all clients.
@@ -30,7 +29,7 @@ class Me extends User {
          */
         this.session = {};
 
-        this.sync = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
+        this.sync = this.CE().Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
 
         this.sync.on('$.session.chat.join', (payload) => {
             this.addChatToSession(payload.data.subject);
@@ -73,7 +72,7 @@ class Me extends User {
         super.update(state);
 
         // publish the update over the global channel
-        this.chatEngine.global.setState(state);
+        this.CE().global.setState(state);
 
     }
 
@@ -88,7 +87,7 @@ class Me extends User {
         this.session[chat.group] = this.session[chat.group] || {};
 
         // check the chat exists within the global list but is not grouped
-        let existingChat = this.chatEngine.chats[chat.channel];
+        let existingChat = this.CE().chats[chat.channel];
 
         // if it exists
         if (existingChat) {
@@ -97,7 +96,7 @@ class Me extends User {
         } else {
 
             // otherwise, try to recreate it with the server information
-            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
+            this.session[chat.group][chat.channel] = this.CE().Chat(chat.channel, chat.private, false, chat.meta, chat.group);
 
             /**
             Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
@@ -139,7 +138,7 @@ class Me extends User {
             * @event Me#$"."session"."chat"."leave
             */
 
-            delete this.chatEngine.chats[chat.channel];
+            delete this.CE().chats[chat.channel];
             delete this.session[chat.group][chat.channel];
 
             this.trigger('$.session.chat.leave', { chat });

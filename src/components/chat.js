@@ -25,8 +25,6 @@ class Chat extends Emitter {
 
         super(chatEngine);
 
-        this.chatEngine = chatEngine;
-
         this.name = 'Chat';
 
         /**
@@ -65,7 +63,7 @@ class Chat extends Emitter {
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
-        this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
+        this.channel = this.CE().augmentChannel(channel, this.isPrivate);
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -82,7 +80,7 @@ class Chat extends Emitter {
          */
         this.connected = false;
 
-        this.chatEngine.chats[this.channel] = this;
+        this.CE().chats[this.channel] = this;
 
         if (autoConnect) {
             this.connect();
@@ -108,7 +106,7 @@ class Chat extends Emitter {
              * There was a problem fetching the presence of this chat
              * @event Chat#$"."error"."presence
              */
-            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
+            this.CE().throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
 
         } else {
 
@@ -155,7 +153,7 @@ class Chat extends Emitter {
      */
     invite(user) {
 
-        this.chatEngine.request('post', 'invite', {
+        this.CE().request('post', 'invite', {
             to: user.uuid,
             chat: this.objectify()
         })
@@ -188,7 +186,7 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                this.CE().throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
             });
 
     }
@@ -255,11 +253,11 @@ class Chat extends Emitter {
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);
 
-        this.chatEngine.request('post', 'chat', {
+        this.CE().request('post', 'chat', {
             chat: this.objectify()
         }).then(() => {
         }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            this.CE().throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
         });
 
     }
@@ -285,10 +283,10 @@ class Chat extends Emitter {
         // create a standardized payload object
         let payload = {
             data, // the data supplied from params
-            sender: this.chatEngine.me.uuid, // my own uuid
+            sender: this.CE().me.uuid, // my own uuid
             chat: this, // an instance of this chat
             event,
-            chatengineSDK: this.chatEngine.package.version
+            chatengineSDK: this.CE().package.version
         };
 
         // run the plugin queue to modify the event
@@ -304,7 +302,7 @@ class Chat extends Emitter {
             // publish the event and data over the configured channel
 
             // ensure the event exists within the global space
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+            this.events[event] = this.events[event] || new Event(this.CE(), this, event);
 
             this.events[event].publish(pluginResponse);
 
@@ -324,8 +322,8 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-        this.chatEngine.users[uuid].assign(state);
+        this.CE().users[uuid] = this.CE().users[uuid] || this.CE().User(uuid);
+        this.CE().users[uuid].assign(state);
 
         // trigger the join event over this chatroom
         if (!this.users[uuid]) {
@@ -346,16 +344,16 @@ class Chat extends Emitter {
              */
 
             this.trigger('$.online.here', {
-                user: this.chatEngine.users[uuid]
+                user: this.CE().users[uuid]
             });
 
         }
 
         // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
+        this.users[uuid] = this.CE().users[uuid];
 
         // return the instance of this user
-        return this.chatEngine.users[uuid];
+        return this.CE().users[uuid];
 
     }
 
@@ -368,7 +366,7 @@ class Chat extends Emitter {
     userUpdate(uuid, state) {
 
         // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
+        this.CE().users[uuid] = this.CE().users[uuid] || this.CE().User(uuid);
 
         // if we don't know about this user
         if (!this.users[uuid]) {
@@ -390,7 +388,7 @@ class Chat extends Emitter {
          *     console.log('User has changed state:', data.user, 'new state:', data.state);
          * });
          */
-        this.chatEngine._emit('$.state', {
+        this.CE()._emit('$.state', {
             user: this.users[uuid],
             state: this.users[uuid].state
         });
@@ -407,22 +405,22 @@ class Chat extends Emitter {
     leave() {
 
         // unsubscribe from the channel locally
-        this.chatEngine.pubnub.unsubscribe({
+        this.CE().pubnub.unsubscribe({
             channels: [this.channel]
         });
 
-        this.chatEngine.request('post', 'leave', { chat: this.objectify() })
+        this.CE().request('post', 'leave', { chat: this.objectify() })
             .then(() => {
 
                 this.connected = false;
 
                 this.trigger('$.disconnected');
 
-                this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
+                this.CE().me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+                this.CE().throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
             });
 
     }
@@ -506,7 +504,7 @@ class Chat extends Emitter {
      @param {Object} state The new state {@link Me} will have within this {@link User}
      */
     setState(state) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
+        this.CE().pubnub.setState({ state, channels: [this.CE().global.channel] }, () => {
             // handle status, response
         });
     }
@@ -534,7 +532,7 @@ class Chat extends Emitter {
     });
      */
     search(config) {
-        return new Search(this.chatEngine, this, config);
+        return new Search(this.CE(), this, config);
     }
 
     /**
@@ -552,20 +550,20 @@ class Chat extends Emitter {
          */
         this.trigger('$.connected');
 
-        this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
+        this.CE().me.sync.emit('$.session.chat.join', { subject: this.objectify() });
 
         this.connected = true;
 
         // add self to list of users
-        this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
+        this.users[this.CE().me.uuid] = this.CE().me;
 
         // trigger my own online event
         this.trigger('$.online.join', {
-            user: this.chatEngine.me
+            user: this.CE().me
         });
 
         // global channel updates are triggered manually, only get presence on custom chats
-        if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+        if (this.channel !== this.CE().global.channel && this.group === 'custom') {
 
             this.getUserUpdates();
 
@@ -582,7 +580,7 @@ class Chat extends Emitter {
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
-        this.chatEngine.pubnub.hereNow({
+        this.CE().pubnub.hereNow({
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
@@ -603,7 +601,7 @@ class Chat extends Emitter {
 
         async.waterfall([
             (next) => {
-                if (!this.chatEngine.pubnub) {
+                if (!this.CE().pubnub) {
                     next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
                 } else {
                     next();
@@ -611,7 +609,7 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
+                this.CE().request('post', 'grant', { chat: this.objectify() })
                     .then(() => {
                         next();
                     })
@@ -620,7 +618,7 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('post', 'join', { chat: this.objectify() })
+                this.CE().request('post', 'join', { chat: this.objectify() })
                     .then(() => {
                         next();
                     })
@@ -629,7 +627,7 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+                this.CE().request('get', 'chat', {}, { channel: this.channel })
                     .then((response) => {
 
                         if (response.data.found) {
@@ -645,7 +643,7 @@ class Chat extends Emitter {
 
             }
         ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            this.CE().throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
         });
 
     }
