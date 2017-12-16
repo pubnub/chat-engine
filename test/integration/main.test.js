@@ -322,6 +322,53 @@ describe('history', () => {
 
     });
 
+    it('should bind plugins', function bindPlugins() {
+
+        this.timeout(10000);
+
+        let ChatEngineCloner = ChatEngineCore.create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        let someChat = new ChatEngineCloner.Chat('chat-history-6', false);
+
+        someChat.plugin(examplePlugin());
+
+        let searchInstance = chatHistory.search({
+            limit: 10
+        });
+
+        let chatFound = false;
+
+        someChat.plugins.forEach((plugin) => {
+            if (plugin.namespace === 'testPlugin') {
+                chatFound = true;
+            }
+        });
+
+        let searchInstanceFound = false;
+        searchInstance.plugins.forEach((plugin) => {
+            if (plugin.namespace === 'testPlugin') {
+                searchInstanceFound = true;
+            }
+        });
+
+        let anotherChat = new ChatEngineCloner.Chat('chat-history-10', false);
+
+        console.log(anotherChat.plugins);
+
+        assert.equal(someChat.plugins.length, 1, 'Chat has plugins');
+        assert.equal(chatFound, true, 'correct plugin was found in chat');
+        assert.equal(searchInstanceFound, true, 'search instance inherited plugin');
+        assert.equal(anotherChat.plugins.length, 0, 'additional chat does not have any plugins');
+
+    });
+
 });
 
 let ChatEngineClone;
