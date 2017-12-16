@@ -11126,6 +11126,7 @@ class Search extends Emitter {
         */
         this.chat = chat;
 
+        // slice() operation clones the array and returns the reference to the new array.
         this.plugins = this.chat.plugins;
 
         /**

@@ -30,7 +30,8 @@ class Search extends Emitter {
         */
         this.chat = chat;
 
-        this.plugins = this.chat.plugins;
+        // slice() operation clones the array and returns the reference to the new array.
+        this.plugins = this.chat.plugins.slice();
 
         /**
         An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
