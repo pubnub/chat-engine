@@ -193,7 +193,7 @@ describe('chat', () => {
 
     });
 
-    it('should get message', function (done) {
+    it('should get message', function shouldGetMessage(done) {
 
         this.timeout(12000);
 
@@ -329,70 +329,70 @@ let syncChat;
 
 let newChannel = 'sync-chat' + new Date().getTime();
 
-// describe('remote chat list', () => {
+describe('remote chat list', () => {
 
-//     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
+    it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
-//         this.timeout(10000);
+        this.timeout(10000);
 
-//         ChatEngineClone = ChatEngineCore.create({
-//             publishKey: pubkey,
-//             subscribeKey: subkey
+        ChatEngineClone = ChatEngineCore.create({
+            publishKey: pubkey,
+            subscribeKey: subkey
 
-//         }, {
-//             globalChannel,
-//             throwErrors: false
-//         });
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
 
-//         ChatEngineClone.connect(username, { works: true }, username);
+        ChatEngineClone.connect(username, { works: true }, username);
 
-//         // first instance looking or new chats
-//         ChatEngine.me.on('$.session.chat.join', (payload) => {
+        // first instance looking or new chats
+        ChatEngine.me.on('$.session.chat.join', (payload) => {
 
-//             if (payload.chat.channel.indexOf(newChannel) > -1) {
-//                 done();
-//             }
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+                done();
+            }
 
-//         });
+        });
 
-//         ChatEngineClone.on('$.ready', () => {
+        ChatEngineClone.on('$.ready', () => {
 
-//             syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+            syncChat = new ChatEngineClone.Chat(newChannel, true, true);
 
-//         });
+        });
 
-//     });
+    });
 
-//     it('should be populated', (done) => {
+    it('should be populated', (done) => {
 
-//         assert.isObject(ChatEngine.me.session.system);
-//         assert.isObject(ChatEngine.me.session.custom);
-//         // assert.isObject(ChatEngine.me.session.fixed);
-//         done();
+        assert.isObject(ChatEngine.me.session.system);
+        assert.isObject(ChatEngine.me.session.custom);
+        // assert.isObject(ChatEngine.me.session.fixed);
+        done();
 
-//     });
+    });
 
-//     it('should get delete event', function deleteSync(done) {
+    it('should get delete event', function deleteSync(done) {
 
-//         this.timeout(10000);
+        this.timeout(10000);
 
-//         ChatEngine.me.on('$.session.chat.leave', (payload) => {
+        ChatEngine.me.on('$.session.chat.leave', (payload) => {
 
-//             if (payload.chat.channel.indexOf(newChannel) > -1) {
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
 
-//                 done();
-//             }
+                done();
+            }
 
-//         });
+        });
 
-//         setTimeout(() => {
-//             syncChat.leave();
-//         }, 3000);
+        setTimeout(() => {
+            syncChat.leave();
+        }, 3000);
 
 
-//     });
+    });
 
-// });
+});
 
 let myChat;
 
@@ -491,7 +491,7 @@ describe('connection events', () => {
         };
 
         // I get your online event
-        myChatter.on('$.online.*', function (payload) {
+        myChatter.on('$.online.*', () => {
 
             if (myChatter.users[ChatEngineYou.me.uuid]) {
                 meYou = true;
@@ -503,7 +503,7 @@ describe('connection events', () => {
         yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
         // You get my online event
-        yourChatter.on('$.online.*', function (payload) {
+        yourChatter.on('$.online.*', () => {
 
             if (yourChatter.users[ChatEngine.me.uuid]) {
                 youMe = true;
@@ -519,10 +519,10 @@ describe('connection events', () => {
         this.timeout(90000);
 
         // I get your online event
-        myChatter.on('$.offline.disconnect', function (payload) {
+        myChatter.on('$.offline.disconnect', () => {
 
             // make sure your user no longer in list of users
-            if(Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
+            if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
                 done();
             }
 
