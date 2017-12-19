@@ -290,7 +290,7 @@ describe('search', () => {
 
         chatHistory2.on('$.connected', () => {
 
-            for (let i = 0; i < 200; i++) {
+            for (let i = 0; i < 250; i++) {
 
                 chatHistory2.emit('tester', {
                     text: 'hello world ' + i
