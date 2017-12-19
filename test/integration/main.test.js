@@ -245,18 +245,18 @@ describe('search', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history');
 
+        for (let i = 0; i < 200; i++) {
+
+            chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('not-tester', {
+                text: 'hello world ' + i
+            });
+
+        }
+
         chatHistory.on('$.connected', () => {
-
-            for (let i = 0; i < 200; i++) {
-
-                chatHistory.emit('tester', {
-                    text: 'hello world ' + i
-                });
-                chatHistory.emit('not-tester', {
-                    text: 'hello world ' + i
-                });
-
-            }
 
             setTimeout(() => {
 
@@ -288,18 +288,18 @@ describe('search', () => {
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-2');
 
+        for (let i = 0; i < 250; i++) {
+
+            chatHistory2.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
+
+        }
+
         chatHistory2.on('$.connected', () => {
-
-            for (let i = 0; i < 250; i++) {
-
-                chatHistory2.emit('tester', {
-                    text: 'hello world ' + i
-                });
-                chatHistory2.emit('not-tester', {
-                    text: 'hello world ' + i
-                });
-
-            }
 
             setTimeout(() => {
 
