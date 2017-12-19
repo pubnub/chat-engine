@@ -539,17 +539,22 @@ class Chat extends Emitter {
     });
      */
     search(config) {
+
         if (this.hasConnected) {
             return new Search(this.chatEngine, this, config);
         } else {
             this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'));
         }
+
     }
 
     /**
      * @private
      */
     onConnectionReady() {
+
+        this.connected = true;
+        this.hasConnected = true;
 
         /**
          * Broadcast that the {@link Chat} is connected to the network.
@@ -562,9 +567,6 @@ class Chat extends Emitter {
         this.trigger('$.connected');
 
         this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
-
-        this.connected = true;
-        this.hasConnected = true;
 
         // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
