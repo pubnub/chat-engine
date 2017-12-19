@@ -193,7 +193,7 @@ describe('chat', () => {
 
     });
 
-    it('should get message', function (done) {
+    it('should get message', function shouldGetMessage(done) {
 
         this.timeout(12000);
 
@@ -274,7 +274,7 @@ describe('search', () => {
                     done();
                 });
 
-            }, 5000);
+            }, 10000);
 
         });
 
@@ -316,7 +316,7 @@ describe('search', () => {
                     done();
                 });
 
-            }, 5000);
+            }, 10000);
 
         });
 
