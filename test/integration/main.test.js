@@ -502,12 +502,16 @@ describe('offline events', () => {
         this.timeout(60000);
 
         myChatter = new ChatEngine.Chat(sharedChannel);
+        yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
         let meYou = false;
         let youMe = false;
         let notDone = true;
 
         let checkDone = () => {
+
+            console.log('checkDone', meYou, youMe, notDone);
+
             if (meYou && youMe && notDone) {
                 done();
                 notDone = false;
@@ -523,8 +527,6 @@ describe('offline events', () => {
             }
 
         });
-
-        yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
         // You get my online event
         yourChatter.on('$.online.*', () => {
