@@ -57,8 +57,6 @@ class Event {
 
         m.event = this.event;
 
-        console.log('publish', this.channel, m)
-
         this.chatEngine.pubnub.publish({
             message: m,
             channel: this.channel
