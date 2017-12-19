@@ -1,14 +1,19 @@
 #!/bin/sh
 
 setup_git() {
-  git config --global user.email "travis@travis-ci.org"
-  git config --global user.name "Mr. Travis"
+  git config --global user.email "github-ops-codacy@pubnub.com"
+  git config --global user.name "PubNub Bot"
 }
 
 commit_website_files() {
   git checkout master
+  git pull
+  git merge staging -s ours
+  git checkout -b staging
+  git merge master
   gulp compile
   git add .
+  git add -f dist
   git commit --message "Build: $TRAVIS_BUILD_NUMBER"
 }
 

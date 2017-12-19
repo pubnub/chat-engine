@@ -1,10 +1,4 @@
 language: node_js
-sudo: false
-node_js:
-  - '6'
-  - '7'
-  - '8'
-cache: yarn
 script:
   - gulp test
 after_success:
@@ -12,10 +6,17 @@ after_success:
   - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
 addons:
   srcclr: true
-deploy:
-  # deploy develop to the staging environment
-  - provider: script
-    skip_cleanup: true
-    script: ./staging.sh
-    on:
-      branch: master-test
+sudo: false
+node_js:
+  - '6'
+  - '7'
+  - '8'
+cache: yarn
+jobs:
+  include:
+    - stage: staging
+      if: branch = master-test
+      script:
+      - cd $TRAVIS_BUILD_DIR
+      - chmod +x ./staging.sh
+      - sh ./staging.sh
