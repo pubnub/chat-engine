@@ -499,7 +499,7 @@ describe('offline events', () => {
 
     it('get eachothers\'s online events', function createIt(done) {
 
-        this.timeout(30000);
+        this.timeout(60000);
 
         myChatter = new ChatEngine.Chat(sharedChannel);
 
