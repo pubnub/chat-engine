@@ -245,34 +245,38 @@ describe('search', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history');
 
-        for (let i = 0; i < 50; i++) {
+        chatHistory.on('$.connected', () => {
 
-            chatHistory.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+            for (let i = 0; i < 200; i++) {
 
-        }
+                chatHistory.emit('tester', {
+                    text: 'hello world ' + i
+                });
+                chatHistory.emit('not-tester', {
+                    text: 'hello world ' + i
+                });
 
-        setTimeout(() => {
+            }
 
-            chatHistory.search({
-                event: 'tester',
-                limit: 50
-            }).on('tester', (a) => {
+            setTimeout(() => {
 
-                assert.equal(a.event, 'tester');
+                chatHistory.search({
+                    event: 'tester',
+                    limit: 50
+                }).on('tester', (a) => {
 
-                count += 1;
+                    assert.equal(a.event, 'tester');
 
-            }).on('$.search.finish', () => {
-                assert.equal(count, 50, 'correct # of results');
-                done();
-            });
+                    count += 1;
 
-        }, 5000);
+                }).on('$.search.finish', () => {
+                    assert.equal(count, 50, 'correct # of results');
+                    done();
+                });
+
+            }, 5000);
+
+        });
 
     });
 
@@ -284,33 +288,37 @@ describe('search', () => {
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-2');
 
-        for (let i = 0; i < 200; i++) {
+        chatHistory2.on('$.connected', () => {
 
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+            for (let i = 0; i < 200; i++) {
 
-        }
+                chatHistory2.emit('tester', {
+                    text: 'hello world ' + i
+                });
+                chatHistory2.emit('not-tester', {
+                    text: 'hello world ' + i
+                });
 
-        setTimeout(() => {
+            }
 
-            chatHistory2.search({
-                event: 'tester',
-                limit: 200
-            }).on('tester', (a) => {
+            setTimeout(() => {
 
-                assert.equal(a.event, 'tester');
-                count += 1;
+                chatHistory2.search({
+                    event: 'tester',
+                    limit: 200
+                }).on('tester', (a) => {
 
-            }).on('$.search.finish', () => {
-                assert.equal(count, 200, 'correct # of results');
-                done();
-            });
+                    assert.equal(a.event, 'tester');
+                    count += 1;
 
-        }, 15000);
+                }).on('$.search.finish', () => {
+                    assert.equal(count, 200, 'correct # of results');
+                    done();
+                });
+
+            }, 5000);
+
+        });
 
     });
 
