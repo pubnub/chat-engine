@@ -12,7 +12,7 @@ commit_website_files() {
   git checkout master
   git pull origin-travis master
   git merge staging -s ours -m "Update staging"
-  git checkout -b staging
+  git checkout staging
   git merge master
   gulp compile
   git add .
