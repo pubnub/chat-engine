@@ -486,7 +486,7 @@ describe('connection events', () => {
         };
 
         // I get your online event
-        myChatter.once('$.online.*', () => {
+        myChatter.on('$.online.*', () => {
 
             if (myChatter.users[ChatEngineYou.me.uuid]) {
                 meYou = true;
@@ -498,7 +498,7 @@ describe('connection events', () => {
         yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
         // You get my online event
-        yourChatter.once('$.online.*', () => {
+        yourChatter.on('$.online.*', () => {
 
             if (yourChatter.users[ChatEngine.me.uuid]) {
                 youMe = true;
