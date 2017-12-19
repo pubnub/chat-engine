@@ -233,7 +233,6 @@ class Chat extends Emitter {
 
         // @todo this is not always fired on clean .leave()
         // https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
-
         if (presenceEvent.action === 'leave') {
             this.userLeave(presenceEvent.uuid);
         }
@@ -412,6 +411,12 @@ class Chat extends Emitter {
      * chat.leave();
      */
     leave() {
+
+        // subscribing right before unsubscribing forces a leave event
+        // // see https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
+        this.chatEngine.pubnub.subscribe({
+            channels: [this.channel]
+        });
 
         // unsubscribe from the channel locally
         this.chatEngine.pubnub.unsubscribe({

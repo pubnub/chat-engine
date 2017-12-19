@@ -374,10 +374,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                             let chat = ChatEngine.chats[channel];
 
                             if (chat) {
-                                // connected category tells us the chat is ready
-                                if (statusEvent.category === 'PNConnectedCategory') {
-                                    chat.onConnectionReady();
-                                }
 
                                 // trigger the network events
                                 chat.trigger(eventName, statusEvent);

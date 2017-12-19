@@ -77,7 +77,7 @@ describe('connect', () => {
 
     it('should be identified as new user', function beIdentified(done) {
 
-        this.timeout(6000);
+        this.timeout(60000);
 
         ChatEngine.on('$.ready', (data) => {
 
@@ -88,10 +88,6 @@ describe('connect', () => {
         });
 
         ChatEngine.connect(username, { works: true }, username);
-
-        ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation);
-        });
 
     });
 
@@ -132,7 +128,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test' + new Date());
+        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test' + new Date().getTime());
 
     });
 
@@ -149,9 +145,10 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date());
+        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date().getTime());
 
         createdEventChat2.on('$.connected', () => {
+
             createdEventChat2.leave();
         });
 
@@ -187,30 +184,28 @@ describe('chat', () => {
         let chat2 = new ChatEngine.Chat('chat2' + new Date().getTime());
         chat2.on('$.connected', () => {
 
-            done();
+            chat.once('something', (payload) => {
 
-        });
+                assert.isObject(payload);
+                done();
 
-    });
-
-    it('should get message', function shouldGetMessage(done) {
-
-        this.timeout(12000);
-
-        chat.once('something', (payload) => {
-
-            assert.isObject(payload);
-            done();
-
-        });
-
-        setTimeout(() => {
-            chat.emit('something', {
-                text: 'hello world'
             });
-        }, 1000);
+
+            setTimeout(() => {
+                chat.emit('something', {
+                    text: 'hello world'
+                });
+            }, 1000);
+
+        });
 
     });
+
+    // it('should get message', function shouldGetMessage(done) {
+
+    //     this.timeout(12000);
+
+    // });
 
     it('should bind a plugin', () => {
 
@@ -491,7 +486,7 @@ describe('connection events', () => {
         };
 
         // I get your online event
-        myChatter.on('$.online.*', () => {
+        myChatter.once('$.online.*', () => {
 
             if (myChatter.users[ChatEngineYou.me.uuid]) {
                 meYou = true;
@@ -503,7 +498,7 @@ describe('connection events', () => {
         yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
         // You get my online event
-        yourChatter.on('$.online.*', () => {
+        yourChatter.once('$.online.*', () => {
 
             if (yourChatter.users[ChatEngine.me.uuid]) {
                 youMe = true;
@@ -513,24 +508,38 @@ describe('connection events', () => {
         });
     });
 
+    it('Get your leave event', function createIt(done) {
+
+        this.timeout(90000);
+
+        myChatter.on('$.offline.leave', () => {
+            // make sure your user no longer in list of users
+            if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
+                done();
+            }
+        });
+
+        yourChatter.leave();
+
+    });
+
 
     it('Get your offline event', function createIt(done) {
 
         this.timeout(90000);
 
-        // I get your online event
-        myChatter.on('$.offline.disconnect', () => {
+        yourChatter = new ChatEngineYou.Chat(sharedChannel);
 
+        myChatter.on('$.offline.disconnect', () => {
             // make sure your user no longer in list of users
             if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
                 done();
             }
-
         });
 
-        // this should be firing $.offline.leave()
-        // see https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
-        yourChatter.leave();
+        ChatEngineYou.pubnub.unsubscribe({
+            channels: [yourChatter.channel]
+        });
 
     });
 
