@@ -195,7 +195,7 @@ describe('chat', () => {
 
     it('should get message', function shouldGetMessage(done) {
 
-        this.timeout(12000);
+        this.timeout(15000);
 
         chat.once('something', (payload) => {
 
