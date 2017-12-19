@@ -9,6 +9,7 @@ commit_website_files() {
   git checkout -b staging
   gulp compile
   git add .
+  git add -f dist
   git commit --message "Build: $TRAVIS_BUILD_NUMBER"
 }
 
