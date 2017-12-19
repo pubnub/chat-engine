@@ -6,9 +6,11 @@ setup_git() {
 }
 
 commit_website_files() {
+  git checkout staging
+  git pull
   git checkout master
   git pull
-  git merge staging -s ours
+  git merge staging -s ours -m "Update staging"
   git checkout -b staging
   git merge master
   gulp compile
