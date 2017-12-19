@@ -521,7 +521,7 @@ describe('offline events', () => {
         // I get your online event
         myChatter.on('$.online.*', () => {
 
-            console.log('my online', Object.keys(myChatter.users))
+            console.log('my online', Object.keys(myChatter.users));
 
             if (myChatter.users[ChatEngineYou.me.uuid]) {
                 meYou = true;
