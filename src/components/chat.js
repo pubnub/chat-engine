@@ -539,10 +539,10 @@ class Chat extends Emitter {
     });
      */
     search(config) {
-        if(this.hasConnected) {
+        if (this.hasConnected) {
             return new Search(this.chatEngine, this, config);
         } else {
-            this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'), { error });
+            this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'));
         }
     }
 
