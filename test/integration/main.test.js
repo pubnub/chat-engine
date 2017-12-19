@@ -541,7 +541,7 @@ describe('offline events', () => {
 
         this.timeout(90000);
 
-        myChatter.on('$.offline.disconnect', (payload) => {
+        myChatter.on('$.offline.disconnect', () => {
 
             // make sure your user no longer in list of users
             if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
