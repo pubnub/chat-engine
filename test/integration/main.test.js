@@ -541,7 +541,7 @@ describe('offline events', () => {
 
     it('Get your disconnect event', function createIt(done) {
 
-        this.timeout(90000);
+        this.timeout(180000);
 
         myChatter.on('$.offline.disconnect', () => {
 
@@ -549,6 +549,7 @@ describe('offline events', () => {
             if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
                 done();
             }
+
         });
 
         yourChatter._manualDisconnect();
