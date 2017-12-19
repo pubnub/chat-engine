@@ -463,9 +463,36 @@ describe('invite', () => {
 
     });
 
+    it('Get your leave event', function createIt(done) {
+
+        this.timeout(90000);
+
+        let newChan = 'leave' + new Date().getTime();
+        let myLeaveChat = new ChatEngine.Chat(newChan);
+        let yourLeaveChat = new ChatEngineYou.Chat(newChan);
+
+        myLeaveChat.on('$.offline.leave', () => {
+
+            // make sure your user no longer in list of users
+            if (Object.keys(myLeaveChat.users).indexOf(ChatEngineYou.me.uuid) === -1) {
+                done();
+            }
+
+        });
+
+        yourLeaveChat.on('$.connected', () => {
+
+            setTimeout(() => {
+                yourLeaveChat.leave();
+            }, 30000);
+
+        });
+
+    });
+
 });
 
-let sharedChannel = 'offline-leave' + new Date().getTime();
+let sharedChannel = 'offline-disconnect' + new Date().getTime();
 let myChatter;
 let yourChatter;
 describe('offline events', () => {
@@ -514,15 +541,7 @@ describe('offline events', () => {
 
         this.timeout(90000);
 
-        myChatter.on('$.offline.*', function(b) {
-            console.log('got any offline event')
-            console.log(this.event)
-        });
-
-        console.log('this channel is', myChatter.channel)
         myChatter.on('$.offline.disconnect', (payload) => {
-
-            console.log('disconnect received', Object.keys(myChatter.users), ChatEngineYou.me.uuid)
 
             // make sure your user no longer in list of users
             if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
@@ -530,49 +549,8 @@ describe('offline events', () => {
             }
         });
 
-        console.log('calling manual disconnect now')
         yourChatter._manualDisconnect();
 
     });
 
 });
-
-
-// sharedChannel = 'disconnect-chat' + new Date().getTime();
-// describe('disconnect events', () => {
-
-//     it('connect', function createIt(done) {
-
-//         this.timeout(30000);
-
-//         myChatter = new ChatEngine.Chat(sharedChannel);
-//         yourChatter = new ChatEngineYou.Chat(sharedChannel);
-
-//         done();
-
-//     });
-
-//     it('Get your leave event', function createIt(done) {
-
-//         this.timeout(90000);
-
-//         myChatter.on('$.offline.disconnect', () => {
-
-//             console.log('got the offline event');
-
-//             console.log(Object.keys(myChatter.users));
-
-//             // make sure your user no longer in list of users
-//             if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
-//                 done();
-//             }
-
-//         });
-
-//         ChatEngineYou.pubnub.unsubscribe({
-//             channels: [yourChatter.channel]
-//         });
-
-//     });
-
-// });

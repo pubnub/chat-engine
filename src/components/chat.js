@@ -518,16 +518,8 @@ class Chat extends Emitter {
                       * });
              */
 
-            console.log('trigger $.offline.disconnect', this.channel)
+            this.trigger('$.offline.disconnect', { user: cacheUser });
 
-            this.trigger('$.offline.disconnect', {
-                user: cacheUser
-            });
-
-            console.log('!!!!! USER DISCONNECT', this.channel, uuid, cacheUser.uuid);
-
-        } else {
-            console.log('user does not exist');
         }
 
     }
