@@ -275,6 +275,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 ChatEngine.pubnub.addListener({
                     presence: (payload) => {
 
+                        console.log(payload.action, payload.channel, typeof ChatEngine.chats[payload.channel])
+
                         if (ChatEngine.chats[payload.channel]) {
                             ChatEngine.chats[payload.channel].onPresence(payload);
                         }

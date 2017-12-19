@@ -403,20 +403,7 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
-     * receiving events.
-     * @fires Chat#event:$"."offline"."leave
-     * @example
-     * chat.leave();
-     */
-    leave() {
-
-        // subscribing right before unsubscribing forces a leave event
-        // // see https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
-        this.chatEngine.pubnub.subscribe({
-            channels: [this.channel]
-        });
+    _manualDisconnect() {
 
         // unsubscribe from the channel locally
         this.chatEngine.pubnub.unsubscribe({
@@ -436,6 +423,25 @@ class Chat extends Emitter {
             .catch((error) => {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
             });
+
+    }
+
+    /**
+     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
+     * receiving events.
+     * @fires Chat#event:$"."offline"."leave
+     * @example
+     * chat.leave();
+     */
+    leave() {
+
+        // subscribing right before unsubscribing forces a leave event
+        // // see https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
+        this.chatEngine.pubnub.subscribe({
+            channels: [this.channel]
+        });
+
+        this._manualDisconnect();
 
     }
 
@@ -512,8 +518,16 @@ class Chat extends Emitter {
                       * });
              */
 
-            this.trigger('$.offline.disconnect', { user: cacheUser });
+            console.log('trigger $.offline.disconnect', this.channel)
 
+            this.trigger('$.offline.disconnect', {
+                user: cacheUser
+            });
+
+            console.log('!!!!! USER DISCONNECT', this.channel, uuid, cacheUser.uuid);
+
+        } else {
+            console.log('user does not exist');
         }
 
     }
