@@ -23,7 +23,7 @@ let ceConfig = {
 
 let createChatEngine = function(done) {
 
-    this.timeout(10000);
+    this.timeout(15000);
 
     ChatEngine = ChatEngineCore.create(pnConfig, ceConfig);
     ChatEngine.connect(username, { works: true }, username);
@@ -35,7 +35,7 @@ let createChatEngine = function(done) {
 
 let createChatEngineClone = function(done) {
 
-    this.timeout(10000);
+    this.timeout(15000);
 
     ChatEngineClone = ChatEngineCore.create(pnConfig, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
@@ -45,13 +45,14 @@ let createChatEngineClone = function(done) {
 
 };
 
-
 let createChatEngineYou = function(done) {
 
-    this.timeout(10000);
+    this.timeout(15000);
+
+    let yousername = 'stephen' + new Date().getTime();
 
     ChatEngineYou = ChatEngineCore.create(pnConfig, ceConfig);
-    ChatEngineYou.connect('stephen' + new Date().getTime(), { works: true }, 'stephen-authtoken');
+    ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
     });
