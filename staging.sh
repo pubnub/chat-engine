@@ -7,9 +7,9 @@ setup_git() {
 }
 
 commit_website_files() {
-  git checkout origin-travis/staging
+  git checkout staging
   git pull origin-travis staging
-  git checkout origin-travis/master
+  git checkout master
   git pull origin-travis master
   git merge staging -s ours -m "Update staging"
   git checkout staging
