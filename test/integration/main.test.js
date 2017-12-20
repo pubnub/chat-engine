@@ -426,9 +426,10 @@ describe('invite', () => {
 
         this.timeout(60000);
 
-        yourChat = new ChatEngineYou.Chat(privChannel);
+        yourChat = new ChatEngineYou.Chat(privChannel, true);
+        console.log(privChannel)
         yourChat.onAny((a) => {
-            console.log(a)
+            console.log('yourchat', a)
         })
 
         yourChat.on('$.connected', () => {
@@ -447,9 +448,11 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            myChat = new ChatEngine.Chat(payload.data.channel);
+            console.log(payload.data.channel);
+
+            myChat = new ChatEngine.Chat(payload.data.channel, true);
             myChat.onAny((a) => {
-                console.log(a)
+                console.log('myChat', a)
             })
 
             myChat.on('$.connected', () => {
