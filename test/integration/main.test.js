@@ -424,7 +424,7 @@ describe('invite', () => {
 
     it('two users are able to talk to each other in private channel', function shouldInvite(done) {
 
-        this.timeout(16000);
+        this.timeout(60000);
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
