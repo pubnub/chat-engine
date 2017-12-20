@@ -60,9 +60,7 @@
   "dependencies": {
     "async": "^2.1.2",
     "axios": "^0.16.2",
-    "codacy-coverage": "^2.0.3",
-    "codecov": "^3.0.0",
-    "eventemitter2": "^4.1.2",
+    "eventemitter2": "^2.2.1",
     "pubnub": "^4.17.0"
   }
 }

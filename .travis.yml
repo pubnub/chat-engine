@@ -1,4 +1,10 @@
 language: node_js
+sudo: false
+node_js:
+  - '6'
+  - '7'
+  - '8'
+cache: yarn
 script:
   - gulp test
 after_success:
@@ -6,17 +12,3 @@ after_success:
   - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
 addons:
   srcclr: true
-sudo: false
-node_js:
-  - '6'
-  - '7'
-  - '8'
-cache: yarn
-jobs:
-  include:
-    - stage: staging
-      if: branch = master
-      script:
-      - cd $TRAVIS_BUILD_DIR
-      - chmod +x ./staging.sh
-      - sh ./staging.sh
