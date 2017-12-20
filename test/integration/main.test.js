@@ -4,9 +4,9 @@ const assert = require('chai').assert;
 const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
 const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
 
-let me;
 let ChatEngine;
 let ChatEngineYou;
+let ChatEngineClone;
 let globalChannel = 'global';
 
 let username = 'ian' + new Date().getTime();
@@ -17,7 +17,7 @@ let ceConfig = {
     throwErrors: false
 };
 
-let createChatEngine = function(done) {
+function createChatEngine(done) {
 
     this.timeout(15000);
 
@@ -32,7 +32,7 @@ let createChatEngine = function(done) {
 
 }
 
-let createChatEngineClone = function(done) {
+function createChatEngineClone(done) {
 
     this.timeout(15000);
 
@@ -45,9 +45,9 @@ let createChatEngineClone = function(done) {
         done();
     });
 
-};
+}
 
-let createChatEngineYou = function(done) {
+function createChatEngineYou(done) {
 
     this.timeout(15000);
 
@@ -60,7 +60,7 @@ let createChatEngineYou = function(done) {
         done();
     });
 
-};
+}
 
 describe('import', () => {
 
@@ -221,7 +221,7 @@ describe('chat', () => {
 
     });
 
-    it('should get message', function (done) {
+    it('should get message', function shouldGetMessage(done) {
 
         this.timeout(12000);
 
@@ -354,7 +354,6 @@ describe('history', () => {
 
 });
 
-let ChatEngineClone;
 let syncChat;
 
 let newChannel = 'sync-chat' + new Date().getTime();
