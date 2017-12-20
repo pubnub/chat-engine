@@ -422,7 +422,7 @@ describe('invite', () => {
     beforeEach(createChatEngine);
     beforeEach(createChatEngineYou);
 
-    it('should invite other users', function shouldInvite(done) {
+    it('two users are able to talk to each other in private channel', function shouldInvite(done) {
 
         this.timeout(16000);
 
@@ -431,7 +431,11 @@ describe('invite', () => {
             myChat = new ChatEngine.Chat(payload.data.channel);
 
             myChat.on('$.connected', () => {
-                done();
+
+                myChat.emit('message', {
+                    text: 'sup?'
+                });
+
             });
 
         });
@@ -445,26 +449,10 @@ describe('invite', () => {
 
         });
 
-    });
-
-    it('two users are able to talk to each other in private channel', function twoUsersTalk(done) {
-
-        this.timeout(16000);
-
-        yourChat = new ChatEngineYou.Chat(privChannel);
-        myChat = new ChatEngine.Chat(privChannel);
-
         yourChat.on('message', (payload) => {
 
             assert.equal(payload.data.text, 'sup?');
             done();
-        });
-
-        yourChat.on('$.connected', () => {
-
-            myChat.emit('message', {
-                text: 'sup?'
-            });
         });
 
     });
