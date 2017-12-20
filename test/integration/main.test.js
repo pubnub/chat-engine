@@ -10,6 +10,7 @@ let ChatEngineYou;
 let globalChannel = 'global';
 
 let username = 'ian' + new Date().getTime();
+let yousername = 'stephen' + new Date().getTime();
 
 let pnConfig = {
     publishKey: pubkey,
@@ -48,8 +49,6 @@ let createChatEngineClone = function(done) {
 let createChatEngineYou = function(done) {
 
     this.timeout(15000);
-
-    let yousername = 'stephen' + new Date().getTime();
 
     ChatEngineYou = ChatEngineCore.create(pnConfig, ceConfig);
     ChatEngineYou.connect(yousername, { works: true }, yousername);
