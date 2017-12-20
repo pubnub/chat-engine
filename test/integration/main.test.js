@@ -12,11 +12,6 @@ let globalChannel = 'global';
 let username = 'ian' + new Date().getTime();
 let yousername = 'stephen' + new Date().getTime();
 
-let pnConfig = {
-    publishKey: pubkey,
-    subscribeKey: subkey
-};
-
 let ceConfig = {
     globalChannel,
     throwErrors: false
@@ -26,7 +21,10 @@ let createChatEngine = function(done) {
 
     this.timeout(15000);
 
-    ChatEngine = ChatEngineCore.create(pnConfig, ceConfig);
+    ChatEngine = ChatEngineCore.create({
+        publishKey: pubkey,
+        subscribeKey: subkey
+    }, ceConfig);
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
@@ -38,7 +36,10 @@ let createChatEngineClone = function(done) {
 
     this.timeout(15000);
 
-    ChatEngineClone = ChatEngineCore.create(pnConfig, ceConfig);
+    ChatEngineClone = ChatEngineCore.create({
+        publishKey: pubkey,
+        subscribeKey: subkey
+    }, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
         done();
@@ -50,7 +51,10 @@ let createChatEngineYou = function(done) {
 
     this.timeout(15000);
 
-    ChatEngineYou = ChatEngineCore.create(pnConfig, ceConfig);
+    ChatEngineYou = ChatEngineCore.create({
+        publishKey: pubkey,
+        subscribeKey: subkey
+    }, ceConfig);
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
