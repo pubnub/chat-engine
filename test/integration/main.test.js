@@ -4,6 +4,62 @@ const assert = require('chai').assert;
 const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
 const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
 
+let me;
+let ChatEngine;
+let ChatEngineYou;
+let globalChannel = 'global';
+
+let username = 'ian' + new Date().getTime();
+
+let pnConfig = {
+    publishKey: pubkey,
+    subscribeKey: subkey
+};
+
+let ceConfig = {
+    globalChannel,
+    throwErrors: false
+};
+
+let createChatEngine = function(done) {
+
+    this.timeout(10000);
+
+    ChatEngine = ChatEngineCore.create(pnConfig, ceConfig);
+    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.on('$.ready', () => {
+        done();
+    });
+
+}
+
+let createChatEngineClone = function(done) {
+
+    this.timeout(10000);
+
+    ChatEngineClone = ChatEngineCore.create(pnConfig, ceConfig);
+    ChatEngineClone.connect(username, { works: true }, username);
+    ChatEngineClone.on('$.ready', () => {
+        done();
+    });
+
+};
+
+
+let createChatEngineYou = function(done) {
+
+    this.timeout(10000);
+
+    ChatEngineYou = ChatEngineCore.create(pnConfig, ceConfig);
+    ChatEngineYou.connect('stephen' + new Date().getTime(), { works: true }, 'stephen-authtoken');
+    ChatEngineYou.on('$.ready', () => {
+        done();
+    });
+
+};
+
+beforeEach(createChatEngine);
+
 describe('import', () => {
 
     it('ChatEngine should be imported', () => {
@@ -11,13 +67,6 @@ describe('import', () => {
     });
 
 });
-
-let me;
-let ChatEngine;
-let ChatEngineYou;
-let globalChannel = 'global';
-
-let username = 'ian' + new Date().getTime();
 
 let examplePlugin = () => {
 
@@ -53,41 +102,15 @@ let examplePlugin = () => {
 
 };
 
-describe('config', () => {
-
-    it('should be configured', () => {
-
-        ChatEngine = ChatEngineCore.create({
-            publishKey: pubkey,
-            subscribeKey: subkey
-        }, {
-            globalChannel,
-            throwErrors: false
-        });
-
-        assert.isOk(ChatEngine);
-
-    });
-
-});
-
 let createdEventChat1;
 let createdEventChat2;
 describe('connect', () => {
 
-    it('should be identified as new user', function beIdentified(done) {
+    it('should be identified as new user', function beIdentified() {
 
-        this.timeout(6000);
+        this.timeout(16000);
 
-        ChatEngine.on('$.ready', (data) => {
-
-            assert.isObject(data.me);
-            me = data.me;
-
-            done();
-        });
-
-        ChatEngine.connect(username, { works: true }, username);
+        assert.isObject(ChatEngine.me);
 
         ChatEngine.on('$.network.*', (data) => {
             console.log(data.operation);
@@ -162,7 +185,6 @@ describe('connect', () => {
 let chat;
 
 describe('chat', () => {
-
 
     it('should get me as join event', function getMe(done) {
 
@@ -331,20 +353,11 @@ let newChannel = 'sync-chat' + new Date().getTime();
 
 describe('remote chat list', () => {
 
+    beforeEach(createChatEngineClone);
+
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
         this.timeout(10000);
-
-        ChatEngineClone = ChatEngineCore.create({
-            publishKey: pubkey,
-            subscribeKey: subkey
-
-        }, {
-            globalChannel,
-            throwErrors: false
-        });
-
-        ChatEngineClone.connect(username, { works: true }, username);
 
         // first instance looking or new chats
         ChatEngine.me.on('$.session.chat.join', (payload) => {
@@ -355,11 +368,7 @@ describe('remote chat list', () => {
 
         });
 
-        ChatEngineClone.on('$.ready', () => {
-
-            syncChat = new ChatEngineClone.Chat(newChannel, true, true);
-
-        });
+        syncChat = new ChatEngineClone.Chat(newChannel, true, true);
 
     });
 
@@ -402,39 +411,13 @@ let privChannel = 'secret-channel-' + new Date().getTime();
 
 describe('invite', () => {
 
-    it('should be created', function createIt(done) {
+    beforeEach(createChatEngineYou);
 
-        this.timeout(5000);
+    it('should invite other users', function shouldInvite(done) {
 
-        ChatEngineYou = ChatEngineCore.create({
-            publishKey: pubkey,
-            subscribeKey: subkey
-        }, {
-            globalChannel,
-            throwErrors: false
-        });
+        this.timeout(16000);
 
-        ChatEngineYou.connect('stephen' + new Date().getTime(), { works: true }, 'stephen-authtoken');
-
-        ChatEngineYou.on('$.ready', () => {
-            done();
-        });
-
-    });
-
-    it('should create chat', (done) => {
-
-        yourChat = new ChatEngineYou.Chat(privChannel);
-
-        yourChat.on('$.connected', () => {
-            done();
-        });
-
-    });
-
-    it('should invite other users', (done) => {
-
-        me.direct.on('$.invite', (payload) => {
+        ChatEngine.me.direct.on('$.invite', (payload) => {
 
             myChat = new ChatEngine.Chat(payload.data.channel);
 
@@ -444,8 +427,14 @@ describe('invite', () => {
 
         });
 
-        // me is the current context
-        yourChat.invite(me);
+        yourChat = new ChatEngineYou.Chat(privChannel);
+
+        yourChat.on('$.connected', () => {
+
+            // me is the current context
+            yourChat.invite(ChatEngine.me);
+
+        });
 
     });
 
@@ -453,17 +442,21 @@ describe('invite', () => {
 
         this.timeout(16000);
 
+        yourChat = new ChatEngineYou.Chat(privChannel);
+        myChat = new ChatEngine.Chat(privChannel);
+
         yourChat.on('message', (payload) => {
 
             assert.equal(payload.data.text, 'sup?');
             done();
         });
 
-        setTimeout(() => {
+        yourChat.on('$.connected', () => {
+
             myChat.emit('message', {
                 text: 'sup?'
             });
-        }, 1000);
+        });
 
     });
 
