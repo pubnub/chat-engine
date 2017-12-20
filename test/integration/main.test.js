@@ -426,7 +426,7 @@ describe('invite', () => {
 
         this.timeout(60000);
 
-        yourChat = new ChatEngineYou.Chat(privChannel, true);
+        yourChat = new ChatEngineYou.Chat(privChannel);
         console.log(privChannel)
         yourChat.onAny((a) => {
             console.log('yourchat', a)
@@ -450,16 +450,20 @@ describe('invite', () => {
 
             console.log(payload.data.channel);
 
-            myChat = new ChatEngine.Chat(payload.data.channel, true);
+            myChat = new ChatEngine.Chat(payload.data.channel);
             myChat.onAny((a) => {
                 console.log('myChat', a)
             })
 
             myChat.on('$.connected', () => {
 
-                myChat.emit('message', {
-                    text: 'sup?'
-                });
+                setTimeout(() => {
+
+                    myChat.emit('message', {
+                        text: 'sup?'
+                    });
+
+                }, 5000);
 
             });
 
