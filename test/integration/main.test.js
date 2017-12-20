@@ -58,8 +58,6 @@ let createChatEngineYou = function(done) {
 
 };
 
-beforeEach(createChatEngine);
-
 describe('import', () => {
 
     it('ChatEngine should be imported', () => {
@@ -105,6 +103,8 @@ let examplePlugin = () => {
 let createdEventChat1;
 let createdEventChat2;
 describe('connect', () => {
+
+    beforeEach(createChatEngine);
 
     it('should be identified as new user', function beIdentified() {
 
@@ -186,6 +186,8 @@ let chat;
 
 describe('chat', () => {
 
+    beforeEach(createChatEngine);
+
     it('should get me as join event', function getMe(done) {
 
         this.timeout(10000);
@@ -258,6 +260,8 @@ describe('chat', () => {
 
 let chatHistory;
 describe('history', () => {
+
+    beforeEach(createChatEngine);
 
     it('should get 50 messages', function get50(done) {
 
@@ -353,6 +357,7 @@ let newChannel = 'sync-chat' + new Date().getTime();
 
 describe('remote chat list', () => {
 
+    beforeEach(createChatEngine);
     beforeEach(createChatEngineClone);
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
@@ -411,6 +416,7 @@ let privChannel = 'secret-channel-' + new Date().getTime();
 
 describe('invite', () => {
 
+    beforeEach(createChatEngine);
     beforeEach(createChatEngineYou);
 
     it('should invite other users', function shouldInvite(done) {
