@@ -429,6 +429,9 @@ describe('invite', () => {
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
             myChat = new ChatEngine.Chat(payload.data.channel);
+            myChat.onAny((a) => {
+                console.log(a)
+            })
 
             myChat.on('$.connected', () => {
 
@@ -441,6 +444,9 @@ describe('invite', () => {
         });
 
         yourChat = new ChatEngineYou.Chat(privChannel);
+        yourChat.onAny((a) => {
+            console.log(a)
+        })
 
         yourChat.on('$.connected', () => {
 
@@ -453,6 +459,7 @@ describe('invite', () => {
 
             assert.equal(payload.data.text, 'sup?');
             done();
+
         });
 
     });
