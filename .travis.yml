@@ -15,7 +15,7 @@ cache: yarn
 jobs:
   include:
     - stage: staging
-      if: branch = master
+      if: branch = master-test
       script:
       - cd $TRAVIS_BUILD_DIR
       - chmod +x ./staging.sh
