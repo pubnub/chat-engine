@@ -427,10 +427,10 @@ describe('invite', () => {
         this.timeout(60000);
 
         yourChat = new ChatEngineYou.Chat(privChannel);
-        console.log(privChannel)
+        console.log(privChannel);
         yourChat.onAny((a) => {
-            console.log('yourchat', a)
-        })
+            console.log('yourchat', a);
+        });
 
         yourChat.on('$.connected', () => {
 
@@ -452,8 +452,8 @@ describe('invite', () => {
 
             myChat = new ChatEngine.Chat(payload.data.channel);
             myChat.onAny((a) => {
-                console.log('myChat', a)
-            })
+                console.log('myChat', a);
+            });
 
             myChat.on('$.connected', () => {
 
