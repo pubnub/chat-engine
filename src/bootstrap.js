@@ -214,7 +214,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // connects to the global chatroom
         pnConfig.uuid = uuid;
 
-        pnConfig.authKey = authKey || pnConfig.uuid;
+        pnConfig.authKey = authKey || PubNub.generateUUID();
 
         let restoreSession = () => {
 

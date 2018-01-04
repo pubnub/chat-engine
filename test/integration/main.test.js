@@ -145,7 +145,7 @@ describe('connect', () => {
 
     it('should notify chatengine on connected', function join(done) {
 
-        this.timeout(4000);
+        this.timeout(10000);
 
         ChatEngine.on('$.connected', (data, source) => {
 
@@ -260,7 +260,7 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(16000);
+        this.timeout(30000);
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
@@ -275,18 +275,26 @@ describe('history', () => {
 
         }
 
-        chatHistory.search({
-            event: 'tester',
-            limit: 50
-        }).on('tester', (a) => {
+        chatHistory.on('$.connected', () => {
 
-            assert.equal(a.event, 'tester');
+            setTimeout(() => {
 
-            count += 1;
+                chatHistory.search({
+                    event: 'tester',
+                    limit: 50
+                }).on('tester', (a) => {
 
-        }).on('$.search.finish', () => {
-            assert.equal(count, 50, 'correct # of results');
-            done();
+                    assert.equal(a.event, 'tester');
+
+                    count += 1;
+
+                }).on('$.search.finish', () => {
+                    assert.equal(count, 50, 'correct # of results');
+                    done();
+                });
+
+            }, 5000);
+
         });
 
     });
@@ -295,7 +303,7 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(16000);
+        this.timeout(60000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
@@ -310,24 +318,32 @@ describe('history', () => {
 
         }
 
-        chatHistory2.search({
-            event: 'tester',
-            limit: 200
-        }).on('tester', (a) => {
+        chatHistory2.on('$.connected', () => {
 
-            assert.equal(a.event, 'tester');
-            count += 1;
+            setTimeout(() => {
 
-        }).on('$.search.finish', () => {
-            assert.equal(count, 200, 'correct # of results');
-            done();
+                chatHistory2.search({
+                    event: 'tester',
+                    limit: 200
+                }).on('tester', (a) => {
+
+                    assert.equal(a.event, 'tester');
+                    count += 1;
+
+                }).on('$.search.finish', () => {
+                    assert.equal(count, 200, 'correct # of results');
+                    done();
+                });
+
+            }, 5000);
+
         });
 
     });
 
     it('should get messages without event', function get50(done) {
 
-        this.timeout(10000);
+        this.timeout(30000);
 
         chatHistory.search({
             limit: 10

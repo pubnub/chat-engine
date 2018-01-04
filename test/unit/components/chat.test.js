@@ -89,6 +89,8 @@ describe('#chat', () => {
 
             chatEngineInstance.connect();
 
+            chatInstance.hasConnected = true;
+
             let history = chatInstance.search({
                 event: 'ev1'
             });
