@@ -63,7 +63,6 @@ describe('#chat', () => {
 
         chatInstance.createUser('user2', { state: 'active' });
 
-
     });
 
     it('user leave the chat', (done) => {

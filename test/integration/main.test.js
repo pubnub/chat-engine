@@ -116,10 +116,6 @@ describe('connect', () => {
 
         assert.isObject(ChatEngine.me);
 
-        ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation);
-        });
-
     });
 
     it('should notify chatengine on created', function join(done) {
@@ -179,6 +175,7 @@ describe('connect', () => {
         createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date());
 
         createdEventChat2.on('$.connected', () => {
+
             createdEventChat2.leave();
         });
 
@@ -208,35 +205,27 @@ describe('chat', () => {
 
     });
 
-    it('should get connected callback', function getReadyCallback(done) {
+    it('should connect and message', function getReadyCallback(done) {
 
         this.timeout(5000);
 
         let chat2 = new ChatEngine.Chat('chat2' + new Date().getTime());
         chat2.on('$.connected', () => {
 
-            done();
+            chat2.once('something', (payload) => {
 
-        });
+                assert.isObject(payload);
+                done();
 
-    });
-
-    it('should get message', function shouldGetMessage(done) {
-
-        this.timeout(12000);
-
-        chat.once('something', (payload) => {
-
-            assert.isObject(payload);
-            done();
-
-        });
-
-        setTimeout(() => {
-            chat.emit('something', {
-                text: 'hello world'
             });
-        }, 1000);
+
+            setTimeout(() => {
+                chat2.emit('something', {
+                    text: 'hello world'
+                });
+            }, 1000);
+
+        });
 
     });
 
@@ -484,6 +473,112 @@ describe('invite', () => {
             });
 
         });
+
+    });
+
+    it('Get your leave event', function createIt(done) {
+
+        this.timeout(90000);
+
+        let newChan = 'leave' + new Date().getTime();
+        let myLeaveChat = new ChatEngine.Chat(newChan);
+        let yourLeaveChat = new ChatEngineYou.Chat(newChan);
+
+        myLeaveChat.onAny((a) => {
+            console.log(a);
+        });
+
+        myLeaveChat.on('$.offline.leave', () => {
+
+            // make sure your user no longer in list of users
+            if (Object.keys(myLeaveChat.users).indexOf(ChatEngineYou.me.uuid) === -1) {
+                done();
+            }
+
+        });
+
+        yourLeaveChat.on('$.connected', () => {
+
+            setTimeout(() => {
+                yourLeaveChat.leave();
+            }, 10000);
+
+        });
+
+    });
+
+});
+
+let sharedChannel = 'offline-disconnect' + new Date().getTime();
+let myChatter;
+let yourChatter;
+describe('network events', () => {
+
+    it('get eachothers\'s online events', function createIt(done) {
+
+        this.timeout(120000);
+
+        myChatter = new ChatEngine.Chat(sharedChannel);
+
+        myChatter.onAny((a) => {
+            console.log(a);
+        });
+
+        yourChatter = new ChatEngineYou.Chat(sharedChannel);
+
+        let meYou = false;
+        let youMe = false;
+        let notDone = true;
+
+        let checkDone = () => {
+
+            console.log('checkDone', meYou, youMe, notDone);
+
+            if (meYou && youMe && notDone) {
+                done();
+                notDone = false;
+            }
+        };
+
+        // I get your online event
+        myChatter.on('$.online.*', () => {
+
+            console.log('my online', Object.keys(myChatter.users));
+
+            if (myChatter.users[ChatEngineYou.me.uuid]) {
+                meYou = true;
+                checkDone();
+            }
+
+        });
+
+        // You get my online event
+        yourChatter.on('$.online.*', () => {
+
+            console.log('your online', Object.keys(yourChatter.users));
+
+            if (yourChatter.users[ChatEngine.me.uuid]) {
+                youMe = true;
+                checkDone();
+            }
+
+        });
+    });
+
+    it('Get your disconnect event', function getDisconnect(done) {
+
+        this.timeout(360000);
+
+        myChatter.on('$.offline.disconnect', () => {
+
+            // make sure your user no longer in list of users
+            if (Object.keys(myChatter.users).indexOf(ChatEngineYou.me.uuid) === -1) {
+                done();
+            }
+
+        });
+
+        yourChatter._manualDisconnect();
 
     });
 

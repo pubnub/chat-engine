@@ -228,12 +228,16 @@ class Chat extends Emitter {
             // It's possible for PubNub to send us both a join and have the user appear in here_now
             // Avoid firing duplicate $.online events.
             if (!this.users[user.uuid]) {
+
                 this.trigger('$.online.join', { user });
             }
 
         }
 
         // someone leaves channel
+
+        // @todo this is not always fired on clean .leave()
+        // https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
         if (presenceEvent.action === 'leave') {
             this.userLeave(presenceEvent.uuid);
         }
@@ -332,8 +336,14 @@ class Chat extends Emitter {
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
         this.chatEngine.users[uuid].assign(state);
 
+        let userAlreadyHere = this.users[uuid];
+
+        // store this user in the chatroom
+        // this needs to happen before online.here because users may wish to render updated list
+        this.users[uuid] = this.chatEngine.users[uuid];
+
         // trigger the join event over this chatroom
-        if (!this.users[uuid]) {
+        if (!userAlreadyHere) {
 
             /**
              * Broadcast that a {@link User} has come online. This is when
@@ -349,15 +359,11 @@ class Chat extends Emitter {
                       *     console.log('User has come online:', data.user);
                       * });
              */
-
             this.trigger('$.online.here', {
                 user: this.chatEngine.users[uuid]
             });
 
         }
-
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
 
         // return the instance of this user
         return this.chatEngine.users[uuid];
@@ -402,14 +408,7 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
-     * receiving events.
-     * @fires Chat#event:$"."offline"."leave
-     * @example
-     * chat.leave();
-     */
-    leave() {
+    _manualDisconnect() {
 
         // unsubscribe from the channel locally
         this.chatEngine.pubnub.unsubscribe({
@@ -433,6 +432,25 @@ class Chat extends Emitter {
     }
 
     /**
+     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
+     * receiving events.
+     * @fires Chat#event:$"."offline"."leave
+     * @example
+     * chat.leave();
+     */
+    leave() {
+
+        // subscribing right before unsubscribing forces a leave event
+        // // see https://support.pubnub.com/support/solutions/articles/14000043547-do-client-disconnects-trigger-leave-events-
+        this.chatEngine.pubnub.subscribe({
+            channels: [this.channel]
+        });
+
+        this._manualDisconnect();
+
+    }
+
+    /**
      Perform updates when a user has left the {@link Chat}.
 
      @private
@@ -443,6 +461,11 @@ class Chat extends Emitter {
         if (this.users[uuid]) {
 
             // if a user leaves, trigger the event
+
+            let cacheUser = this.users[uuid];
+
+            // remove the user from the local list of users
+            delete this.users[uuid];
 
             /**
              * Fired when a {@link User} intentionally leaves a {@link Chat}.
@@ -456,11 +479,8 @@ class Chat extends Emitter {
                       * });
              */
             this.trigger('$.offline.leave', {
-                user: this.users[uuid]
+                user: cacheUser
             });
-
-            // remove the user from the local list of users
-            delete this.users[uuid];
 
             // we don't remove the user from the global list,
             // because they may be online in other channels
@@ -485,6 +505,11 @@ class Chat extends Emitter {
         // make sure this event is real, user may have already left
         if (this.users[uuid]) {
 
+            let cacheUser = this.users[uuid];
+
+            // remove the user from the local list of users
+            delete this.users[uuid];
+
             /**
              * Fired specifically when a {@link User} looses network connection
              * to the {@link Chat} involuntarily.
@@ -498,7 +523,8 @@ class Chat extends Emitter {
                       * });
              */
 
-            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
+            this.trigger('$.offline.disconnect', { user: cacheUser });
+
         }
 
     }
