@@ -20,7 +20,7 @@ this plugin adds a method called ```newMethod()``` to the {@link Chat} class.
 
 ```js
 // newmethod/plugin.js
-module.exports - {
+module.exports = {
     return {
         extends: {
             Chat: {

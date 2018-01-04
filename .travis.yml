@@ -12,10 +12,3 @@ after_success:
   - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
 addons:
   srcclr: true
-deploy:
-  # deploy develop to the staging environment
-  - provider: script
-    skip_cleanup: true
-    script: ./staging.sh
-    on:
-      branch: master-test

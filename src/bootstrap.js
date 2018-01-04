@@ -89,10 +89,32 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    let countObject = {};
+
     if (ceConfig.debug) {
+
         ChatEngine.onAny((event, payload) => {
+
             console.info('debug:', event, payload);
+
+            countObject['event: ' + event] = countObject[event] || 0;
+            countObject['event: ' + event] += 1;
+
         });
+
+    }
+
+    if (ceConfig.profiling) {
+
+        setInterval(() => {
+
+            countObject.chats = Object.keys(ChatEngine.chats).length;
+            countObject.users = Object.keys(ChatEngine.users).length;
+
+            console.table(countObject);
+
+        }, 3000);
+
     }
 
     ChatEngine.protoPlugins = {};
@@ -443,7 +465,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    ChatEngine.setAuth = (authKey) => {
+    ChatEngine.setAuth = (authKey = PubNub.generateUUID()) => {
 
         // disconnect from old pubnub
         ChatEngine.pnConfig.authKey = authKey;
@@ -451,7 +473,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    ChatEngine.refreshAuth = (authKey) => {
+    ChatEngine.refreshAuth = (authKey = PubNub.generateUUID()) => {
 
         ChatEngine.disconnect();
         ChatEngine.setAuth(authKey);
@@ -467,12 +489,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, state = {}, authKey = false) => {
+    ChatEngine.connect = (uuid, state = {}, authKey = PubNub.generateUUID()) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
         ChatEngine.pnConfig.uuid = uuid;
-        ChatEngine.pnConfig.authKey = authKey || ChatEngine.pnConfig.uuid;
+        ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(() => {
             ChatEngine.firstConnect(state);
