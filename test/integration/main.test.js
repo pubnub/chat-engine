@@ -20,7 +20,7 @@ let ceConfig = {
 
 function createChatEngine(done) {
 
-    this.timeout(15000);
+    this.timeout(25000);
 
     ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
@@ -35,7 +35,7 @@ function createChatEngine(done) {
 
 function createChatEngineClone(done) {
 
-    this.timeout(15000);
+    this.timeout(25000);
 
     ChatEngineClone = ChatEngineCore.create({
         publishKey: pubkey,
@@ -50,7 +50,7 @@ function createChatEngineClone(done) {
 
 function createChatEngineYou(done) {
 
-    this.timeout(15000);
+    this.timeout(25000);
 
     ChatEngineYou = ChatEngineCore.create({
         publishKey: pubkey,
@@ -494,7 +494,7 @@ describe('refresh setup', () => {
 
     beforeEach(createChatEngine);
 
-    it('should be identified as new user', function beIdentified(done) {
+    it('should refresh auth', function beIdentified(done) {
 
         this.timeout(6000);
 
