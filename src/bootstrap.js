@@ -198,6 +198,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * Initial communication with the server. Server grants permissions to
+     * talk in chats, etc.
+     * @private
+     */
     ChatEngine.handshake = (complete) => {
 
         async.parallel([
@@ -227,6 +232,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * @private
+     * Uses PubNub channel groups to keep a set chats in sync between
+     * all clients with the same UUID.
+     */
     ChatEngine.syncChats = () => {
 
         let groups = ['custom', 'rooms', 'system'];
@@ -260,6 +270,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * @private
+     * Listen to PubNub events and forward them into ChatEngine system.
+     */
     ChatEngine.listenToPubNub = () => {
 
         /**
@@ -352,7 +366,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                         if (chat) {
                             // connected category tells us the chat is ready
                             if (statusEvent.category === 'PNConnectedCategory') {
-                                chat.onConnectionReady();
+                                chat.connectionReady();
                             }
 
                             // trigger the network events
@@ -370,6 +384,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * @private
+     * Subscribe to PubNub and begin receiving events.
+     */
     ChatEngine.subscribeToPubNub = () => {
 
         let chanGroups = [
@@ -385,6 +403,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * Initialize ChatEngine modules on first time boot.
+     * @private
+     */
     ChatEngine.firstConnect = (state) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
@@ -435,9 +457,29 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * Disconnect from all {@link Chat}s and mark them as asleep.
+     * @example
+     *
+     * // create a new chat
+     * let chat = new ChatEngine.Chat(new Date().getTime());
+     *
+     * // disconnect from ChatEngine
+     * ChatEngine.disconnect();
+     *
+     * // every individual chat will be disconnected
+     * chat.on('$.disconnected', () => {
+     *     done();
+     * });
+     *
+     * // Change User:
+     * ChatEngine.disconnect()
+     * ChatEngine = new ChatEngine({}, {});
+     * ChatEngine.connect()
+     */
     ChatEngine.disconnect = () => {
 
-        // nothing disconnects from pubnub!
+        // Unsubscribe from all PubNub chats
         ChatEngine.pubnub.unsubscribeAll();
 
         // for every chat in ChatEngine.chats, signal disconnected
@@ -447,6 +489,21 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+     * Performs authentication with server and restores connection
+     * to all sleeping chats.
+     * @example
+     *
+     * // create a new chat
+     * let chat = new ChatEngine.Chat(new Date().getTime());
+     *
+     * // disconnect from ChatEngine
+     * ChatEngine.disconnect();
+     *
+     * // reconnect sometime later
+     * ChatEngine.reconnect();
+     *
+     */
     ChatEngine.reconnect = () => {
 
         // do the whole auth flow with the new authKey
@@ -465,6 +522,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    /**
+    @private
+    */
     ChatEngine.setAuth = (authKey = PubNub.generateUUID()) => {
 
         // disconnect from old pubnub
@@ -473,7 +533,27 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    ChatEngine.refreshAuth = (authKey = PubNub.generateUUID()) => {
+    /**
+     * Disconnects, changes authentication token, performs handshake with server
+     * and reconnects with new auth key. Used for extending logged in sessions
+     * for active users.
+     * @example
+     * // early
+     * ChatEngine.connect(...);
+     *
+     * ChatEngine.once('$.connected', () => {
+     *     // first connection established
+     * });
+     *
+     * // some time passes, session token expires
+     * ChatEngine.reauthorize(authKey);
+     *
+     * // we are connected again
+     * ChatEngine.once('$.connected', () => {
+     *     // we are connected again
+     * });
+     */
+    ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
         ChatEngine.disconnect();
         ChatEngine.setAuth(authKey);

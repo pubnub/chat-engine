@@ -417,8 +417,11 @@ class Chat extends Emitter {
      * @private
      */
     sleep() {
-        this.onDisconnected();
-        this.asleep = true;
+
+        if (this.connected) {
+            this.onDisconnected();
+            this.asleep = true;
+        }
     }
 
     /**
@@ -468,10 +471,14 @@ class Chat extends Emitter {
             channels: [this.channel]
         });
 
+        // tell the server we left
         this.chatEngine.request('post', 'leave', { chat: this.objectify() })
             .then(() => {
 
+                // trigger the disconnect events and update state
                 this.onDisconnected();
+
+                // tell session we've left
                 this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
 
             })
@@ -598,9 +605,10 @@ class Chat extends Emitter {
     }
 
     /**
+     * Fired when the chat first connects to network.
      * @private
      */
-    onConnectionReady() {
+    connectionReady() {
 
         this.connected = true;
         this.hasConnected = true;
@@ -639,6 +647,9 @@ class Chat extends Emitter {
 
     }
 
+    /**
+     * Ask PubNub for information about {@link User}s in this {@link Chat}.
+     */
     getUserUpdates() {
 
         // get a list of users online now
@@ -651,17 +662,24 @@ class Chat extends Emitter {
 
     }
 
+    /**
+     * Establish authentication with the server, then subscribe with PubNub.
+     * @return {[type]} [description]
+     */
     connect() {
 
+        // establish good will with the server
         this.handshake((response) => {
 
+            // asign metadata locally
             if (response.data.found) {
                 this.meta = response.data.chat.meta;
             } else {
                 this.update(this.meta);
             }
 
-            this.onConnectionReady();
+            // now that we've got connection, do everything else via connectionReady
+            this.connectionReady();
 
         });
 
