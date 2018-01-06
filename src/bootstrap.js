@@ -472,7 +472,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      *     done();
      * });
      *
-     * // Change User:
+     * // Changing User:
      * ChatEngine.disconnect()
      * ChatEngine = new ChatEngine({}, {});
      * ChatEngine.connect()

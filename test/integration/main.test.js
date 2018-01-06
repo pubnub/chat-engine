@@ -502,32 +502,39 @@ describe('connection management', () => {
     beforeEach(createChatEngine);
     afterEach(cleanup);
 
-    it('connect twice', function beIdentified(done) {
+    it('change user', function beIdentified(done) {
 
-        this.timeout(6000);
+        this.timeout(20000);
 
-        let authKey = new Date().getTime();
+        let newUsername = 'stephen' + new Date().getTime();
 
         ChatEngine.onAny((a) => {
-            console.log(a)
+            console.log(a);
         });
 
-        ChatEngine.connect('ian', {works: false});
+        ChatEngine.on('$.disconnected', () => {
 
-        ChatEngine.once('$.connected', () => {
+            console.log('!!! disconnected')
 
-            console.log(ChatEngine.me)
+            ChatEngine = ChatEngineCore.create({
+                publishKey: pubkey,
+                subscribeKey: subkey
+            }, ceConfig);
 
-            ChatEngine.connect('adam', {works: true});
+            ChatEngine.on('$.ready', () => {
 
-            ChatEngine.once('$.connected', () => {
                 console.log(ChatEngine.me.uuid)
+                done();
+
             });
 
+            ChatEngine.connect(newUsername);
+
         });
 
-    });
+        ChatEngine.disconnect();
 
+    });
 
     it('should disconnect', function beIdentified(done) {
 
