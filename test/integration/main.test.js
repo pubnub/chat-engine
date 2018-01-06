@@ -508,22 +508,15 @@ describe('connection management', () => {
 
         let newUsername = 'stephen' + new Date().getTime();
 
-        ChatEngine.onAny((a) => {
-            console.log(a);
-        });
-
-        ChatEngine.on('$.disconnected', () => {
-
-            console.log('!!! disconnected')
+        ChatEngine.once('$.disconnected', () => {
 
             ChatEngine = ChatEngineCore.create({
                 publishKey: pubkey,
                 subscribeKey: subkey
             }, ceConfig);
 
-            ChatEngine.on('$.ready', () => {
+            ChatEngine.once('$.ready', () => {
 
-                console.log(ChatEngine.me.uuid)
                 done();
 
             });
