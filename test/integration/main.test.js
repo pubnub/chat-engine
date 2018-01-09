@@ -323,79 +323,79 @@ describe('history', () => {
 
     beforeEach(createChatEngine);
 
-    it('should get 50 messages', function get50(done) {
+    // it('should get 50 messages', function get50(done) {
 
-        let count = 0;
+    //     let count = 0;
 
-        this.timeout(30000);
+    //     this.timeout(30000);
 
-        chatHistory = new ChatEngine.Chat('chat-history', false);
+    //     chatHistory = new ChatEngine.Chat('chat-history', false);
 
-        chatHistory.on('$.connected', () => {
+    //     chatHistory.on('$.connected', () => {
 
-            setTimeout(() => {
+    //         setTimeout(() => {
 
-                chatHistory.search({
-                    event: 'tester',
-                    limit: 50
-                }).on('tester', (a) => {
+    //             chatHistory.search({
+    //                 event: 'tester',
+    //                 limit: 50
+    //             }).on('tester', (a) => {
 
-                    assert.equal(a.event, 'tester');
+    //                 assert.equal(a.event, 'tester');
 
-                    count += 1;
+    //                 count += 1;
 
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 50, 'correct # of results');
-                    done();
-                });
+    //             }).on('$.search.finish', () => {
+    //                 assert.equal(count, 50, 'correct # of results');
+    //                 done();
+    //             });
 
-            }, 5000);
+    //         }, 5000);
 
-        });
+    //     });
 
-    });
+    // });
 
-    it('should get 200 messages', function get200(done) {
+    // it('should get 200 messages', function get200(done) {
 
-        let count = 0;
+    //     let count = 0;
 
-        this.timeout(60000);
+    //     this.timeout(60000);
 
-        let chatHistory2 = new ChatEngine.Chat('chat-history-2', false);
+    //     let chatHistory2 = new ChatEngine.Chat('chat-history-2', false);
 
-        for (let i = 0; i < 200; i++) {
+    //     for (let i = 0; i < 200; i++) {
 
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+    //         chatHistory2.emit('tester', {
+    //             text: 'hello world ' + i
+    //         });
+    //         chatHistory2.emit('not-tester', {
+    //             text: 'hello world ' + i
+    //         });
 
-        }
+    //     }
 
-        chatHistory2.on('$.connected', () => {
+    //     chatHistory2.on('$.connected', () => {
 
-            setTimeout(() => {
+    //         setTimeout(() => {
 
-                chatHistory2.search({
-                    event: 'tester',
-                    limit: 200
-                }).on('tester', (a) => {
+    //             chatHistory2.search({
+    //                 event: 'tester',
+    //                 limit: 200
+    //             }).on('tester', (a) => {
 
-                    assert.equal(a.event, 'tester');
-                    count += 1;
+    //                 assert.equal(a.event, 'tester');
+    //                 count += 1;
 
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 200, 'correct # of results');
-                    done();
-                });
+    //             }).on('$.search.finish', () => {
+    //                 assert.equal(count, 200, 'correct # of results');
+    //                 done();
+    //             });
 
-            }, 5000);
+    //         }, 5000);
 
-        });
+    //     });
 
-    });
+    // });
 
     it('should get messages without event', function get50(done) {
 
