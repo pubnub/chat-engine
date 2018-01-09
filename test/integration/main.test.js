@@ -394,6 +394,9 @@ describe('remote chat list', () => {
         // first instance looking or new chats
         ChatEngine.me.on('$.session.chat.join', (payload) => {
 
+            assert.isObject(ChatEngine.me.session.system);
+            assert.isObject(ChatEngine.me.session.custom);
+
             if (payload.chat.channel.indexOf(newChannel) > -1) {
                 done();
             }
@@ -401,15 +404,6 @@ describe('remote chat list', () => {
         });
 
         syncChat = new ChatEngineClone.Chat(newChannel, true, true);
-
-    });
-
-    it('should be populated', (done) => {
-
-        assert.isObject(ChatEngine.me.session.system);
-        assert.isObject(ChatEngine.me.session.custom);
-        // assert.isObject(ChatEngine.me.session.fixed);
-        done();
 
     });
 
