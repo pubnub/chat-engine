@@ -318,10 +318,10 @@ describe('chat', () => {
 
 });
 
-let chatHistory;
-describe('history', () => {
+// let chatHistory;
+// describe('history', () => {
 
-    beforeEach(createChatEngine);
+    // beforeEach(createChatEngine);
 
     // it('should get 50 messages', function get50(done) {
 
@@ -397,23 +397,23 @@ describe('history', () => {
 
     // });
 
-    it('should get messages without event', function get50(done) {
+//     it('should get messages without event', function get50(done) {
 
-        this.timeout(30000);
+//         this.timeout(30000);
 
-        chatHistory.search({
-            limit: 10
-        }).on('tester', (a) => {
+//         chatHistory.search({
+//             limit: 10
+//         }).on('tester', (a) => {
 
-            assert.equal(a.event, 'tester');
+//             assert.equal(a.event, 'tester');
 
-        }).on('$.search.finish', () => {
-            done();
-        });
+//         }).on('$.search.finish', () => {
+//             done();
+//         });
 
-    });
+//     });
 
-});
+// });
 
 let syncChat;
 
