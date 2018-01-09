@@ -389,13 +389,18 @@ describe('remote chat list', () => {
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
-        this.timeout(10000);
+        this.timeout(20000);
+
+        ChatEngine.onAny((a) => {
+            console.log(a)
+        });
 
         // first instance looking or new chats
         ChatEngine.me.on('$.session.chat.join', (payload) => {
 
-            assert.isObject(ChatEngine.me.session.system);
-            assert.isObject(ChatEngine.me.session.custom);
+            console.log('session chat joined called')
+
+            console.log(payload)
 
             if (payload.chat.channel.indexOf(newChannel) > -1) {
                 done();
@@ -403,11 +408,15 @@ describe('remote chat list', () => {
 
         });
 
-        syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+        setTimeout(() => {
+
+            syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+
+        }, 1000)
 
     });
 
-    it('should get delete event', function deleteSync(done) {
+    it('should get leave event', function deleteSync(done) {
 
         this.timeout(10000);
 
