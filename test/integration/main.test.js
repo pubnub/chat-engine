@@ -78,7 +78,9 @@ describe('setup', () => {
 
     beforeEach(createChatEngine);
 
-    it('Should populate history tests', (done) => {
+    it('Should populate history tests', function populateFirstHistory(done) {
+
+        this.timeout(15000);
 
         let h = new ChatEngine.Chat('chat-history', false);
 
@@ -93,6 +95,16 @@ describe('setup', () => {
 
         }
 
+        setTimeout(() => {
+            done();
+        }, 10000);
+
+    });
+
+    it('Should populate history tests', function populateSecondHistory(done) {
+
+        this.timeout(15000);
+
         let k = new ChatEngine.Chat('chat-history-2', false);
 
         for (let i = 0; i < 200; i++) {
@@ -106,7 +118,9 @@ describe('setup', () => {
 
         }
 
-        done();
+        setTimeout(() => {
+            done();
+        }, 10000);
 
     });
 
