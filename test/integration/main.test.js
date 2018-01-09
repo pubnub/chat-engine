@@ -289,10 +289,12 @@ describe('chat', () => {
         });
 
         setTimeout(() => {
+
             chat.emit('something', {
                 text: 'hello world'
             });
-        }, 1000);
+
+        }, 5000);
 
     });
 
