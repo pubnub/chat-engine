@@ -8,7 +8,7 @@ let ChatEngine;
 let ChatEngineYou;
 let ChatEngineClone;
 let ChatEngineAlt;
-let globalChannel = 'global' + new Date().getTime();
+let globalChannel = 'global';
 
 let cleanup = function () {
     ChatEngine = false;
