@@ -29,8 +29,6 @@ class Me extends User {
          */
         this.session = {};
 
-        console.log('me session is set', this.session);
-
         this.sync = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
 
         this.sync.on('$.session.chat.join', (payload) => {
