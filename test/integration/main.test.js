@@ -22,7 +22,7 @@ let yousername = 'stephen' + new Date().getTime();
 
 let ceConfig = {
     globalChannel,
-    throwErrors: false
+    throwErrors: true
 };
 
 function createChatEngine(done) {
@@ -37,6 +37,9 @@ function createChatEngine(done) {
     ChatEngine.on('$.ready', () => {
         done();
     });
+    ChatEngine.onAny((a) => {
+        console.log(a)
+    })
 
 }
 
@@ -72,11 +75,11 @@ function createChatEngineYou(done) {
 
 describe('setup', () => {
 
+    beforeEach(createChatEngine);
+
     it('ChatEngine should be imported', () => {
         assert.isObject(ChatEngineCore, 'was successfully created');
     });
-
-    beforeEach(createChatEngine);
 
     it('Should populate history tests', function populateFirstHistory(done) {
 
@@ -320,102 +323,102 @@ describe('chat', () => {
 
 });
 
-// let chatHistory;
-// describe('history', () => {
+let chatHistory;
+describe('history', () => {
 
-    // beforeEach(createChatEngine);
+    beforeEach(createChatEngine);
 
-    // it('should get 50 messages', function get50(done) {
+    it('should get 50 messages', function get50(done) {
 
-    //     let count = 0;
+        let count = 0;
 
-    //     this.timeout(30000);
+        this.timeout(30000);
 
-    //     chatHistory = new ChatEngine.Chat('chat-history', false);
+        chatHistory = new ChatEngine.Chat('chat-history', false);
 
-    //     chatHistory.on('$.connected', () => {
+        chatHistory.on('$.connected', () => {
 
-    //         setTimeout(() => {
+            setTimeout(() => {
 
-    //             chatHistory.search({
-    //                 event: 'tester',
-    //                 limit: 50
-    //             }).on('tester', (a) => {
+                chatHistory.search({
+                    event: 'tester',
+                    limit: 50
+                }).on('tester', (a) => {
 
-    //                 assert.equal(a.event, 'tester');
+                    assert.equal(a.event, 'tester');
 
-    //                 count += 1;
+                    count += 1;
 
-    //             }).on('$.search.finish', () => {
-    //                 assert.equal(count, 50, 'correct # of results');
-    //                 done();
-    //             });
+                }).on('$.search.finish', () => {
+                    assert.equal(count, 50, 'correct # of results');
+                    done();
+                });
 
-    //         }, 5000);
+            }, 5000);
 
-    //     });
+        });
 
-    // });
+    });
 
-    // it('should get 200 messages', function get200(done) {
+    it('should get 200 messages', function get200(done) {
 
-    //     let count = 0;
+        let count = 0;
 
-    //     this.timeout(60000);
+        this.timeout(60000);
 
-    //     let chatHistory2 = new ChatEngine.Chat('chat-history-2', false);
+        let chatHistory2 = new ChatEngine.Chat('chat-history-2', false);
 
-    //     for (let i = 0; i < 200; i++) {
+        for (let i = 0; i < 200; i++) {
 
-    //         chatHistory2.emit('tester', {
-    //             text: 'hello world ' + i
-    //         });
-    //         chatHistory2.emit('not-tester', {
-    //             text: 'hello world ' + i
-    //         });
+            chatHistory2.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory2.emit('not-tester', {
+                text: 'hello world ' + i
+            });
 
-    //     }
+        }
 
-    //     chatHistory2.on('$.connected', () => {
+        chatHistory2.on('$.connected', () => {
 
-    //         setTimeout(() => {
+            setTimeout(() => {
 
-    //             chatHistory2.search({
-    //                 event: 'tester',
-    //                 limit: 200
-    //             }).on('tester', (a) => {
+                chatHistory2.search({
+                    event: 'tester',
+                    limit: 200
+                }).on('tester', (a) => {
 
-    //                 assert.equal(a.event, 'tester');
-    //                 count += 1;
+                    assert.equal(a.event, 'tester');
+                    count += 1;
 
-    //             }).on('$.search.finish', () => {
-    //                 assert.equal(count, 200, 'correct # of results');
-    //                 done();
-    //             });
+                }).on('$.search.finish', () => {
+                    assert.equal(count, 200, 'correct # of results');
+                    done();
+                });
 
-    //         }, 5000);
+            }, 5000);
 
-    //     });
+        });
 
-    // });
+    });
 
-//     it('should get messages without event', function get50(done) {
+    it('should get messages without event', function get50(done) {
 
-//         this.timeout(30000);
+        this.timeout(30000);
 
-//         chatHistory.search({
-//             limit: 10
-//         }).on('tester', (a) => {
+        chatHistory.search({
+            limit: 10
+        }).on('tester', (a) => {
 
-//             assert.equal(a.event, 'tester');
+            assert.equal(a.event, 'tester');
 
-//         }).on('$.search.finish', () => {
-//             done();
-//         });
+        }).on('$.search.finish', () => {
+            done();
+        });
 
-//     });
+    });
 
-// });
+});
 
 let syncChat;
 
@@ -535,66 +538,66 @@ describe('invite', () => {
 
 });
 
-describe('connection management', () => {
+// describe('connection management', () => {
 
-    beforeEach(createChatEngine);
-    afterEach(cleanup);
+//     beforeEach(createChatEngine);
+//     afterEach(cleanup);
 
-    it('change user', function beIdentified(done) {
+//     it('change user', function beIdentified(done) {
 
-        this.timeout(20000);
+//         this.timeout(20000);
 
-        let newUsername = 'stephen' + new Date().getTime();
+//         let newUsername = 'stephen' + new Date().getTime();
 
-        ChatEngine.once('$.disconnected', () => {
+//         ChatEngine.once('$.disconnected', () => {
 
-            ChatEngine = ChatEngineCore.create({
-                publishKey: pubkey,
-                subscribeKey: subkey
-            }, ceConfig);
+//             ChatEngine = ChatEngineCore.create({
+//                 publishKey: pubkey,
+//                 subscribeKey: subkey
+//             }, ceConfig);
 
-            ChatEngine.once('$.ready', () => {
+//             ChatEngine.once('$.ready', () => {
 
-                done();
+//                 done();
 
-            });
+//             });
 
-            ChatEngine.connect(newUsername);
+//             ChatEngine.connect(newUsername);
 
-        });
+//         });
 
-        ChatEngine.disconnect();
+//         ChatEngine.disconnect();
 
-    });
+//     });
 
-    it('should disconnect', function beIdentified(done) {
+//     it('should disconnect', function beIdentified(done) {
 
-        this.timeout(6000);
+//         this.timeout(6000);
 
-        let chat2 = new ChatEngine.Chat(new Date().getTime());
+//         let chat2 = new ChatEngine.Chat(new Date().getTime());
 
-        chat2.on('$.disconnected', () => {
-            done();
-        });
+//         chat2.on('$.disconnected', () => {
+//             done();
+//         });
 
-        chat2.on('$.connected', () => {
-            ChatEngine.disconnect();
-        });
+//         chat2.on('$.connected', () => {
+//             ChatEngine.disconnect();
+//         });
 
-    });
+//     });
 
-    it('should refresh auth', function beIdentified(done) {
+//     it('should refresh auth', function beIdentified(done) {
 
-        this.timeout(6000);
+//         this.timeout(6000);
 
-        let authKey = new Date().getTime();
+//         let authKey = new Date().getTime();
 
-        ChatEngine.reauthorize(authKey);
+//         ChatEngine.reauthorize(authKey);
 
-        ChatEngine.once('$.connected', () => {
-            done();
-        });
+//         ChatEngine.once('$.connected', () => {
+//             done();
+//         });
 
-    });
+//     });
 
-});
+// });

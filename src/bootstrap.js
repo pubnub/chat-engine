@@ -409,12 +409,14 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.firstConnect = (state) => {
 
+        console.log('firstconnect called')
+
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
         // create a new chat to use as global chat
         // we don't do auth on this one because it's assumed to be done with the /auth request below
         ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
-
+        
         // build the current user
         ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
         ChatEngine.me.update(state);
@@ -430,6 +432,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.me.onConstructed();
 
         ChatEngine.global.once('$.connected', () => {
+
+            console.log('global connected')
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
@@ -447,11 +451,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             ChatEngine.global.getUserUpdates();
 
-        });
+            ChatEngine.listenToPubNub();
+            ChatEngine.subscribeToPubNub();
+            ChatEngine.syncChats();
 
-        ChatEngine.listenToPubNub();
-        ChatEngine.subscribeToPubNub();
-        ChatEngine.syncChats();
+        });
 
     };
 
@@ -569,12 +573,16 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.connect = (uuid, state = {}, authKey = PubNub.generateUUID()) => {
 
+        console.log('connect called')
+
         // this creates a user known as Me and
         // connects to the global chatroom
         ChatEngine.pnConfig.uuid = uuid;
         ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(() => {
+
+            console.log('handshake callback');
             ChatEngine.firstConnect(state);
         });
 
