@@ -447,13 +447,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             ChatEngine.global.getUserUpdates();
 
-            ChatEngine.subscribeToPubNub();
-
-            ChatEngine.syncChats();
-
         });
 
         ChatEngine.listenToPubNub();
+        ChatEngine.subscribeToPubNub();
+        ChatEngine.syncChats();
 
     };
 
