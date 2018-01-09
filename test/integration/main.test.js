@@ -527,13 +527,13 @@ describe('connection management', () => {
 
         this.timeout(6000);
 
-        let chat = new ChatEngine.Chat(new Date().getTime());
+        let chat2 = new ChatEngine.Chat(new Date().getTime());
 
-        chat.on('$.disconnected', () => {
+        chat2.on('$.disconnected', () => {
             done();
         });
 
-        chat.on('$.connected', () => {
+        chat2.on('$.connected', () => {
             ChatEngine.disconnect();
         });
 
