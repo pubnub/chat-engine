@@ -1,8 +1,8 @@
 const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
 
-const pubkey = 'pub-c-2d34083b-e0c1-4506-a7e4-d62e15d78f8d';
-const subkey = 'sub-c-c5e48446-dbb1-11e7-bc29-aadf2d75771d';
+const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
+const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
 
 let ChatEngine;
 let ChatEngineYou;
@@ -38,8 +38,8 @@ function createChatEngine(done) {
         done();
     });
     ChatEngine.onAny((a) => {
-        console.log(a)
-    })
+        console.log(a);
+    });
 
 }
 
@@ -81,34 +81,11 @@ describe('setup', () => {
         assert.isObject(ChatEngineCore, 'was successfully created');
     });
 
-    it('Should populate history tests', function populateFirstHistory(done) {
-
-        this.timeout(80000);
-
-        let h = new ChatEngine.Chat('chat-history', false);
-
-        for (let i = 0; i < 200; i++) {
-
-            h.emit('tester', {
-                text: 'hello world ' + i
-            });
-            h.emit('not-tester', {
-                text: 'hello world ' + i
-            });
-
-        }
-
-        setTimeout(() => {
-            done();
-        },60000);
-
-    });
-
     it('Should populate history tests', function populateSecondHistory(done) {
 
         this.timeout(80000);
 
-        let k = new ChatEngine.Chat('chat-history-2', false);
+        let k = new ChatEngine.Chat('chat-history', false);
 
         for (let i = 0; i < 200; i++) {
 
@@ -366,18 +343,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        let chatHistory2 = new ChatEngine.Chat('chat-history-2', false);
-
-        for (let i = 0; i < 200; i++) {
-
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
-
-        }
+        let chatHistory2 = new ChatEngine.Chat('chat-history', false);
 
         chatHistory2.on('$.connected', () => {
 
