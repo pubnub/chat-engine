@@ -32,7 +32,8 @@ function createChatEngine(done) {
     ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: true
+        logVerbosity: true,
+        origin: 'ssp.pubnub.com'
     }, ceConfig);
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
@@ -51,7 +52,8 @@ function createChatEngineClone(done) {
     ChatEngineClone = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: true
+        logVerbosity: true,
+        origin: 'ssp.pubnub.com'
     }, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
@@ -67,7 +69,8 @@ function createChatEngineYou(done) {
     ChatEngineYou = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: true
+        logVerbosity: true,
+        origin: 'ssp.pubnub.com'
     }, ceConfig);
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
