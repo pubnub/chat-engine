@@ -91,9 +91,11 @@ class Me extends User {
 
         // if it exists
         if (existingChat) {
+
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;
         } else {
+            console.log('CHAT DOES NOT EXIST')
 
             // otherwise, try to recreate it with the server information
             this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
