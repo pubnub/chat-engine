@@ -7,7 +7,7 @@
 		exports["ChatEngineCore"] = factory();
 	else
 		root["ChatEngineCore"] = factory();
-})(this, function() {
+})(typeof self !== 'undefined' ? self : this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -732,9 +732,22 @@ module.exports = function(module) {
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const waterfall = __webpack_require__(56);
-const RootEmitter = __webpack_require__(14);
-const Event = __webpack_require__(23);
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var waterfall = __webpack_require__(56);
+var RootEmitter = __webpack_require__(14);
+var Event = __webpack_require__(23);
 
 /**
  An ChatEngine generic emitter that supports plugins and forwards
@@ -742,45 +755,48 @@ const Event = __webpack_require__(23);
  @class Emitter
  @extends RootEmitter
  */
-class Emitter extends RootEmitter {
 
-    constructor(chatEngine) {
+var Emitter = function (_RootEmitter) {
+    _inherits(Emitter, _RootEmitter);
 
-        super();
+    function Emitter(chatEngine) {
+        _classCallCheck(this, Emitter);
 
-        this.chatEngine = chatEngine;
+        var _this = _possibleConstructorReturn(this, (Emitter.__proto__ || Object.getPrototypeOf(Emitter)).call(this));
 
-        this.name = 'Emitter';
+        _this.chatEngine = chatEngine;
+
+        _this.name = 'Emitter';
 
         /**
          Stores a list of plugins bound to this object
          @private
          */
-        this.plugins = [];
+        _this.plugins = [];
 
         /**
          Stores in memory keys and values
          @private
          */
-        this._dataset = {};
+        _this._dataset = {};
 
         /**
          Emit events locally.
-
-         @private
+          @private
          @param {String} event The event payload object
          */
-        this._emit = (event, data = {}) => {
+        _this._emit = function (event) {
+            var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
 
             // all events are forwarded to ChatEngine object
             // so you can globally bind to events with ChatEngine.on()
-            this.chatEngine._emit(event, data, this);
+            _this.chatEngine._emit(event, data, _this);
 
             // emit the event from the object that created it
-            this.emitter.emit(event, data);
+            _this.emitter.emit(event, data);
 
-            return this;
-
+            return _this;
         };
 
         /**
@@ -800,208 +816,219 @@ class Emitter extends RootEmitter {
                 *     console.log('event.a or event.b was fired').;
                 * })
          */
-        this.on = (event, cb) => {
+        _this.on = function (event, cb) {
 
             // keep track of all events on this emitter
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+            _this.events[event] = _this.events[event] || new Event(_this.chatEngine, _this, event);
 
             // call the private _on property
-            this._on(event, cb);
+            _this._on(event, cb);
 
-            return this;
-
+            return _this;
         };
 
+        return _this;
     }
 
     // add an object as a subobject under a namespoace
-    addChild(childName, childOb) {
-        // assign the new child object as a property of parent under the
-        // given namespace
-        this[childName] = childOb;
 
-        // assign a data set for the namespace if it doesn't exist
-        if (!this._dataset[childName]) {
-            this._dataset[childName] = {};
-        }
 
-        // the new object can use ```this.parent``` to access
-        // the root class
-        childOb.parent = this;
+    _createClass(Emitter, [{
+        key: 'addChild',
+        value: function addChild(childName, childOb) {
+            // assign the new child object as a property of parent under the
+            // given namespace
+            this[childName] = childOb;
 
-        // bind get() and set() to the data set
-        childOb.get = this.get.bind(this._dataset[childName]);
-        childOb.set = this.set.bind(this._dataset[childName]);
-    }
-
-    get(key) {
-        return this[key];
-    }
-
-    set(key, value) {
-        if (this[key] && !value) {
-            delete this[key];
-        } else {
-            this[key] = value;
-        }
-    }
-
-    /**
-     Binds a plugin to this object
-     @param {Object} module The plugin module
-     @tutorial using
-     */
-    plugin(module) {
-
-        // add this plugin to a list of plugins for this object
-        this.plugins.push(module);
-
-        // see if there are plugins to attach to this class
-        if (module.extends && module.extends[this.name]) {
-            // attach the plugins to this class
-            // under their namespace
-            this.addChild(module.namespace, new module.extends[this.name]());
-
-            this[module.namespace].ChatEngine = this.chatEngine;
-
-            // if the plugin has a special construct function
-            // run it
-            if (this[module.namespace].construct) {
-                this[module.namespace].construct();
+            // assign a data set for the namespace if it doesn't exist
+            if (!this._dataset[childName]) {
+                this._dataset[childName] = {};
             }
 
+            // the new object can use ```this.parent``` to access
+            // the root class
+            childOb.parent = this;
+
+            // bind get() and set() to the data set
+            childOb.get = this.get.bind(this._dataset[childName]);
+            childOb.set = this.set.bind(this._dataset[childName]);
+        }
+    }, {
+        key: 'get',
+        value: function get(key) {
+            return this[key];
+        }
+    }, {
+        key: 'set',
+        value: function set(key, value) {
+            if (this[key] && !value) {
+                delete this[key];
+            } else {
+                this[key] = value;
+            }
         }
 
-        return this;
+        /**
+         Binds a plugin to this object
+         @param {Object} module The plugin module
+         @tutorial using
+         */
 
-    }
+    }, {
+        key: 'plugin',
+        value: function plugin(module) {
 
-    bindProtoPlugins() {
+            // add this plugin to a list of plugins for this object
+            this.plugins.push(module);
 
-        if (this.chatEngine.protoPlugins[this.name]) {
+            // see if there are plugins to attach to this class
+            if (module.extends && module.extends[this.name]) {
+                // attach the plugins to this class
+                // under their namespace
+                this.addChild(module.namespace, new module.extends[this.name]());
 
-            this.chatEngine.protoPlugins[this.name].forEach((module) => {
-                this.plugin(module);
-            });
+                this[module.namespace].ChatEngine = this.chatEngine;
 
+                // if the plugin has a special construct function
+                // run it
+                if (this[module.namespace].construct) {
+                    this[module.namespace].construct();
+                }
+            }
+
+            return this;
+        }
+    }, {
+        key: 'bindProtoPlugins',
+        value: function bindProtoPlugins() {
+            var _this2 = this;
+
+            if (this.chatEngine.protoPlugins[this.name]) {
+
+                this.chatEngine.protoPlugins[this.name].forEach(function (module) {
+                    _this2.plugin(module);
+                });
+            }
         }
 
-    }
+        /**
+         Broadcasts an event locally to all listeners.
+         @private
+         @param {String} event The event name
+         @param {Object} payload The event payload object
+         */
 
-    /**
-     Broadcasts an event locally to all listeners.
-     @private
-     @param {String} event The event name
-     @param {Object} payload The event payload object
-     */
-    trigger(event, payload = {}, done = () => {}) {
+    }, {
+        key: 'trigger',
+        value: function trigger(event) {
+            var _this3 = this;
 
-        let complete = () => {
+            var payload = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+            var done = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {};
 
-            // let plugins modify the event
-            this.runPluginQueue('on', event, (next) => {
-                next(null, payload);
-            }, (reject, pluginResponse) => {
 
-                if (reject) {
-                    done(reject);
-                } else {
-                    // emit this event to any listener
-                    this._emit(event, pluginResponse);
-                    done(null, event, pluginResponse);
+            var complete = function complete() {
+
+                // let plugins modify the event
+                _this3.runPluginQueue('on', event, function (next) {
+                    next(null, payload);
+                }, function (reject, pluginResponse) {
+
+                    if (reject) {
+                        done(reject);
+                    } else {
+                        // emit this event to any listener
+                        _this3._emit(event, pluginResponse);
+                        done(null, event, pluginResponse);
+                    }
+                });
+            };
+
+            // this can be made into plugin
+            if ((typeof payload === 'undefined' ? 'undefined' : _typeof(payload)) === 'object') {
+
+                // restore chat in payload
+                if (!payload.chat) {
+                    payload.chat = this;
                 }
 
-            });
+                // if we should try to restore the sender property
+                if (payload.sender) {
 
-        };
+                    // the user doesn't exist, create it
+                    payload.sender = new this.chatEngine.User(payload.sender);
 
-        // this can be made into plugin
-        if (typeof payload === 'object') {
-
-            // restore chat in payload
-            if (!payload.chat) {
-                payload.chat = this;
-            }
-
-            // if we should try to restore the sender property
-            if (payload.sender) {
-
-                // the user doesn't exist, create it
-                payload.sender = new this.chatEngine.User(payload.sender);
-
-                payload.sender._getState(() => {
+                    payload.sender._getState(function () {
+                        complete();
+                    });
+                } else {
+                    // there's no "sender" in this object, move on
                     complete();
-                });
-
+                }
             } else {
-                // there's no "sender" in this object, move on
+                // payload is not an object, we want nothing to do with it.
                 complete();
             }
-
-        } else {
-            // payload is not an object, we want nothing to do with it.
-            complete();
         }
-    }
 
-    /**
-     Load plugins and attach a queue of functions to execute before and
-     after events are trigger or received.
+        /**
+         Load plugins and attach a queue of functions to execute before and
+         after events are trigger or received.
+          @private
+         @param {String} location Where in the middleeware the event should run (emit, trigger)
+         @param {String} event The event name
+         @param {String} first The first function to run before the plugins have run
+         @param {String} last The last function to run after the plugins have run
+         */
 
-     @private
-     @param {String} location Where in the middleeware the event should run (emit, trigger)
-     @param {String} event The event name
-     @param {String} first The first function to run before the plugins have run
-     @param {String} last The last function to run after the plugins have run
-     */
-    runPluginQueue(location, event, first, last) {
+    }, {
+        key: 'runPluginQueue',
+        value: function runPluginQueue(location, event, first, last) {
 
-        // this assembles a queue of functions to run as middleware
-        // event is a triggered event key
-        let pluginQueue = [];
+            // this assembles a queue of functions to run as middleware
+            // event is a triggered event key
+            var pluginQueue = [];
 
-        // the first function is always required
-        pluginQueue.push(first);
+            // the first function is always required
+            pluginQueue.push(first);
 
-        // look through the configured plugins
-        this.plugins.forEach((pluginItem) => {
+            // look through the configured plugins
+            this.plugins.forEach(function (pluginItem) {
 
-            // if they have defined a function to run specifically
-            // for this event
-            if (pluginItem.middleware && pluginItem.middleware[location]) {
+                // if they have defined a function to run specifically
+                // for this event
+                if (pluginItem.middleware && pluginItem.middleware[location]) {
 
-                if (pluginItem.middleware[location][event]) {
-                    // add the function to the queue
-                    pluginQueue.push(pluginItem.middleware[location][event]);
+                    if (pluginItem.middleware[location][event]) {
+                        // add the function to the queue
+                        pluginQueue.push(pluginItem.middleware[location][event]);
+                    }
+
+                    if (pluginItem.middleware[location]['*']) {
+                        // add the function to the queue
+                        pluginQueue.push(pluginItem.middleware[location]['*']);
+                    }
                 }
+            });
 
-                if (pluginItem.middleware[location]['*']) {
-                    // add the function to the queue
-                    pluginQueue.push(pluginItem.middleware[location]['*']);
-                }
+            // waterfall runs the functions in assigned order
+            // waiting for one to complete before moving to the next
+            // when it's done, the ```last``` parameter is called
+            waterfall(pluginQueue, last);
+        }
+    }, {
+        key: 'onConstructed',
+        value: function onConstructed() {
 
-            }
+            this.bindProtoPlugins();
+            this.trigger(['$', 'created', this.name.toLowerCase()].join('.'));
+        }
+    }]);
 
-        });
-
-        // waterfall runs the functions in assigned order
-        // waiting for one to complete before moving to the next
-        // when it's done, the ```last``` parameter is called
-        waterfall(pluginQueue, last);
-
-    }
-
-    onConstructed() {
-
-        this.bindProtoPlugins();
-        this.trigger(['$', 'created', this.name.toLowerCase()].join('.'));
-
-    }
-
-}
+    return Emitter;
+}(RootEmitter);
 
 module.exports = Emitter;
-
 
 /***/ }),
 /* 6 */
@@ -1367,151 +1394,146 @@ module.exports = Cancel;
 /* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // Allows us to create and bind to events. Everything in ChatEngine is an event
 // emitter
-const EventEmitter2 = __webpack_require__(53).EventEmitter2;
+var EventEmitter2 = __webpack_require__(53).EventEmitter2;
 
 /**
 * The {@link ChatEngine} object is a RootEmitter. Configures an event emitter that other ChatEngine objects inherit. Adds shortcut methods for
 * ```this.on()```, ```this.emit()```, etc.
 * @class RootEmitter
 */
-class RootEmitter {
 
-    constructor() {
+var RootEmitter = function RootEmitter() {
+    var _this = this;
 
-        /**
-        * @private
-        */
-        this.events = {};
+    _classCallCheck(this, RootEmitter);
 
-        this.name = 'RootEmitter';
+    /**
+    * @private
+    */
+    this.events = {};
 
-        /**
-        Create a new EventEmitter2 object for this class.
+    this.name = 'RootEmitter';
 
-        @private
-        */
-        this.emitter = new EventEmitter2({
-            wildcard: true,
-            newListener: true,
-            maxListeners: 50,
-            verboseMemoryLeak: true
-        });
+    /**
+    Create a new EventEmitter2 object for this class.
+     @private
+    */
+    this.emitter = new EventEmitter2({
+        wildcard: true,
+        newListener: true,
+        maxListeners: 50,
+        verboseMemoryLeak: true
+    });
 
-        // we bind to make sure wildcards work
-        // https://github.com/asyncly/EventEmitter2/issues/186
+    // we bind to make sure wildcards work
+    // https://github.com/asyncly/EventEmitter2/issues/186
 
-        /**
-        Private emit method that broadcasts the event to listeners on this page.
+    /**
+    Private emit method that broadcasts the event to listeners on this page.
+     @private
+    @param {String} event The event name
+    @param {Object} the event payload
+    */
+    this._emit = this.emitter.emit.bind(this.emitter);
 
-        @private
-        @param {String} event The event name
-        @param {Object} the event payload
-        */
-        this._emit = this.emitter.emit.bind(this.emitter);
+    /**
+    Listen for a specific event and fire a callback when it's emitted. This is reserved in case ```this.on``` is overwritten.
+     @private
+    @param {String} event The event name
+    @param {Function} callback The function to run when the event is emitted
+    */
 
-        /**
-        Listen for a specific event and fire a callback when it's emitted. This is reserved in case ```this.on``` is overwritten.
+    this._on = this.emitter.on.bind(this.emitter);
 
-        @private
-        @param {String} event The event name
-        @param {Function} callback The function to run when the event is emitted
-        */
+    /**
+    * Listen for a specific event and fire a callback when it's emitted. Supports wildcard matching.
+    * @method
+    * @param {String} event The event name
+    * @param {Function} cb The function to run when the event is emitted
+    * @example
+    *
+    * // Get notified whenever someone joins the room
+    * object.on('event', (payload) => {
+    *     console.log('event was fired').
+    * })
+    *
+    * // Get notified of event.a and event.b
+    * object.on('event.*', (payload) => {
+    *     console.log('event.a or event.b was fired').;
+    * })
+    */
+    this.on = function (event, callback) {
 
-        this._on = this.emitter.on.bind(this.emitter);
+        // emit the event from the object that created it
+        _this.emitter.on(event, callback);
 
-        /**
-        * Listen for a specific event and fire a callback when it's emitted. Supports wildcard matching.
-        * @method
-        * @param {String} event The event name
-        * @param {Function} cb The function to run when the event is emitted
-        * @example
-        *
-        * // Get notified whenever someone joins the room
-        * object.on('event', (payload) => {
-        *     console.log('event was fired').
-        * })
-        *
-        * // Get notified of event.a and event.b
-        * object.on('event.*', (payload) => {
-        *     console.log('event.a or event.b was fired').;
-        * })
-        */
-        this.on = (event, callback) => {
+        return _this;
+    };
 
-            // emit the event from the object that created it
-            this.emitter.on(event, callback);
+    /**
+    * Stop a callback from listening to an event.
+    * @method
+    * @param {String} event The event name
+    * @example
+    * let callback = function(payload;) {
+    *    console.log('something happend!');
+    * };
+    * object.on('event', callback);
+    * // ...
+    * object.off('event', callback);
+    */
+    this.off = function (event, callback) {
 
-            return this;
+        // emit the event from the object that created it
+        _this.emitter.off(event, callback);
 
-        };
+        return _this;
+    };
 
-        /**
-        * Stop a callback from listening to an event.
-        * @method
-        * @param {String} event The event name
-        * @example
-        * let callback = function(payload;) {
-        *    console.log('something happend!');
-        * };
-        * object.on('event', callback);
-        * // ...
-        * object.off('event', callback);
-        */
-        this.off = (event, callback) => {
+    /**
+    * Listen for any event on this object and fire a callback when it's emitted
+    * @method
+    * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
+    * @example
+    * object.onAny((event, payload) => {
+    *     console.log('All events trigger this.');
+    * });
+    */
+    this.onAny = function (event, callback) {
 
-            // emit the event from the object that created it
-            this.emitter.off(event, callback);
+        // emit the event from the object that created it
+        _this.emitter.onAny(event, callback);
 
-            return this;
+        return _this;
+    };
 
-        };
+    /**
+    * Listen for an event and only fire the callback a single time
+    * @method
+    * @param {String} event The event name
+    * @param {Function} callback The function to run once
+    * @example
+    * object.once('message', => (event, payload) {
+    *     console.log('This is only fired once!');
+    * });
+    */
+    this.once = function (event, callback) {
 
-        /**
-        * Listen for any event on this object and fire a callback when it's emitted
-        * @method
-        * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
-        * @example
-        * object.onAny((event, payload) => {
-        *     console.log('All events trigger this.');
-        * });
-        */
-        this.onAny = (event, callback) => {
+        // emit the event from the object that created it
+        _this.emitter.once(event, callback);
 
-            // emit the event from the object that created it
-            this.emitter.onAny(event, callback);
-
-            return this;
-
-        };
-
-        /**
-        * Listen for an event and only fire the callback a single time
-        * @method
-        * @param {String} event The event name
-        * @param {Function} callback The function to run once
-        * @example
-        * object.once('message', => (event, payload) {
-        *     console.log('This is only fired once!');
-        * });
-        */
-        this.once = (event, callback) => {
-
-            // emit the event from the object that created it
-            this.emitter.once(event, callback);
-
-            return this;
-
-        };
-
-    }
-
-}
+        return _this;
+    };
+};
 
 module.exports = RootEmitter;
-
 
 /***/ }),
 /* 15 */
@@ -1532,6 +1554,59 @@ function slice(arrayLike, start) {
     }
     return newArr;
 }
+
+/**
+ * Creates a continuation function with some arguments already applied.
+ *
+ * Useful as a shorthand when combined with other control flow functions. Any
+ * arguments passed to the returned function are added to the arguments
+ * originally passed to apply.
+ *
+ * @name apply
+ * @static
+ * @memberOf module:Utils
+ * @method
+ * @category Util
+ * @param {Function} fn - The function you want to eventually apply all
+ * arguments to. Invokes with (arguments...).
+ * @param {...*} arguments... - Any number of arguments to automatically apply
+ * when the continuation is called.
+ * @returns {Function} the partially-applied function
+ * @example
+ *
+ * // using apply
+ * async.parallel([
+ *     async.apply(fs.writeFile, 'testfile1', 'test1'),
+ *     async.apply(fs.writeFile, 'testfile2', 'test2')
+ * ]);
+ *
+ *
+ * // the same process without using apply
+ * async.parallel([
+ *     function(callback) {
+ *         fs.writeFile('testfile1', 'test1', callback);
+ *     },
+ *     function(callback) {
+ *         fs.writeFile('testfile2', 'test2', callback);
+ *     }
+ * ]);
+ *
+ * // It's possible to pass any number of additional arguments when calling the
+ * // continuation:
+ *
+ * node> var fn = async.apply(sys.puts, 'one');
+ * node> fn('two', 'three');
+ * one
+ * two
+ * three
+ */
+var apply = function(fn/*, ...args*/) {
+    var args = slice(arguments, 1);
+    return function(/*callArgs*/) {
+        var callArgs = slice(arguments);
+        return fn.apply(null, args.concat(callArgs));
+    };
+};
 
 var initialParams = function (fn) {
     return function (/*...args, callback*/) {
@@ -1810,8 +1885,7 @@ function baseGetTag(value) {
   if (value == null) {
     return value === undefined ? undefinedTag : nullTag;
   }
-  value = Object(value);
-  return (symToStringTag && symToStringTag in value)
+  return (symToStringTag && symToStringTag in Object(value))
     ? getRawTag(value)
     : objectToString(value);
 }
@@ -2220,7 +2294,7 @@ var freeProcess = moduleExports$1 && freeGlobal.process;
 /** Used to access faster Node.js helpers. */
 var nodeUtil = (function() {
   try {
-    return freeProcess && freeProcess.binding('util');
+    return freeProcess && freeProcess.binding && freeProcess.binding('util');
   } catch (e) {}
 }());
 
@@ -2734,59 +2808,6 @@ var mapSeries = doLimit(mapLimit, 1);
  * function call.
  */
 var applyEachSeries = applyEach$1(mapSeries);
-
-/**
- * Creates a continuation function with some arguments already applied.
- *
- * Useful as a shorthand when combined with other control flow functions. Any
- * arguments passed to the returned function are added to the arguments
- * originally passed to apply.
- *
- * @name apply
- * @static
- * @memberOf module:Utils
- * @method
- * @category Util
- * @param {Function} fn - The function you want to eventually apply all
- * arguments to. Invokes with (arguments...).
- * @param {...*} arguments... - Any number of arguments to automatically apply
- * when the continuation is called.
- * @returns {Function} the partially-applied function
- * @example
- *
- * // using apply
- * async.parallel([
- *     async.apply(fs.writeFile, 'testfile1', 'test1'),
- *     async.apply(fs.writeFile, 'testfile2', 'test2')
- * ]);
- *
- *
- * // the same process without using apply
- * async.parallel([
- *     function(callback) {
- *         fs.writeFile('testfile1', 'test1', callback);
- *     },
- *     function(callback) {
- *         fs.writeFile('testfile2', 'test2', callback);
- *     }
- * ]);
- *
- * // It's possible to pass any number of additional arguments when calling the
- * // continuation:
- *
- * node> var fn = async.apply(sys.puts, 'one');
- * node> fn('two', 'three');
- * one
- * two
- * three
- */
-var apply = function(fn/*, ...args*/) {
-    var args = slice(arguments, 1);
-    return function(/*callArgs*/) {
-        var callArgs = slice(arguments);
-        return fn.apply(null, args.concat(callArgs));
-    };
-};
 
 /**
  * A specialized version of `_.forEach` for arrays without support for
@@ -3342,15 +3363,17 @@ function asciiToArray(string) {
 
 /** Used to compose unicode character classes. */
 var rsAstralRange = '\\ud800-\\udfff';
-var rsComboMarksRange = '\\u0300-\\u036f\\ufe20-\\ufe23';
-var rsComboSymbolsRange = '\\u20d0-\\u20f0';
+var rsComboMarksRange = '\\u0300-\\u036f';
+var reComboHalfMarksRange = '\\ufe20-\\ufe2f';
+var rsComboSymbolsRange = '\\u20d0-\\u20ff';
+var rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange;
 var rsVarRange = '\\ufe0e\\ufe0f';
 
 /** Used to compose unicode capture groups. */
 var rsZWJ = '\\u200d';
 
 /** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
-var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboMarksRange + rsComboSymbolsRange + rsVarRange + ']');
+var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
 
 /**
  * Checks if `string` contains Unicode symbols.
@@ -3365,13 +3388,15 @@ function hasUnicode(string) {
 
 /** Used to compose unicode character classes. */
 var rsAstralRange$1 = '\\ud800-\\udfff';
-var rsComboMarksRange$1 = '\\u0300-\\u036f\\ufe20-\\ufe23';
-var rsComboSymbolsRange$1 = '\\u20d0-\\u20f0';
+var rsComboMarksRange$1 = '\\u0300-\\u036f';
+var reComboHalfMarksRange$1 = '\\ufe20-\\ufe2f';
+var rsComboSymbolsRange$1 = '\\u20d0-\\u20ff';
+var rsComboRange$1 = rsComboMarksRange$1 + reComboHalfMarksRange$1 + rsComboSymbolsRange$1;
 var rsVarRange$1 = '\\ufe0e\\ufe0f';
 
 /** Used to compose unicode capture groups. */
 var rsAstral = '[' + rsAstralRange$1 + ']';
-var rsCombo = '[' + rsComboMarksRange$1 + rsComboSymbolsRange$1 + ']';
+var rsCombo = '[' + rsComboRange$1 + ']';
 var rsFitz = '\\ud83c[\\udffb-\\udfff]';
 var rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')';
 var rsNonAstral = '[^' + rsAstralRange$1 + ']';
@@ -3718,6 +3743,7 @@ function queue(worker, concurrency, payload) {
     var numRunning = 0;
     var workersList = [];
 
+    var processingScheduled = false;
     function _insert(data, insertAtFront, callback) {
         if (callback != null && typeof callback !== 'function') {
             throw new Error('task callback must be a function');
@@ -3745,7 +3771,14 @@ function queue(worker, concurrency, payload) {
                 q._tasks.push(item);
             }
         }
-        setImmediate$1(q.process);
+
+        if (!processingScheduled) {
+            processingScheduled = true;
+            setImmediate$1(function() {
+                processingScheduled = false;
+                q.process();
+            });
+        }
     }
 
     function _next(tasks) {
@@ -3756,7 +3789,9 @@ function queue(worker, concurrency, payload) {
                 var task = tasks[i];
 
                 var index = baseIndexOf(workersList, task, 0);
-                if (index >= 0) {
+                if (index === 0) {
+                    workersList.shift();
+                } else if (index > 0) {
                     workersList.splice(index, 1);
                 }
 
@@ -5323,7 +5358,7 @@ function memoize(fn, hasher) {
 
 /**
  * Calls `callback` on a later loop around the event loop. In Node.js this just
- * calls `setImmediate`.  In the browser it will use `setImmediate` if
+ * calls `process.nextTicl`.  In the browser it will use `setImmediate` if
  * available, otherwise `setTimeout(callback, 0)`, which means other higher
  * priority events may precede the execution of `callback`.
  *
@@ -5333,7 +5368,7 @@ function memoize(fn, hasher) {
  * @static
  * @memberOf module:Utils
  * @method
- * @alias setImmediate
+ * @see [async.setImmediate]{@link module:Utils.setImmediate}
  * @category Util
  * @param {Function} callback - The function to call on a later loop around
  * the event loop. Invoked with (args...).
@@ -5793,43 +5828,6 @@ function reflect(fn) {
     });
 }
 
-function reject$1(eachfn, arr, iteratee, callback) {
-    _filter(eachfn, arr, function(value, cb) {
-        iteratee(value, function(err, v) {
-            cb(err, !v);
-        });
-    }, callback);
-}
-
-/**
- * The opposite of [`filter`]{@link module:Collections.filter}. Removes values that pass an `async` truth test.
- *
- * @name reject
- * @static
- * @memberOf module:Collections
- * @method
- * @see [async.filter]{@link module:Collections.filter}
- * @category Collection
- * @param {Array|Iterable|Object} coll - A collection to iterate over.
- * @param {Function} iteratee - An async truth test to apply to each item in
- * `coll`.
- * The should complete with a boolean value as its `result`.
- * Invoked with (item, callback).
- * @param {Function} [callback] - A callback which is called after all the
- * `iteratee` functions have finished. Invoked with (err, results).
- * @example
- *
- * async.reject(['file1','file2','file3'], function(filePath, callback) {
- *     fs.access(filePath, function(err) {
- *         callback(null, !err)
- *     });
- * }, function(err, results) {
- *     // results now equals an array of missing files
- *     createFiles(results);
- * });
- */
-var reject = doParallel(reject$1);
-
 /**
  * A helper function that wraps an array or an object of functions with `reflect`.
  *
@@ -5909,6 +5907,43 @@ function reflectAll(tasks) {
     }
     return results;
 }
+
+function reject$1(eachfn, arr, iteratee, callback) {
+    _filter(eachfn, arr, function(value, cb) {
+        iteratee(value, function(err, v) {
+            cb(err, !v);
+        });
+    }, callback);
+}
+
+/**
+ * The opposite of [`filter`]{@link module:Collections.filter}. Removes values that pass an `async` truth test.
+ *
+ * @name reject
+ * @static
+ * @memberOf module:Collections
+ * @method
+ * @see [async.filter]{@link module:Collections.filter}
+ * @category Collection
+ * @param {Array|Iterable|Object} coll - A collection to iterate over.
+ * @param {Function} iteratee - An async truth test to apply to each item in
+ * `coll`.
+ * The should complete with a boolean value as its `result`.
+ * Invoked with (item, callback).
+ * @param {Function} [callback] - A callback which is called after all the
+ * `iteratee` functions have finished. Invoked with (err, results).
+ * @example
+ *
+ * async.reject(['file1','file2','file3'], function(filePath, callback) {
+ *     fs.access(filePath, function(err) {
+ *         callback(null, !err)
+ *     });
+ * }, function(err, results) {
+ *     // results now equals an array of missing files
+ *     createFiles(results);
+ * });
+ */
+var reject = doParallel(reject$1);
 
 /**
  * The same as [`reject`]{@link module:Collections.reject} but runs a maximum of `limit` async operations at a
@@ -6049,8 +6084,8 @@ function constant$1(value) {
  *     // do something with the result
  * });
  *
- * // It can also be embedded within other control flow functions to retry
- * // individual methods that are not as reliable, like this:
+ * // to retry individual methods that are not as reliable within other
+ * // control flow functions, use the `retryable` wrapper:
  * async.auto({
  *     users: api.getUsers.bind(api),
  *     payments: async.retryable(3, api.getPayments.bind(api))
@@ -6617,7 +6652,7 @@ function transform (coll, accumulator, iteratee, callback) {
  * `result` arguments of the last attempt at completing the `task`. Invoked with
  * (err, results).
  * @example
- * async.try([
+ * async.tryEach([
  *     function getDataFromFirstWebsite(callback) {
  *         // Try getting the data from the first website
  *         callback(err, data);
@@ -6892,9 +6927,9 @@ var waterfall = function(tasks, callback) {
  */
 
 var index = {
+    apply: apply,
     applyEach: applyEach,
     applyEachSeries: applyEachSeries,
-    apply: apply,
     asyncify: asyncify,
     auto: auto,
     autoInject: autoInject,
@@ -6972,7 +7007,14 @@ var index = {
 
     // aliases
     all: every,
+    allLimit: everyLimit,
+    allSeries: everySeries,
     any: some,
+    anyLimit: someLimit,
+    anySeries: someSeries,
+    find: detect,
+    findLimit: detectLimit,
+    findSeries: detectSeries,
     forEach: eachLimit,
     forEachSeries: eachSeries,
     forEachLimit: eachLimit$1,
@@ -6989,9 +7031,9 @@ var index = {
 };
 
 exports['default'] = index;
+exports.apply = apply;
 exports.applyEach = applyEach;
 exports.applyEachSeries = applyEachSeries;
-exports.apply = apply;
 exports.asyncify = asyncify;
 exports.auto = auto;
 exports.autoInject = autoInject;
@@ -7321,15 +7363,22 @@ module.exports = isObject;
 
 /***/ }),
 /* 23 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * @class Event
  * Represents an event that may be emitted or subscribed to.
  */
-class Event {
-
-    constructor(chatEngine, chat, event) {
+var Event = function () {
+    function Event(chatEngine, chat, event) {
+        _classCallCheck(this, Event);
 
         /**
          Events are always a property of a {@link Chat}. Responsible for
@@ -7350,8 +7399,7 @@ class Event {
 
         /**
          Forwards events to the Chat that registered the event {@link Chat}
-
-         @private
+          @private
          @param {Object} data The event payload object
          */
 
@@ -7361,57 +7409,59 @@ class Event {
         });
 
         return this;
-
     }
 
-    onMessage(m) {
+    _createClass(Event, [{
+        key: 'onMessage',
+        value: function onMessage(m) {
 
-        if (this.channel === m.channel && m.message.event === this.event) {
-            this.chat.trigger(m.message.event, m.message);
+            if (this.channel === m.channel && m.message.event === this.event) {
+                this.chat.trigger(m.message.event, m.message);
+            }
         }
 
-    }
+        /**
+         Publishes the event over the PubNub network to the {@link Event} channel
+          @private
+         @param {Object} data The event payload object
+         */
 
-    /**
-     Publishes the event over the PubNub network to the {@link Event} channel
+    }, {
+        key: 'publish',
+        value: function publish(m) {
+            var _this = this;
 
-     @private
-     @param {Object} data The event payload object
-     */
-    publish(m) {
+            m.event = this.event;
 
-        m.event = this.event;
+            this.chatEngine.pubnub.publish({
+                message: m,
+                channel: this.channel
+            }, function (status) {
 
-        this.chatEngine.pubnub.publish({
-            message: m,
-            channel: this.channel
-        }, (status) => {
+                if (status.statusCode === 200) {
 
-            if (status.statusCode === 200) {
+                    /**
+                     * Message successfully published
+                     * @event Chat#$"."publish"."success
+                     * @param {Object} data The message object
+                     */
+                    _this.chat.trigger('$.publish.success', m);
+                } else {
 
-                /**
-                 * Message successfully published
-                 * @event Chat#$"."publish"."success
-                 * @param {Object} data The message object
-                 */
-                this.chat.trigger('$.publish.success', m);
-            } else {
+                    /**
+                     * There was a problem publishing over the PubNub network.
+                     * @event Chat#$"."error"."publish
+                     */
+                    _this.chatEngine.throwError(_this.chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
+                }
+            });
+        }
+    }]);
 
-                /**
-                 * There was a problem publishing over the PubNub network.
-                 * @event Chat#$"."error"."publish
-                 */
-                this.chatEngine.throwError(this.chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
-            }
-
-        });
-
-    }
-
-}
+    return Event;
+}();
 
 module.exports = Event;
-
 
 /***/ }),
 /* 24 */
@@ -7535,7 +7585,18 @@ module.exports = isLength;
 /* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Emitter = __webpack_require__(5);
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Emitter = __webpack_require__(5);
 
 /**
  This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
@@ -7546,24 +7607,30 @@ const Emitter = __webpack_require__(5);
  @param uuid
  @param state
  */
-class User extends Emitter {
 
-    constructor(chatEngine, uuid, state = {}) {
+var User = function (_Emitter) {
+    _inherits(User, _Emitter);
 
-        super();
+    function User(chatEngine, uuid) {
+        var _ret;
 
-        this.chatEngine = chatEngine;
+        var state = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-        this.name = 'User';
+        _classCallCheck(this, User);
+
+        var _this = _possibleConstructorReturn(this, (User.__proto__ || Object.getPrototypeOf(User)).call(this));
+
+        _this.chatEngine = chatEngine;
+
+        _this.name = 'User';
 
         /**
          The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
          Check out [the wikipedia page on UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-
-         @readonly
+          @readonly
          @type String
          */
-        this.uuid = uuid;
+        _this.uuid = uuid;
 
         /**
          * Gets the user state. See {@link Me#update} for how to assign state values.
@@ -7573,9 +7640,9 @@ class User extends Emitter {
          * // State
          * let state = user.state;
          */
-        this.state = {};
+        _this.state = {};
 
-        this._stateFetched = false;
+        _this._stateFetched = false;
 
         /**
          * Feed is a Chat that only streams things a User does, like
@@ -7594,7 +7661,7 @@ class User extends Emitter {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+        _this.feed = new _this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, _this.constructor.name === 'Me', {}, 'system');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -7615,19 +7682,18 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+        _this.direct = new _this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, _this.constructor.name === 'Me', {}, 'system');
 
         // if the user does not exist at all and we get enough
         // information to build the user
         if (!chatEngine.users[uuid]) {
-            chatEngine.users[uuid] = this;
+            chatEngine.users[uuid] = _this;
         }
 
         // update this user's state in it's created context
-        this.assign(state);
+        _this.assign(state);
 
-        return this;
-
+        return _ret = _this, _possibleConstructorReturn(_this, _ret);
     }
 
     /**
@@ -7635,86 +7701,91 @@ class User extends Emitter {
      * @param {Object} state The new state for the user
      * @param {Chat} chat Chatroom to retrieve state from
      */
-    update(state) {
-        let oldState = this.state || {};
-        this.state = Object.assign(oldState, state);
-    }
 
-    /**
-     this is only called from network updates
 
-     @private
-     */
-    assign(state) {
-        this.update(state);
-    }
-
-    /**
-    Get stored user state from remote server.
-    @private
-    */
-    _getState(callback) {
-
-        if (!this._stateFetched) {
-
-            this.chatEngine.pubnub.getState({
-                uuid: this.uuid,
-                channels: [this.chatEngine.global.channel]
-            }, (status, response) => {
-
-                if (status.statusCode === 200) {
-
-                    let pnState = response.channels[this.chatEngine.global.channel];
-                    if (Object.keys(pnState).length) {
-
-                        this.assign(response.data);
-
-                        this._stateFetched = true;
-                        callback(this.state);
-
-                    } else {
-
-                        this.chatEngine.request('get', 'user_state', {
-                            user: this.uuid
-                        })
-                            .then((res) => {
-
-                                this.assign(res.data);
-
-                                this._stateFetched = true;
-                                callback(this.state);
-
-                            })
-                            .catch((err) => {
-                                // console.log('this is hte err', err);
-                                this.chatEngine.throwError(this, 'trigger', 'getState', err);
-                            });
-
-                    }
-
-                } else {
-                    this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
-                }
-
-            });
-
-        } else {
-            callback(this.state);
+    _createClass(User, [{
+        key: 'update',
+        value: function update(state) {
+            var oldState = this.state || {};
+            this.state = Object.assign(oldState, state);
         }
 
-    }
+        /**
+         this is only called from network updates
+          @private
+         */
 
-}
+    }, {
+        key: 'assign',
+        value: function assign(state) {
+            this.update(state);
+        }
+
+        /**
+        Get stored user state from remote server.
+        @private
+        */
+
+    }, {
+        key: '_getState',
+        value: function _getState(callback) {
+            var _this2 = this;
+
+            if (!this._stateFetched) {
+
+                this.chatEngine.pubnub.getState({
+                    uuid: this.uuid,
+                    channels: [this.chatEngine.global.channel]
+                }, function (status, response) {
+
+                    if (status.statusCode === 200) {
+
+                        var pnState = response.channels[_this2.chatEngine.global.channel];
+                        if (Object.keys(pnState).length) {
+
+                            _this2.assign(response.data);
+
+                            _this2._stateFetched = true;
+                            callback(_this2.state);
+                        } else {
+
+                            _this2.chatEngine.request('get', 'user_state', {
+                                user: _this2.uuid
+                            }).then(function (res) {
+
+                                _this2.assign(res.data);
+
+                                _this2._stateFetched = true;
+                                callback(_this2.state);
+                            }).catch(function (err) {
+                                // console.log('this is hte err', err);
+                                _this2.chatEngine.throwError(_this2, 'trigger', 'getState', err);
+                            });
+                        }
+                    } else {
+                        _this2.chatEngine.throwError(_this2, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+                    }
+                });
+            } else {
+                callback(this.state);
+            }
+        }
+    }]);
+
+    return User;
+}(Emitter);
 
 module.exports = User;
-
 
 /***/ }),
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+
 // allows asynchronous execution flow.
-const init = __webpack_require__(31);
+var init = __webpack_require__(31);
 
 /**
 Global object used to create an instance of {@link ChatEngine}.
@@ -7733,7 +7804,9 @@ ChatEngine = ChatEngineCore.create({
 });
 */
 
-const create = (pnConfig, ceConfig = {}) => {
+var create = function create(pnConfig) {
+    var ceConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
 
     if (ceConfig.globalChannel) {
         ceConfig.globalChannel = ceConfig.globalChannel.toString();
@@ -7747,39 +7820,43 @@ const create = (pnConfig, ceConfig = {}) => {
 
     // return an instance of ChatEngine
     return init(ceConfig, pnConfig);
-
 };
 
 // export the ChatEngine api
 module.exports = {
     plugin: {}, // leave a spot for plugins to exist
-    create
+    create: create
 };
-
 
 /***/ }),
 /* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const axios = __webpack_require__(32);
-const PubNub = __webpack_require__(51);
-const pack = __webpack_require__(52);
+"use strict";
 
-const RootEmitter = __webpack_require__(14);
-const Chat = __webpack_require__(54);
-const Me = __webpack_require__(88);
-const User = __webpack_require__(29);
-const async = __webpack_require__(15);
+
+var axios = __webpack_require__(32);
+var PubNub = __webpack_require__(51);
+var pack = __webpack_require__(52);
+
+var RootEmitter = __webpack_require__(14);
+var Chat = __webpack_require__(54);
+var Me = __webpack_require__(88);
+var User = __webpack_require__(29);
+var async = __webpack_require__(15);
 
 /**
  @class ChatEngine
  @extends RootEmitter
  @return {ChatEngine} Returns an instance of {@link ChatEngine}
  */
-module.exports = (ceConfig = {}, pnConfig = {}) => {
+module.exports = function () {
+    var ceConfig = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var pnConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
 
     // Create the root ChatEngine object
-    let ChatEngine = new RootEmitter();
+    var ChatEngine = new RootEmitter();
 
     ChatEngine.ceConfig = ceConfig;
     ChatEngine.pnConfig = pnConfig;
@@ -7838,7 +7915,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.package = pack;
 
-    ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
+    ChatEngine.throwError = function (self, cb, key, ceError) {
+        var payload = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
+
 
         if (ceConfig.throwErrors) {
             // throw ceError;
@@ -7849,11 +7928,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         payload.ceError = ceError.toString();
 
         self[cb](['$', 'error', key].join('.'), payload);
-
     };
 
     if (ceConfig.debug) {
-        ChatEngine.onAny((event, payload) => {
+        ChatEngine.onAny(function (event, payload) {
             console.info('debug:', event, payload);
         });
     }
@@ -7866,22 +7944,25 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param  {String} className The string representation of a class to bind to
      * @param  {Class} plugin The plugin function.
      */
-    ChatEngine.proto = (className, plugin) => {
+    ChatEngine.proto = function (className, plugin) {
         ChatEngine.protoPlugins[className] = ChatEngine.protoPlugins[className] || [];
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
-    ChatEngine.request = (method, route, inputBody = {}, inputParams = {}) => {
+    ChatEngine.request = function (method, route) {
+        var inputBody = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+        var inputParams = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-        let body = {
+
+        var body = {
             uuid: pnConfig.uuid,
             global: ceConfig.globalChannel,
             authData: ChatEngine.me.authData,
             authKey: pnConfig.authKey
         };
 
-        let params = {
-            route
+        var params = {
+            route: route
         };
 
         body = Object.assign(body, inputBody);
@@ -7889,24 +7970,21 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         if (method === 'get' || method === 'delete') {
             params = Object.assign(params, body);
-            return axios[method](ceConfig.endpoint, { params });
+            return axios[method](ceConfig.endpoint, { params: params });
         } else {
-            return axios[method](ceConfig.endpoint, body, { params });
+            return axios[method](ceConfig.endpoint, body, { params: params });
         }
-
-
     };
 
-    ChatEngine.parseChannel = (channel) => {
+    ChatEngine.parseChannel = function (channel) {
 
-        let info = channel.split('#');
+        var info = channel.split('#');
 
         return {
             global: info[0],
             type: info[1],
             private: info[2] === 'private.'
         };
-
     };
 
     /**
@@ -7916,13 +7994,16 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param  {Boolean} isPrivate [description]
      * @return {[type]}            [description]
      */
-    ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = true) => {
+    ChatEngine.augmentChannel = function () {
+        var original = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : new Date().getTime();
+        var isPrivate = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
 
-        let channel = original.toString();
+
+        var channel = original.toString();
 
         // public.* has PubNub permissions for everyone to read and write
         // private.* is totally locked down and users must be granted access one by one
-        let chanPrivString = 'public.';
+        var chanPrivString = 'public.';
 
         if (isPrivate) {
             chanPrivString = 'private.';
@@ -7933,7 +8014,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         }
 
         return channel;
-
     };
 
     /**
@@ -7945,7 +8025,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param {Object} [authData] Additional data to send to the authentication endpoint to help verify a valid session. ChatEngine SDK does not make use of this, but you might!
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, state = {}, authKey = false, authData) => {
+    ChatEngine.connect = function (uuid) {
+        var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        var authKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        var authData = arguments[3];
+
 
         // this creates a user known as Me and
         // connects to the global chatroom
@@ -7954,40 +8038,36 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         pnConfig.authKey = authKey || pnConfig.uuid;
 
-        let restoreSession = () => {
+        var restoreSession = function restoreSession() {
 
-            let groups = ['custom', 'rooms', 'system'];
+            var groups = ['custom', 'rooms', 'system'];
 
-            groups.forEach((group) => {
+            groups.forEach(function (group) {
 
-                let channelGroup = [ceConfig.globalChannel, pnConfig.uuid, group].join('#');
+                var channelGroup = [ceConfig.globalChannel, pnConfig.uuid, group].join('#');
 
                 ChatEngine.pubnub.channelGroups.listChannels({
-                    channelGroup
-                }, (status, response) => {
+                    channelGroup: channelGroup
+                }, function (status, response) {
 
                     if (status.error) {
                         console.log('operation failed w/ error:', status);
                         return;
                     }
 
-                    response.channels.forEach((channel) => {
+                    response.channels.forEach(function (channel) {
 
                         ChatEngine.me.addChatToSession({
-                            channel,
+                            channel: channel,
                             private: ChatEngine.parseChannel(channel).private,
-                            group
+                            group: group
                         });
-
                     });
-
                 });
-
             });
-
         };
 
-        let complete = () => {
+        var complete = function complete() {
 
             ChatEngine.pubnub = new PubNub(pnConfig);
 
@@ -8009,7 +8089,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             */
             ChatEngine.me.onConstructed();
 
-            ChatEngine.global.on('$.connected', () => {
+            ChatEngine.global.on('$.connected', function () {
 
                 /**
                  *  Fired when ChatEngine is connected to the internet and ready to go!
@@ -8025,20 +8105,15 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                 ChatEngine.global.getUserUpdates();
 
-                let chanGroups = [
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-                    ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
-                ];
+                var chanGroups = [ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms', ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system', ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'];
 
                 // listen to all PubNub events for this Chat
                 ChatEngine.pubnub.addListener({
-                    presence: (payload) => {
+                    presence: function presence(payload) {
 
                         if (ChatEngine.chats[payload.channel]) {
                             ChatEngine.chats[payload.channel].onPresence(payload);
                         }
-
                     }
                 });
 
@@ -8050,17 +8125,15 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 ChatEngine.ready = true;
 
                 restoreSession();
-
             });
 
             /**
              Fires when PubNub network connection changes.
-
-             @private
+              @private
              @param {Object} statusEvent The response status
              */
             ChatEngine.pubnub.addListener({
-                status: (statusEvent) => {
+                status: function status(statusEvent) {
 
                     /**
                      * SDK detected that network is online.
@@ -8113,7 +8186,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                      */
 
                     // map the pubnub events into chat engine events
-                    let categories = {
+                    var categories = {
                         PNNetworkUpCategory: 'up.online',
                         PNNetworkDownCategory: 'down.offline',
                         PNNetworkIssuesCategory: 'down.issue',
@@ -8126,12 +8199,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                         PNTimeoutCategory: 'down.timeout'
                     };
 
-                    let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
+                    var eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
 
                     if (statusEvent.affectedChannels) {
-                        statusEvent.affectedChannels.forEach((channel) => {
+                        statusEvent.affectedChannels.forEach(function (channel) {
 
-                            let chat = ChatEngine.chats[channel];
+                            var chat = ChatEngine.chats[channel];
 
                             if (chat) {
                                 // connected category tells us the chat is ready
@@ -8141,7 +8214,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                                 // trigger the network events
                                 chat.trigger(eventName, statusEvent);
-
                             } else {
                                 ChatEngine._emit(eventName, statusEvent);
                             }
@@ -8153,31 +8225,25 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             });
         };
 
-        async.parallel([
-            (next) => {
-                ChatEngine.request('post', 'bootstrap').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_read').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_write').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'group').then(complete).catch(next);
-            }
-        ], (error) => {
+        async.parallel([function (next) {
+            ChatEngine.request('post', 'bootstrap').then(function () {
+                next(null);
+            }).catch(next);
+        }, function (next) {
+            ChatEngine.request('post', 'user_read').then(function () {
+                next(null);
+            }).catch(next);
+        }, function (next) {
+            ChatEngine.request('post', 'user_write').then(function () {
+                next(null);
+            }).catch(next);
+        }, function (next) {
+            ChatEngine.request('post', 'group').then(complete).catch(next);
+        }], function (error) {
             if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error: error });
             }
         });
-
     };
 
     /**
@@ -8186,15 +8252,18 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link Chat}
      */
-    ChatEngine.Chat = function (...args) {
+    ChatEngine.Chat = function () {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
 
-        let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
+        var internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
         if (ChatEngine.chats[internalChannel]) {
             return ChatEngine.chats[internalChannel];
         } else {
 
-            let newChat = new Chat(ChatEngine, ...args);
+            var newChat = new (Function.prototype.bind.apply(Chat, [null].concat([ChatEngine], args)))();
 
             /**
             * Fired when a {@link Chat} has been created within ChatEngine.
@@ -8207,9 +8276,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             newChat.onConstructed();
 
             return newChat;
-
         }
-
     };
 
     /**
@@ -8218,7 +8285,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link User}
      */
-    ChatEngine.User = function (...args) {
+    ChatEngine.User = function () {
+        for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            args[_key2] = arguments[_key2];
+        }
 
         if (ChatEngine.me.uuid === args[0]) {
             return ChatEngine.me;
@@ -8226,7 +8296,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             return ChatEngine.users[args[0]];
         } else {
 
-            let newUser = new User(ChatEngine, ...args);
+            var newUser = new (Function.prototype.bind.apply(User, [null].concat([ChatEngine], args)))();
 
             /**
             * Fired when a {@link User} has been created within ChatEngine.
@@ -8239,15 +8309,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             newUser.onConstructed();
 
             return newUser;
-
         }
-
     };
 
     return ChatEngine;
-
 };
-
 
 /***/ }),
 /* 32 */
@@ -9127,15 +9193,15 @@ module.exports = function spread(callback) {
 /* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
-!function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.PubNub=t():e.PubNub=t()}(this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var i=n[r]={exports:{},id:r,loaded:!1};return e[r].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var n={};return t.m=e,t.c=n,t.p="",t(0)}([function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function s(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function o(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}function a(e){if(!navigator||!navigator.sendBeacon)return!1;navigator.sendBeacon(e)}Object.defineProperty(t,"__esModule",{value:!0});var u=n(1),c=r(u),l=n(39),h=r(l),f=n(40),d=r(f),p=n(41),g=(n(5),function(e){function t(e){i(this,t);var n=e.listenToBrowserNetworkEvents,r=void 0===n||n;e.db=d.default,e.sdkFamily="Web",e.networking=new h.default({del:p.del,get:p.get,post:p.post,sendBeacon:a});var o=s(this,(t.__proto__||Object.getPrototypeOf(t)).call(this,e));return r&&(window.addEventListener("offline",function(){o.networkDownDetected()}),window.addEventListener("online",function(){o.networkUpDetected()})),o}return o(t,e),t}(c.default));t.default=g,e.exports=t.default},function(e,t,n){"use strict";function r(e){if(e&&e.__esModule)return e;var t={};if(null!=e)for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&(t[n]=e[n]);return t.default=e,t}function i(e){return e&&e.__esModule?e:{default:e}}function s(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),a=n(2),u=i(a),c=n(6),l=i(c),h=n(8),f=i(h),d=n(9),p=i(d),g=n(16),y=i(g),b=n(17),v=r(b),_=n(18),m=r(_),k=n(19),P=r(k),S=n(20),O=r(S),w=n(21),T=r(w),M=n(22),C=r(M),E=n(23),x=r(E),N=n(24),R=r(N),A=n(25),K=r(A),D=n(26),j=r(D),U=n(27),G=r(U),I=n(28),B=r(I),H=n(29),L=r(H),F=n(30),q=r(F),z=n(31),X=r(z),W=n(32),J=r(W),V=n(33),$=r(V),Q=n(34),Y=r(Q),Z=n(35),ee=r(Z),te=n(36),ne=r(te),re=n(37),ie=r(re),se=n(12),oe=r(se),ae=n(38),ue=r(ae),ce=n(13),le=i(ce),he=n(10),fe=i(he),de=(n(5),n(3)),pe=i(de),ge=function(){function e(t){var n=this;s(this,e);var r=t.db,i=t.networking,o=this._config=new u.default({setup:t,db:r}),a=new l.default({config:o});i.init(o);var c={config:o,networking:i,crypto:a},h=y.default.bind(this,c,oe),d=y.default.bind(this,c,j),g=y.default.bind(this,c,B),b=y.default.bind(this,c,q),_=y.default.bind(this,c,ue),k=this._listenerManager=new p.default,S=new f.default({timeEndpoint:h,leaveEndpoint:d,heartbeatEndpoint:g,setStateEndpoint:b,subscribeEndpoint:_,crypto:c.crypto,config:c.config,listenerManager:k});this.addListener=k.addListener.bind(k),this.removeListener=k.removeListener.bind(k),this.removeAllListeners=k.removeAllListeners.bind(k),this.channelGroups={listGroups:y.default.bind(this,c,O),listChannels:y.default.bind(this,c,T),addChannels:y.default.bind(this,c,v),removeChannels:y.default.bind(this,c,m),deleteGroup:y.default.bind(this,c,P)},this.push={addChannels:y.default.bind(this,c,C),removeChannels:y.default.bind(this,c,x),deleteDevice:y.default.bind(this,c,K),listChannels:y.default.bind(this,c,R)},this.hereNow=y.default.bind(this,c,X),this.whereNow=y.default.bind(this,c,G),this.getState=y.default.bind(this,c,L),this.setState=S.adaptStateChange.bind(S),this.grant=y.default.bind(this,c,$),this.audit=y.default.bind(this,c,J),this.publish=y.default.bind(this,c,Y),this.fire=function(e,t){return e.replicate=!1,e.storeInHistory=!1,n.publish(e,t)},this.history=y.default.bind(this,c,ee),this.deleteMessages=y.default.bind(this,c,ne),this.fetchMessages=y.default.bind(this,c,ie),this.time=h,this.subscribe=S.adaptSubscribeChange.bind(S),this.unsubscribe=S.adaptUnsubscribeChange.bind(S),this.disconnect=S.disconnect.bind(S),this.reconnect=S.reconnect.bind(S),this.destroy=function(e){S.unsubscribeAll(e),S.disconnect()},this.stop=this.destroy,this.unsubscribeAll=S.unsubscribeAll.bind(S),this.getSubscribedChannels=S.getSubscribedChannels.bind(S),this.getSubscribedChannelGroups=S.getSubscribedChannelGroups.bind(S),this.encrypt=a.encrypt.bind(a),this.decrypt=a.decrypt.bind(a),this.getAuthKey=c.config.getAuthKey.bind(c.config),this.setAuthKey=c.config.setAuthKey.bind(c.config),this.setCipherKey=c.config.setCipherKey.bind(c.config),this.getUUID=c.config.getUUID.bind(c.config),this.setUUID=c.config.setUUID.bind(c.config),this.getFilterExpression=c.config.getFilterExpression.bind(c.config),this.setFilterExpression=c.config.setFilterExpression.bind(c.config),this.setHeartbeatInterval=c.config.setHeartbeatInterval.bind(c.config)}return o(e,[{key:"getVersion",value:function(){return this._config.getVersion()}},{key:"networkDownDetected",value:function(){this._listenerManager.announceNetworkDown(),this._config.restore?this.disconnect():this.destroy(!0)}},{key:"networkUpDetected",value:function(){this._listenerManager.announceNetworkUp(),this.reconnect()}}],[{key:"generateUUID",value:function(){return pe.default.createUUID()}}]),e}();ge.OPERATIONS=le.default,ge.CATEGORIES=fe.default,t.default=ge,e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(3),o=function(e){return e&&e.__esModule?e:{default:e}}(s),a=(n(5),function(){function e(t){var n=t.setup,i=t.db;r(this,e),this._db=i,this.instanceId="pn-"+o.default.createUUID(),this.secretKey=n.secretKey||n.secret_key,this.subscribeKey=n.subscribeKey||n.subscribe_key,this.publishKey=n.publishKey||n.publish_key,this.sdkFamily=n.sdkFamily,this.partnerId=n.partnerId,this.setAuthKey(n.authKey),this.setCipherKey(n.cipherKey),this.setFilterExpression(n.filterExpression),this.origin=n.origin||"pubsub.pndsn.com",this.secure=n.ssl||!1,this.restore=n.restore||!1,this.proxy=n.proxy,this.keepAlive=n.keepAlive,this.keepAliveSettings=n.keepAliveSettings,this.autoNetworkDetection=n.autoNetworkDetection||!1,this.dedupeOnSubscribe=n.dedupeOnSubscribe||!1,this.maximumCacheSize=n.maximumCacheSize||100,this.customEncrypt=n.customEncrypt,this.customDecrypt=n.customDecrypt,"undefined"!=typeof location&&"https:"===location.protocol&&(this.secure=!0),this.logVerbosity=n.logVerbosity||!1,this.suppressLeaveEvents=n.suppressLeaveEvents||!1,this.announceFailedHeartbeats=n.announceFailedHeartbeats||!0,this.announceSuccessfulHeartbeats=n.announceSuccessfulHeartbeats||!1,this.useInstanceId=n.useInstanceId||!1,this.useRequestId=n.useRequestId||!1,this.requestMessageCountThreshold=n.requestMessageCountThreshold,this.setTransactionTimeout(n.transactionalRequestTimeout||15e3),this.setSubscribeTimeout(n.subscribeRequestTimeout||31e4),this.setSendBeaconConfig(n.useSendBeacon||!0),this.setPresenceTimeout(n.presenceTimeout||300),null!=n.heartbeatInterval&&this.setHeartbeatInterval(n.heartbeatInterval),this.setUUID(this._decideUUID(n.uuid))}return i(e,[{key:"getAuthKey",value:function(){return this.authKey}},{key:"setAuthKey",value:function(e){return this.authKey=e,this}},{key:"setCipherKey",value:function(e){return this.cipherKey=e,this}},{key:"getUUID",value:function(){return this.UUID}},{key:"setUUID",value:function(e){return this._db&&this._db.set&&this._db.set(this.subscribeKey+"uuid",e),this.UUID=e,this}},{key:"getFilterExpression",value:function(){return this.filterExpression}},{key:"setFilterExpression",value:function(e){return this.filterExpression=e,this}},{key:"getPresenceTimeout",value:function(){return this._presenceTimeout}},{key:"setPresenceTimeout",value:function(e){return this._presenceTimeout=e,this.setHeartbeatInterval(this._presenceTimeout/2-1),this}},{key:"getHeartbeatInterval",value:function(){return this._heartbeatInterval}},{key:"setHeartbeatInterval",value:function(e){return this._heartbeatInterval=e,this}},{key:"getSubscribeTimeout",value:function(){return this._subscribeRequestTimeout}},{key:"setSubscribeTimeout",value:function(e){return this._subscribeRequestTimeout=e,this}},{key:"getTransactionTimeout",value:function(){return this._transactionalRequestTimeout}},{key:"setTransactionTimeout",value:function(e){return this._transactionalRequestTimeout=e,this}},{key:"isSendBeaconEnabled",value:function(){return this._useSendBeacon}},{key:"setSendBeaconConfig",value:function(e){return this._useSendBeacon=e,this}},{key:"getVersion",value:function(){return"4.17.0"}},{key:"_decideUUID",value:function(e){return e||(this._db&&this._db.get&&this._db.get(this.subscribeKey+"uuid")?this._db.get(this.subscribeKey+"uuid"):"pn-"+o.default.createUUID())}}]),e}());t.default=a,e.exports=t.default},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(4),i=function(e){return e&&e.__esModule?e:{default:e}}(r);t.default={createUUID:function(){return i.default.uuid?i.default.uuid():(0,i.default)()}},e.exports=t.default},function(e,t,n){var r,i,s;!function(n,o){i=[t],r=o,void 0!==(s="function"==typeof r?r.apply(t,i):r)&&(e.exports=s)}(0,function(e){function t(){var e,t,n="";for(e=0;e<32;e++)t=16*Math.random()|0,8!==e&&12!==e&&16!==e&&20!==e||(n+="-"),n+=(12===e?4:16===e?3&t|8:t).toString(16);return n}function n(e,t){var n=r[t||"all"];return n&&n.test(e)||!1}var r={3:/^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i,4:/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,5:/^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,all:/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i};t.isUUID=n,t.VERSION="0.1.0",e.uuid=t,e.isUUID=n})},function(e,t){"use strict";e.exports={}},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),o=n(2),a=(r(o),n(7)),u=r(a),c=function(){function e(t){var n=t.config;i(this,e),this._config=n,this._iv="0123456789012345",this._allowedKeyEncodings=["hex","utf8","base64","binary"],this._allowedKeyLengths=[128,256],this._allowedModes=["ecb","cbc"],this._defaultOptions={encryptKey:!0,keyEncoding:"utf8",keyLength:256,mode:"cbc"}}return s(e,[{key:"HMACSHA256",value:function(e){return u.default.HmacSHA256(e,this._config.secretKey).toString(u.default.enc.Base64)}},{key:"SHA256",value:function(e){return u.default.SHA256(e).toString(u.default.enc.Hex)}},{key:"_parseOptions",value:function(e){var t=e||{};return t.hasOwnProperty("encryptKey")||(t.encryptKey=this._defaultOptions.encryptKey),t.hasOwnProperty("keyEncoding")||(t.keyEncoding=this._defaultOptions.keyEncoding),t.hasOwnProperty("keyLength")||(t.keyLength=this._defaultOptions.keyLength),t.hasOwnProperty("mode")||(t.mode=this._defaultOptions.mode),-1===this._allowedKeyEncodings.indexOf(t.keyEncoding.toLowerCase())&&(t.keyEncoding=this._defaultOptions.keyEncoding),-1===this._allowedKeyLengths.indexOf(parseInt(t.keyLength,10))&&(t.keyLength=this._defaultOptions.keyLength),-1===this._allowedModes.indexOf(t.mode.toLowerCase())&&(t.mode=this._defaultOptions.mode),t}},{key:"_decodeKey",value:function(e,t){return"base64"===t.keyEncoding?u.default.enc.Base64.parse(e):"hex"===t.keyEncoding?u.default.enc.Hex.parse(e):e}},{key:"_getPaddedKey",value:function(e,t){return e=this._decodeKey(e,t),t.encryptKey?u.default.enc.Utf8.parse(this.SHA256(e).slice(0,32)):e}},{key:"_getMode",value:function(e){return"ecb"===e.mode?u.default.mode.ECB:u.default.mode.CBC}},{key:"_getIV",value:function(e){return"cbc"===e.mode?u.default.enc.Utf8.parse(this._iv):null}},{key:"encrypt",value:function(e,t,n){return this._config.customEncrypt?this._config.customEncrypt(e):this.pnEncrypt(e,t,n)}},{key:"decrypt",value:function(e,t,n){return this._config.customDecrypt?this._config.customDecrypt(e):this.pnDecrypt(e,t,n)}},{key:"pnEncrypt",value:function(e,t,n){if(!t&&!this._config.cipherKey)return e;n=this._parseOptions(n);var r=this._getIV(n),i=this._getMode(n),s=this._getPaddedKey(t||this._config.cipherKey,n);return u.default.AES.encrypt(e,s,{iv:r,mode:i}).ciphertext.toString(u.default.enc.Base64)||e}},{key:"pnDecrypt",value:function(e,t,n){if(!t&&!this._config.cipherKey)return e;n=this._parseOptions(n);var r=this._getIV(n),i=this._getMode(n),s=this._getPaddedKey(t||this._config.cipherKey,n);try{var o=u.default.enc.Base64.parse(e),a=u.default.AES.decrypt({ciphertext:o},s,{iv:r,mode:i}).toString(u.default.enc.Utf8);return JSON.parse(a)}catch(e){return null}}}]),e}();t.default=c,e.exports=t.default},function(e,t){"use strict";var n=n||function(e,t){var n={},r=n.lib={},i=function(){},s=r.Base={extend:function(e){i.prototype=this;var t=new i;return e&&t.mixIn(e),t.hasOwnProperty("init")||(t.init=function(){t.$super.init.apply(this,arguments)}),t.init.prototype=t,t.$super=this,t},create:function(){var e=this.extend();return e.init.apply(e,arguments),e},init:function(){},mixIn:function(e){for(var t in e)e.hasOwnProperty(t)&&(this[t]=e[t]);e.hasOwnProperty("toString")&&(this.toString=e.toString)},clone:function(){return this.init.prototype.extend(this)}},o=r.WordArray=s.extend({init:function(e,t){e=this.words=e||[],this.sigBytes=void 0!=t?t:4*e.length},toString:function(e){return(e||u).stringify(this)},concat:function(e){var t=this.words,n=e.words,r=this.sigBytes;if(e=e.sigBytes,this.clamp(),r%4)for(var i=0;i<e;i++)t[r+i>>>2]|=(n[i>>>2]>>>24-i%4*8&255)<<24-(r+i)%4*8;else if(65535<n.length)for(i=0;i<e;i+=4)t[r+i>>>2]=n[i>>>2];else t.push.apply(t,n);return this.sigBytes+=e,this},clamp:function(){var t=this.words,n=this.sigBytes;t[n>>>2]&=4294967295<<32-n%4*8,t.length=e.ceil(n/4)},clone:function(){var e=s.clone.call(this);return e.words=this.words.slice(0),e},random:function(t){for(var n=[],r=0;r<t;r+=4)n.push(4294967296*e.random()|0);return new o.init(n,t)}}),a=n.enc={},u=a.Hex={stringify:function(e){var t=e.words;e=e.sigBytes;for(var n=[],r=0;r<e;r++){var i=t[r>>>2]>>>24-r%4*8&255;n.push((i>>>4).toString(16)),n.push((15&i).toString(16))}return n.join("")},parse:function(e){for(var t=e.length,n=[],r=0;r<t;r+=2)n[r>>>3]|=parseInt(e.substr(r,2),16)<<24-r%8*4;return new o.init(n,t/2)}},c=a.Latin1={stringify:function(e){var t=e.words;e=e.sigBytes;for(var n=[],r=0;r<e;r++)n.push(String.fromCharCode(t[r>>>2]>>>24-r%4*8&255));return n.join("")},parse:function(e){for(var t=e.length,n=[],r=0;r<t;r++)n[r>>>2]|=(255&e.charCodeAt(r))<<24-r%4*8;return new o.init(n,t)}},l=a.Utf8={stringify:function(e){try{return decodeURIComponent(escape(c.stringify(e)))}catch(e){throw Error("Malformed UTF-8 data")}},parse:function(e){return c.parse(unescape(encodeURIComponent(e)))}},h=r.BufferedBlockAlgorithm=s.extend({reset:function(){this._data=new o.init,this._nDataBytes=0},_append:function(e){"string"==typeof e&&(e=l.parse(e)),this._data.concat(e),this._nDataBytes+=e.sigBytes},_process:function(t){var n=this._data,r=n.words,i=n.sigBytes,s=this.blockSize,a=i/(4*s),a=t?e.ceil(a):e.max((0|a)-this._minBufferSize,0);if(t=a*s,i=e.min(4*t,i),t){for(var u=0;u<t;u+=s)this._doProcessBlock(r,u);u=r.splice(0,t),n.sigBytes-=i}return new o.init(u,i)},clone:function(){var e=s.clone.call(this);return e._data=this._data.clone(),e},_minBufferSize:0});r.Hasher=h.extend({cfg:s.extend(),init:function(e){this.cfg=this.cfg.extend(e),this.reset()},reset:function(){h.reset.call(this),this._doReset()},update:function(e){return this._append(e),this._process(),this},finalize:function(e){return e&&this._append(e),this._doFinalize()},blockSize:16,_createHelper:function(e){return function(t,n){return new e.init(n).finalize(t)}},_createHmacHelper:function(e){return function(t,n){return new f.HMAC.init(e,n).finalize(t)}}});var f=n.algo={};return n}(Math);!function(e){for(var t=n,r=t.lib,i=r.WordArray,s=r.Hasher,r=t.algo,o=[],a=[],u=function(e){return 4294967296*(e-(0|e))|0},c=2,l=0;64>l;){var h;e:{h=c;for(var f=e.sqrt(h),d=2;d<=f;d++)if(!(h%d)){h=!1;break e}h=!0}h&&(8>l&&(o[l]=u(e.pow(c,.5))),a[l]=u(e.pow(c,1/3)),l++),c++}var p=[],r=r.SHA256=s.extend({_doReset:function(){this._hash=new i.init(o.slice(0))},_doProcessBlock:function(e,t){for(var n=this._hash.words,r=n[0],i=n[1],s=n[2],o=n[3],u=n[4],c=n[5],l=n[6],h=n[7],f=0;64>f;f++){if(16>f)p[f]=0|e[t+f];else{var d=p[f-15],g=p[f-2];p[f]=((d<<25|d>>>7)^(d<<14|d>>>18)^d>>>3)+p[f-7]+((g<<15|g>>>17)^(g<<13|g>>>19)^g>>>10)+p[f-16]}d=h+((u<<26|u>>>6)^(u<<21|u>>>11)^(u<<7|u>>>25))+(u&c^~u&l)+a[f]+p[f],g=((r<<30|r>>>2)^(r<<19|r>>>13)^(r<<10|r>>>22))+(r&i^r&s^i&s),h=l,l=c,c=u,u=o+d|0,o=s,s=i,i=r,r=d+g|0}n[0]=n[0]+r|0,n[1]=n[1]+i|0,n[2]=n[2]+s|0,n[3]=n[3]+o|0,n[4]=n[4]+u|0,n[5]=n[5]+c|0,n[6]=n[6]+l|0,n[7]=n[7]+h|0},_doFinalize:function(){var t=this._data,n=t.words,r=8*this._nDataBytes,i=8*t.sigBytes;return n[i>>>5]|=128<<24-i%32,n[14+(i+64>>>9<<4)]=e.floor(r/4294967296),n[15+(i+64>>>9<<4)]=r,t.sigBytes=4*n.length,this._process(),this._hash},clone:function(){var e=s.clone.call(this);return e._hash=this._hash.clone(),e}});t.SHA256=s._createHelper(r),t.HmacSHA256=s._createHmacHelper(r)}(Math),function(){var e=n,t=e.enc.Utf8;e.algo.HMAC=e.lib.Base.extend({init:function(e,n){e=this._hasher=new e.init,"string"==typeof n&&(n=t.parse(n));var r=e.blockSize,i=4*r;n.sigBytes>i&&(n=e.finalize(n)),n.clamp();for(var s=this._oKey=n.clone(),o=this._iKey=n.clone(),a=s.words,u=o.words,c=0;c<r;c++)a[c]^=1549556828,u[c]^=909522486;s.sigBytes=o.sigBytes=i,this.reset()},reset:function(){var e=this._hasher;e.reset(),e.update(this._iKey)},update:function(e){return this._hasher.update(e),this},finalize:function(e){var t=this._hasher;return e=t.finalize(e),t.reset(),t.finalize(this._oKey.clone().concat(e))}})}(),function(){var e=n,t=e.lib.WordArray;e.enc.Base64={stringify:function(e){var t=e.words,n=e.sigBytes,r=this._map;e.clamp(),e=[];for(var i=0;i<n;i+=3)for(var s=(t[i>>>2]>>>24-i%4*8&255)<<16|(t[i+1>>>2]>>>24-(i+1)%4*8&255)<<8|t[i+2>>>2]>>>24-(i+2)%4*8&255,o=0;4>o&&i+.75*o<n;o++)e.push(r.charAt(s>>>6*(3-o)&63));if(t=r.charAt(64))for(;e.length%4;)e.push(t);return e.join("")},parse:function(e){var n=e.length,r=this._map,i=r.charAt(64);i&&-1!=(i=e.indexOf(i))&&(n=i);for(var i=[],s=0,o=0;o<n;o++)if(o%4){var a=r.indexOf(e.charAt(o-1))<<o%4*2,u=r.indexOf(e.charAt(o))>>>6-o%4*2;i[s>>>2]|=(a|u)<<24-s%4*8,s++}return t.create(i,s)},_map:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="}}(),function(e){function t(e,t,n,r,i,s,o){return((e=e+(t&n|~t&r)+i+o)<<s|e>>>32-s)+t}function r(e,t,n,r,i,s,o){return((e=e+(t&r|n&~r)+i+o)<<s|e>>>32-s)+t}function i(e,t,n,r,i,s,o){return((e=e+(t^n^r)+i+o)<<s|e>>>32-s)+t}function s(e,t,n,r,i,s,o){return((e=e+(n^(t|~r))+i+o)<<s|e>>>32-s)+t}for(var o=n,a=o.lib,u=a.WordArray,c=a.Hasher,a=o.algo,l=[],h=0;64>h;h++)l[h]=4294967296*e.abs(e.sin(h+1))|0;a=a.MD5=c.extend({_doReset:function(){this._hash=new u.init([1732584193,4023233417,2562383102,271733878])},_doProcessBlock:function(e,n){for(var o=0;16>o;o++){var a=n+o,u=e[a];e[a]=16711935&(u<<8|u>>>24)|4278255360&(u<<24|u>>>8)}var o=this._hash.words,a=e[n+0],u=e[n+1],c=e[n+2],h=e[n+3],f=e[n+4],d=e[n+5],p=e[n+6],g=e[n+7],y=e[n+8],b=e[n+9],v=e[n+10],_=e[n+11],m=e[n+12],k=e[n+13],P=e[n+14],S=e[n+15],O=o[0],w=o[1],T=o[2],M=o[3],O=t(O,w,T,M,a,7,l[0]),M=t(M,O,w,T,u,12,l[1]),T=t(T,M,O,w,c,17,l[2]),w=t(w,T,M,O,h,22,l[3]),O=t(O,w,T,M,f,7,l[4]),M=t(M,O,w,T,d,12,l[5]),T=t(T,M,O,w,p,17,l[6]),w=t(w,T,M,O,g,22,l[7]),O=t(O,w,T,M,y,7,l[8]),M=t(M,O,w,T,b,12,l[9]),T=t(T,M,O,w,v,17,l[10]),w=t(w,T,M,O,_,22,l[11]),O=t(O,w,T,M,m,7,l[12]),M=t(M,O,w,T,k,12,l[13]),T=t(T,M,O,w,P,17,l[14]),w=t(w,T,M,O,S,22,l[15]),O=r(O,w,T,M,u,5,l[16]),M=r(M,O,w,T,p,9,l[17]),T=r(T,M,O,w,_,14,l[18]),w=r(w,T,M,O,a,20,l[19]),O=r(O,w,T,M,d,5,l[20]),M=r(M,O,w,T,v,9,l[21]),T=r(T,M,O,w,S,14,l[22]),w=r(w,T,M,O,f,20,l[23]),O=r(O,w,T,M,b,5,l[24]),M=r(M,O,w,T,P,9,l[25]),T=r(T,M,O,w,h,14,l[26]),w=r(w,T,M,O,y,20,l[27]),O=r(O,w,T,M,k,5,l[28]),M=r(M,O,w,T,c,9,l[29]),T=r(T,M,O,w,g,14,l[30]),w=r(w,T,M,O,m,20,l[31]),O=i(O,w,T,M,d,4,l[32]),M=i(M,O,w,T,y,11,l[33]),T=i(T,M,O,w,_,16,l[34]),w=i(w,T,M,O,P,23,l[35]),O=i(O,w,T,M,u,4,l[36]),M=i(M,O,w,T,f,11,l[37]),T=i(T,M,O,w,g,16,l[38]),w=i(w,T,M,O,v,23,l[39]),O=i(O,w,T,M,k,4,l[40]),M=i(M,O,w,T,a,11,l[41]),T=i(T,M,O,w,h,16,l[42]),w=i(w,T,M,O,p,23,l[43]),O=i(O,w,T,M,b,4,l[44]),M=i(M,O,w,T,m,11,l[45]),T=i(T,M,O,w,S,16,l[46]),w=i(w,T,M,O,c,23,l[47]),O=s(O,w,T,M,a,6,l[48]),M=s(M,O,w,T,g,10,l[49]),T=s(T,M,O,w,P,15,l[50]),w=s(w,T,M,O,d,21,l[51]),O=s(O,w,T,M,m,6,l[52]),M=s(M,O,w,T,h,10,l[53]),T=s(T,M,O,w,v,15,l[54]),w=s(w,T,M,O,u,21,l[55]),O=s(O,w,T,M,y,6,l[56]),M=s(M,O,w,T,S,10,l[57]),T=s(T,M,O,w,p,15,l[58]),w=s(w,T,M,O,k,21,l[59]),O=s(O,w,T,M,f,6,l[60]),M=s(M,O,w,T,_,10,l[61]),T=s(T,M,O,w,c,15,l[62]),w=s(w,T,M,O,b,21,l[63]);o[0]=o[0]+O|0,o[1]=o[1]+w|0,o[2]=o[2]+T|0,o[3]=o[3]+M|0},_doFinalize:function(){var t=this._data,n=t.words,r=8*this._nDataBytes,i=8*t.sigBytes;n[i>>>5]|=128<<24-i%32;var s=e.floor(r/4294967296);for(n[15+(i+64>>>9<<4)]=16711935&(s<<8|s>>>24)|4278255360&(s<<24|s>>>8),n[14+(i+64>>>9<<4)]=16711935&(r<<8|r>>>24)|4278255360&(r<<24|r>>>8),t.sigBytes=4*(n.length+1),this._process(),t=this._hash,n=t.words,r=0;4>r;r++)i=n[r],n[r]=16711935&(i<<8|i>>>24)|4278255360&(i<<24|i>>>8);return t},clone:function(){var e=c.clone.call(this);return e._hash=this._hash.clone(),e}}),o.MD5=c._createHelper(a),o.HmacMD5=c._createHmacHelper(a)}(Math),function(){var e=n,t=e.lib,r=t.Base,i=t.WordArray,t=e.algo,s=t.EvpKDF=r.extend({cfg:r.extend({keySize:4,hasher:t.MD5,iterations:1}),init:function(e){this.cfg=this.cfg.extend(e)},compute:function(e,t){for(var n=this.cfg,r=n.hasher.create(),s=i.create(),o=s.words,a=n.keySize,n=n.iterations;o.length<a;){u&&r.update(u);var u=r.update(e).finalize(t);r.reset();for(var c=1;c<n;c++)u=r.finalize(u),r.reset();s.concat(u)}return s.sigBytes=4*a,s}});e.EvpKDF=function(e,t,n){return s.create(n).compute(e,t)}}(),n.lib.Cipher||function(e){var t=n,r=t.lib,i=r.Base,s=r.WordArray,o=r.BufferedBlockAlgorithm,a=t.enc.Base64,u=t.algo.EvpKDF,c=r.Cipher=o.extend({cfg:i.extend(),createEncryptor:function(e,t){return this.create(this._ENC_XFORM_MODE,e,t)},createDecryptor:function(e,t){return this.create(this._DEC_XFORM_MODE,e,t)},init:function(e,t,n){this.cfg=this.cfg.extend(n),this._xformMode=e,this._key=t,this.reset()},reset:function(){o.reset.call(this),this._doReset()},process:function(e){return this._append(e),this._process()},finalize:function(e){return e&&this._append(e),this._doFinalize()},keySize:4,ivSize:4,_ENC_XFORM_MODE:1,_DEC_XFORM_MODE:2,_createHelper:function(e){return{encrypt:function(t,n,r){return("string"==typeof n?g:p).encrypt(e,t,n,r)},decrypt:function(t,n,r){return("string"==typeof n?g:p).decrypt(e,t,n,r)}}}});r.StreamCipher=c.extend({_doFinalize:function(){return this._process(!0)},blockSize:1});var l=t.mode={},h=function(e,t,n){var r=this._iv;r?this._iv=void 0:r=this._prevBlock;for(var i=0;i<n;i++)e[t+i]^=r[i]},f=(r.BlockCipherMode=i.extend({createEncryptor:function(e,t){return this.Encryptor.create(e,t)},createDecryptor:function(e,t){return this.Decryptor.create(e,t)},init:function(e,t){this._cipher=e,this._iv=t}})).extend();f.Encryptor=f.extend({processBlock:function(e,t){var n=this._cipher,r=n.blockSize;h.call(this,e,t,r),n.encryptBlock(e,t),this._prevBlock=e.slice(t,t+r)}}),f.Decryptor=f.extend({processBlock:function(e,t){var n=this._cipher,r=n.blockSize,i=e.slice(t,t+r);n.decryptBlock(e,t),h.call(this,e,t,r),this._prevBlock=i}}),l=l.CBC=f,f=(t.pad={}).Pkcs7={pad:function(e,t){for(var n=4*t,n=n-e.sigBytes%n,r=n<<24|n<<16|n<<8|n,i=[],o=0;o<n;o+=4)i.push(r);n=s.create(i,n),e.concat(n)},unpad:function(e){e.sigBytes-=255&e.words[e.sigBytes-1>>>2]}},r.BlockCipher=c.extend({cfg:c.cfg.extend({mode:l,padding:f}),reset:function(){c.reset.call(this);var e=this.cfg,t=e.iv,e=e.mode;if(this._xformMode==this._ENC_XFORM_MODE)var n=e.createEncryptor;else n=e.createDecryptor,this._minBufferSize=1;this._mode=n.call(e,this,t&&t.words)},_doProcessBlock:function(e,t){this._mode.processBlock(e,t)},_doFinalize:function(){var e=this.cfg.padding;if(this._xformMode==this._ENC_XFORM_MODE){e.pad(this._data,this.blockSize);var t=this._process(!0)}else t=this._process(!0),e.unpad(t);return t},blockSize:4});var d=r.CipherParams=i.extend({init:function(e){this.mixIn(e)},toString:function(e){return(e||this.formatter).stringify(this)}}),l=(t.format={}).OpenSSL={stringify:function(e){var t=e.ciphertext;return e=e.salt,(e?s.create([1398893684,1701076831]).concat(e).concat(t):t).toString(a)},parse:function(e){e=a.parse(e);var t=e.words;if(1398893684==t[0]&&1701076831==t[1]){var n=s.create(t.slice(2,4));t.splice(0,4),e.sigBytes-=16}return d.create({ciphertext:e,salt:n})}},p=r.SerializableCipher=i.extend({cfg:i.extend({format:l}),encrypt:function(e,t,n,r){r=this.cfg.extend(r);var i=e.createEncryptor(n,r);return t=i.finalize(t),i=i.cfg,d.create({ciphertext:t,key:n,iv:i.iv,algorithm:e,mode:i.mode,padding:i.padding,blockSize:e.blockSize,formatter:r.format})},decrypt:function(e,t,n,r){return r=this.cfg.extend(r),t=this._parse(t,r.format),e.createDecryptor(n,r).finalize(t.ciphertext)},_parse:function(e,t){return"string"==typeof e?t.parse(e,this):e}}),t=(t.kdf={}).OpenSSL={execute:function(e,t,n,r){return r||(r=s.random(8)),e=u.create({keySize:t+n}).compute(e,r),n=s.create(e.words.slice(t),4*n),e.sigBytes=4*t,d.create({key:e,iv:n,salt:r})}},g=r.PasswordBasedCipher=p.extend({cfg:p.cfg.extend({kdf:t}),encrypt:function(e,t,n,r){return r=this.cfg.extend(r),n=r.kdf.execute(n,e.keySize,e.ivSize),r.iv=n.iv,e=p.encrypt.call(this,e,t,n.key,r),e.mixIn(n),e},decrypt:function(e,t,n,r){return r=this.cfg.extend(r),t=this._parse(t,r.format),n=r.kdf.execute(n,e.keySize,e.ivSize,t.salt),r.iv=n.iv,p.decrypt.call(this,e,t,n.key,r)}})}(),function(){for(var e=n,t=e.lib.BlockCipher,r=e.algo,i=[],s=[],o=[],a=[],u=[],c=[],l=[],h=[],f=[],d=[],p=[],g=0;256>g;g++)p[g]=128>g?g<<1:g<<1^283;for(var y=0,b=0,g=0;256>g;g++){var v=b^b<<1^b<<2^b<<3^b<<4,v=v>>>8^255&v^99;i[y]=v,s[v]=y;var _=p[y],m=p[_],k=p[m],P=257*p[v]^16843008*v;o[y]=P<<24|P>>>8,a[y]=P<<16|P>>>16,u[y]=P<<8|P>>>24,c[y]=P,P=16843009*k^65537*m^257*_^16843008*y,l[v]=P<<24|P>>>8,h[v]=P<<16|P>>>16,f[v]=P<<8|P>>>24,d[v]=P,y?(y=_^p[p[p[k^_]]],b^=p[p[b]]):y=b=1}var S=[0,1,2,4,8,16,32,64,128,27,54],r=r.AES=t.extend({_doReset:function(){for(var e=this._key,t=e.words,n=e.sigBytes/4,e=4*((this._nRounds=n+6)+1),r=this._keySchedule=[],s=0;s<e;s++)if(s<n)r[s]=t[s];else{var o=r[s-1];s%n?6<n&&4==s%n&&(o=i[o>>>24]<<24|i[o>>>16&255]<<16|i[o>>>8&255]<<8|i[255&o]):(o=o<<8|o>>>24,o=i[o>>>24]<<24|i[o>>>16&255]<<16|i[o>>>8&255]<<8|i[255&o],o^=S[s/n|0]<<24),r[s]=r[s-n]^o}for(t=this._invKeySchedule=[],n=0;n<e;n++)s=e-n,o=n%4?r[s]:r[s-4],t[n]=4>n||4>=s?o:l[i[o>>>24]]^h[i[o>>>16&255]]^f[i[o>>>8&255]]^d[i[255&o]]},encryptBlock:function(e,t){this._doCryptBlock(e,t,this._keySchedule,o,a,u,c,i)},decryptBlock:function(e,t){var n=e[t+1];e[t+1]=e[t+3],e[t+3]=n,this._doCryptBlock(e,t,this._invKeySchedule,l,h,f,d,s),n=e[t+1],e[t+1]=e[t+3],e[t+3]=n},_doCryptBlock:function(e,t,n,r,i,s,o,a){for(var u=this._nRounds,c=e[t]^n[0],l=e[t+1]^n[1],h=e[t+2]^n[2],f=e[t+3]^n[3],d=4,p=1;p<u;p++)var g=r[c>>>24]^i[l>>>16&255]^s[h>>>8&255]^o[255&f]^n[d++],y=r[l>>>24]^i[h>>>16&255]^s[f>>>8&255]^o[255&c]^n[d++],b=r[h>>>24]^i[f>>>16&255]^s[c>>>8&255]^o[255&l]^n[d++],f=r[f>>>24]^i[c>>>16&255]^s[l>>>8&255]^o[255&h]^n[d++],c=g,l=y,h=b;g=(a[c>>>24]<<24|a[l>>>16&255]<<16|a[h>>>8&255]<<8|a[255&f])^n[d++],y=(a[l>>>24]<<24|a[h>>>16&255]<<16|a[f>>>8&255]<<8|a[255&c])^n[d++],b=(a[h>>>24]<<24|a[f>>>16&255]<<16|a[c>>>8&255]<<8|a[255&l])^n[d++],f=(a[f>>>24]<<24|a[c>>>16&255]<<16|a[l>>>8&255]<<8|a[255&h])^n[d++],e[t]=g,e[t+1]=y,e[t+2]=b,e[t+3]=f},keySize:8});e.AES=t._createHelper(r)}(),n.mode.ECB=function(){var e=n.lib.BlockCipherMode.extend();return e.Encryptor=e.extend({processBlock:function(e,t){this._cipher.encryptBlock(e,t)}}),e.Decryptor=e.extend({processBlock:function(e,t){this._cipher.decryptBlock(e,t)}}),e}(),e.exports=n},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),o=n(6),a=(r(o),n(2)),u=(r(a),n(9)),c=(r(u),n(11)),l=r(c),h=n(14),f=r(h),d=n(15),p=r(d),g=(n(5),n(10)),y=r(g),b=function(){function e(t){var n=t.subscribeEndpoint,r=t.leaveEndpoint,s=t.heartbeatEndpoint,o=t.setStateEndpoint,a=t.timeEndpoint,u=t.config,c=t.crypto,h=t.listenerManager;i(this,e),this._listenerManager=h,this._config=u,this._leaveEndpoint=r,this._heartbeatEndpoint=s,this._setStateEndpoint=o,this._subscribeEndpoint=n,this._crypto=c,this._channels={},this._presenceChannels={},this._channelGroups={},this._presenceChannelGroups={},this._pendingChannelSubscriptions=[],this._pendingChannelGroupSubscriptions=[],this._currentTimetoken=0,this._lastTimetoken=0,this._storedTimetoken=null,this._subscriptionStatusAnnounced=!1,this._isOnline=!0,this._reconnectionManager=new l.default({timeEndpoint:a}),this._dedupingManager=new f.default({config:u})}return s(e,[{key:"adaptStateChange",value:function(e,t){var n=this,r=e.state,i=e.channels,s=void 0===i?[]:i,o=e.channelGroups,a=void 0===o?[]:o;return s.forEach(function(e){e in n._channels&&(n._channels[e].state=r)}),a.forEach(function(e){e in n._channelGroups&&(n._channelGroups[e].state=r)}),this._setStateEndpoint({state:r,channels:s,channelGroups:a},t)}},{key:"adaptSubscribeChange",value:function(e){var t=this,n=e.timetoken,r=e.channels,i=void 0===r?[]:r,s=e.channelGroups,o=void 0===s?[]:s,a=e.withPresence,u=void 0!==a&&a;if(!this._config.subscribeKey||""===this._config.subscribeKey)return void(console&&console.log&&console.log("subscribe key missing; aborting subscribe"));n&&(this._lastTimetoken=this._currentTimetoken,this._currentTimetoken=n),"0"!==this._currentTimetoken&&(this._storedTimetoken=this._currentTimetoken,this._currentTimetoken=0),i.forEach(function(e){t._channels[e]={state:{}},u&&(t._presenceChannels[e]={}),t._pendingChannelSubscriptions.push(e)}),o.forEach(function(e){t._channelGroups[e]={state:{}},u&&(t._presenceChannelGroups[e]={}),t._pendingChannelGroupSubscriptions.push(e)}),this._subscriptionStatusAnnounced=!1,this.reconnect()}},{key:"adaptUnsubscribeChange",value:function(e,t){var n=this,r=e.channels,i=void 0===r?[]:r,s=e.channelGroups,o=void 0===s?[]:s,a=[],u=[];i.forEach(function(e){e in n._channels&&(delete n._channels[e],a.push(e)),e in n._presenceChannels&&(delete n._presenceChannels[e],a.push(e))}),o.forEach(function(e){e in n._channelGroups&&(delete n._channelGroups[e],u.push(e)),e in n._presenceChannelGroups&&(delete n._channelGroups[e],u.push(e))}),
-0===a.length&&0===u.length||(!1!==this._config.suppressLeaveEvents||t||this._leaveEndpoint({channels:a,channelGroups:u},function(e){e.affectedChannels=a,e.affectedChannelGroups=u,e.currentTimetoken=n._currentTimetoken,e.lastTimetoken=n._lastTimetoken,n._listenerManager.announceStatus(e)}),0===Object.keys(this._channels).length&&0===Object.keys(this._presenceChannels).length&&0===Object.keys(this._channelGroups).length&&0===Object.keys(this._presenceChannelGroups).length&&(this._lastTimetoken=0,this._currentTimetoken=0,this._storedTimetoken=null,this._region=null,this._reconnectionManager.stopPolling()),this.reconnect())}},{key:"unsubscribeAll",value:function(e){this.adaptUnsubscribeChange({channels:this.getSubscribedChannels(),channelGroups:this.getSubscribedChannelGroups()},e)}},{key:"getSubscribedChannels",value:function(){return Object.keys(this._channels)}},{key:"getSubscribedChannelGroups",value:function(){return Object.keys(this._channelGroups)}},{key:"reconnect",value:function(){this._startSubscribeLoop(),this._registerHeartbeatTimer()}},{key:"disconnect",value:function(){this._stopSubscribeLoop(),this._stopHeartbeatTimer(),this._reconnectionManager.stopPolling()}},{key:"_registerHeartbeatTimer",value:function(){this._stopHeartbeatTimer(),0!==this._config.getHeartbeatInterval()&&(this._performHeartbeatLoop(),this._heartbeatTimer=setInterval(this._performHeartbeatLoop.bind(this),1e3*this._config.getHeartbeatInterval()))}},{key:"_stopHeartbeatTimer",value:function(){this._heartbeatTimer&&(clearInterval(this._heartbeatTimer),this._heartbeatTimer=null)}},{key:"_performHeartbeatLoop",value:function(){var e=this,t=Object.keys(this._channels),n=Object.keys(this._channelGroups),r={};if(0!==t.length||0!==n.length){t.forEach(function(t){var n=e._channels[t].state;Object.keys(n).length&&(r[t]=n)}),n.forEach(function(t){var n=e._channelGroups[t].state;Object.keys(n).length&&(r[t]=n)});var i=function(t){t.error&&e._config.announceFailedHeartbeats&&e._listenerManager.announceStatus(t),t.error&&e._config.autoNetworkDetection&&e._isOnline&&(e._isOnline=!1,e.disconnect(),e._listenerManager.announceNetworkDown(),e.reconnect()),!t.error&&e._config.announceSuccessfulHeartbeats&&e._listenerManager.announceStatus(t)};this._heartbeatEndpoint({channels:t,channelGroups:n,state:r},i.bind(this))}}},{key:"_startSubscribeLoop",value:function(){this._stopSubscribeLoop();var e=[],t=[];if(Object.keys(this._channels).forEach(function(t){return e.push(t)}),Object.keys(this._presenceChannels).forEach(function(t){return e.push(t+"-pnpres")}),Object.keys(this._channelGroups).forEach(function(e){return t.push(e)}),Object.keys(this._presenceChannelGroups).forEach(function(e){return t.push(e+"-pnpres")}),0!==e.length||0!==t.length){var n={channels:e,channelGroups:t,timetoken:this._currentTimetoken,filterExpression:this._config.filterExpression,region:this._region};this._subscribeCall=this._subscribeEndpoint(n,this._processSubscribeResponse.bind(this))}}},{key:"_processSubscribeResponse",value:function(e,t){var n=this;if(e.error)return void(e.category===y.default.PNTimeoutCategory?this._startSubscribeLoop():e.category===y.default.PNNetworkIssuesCategory?(this.disconnect(),e.error&&this._config.autoNetworkDetection&&this._isOnline&&(this._isOnline=!1,this._listenerManager.announceNetworkDown()),this._reconnectionManager.onReconnection(function(){n._config.autoNetworkDetection&&!n._isOnline&&(n._isOnline=!0,n._listenerManager.announceNetworkUp()),n.reconnect(),n._subscriptionStatusAnnounced=!0;var t={category:y.default.PNReconnectedCategory,operation:e.operation,lastTimetoken:n._lastTimetoken,currentTimetoken:n._currentTimetoken};n._listenerManager.announceStatus(t)}),this._reconnectionManager.startPolling(),this._listenerManager.announceStatus(e)):e.category===y.default.PNBadRequestCategory?(this._stopHeartbeatTimer(),this._listenerManager.announceStatus(e)):this._listenerManager.announceStatus(e));if(this._storedTimetoken?(this._currentTimetoken=this._storedTimetoken,this._storedTimetoken=null):(this._lastTimetoken=this._currentTimetoken,this._currentTimetoken=t.metadata.timetoken),!this._subscriptionStatusAnnounced){var r={};r.category=y.default.PNConnectedCategory,r.operation=e.operation,r.affectedChannels=this._pendingChannelSubscriptions,r.subscribedChannels=this.getSubscribedChannels(),r.affectedChannelGroups=this._pendingChannelGroupSubscriptions,r.lastTimetoken=this._lastTimetoken,r.currentTimetoken=this._currentTimetoken,this._subscriptionStatusAnnounced=!0,this._listenerManager.announceStatus(r),this._pendingChannelSubscriptions=[],this._pendingChannelGroupSubscriptions=[]}var i=t.messages||[],s=this._config,o=s.requestMessageCountThreshold,a=s.dedupeOnSubscribe;if(o&&i.length>=o){var u={};u.category=y.default.PNRequestMessageCountExceededCategory,u.operation=e.operation,this._listenerManager.announceStatus(u)}i.forEach(function(e){var t=e.channel,r=e.subscriptionMatch,i=e.publishMetaData;if(t===r&&(r=null),a){if(n._dedupingManager.isDuplicate(e))return;n._dedupingManager.addEntry(e)}if(p.default.endsWith(e.channel,"-pnpres")){var s={};s.channel=null,s.subscription=null,s.actualChannel=null!=r?t:null,s.subscribedChannel=null!=r?r:t,t&&(s.channel=t.substring(0,t.lastIndexOf("-pnpres"))),r&&(s.subscription=r.substring(0,r.lastIndexOf("-pnpres"))),s.action=e.payload.action,s.state=e.payload.data,s.timetoken=i.publishTimetoken,s.occupancy=e.payload.occupancy,s.uuid=e.payload.uuid,s.timestamp=e.payload.timestamp,e.payload.join&&(s.join=e.payload.join),e.payload.leave&&(s.leave=e.payload.leave),e.payload.timeout&&(s.timeout=e.payload.timeout),n._listenerManager.announcePresence(s)}else{var o={};o.channel=null,o.subscription=null,o.actualChannel=null!=r?t:null,o.subscribedChannel=null!=r?r:t,o.channel=t,o.subscription=r,o.timetoken=i.publishTimetoken,o.publisher=e.issuingClientId,e.userMetadata&&(o.userMetadata=e.userMetadata),n._config.cipherKey?o.message=n._crypto.decrypt(e.payload):o.message=e.payload,n._listenerManager.announceMessage(o)}}),this._region=t.metadata.region,this._startSubscribeLoop()}},{key:"_stopSubscribeLoop",value:function(){this._subscribeCall&&(this._subscribeCall.abort(),this._subscribeCall=null)}}]),e}();t.default=b,e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=(n(5),n(10)),o=function(e){return e&&e.__esModule?e:{default:e}}(s),a=function(){function e(){r(this,e),this._listeners=[]}return i(e,[{key:"addListener",value:function(e){this._listeners.push(e)}},{key:"removeListener",value:function(e){var t=[];this._listeners.forEach(function(n){n!==e&&t.push(n)}),this._listeners=t}},{key:"removeAllListeners",value:function(){this._listeners=[]}},{key:"announcePresence",value:function(e){this._listeners.forEach(function(t){t.presence&&t.presence(e)})}},{key:"announceStatus",value:function(e){this._listeners.forEach(function(t){t.status&&t.status(e)})}},{key:"announceMessage",value:function(e){this._listeners.forEach(function(t){t.message&&t.message(e)})}},{key:"announceNetworkUp",value:function(){var e={};e.category=o.default.PNNetworkUpCategory,this.announceStatus(e)}},{key:"announceNetworkDown",value:function(){var e={};e.category=o.default.PNNetworkDownCategory,this.announceStatus(e)}}]),e}();t.default=a,e.exports=t.default},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={PNNetworkUpCategory:"PNNetworkUpCategory",PNNetworkDownCategory:"PNNetworkDownCategory",PNNetworkIssuesCategory:"PNNetworkIssuesCategory",PNTimeoutCategory:"PNTimeoutCategory",PNBadRequestCategory:"PNBadRequestCategory",PNAccessDeniedCategory:"PNAccessDeniedCategory",PNUnknownCategory:"PNUnknownCategory",PNReconnectedCategory:"PNReconnectedCategory",PNConnectedCategory:"PNConnectedCategory",PNRequestMessageCountExceededCategory:"PNRequestMessageCountExceededCategory"},e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(12),o=(function(e){e&&e.__esModule}(s),n(5),function(){function e(t){var n=t.timeEndpoint;r(this,e),this._timeEndpoint=n}return i(e,[{key:"onReconnection",value:function(e){this._reconnectionCallback=e}},{key:"startPolling",value:function(){this._timeTimer=setInterval(this._performTimeLoop.bind(this),3e3)}},{key:"stopPolling",value:function(){clearInterval(this._timeTimer)}},{key:"_performTimeLoop",value:function(){var e=this;this._timeEndpoint(function(t){t.error||(clearInterval(e._timeTimer),e._reconnectionCallback())})}}]),e}());t.default=o,e.exports=t.default},function(e,t,n){"use strict";function r(){return h.default.PNTimeOperation}function i(){return"/time/0"}function s(e){return e.config.getTransactionTimeout()}function o(){return{}}function a(){return!1}function u(e,t){return{timetoken:t[0]}}function c(){}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.getURL=i,t.getRequestTimeout=s,t.prepareParams=o,t.isAuthSupported=a,t.handleResponse=u,t.validateParams=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={PNTimeOperation:"PNTimeOperation",PNHistoryOperation:"PNHistoryOperation",PNDeleteMessagesOperation:"PNDeleteMessagesOperation",PNFetchMessagesOperation:"PNFetchMessagesOperation",PNSubscribeOperation:"PNSubscribeOperation",PNUnsubscribeOperation:"PNUnsubscribeOperation",PNPublishOperation:"PNPublishOperation",PNPushNotificationEnabledChannelsOperation:"PNPushNotificationEnabledChannelsOperation",PNRemoveAllPushNotificationsOperation:"PNRemoveAllPushNotificationsOperation",PNWhereNowOperation:"PNWhereNowOperation",PNSetStateOperation:"PNSetStateOperation",PNHereNowOperation:"PNHereNowOperation",PNGetStateOperation:"PNGetStateOperation",PNHeartbeatOperation:"PNHeartbeatOperation",PNChannelGroupsOperation:"PNChannelGroupsOperation",PNRemoveGroupOperation:"PNRemoveGroupOperation",PNChannelsForGroupOperation:"PNChannelsForGroupOperation",PNAddChannelsToGroupOperation:"PNAddChannelsToGroupOperation",PNRemoveChannelsFromGroupOperation:"PNRemoveChannelsFromGroupOperation",PNAccessManagerGrant:"PNAccessManagerGrant",PNAccessManagerAudit:"PNAccessManagerAudit"},e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(2),o=(function(e){e&&e.__esModule}(s),function(e){var t=0;if(0===e.length)return t;for(var n=0;n<e.length;n+=1){t=(t<<5)-t+e.charCodeAt(n),t&=t}return t}),a=function(){function e(t){var n=t.config;r(this,e),this.hashHistory=[],this._config=n}return i(e,[{key:"getKey",value:function(e){var t=o(JSON.stringify(e.payload)).toString();return e.publishMetaData.publishTimetoken+"-"+t}},{key:"isDuplicate",value:function(e){return this.hashHistory.includes(this.getKey(e))}},{key:"addEntry",value:function(e){this.hashHistory.length>=this._config.maximumCacheSize&&this.hashHistory.shift(),this.hashHistory.push(this.getKey(e))}},{key:"clearHistory",value:function(){this.hashHistory=[]}}]),e}();t.default=a,e.exports=t.default},function(e,t){"use strict";function n(e){var t=[];return Object.keys(e).forEach(function(e){return t.push(e)}),t}function r(e){return encodeURIComponent(e).replace(/[!~*'()]/g,function(e){return"%"+e.charCodeAt(0).toString(16).toUpperCase()})}function i(e){return n(e).sort()}function s(e){return i(e).map(function(t){return t+"="+r(e[t])}).join("&")}function o(e,t){return-1!==e.indexOf(t,this.length-t.length)}function a(){var e=void 0,t=void 0;return{promise:new Promise(function(n,r){e=n,t=r}),reject:t,fulfill:e}}e.exports={signPamFromParams:s,endsWith:o,createPromise:a,encodeString:r}},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function s(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function o(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}function a(e,t){return e.type=t,e.error=!0,e}function u(e){return a({message:e},"validationError")}function c(e,t,n){return e.usePost&&e.usePost(t,n)?e.postURL(t,n):e.getURL(t,n)}function l(e){var t="PubNub-JS-"+e.sdkFamily;return e.partnerId&&(t+="-"+e.partnerId),t+="/"+e.getVersion()}function h(e,t,n){var r=e.config,i=e.crypto;n.timestamp=Math.floor((new Date).getTime()/1e3);var s=r.subscribeKey+"\n"+r.publishKey+"\n"+t+"\n";s+=g.default.signPamFromParams(n);var o=i.HMACSHA256(s);o=o.replace(/\+/g,"-"),o=o.replace(/\//g,"_"),n.signature=o}Object.defineProperty(t,"__esModule",{value:!0}),t.default=function(e,t){var n=e.networking,r=e.config,i=null,s=null,o={};t.getOperation()===v.default.PNTimeOperation||t.getOperation()===v.default.PNChannelGroupsOperation?i=arguments.length<=2?void 0:arguments[2]:(o=arguments.length<=2?void 0:arguments[2],i=arguments.length<=3?void 0:arguments[3]),"undefined"==typeof Promise||i||(s=g.default.createPromise());var a=t.validateParams(e,o);if(!a){var f=t.prepareParams(e,o),p=c(t,e,o),y=void 0,b={url:p,operation:t.getOperation(),timeout:t.getRequestTimeout(e)};f.uuid=r.UUID,f.pnsdk=l(r),r.useInstanceId&&(f.instanceid=r.instanceId),r.useRequestId&&(f.requestid=d.default.createUUID()),t.isAuthSupported()&&r.getAuthKey()&&(f.auth=r.getAuthKey()),r.secretKey&&h(e,p,f);var m=function(n,r){if(n.error)return void(i?i(n):s&&s.reject(new _("PubNub call failed, check status for details",n)));var a=t.handleResponse(e,r,o);i?i(n,a):s&&s.fulfill(a)};if(t.usePost&&t.usePost(e,o)){var k=t.postPayload(e,o);y=n.POST(f,k,b,m)}else y=t.useDelete&&t.useDelete()?n.DELETE(f,b,m):n.GET(f,b,m);return t.getOperation()===v.default.PNSubscribeOperation?y:s?s.promise:void 0}return i?i(u(a)):s?(s.reject(new _("Validation failed, check status for details",u(a))),s.promise):void 0};var f=n(3),d=r(f),p=(n(5),n(15)),g=r(p),y=n(2),b=(r(y),n(13)),v=r(b),_=function(e){function t(e,n){i(this,t);var r=s(this,(t.__proto__||Object.getPrototypeOf(t)).call(this,e));return r.name=r.constructor.name,r.status=n,r.message=e,r}return o(t,e),t}(Error);e.exports=t.default},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNAddChannelsToGroupOperation}function s(e,t){var n=t.channels,r=t.channelGroup,i=e.config;return r?n&&0!==n.length?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channels;return{add:(void 0===n?[]:n).join(",")}}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNRemoveChannelsFromGroupOperation}function s(e,t){var n=t.channels,r=t.channelGroup,i=e.config;return r?n&&0!==n.length?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channels;return{remove:(void 0===n?[]:n).join(",")}}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNRemoveGroupOperation}function s(e,t){var n=t.channelGroup,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)+"/remove"}function a(){return!0}function u(e){return e.config.getTransactionTimeout()}function c(){return{}}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.isAuthSupported=a,t.getRequestTimeout=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNChannelGroupsOperation}function i(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function s(e){return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group"}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(){return{}}function c(e,t){return{groups:t.payload.groups}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNChannelsForGroupOperation}function s(e,t){var n=t.channelGroup,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(){return{}}function l(e,t){return{channels:t.payload.channels}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNPushNotificationEnabledChannelsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=t.channels,s=e.config;return n?r?i&&0!==i.length?s.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){var n=t.pushGateway,r=t.channels;return{type:n,add:(void 0===r?[]:r).join(",")}}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNPushNotificationEnabledChannelsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=t.channels,s=e.config;return n?r?i&&0!==i.length?s.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){var n=t.pushGateway,r=t.channels;return{type:n,remove:(void 0===r?[]:r).join(",")}}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNPushNotificationEnabledChannelsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=e.config;return n?r?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){return{type:t.pushGateway}}function c(e,t){return{channels:t}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNRemoveAllPushNotificationsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=e.config;return n?r?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n+"/remove"}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){return{type:t.pushGateway}}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNUnsubscribeOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(s)+"/leave"}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i={};return r.length>0&&(i["channel-group"]=r.join(",")),i}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNWhereNowOperation}function i(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function s(e,t){var n=e.config,r=t.uuid,i=void 0===r?n.UUID:r;return"/v2/presence/sub-key/"+n.subscribeKey+"/uuid/"+i}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(){return{}}function c(e,t){return t.payload?{channels:t.payload.channels}:{channels:[]}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNHeartbeatOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(s)+"/heartbeat"}function a(){return!0}function u(e){return e.config.getTransactionTimeout()}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i=t.state,s=void 0===i?{}:i,o=e.config,a={};return r.length>0&&(a["channel-group"]=r.join(",")),a.state=JSON.stringify(s),a.heartbeat=o.getPresenceTimeout(),a}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.isAuthSupported=a,t.getRequestTimeout=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNGetStateOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.uuid,i=void 0===r?n.UUID:r,s=t.channels,o=void 0===s?[]:s,a=o.length>0?o.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(a)+"/uuid/"+i}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i={};return r.length>0&&(i["channel-group"]=r.join(",")),i}function l(e,t,n){var r=n.channels,i=void 0===r?[]:r,s=n.channelGroups,o=void 0===s?[]:s,a={};return 1===i.length&&0===o.length?a[i[0]]=t.payload:a=t.payload,{channels:a}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNSetStateOperation}function s(e,t){var n=e.config,r=t.state,i=t.channels,s=void 0===i?[]:i,o=t.channelGroups,a=void 0===o?[]:o;return r?n.subscribeKey?0===s.length&&0===a.length?"Please provide a list of channels and/or channel-groups":void 0:"Missing Subscribe Key":"Missing State"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(s)+"/uuid/"+n.UUID+"/data"}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.state,r=t.channelGroups,i=void 0===r?[]:r,s={};return s.state=JSON.stringify(n),i.length>0&&(s["channel-group"]=i.join(",")),s}function l(e,t){return{state:t.payload}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNHereNowOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=t.channelGroups,o=void 0===s?[]:s,a="/v2/presence/sub-key/"+n.subscribeKey;if(i.length>0||o.length>0){var u=i.length>0?i.join(","):",";a+="/channel/"+p.default.encodeString(u)}return a}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i=t.includeUUIDs,s=void 0===i||i,o=t.includeState,a=void 0!==o&&o,u={};return s||(u.disable_uuids=1),a&&(u.state=1),r.length>0&&(u["channel-group"]=r.join(",")),u}function l(e,t,n){var r=n.channels,i=void 0===r?[]:r,s=n.channelGroups,o=void 0===s?[]:s,a=n.includeUUIDs,u=void 0===a||a,c=n.includeState,l=void 0!==c&&c;return i.length>1||o.length>0||0===o.length&&0===i.length?function(){var e={};return e.totalChannels=t.payload.total_channels,e.totalOccupancy=t.payload.total_occupancy,e.channels={},Object.keys(t.payload.channels).forEach(function(n){var r=t.payload.channels[n],i=[];return e.channels[n]={occupants:i,name:n,occupancy:r.occupancy},u&&r.uuids.forEach(function(e){l?i.push({state:e.state,uuid:e.uuid}):i.push({state:null,uuid:e})}),e}),e}():function(){var e={},n=[];return e.totalChannels=1,e.totalOccupancy=t.occupancy,e.channels={},e.channels[i[0]]={occupants:n,name:i[0],occupancy:t.occupancy},u&&t.uuids&&t.uuids.forEach(function(e){l?n.push({state:e.state,uuid:e.uuid}):n.push({state:null,uuid:e})}),e}()}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNAccessManagerAudit}function i(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function s(e){return"/v2/auth/audit/sub-key/"+e.config.subscribeKey}function o(e){return e.config.getTransactionTimeout()}function a(){return!1}function u(e,t){var n=t.channel,r=t.channelGroup,i=t.authKeys,s=void 0===i?[]:i,o={};return n&&(o.channel=n),r&&(o["channel-group"]=r),s.length>0&&(o.auth=s.join(",")),o}function c(e,t){return t.payload}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNAccessManagerGrant}function i(e){var t=e.config;return t.subscribeKey?t.publishKey?t.secretKey?void 0:"Missing Secret Key":"Missing Publish Key":"Missing Subscribe Key"}function s(e){return"/v2/auth/grant/sub-key/"+e.config.subscribeKey}function o(e){return e.config.getTransactionTimeout()}function a(){return!1}function u(e,t){var n=t.channels,r=void 0===n?[]:n,i=t.channelGroups,s=void 0===i?[]:i,o=t.ttl,a=t.read,u=void 0!==a&&a,c=t.write,l=void 0!==c&&c,h=t.manage,f=void 0!==h&&h,d=t.authKeys,p=void 0===d?[]:d,g={};return g.r=u?"1":"0",g.w=l?"1":"0",g.m=f?"1":"0",r.length>0&&(g.channel=r.join(",")),s.length>0&&(g["channel-group"]=s.join(",")),p.length>0&&(g.auth=p.join(",")),(o||0===o)&&(g.ttl=o),g}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){var n=e.crypto,r=e.config,i=JSON.stringify(t);return r.cipherKey&&(i=n.encrypt(i),i=JSON.stringify(i)),i}function s(){return b.default.PNPublishOperation}function o(e,t){var n=e.config,r=t.message;return t.channel?r?n.subscribeKey?void 0:"Missing Subscribe Key":"Missing Message":"Missing Channel"}function a(e,t){var n=t.sendByPost;return void 0!==n&&n}function u(e,t){var n=e.config,r=t.channel,s=t.message,o=i(e,s);return"/publish/"+n.publishKey+"/"+n.subscribeKey+"/0/"+_.default.encodeString(r)+"/0/"+_.default.encodeString(o)}function c(e,t){var n=e.config,r=t.channel;return"/publish/"+n.publishKey+"/"+n.subscribeKey+"/0/"+_.default.encodeString(r)+"/0"}function l(e){return e.config.getTransactionTimeout()}function h(){return!0}function f(e,t){return i(e,t.message)}function d(e,t){var n=t.meta,r=t.replicate,i=void 0===r||r,s=t.storeInHistory,o=t.ttl,a={};return null!=s&&(a.store=s?"1":"0"),o&&(a.ttl=o),!1===i&&(a.norep="true"),n&&"object"===(void 0===n?"undefined":g(n))&&(a.meta=JSON.stringify(n)),a}function p(e,t){return{timetoken:t[2]}}Object.defineProperty(t,"__esModule",{value:!0});var g="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e
-}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e};t.getOperation=s,t.validateParams=o,t.usePost=a,t.getURL=u,t.postURL=c,t.getRequestTimeout=l,t.isAuthSupported=h,t.postPayload=f,t.prepareParams=d,t.handleResponse=p;var y=(n(5),n(13)),b=r(y),v=n(15),_=r(v)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){var n=e.config,r=e.crypto;if(!n.cipherKey)return t;try{return r.decrypt(t)}catch(e){return t}}function s(){return d.default.PNHistoryOperation}function o(e,t){var n=t.channel,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing channel"}function a(e,t){var n=t.channel;return"/v2/history/sub-key/"+e.config.subscribeKey+"/channel/"+g.default.encodeString(n)}function u(e){return e.config.getTransactionTimeout()}function c(){return!0}function l(e,t){var n=t.start,r=t.end,i=t.reverse,s=t.count,o=void 0===s?100:s,a=t.stringifiedTimeToken,u=void 0!==a&&a,c={include_token:"true"};return c.count=o,n&&(c.start=n),r&&(c.end=r),u&&(c.string_message_token="true"),null!=i&&(c.reverse=i.toString()),c}function h(e,t){var n={messages:[],startTimeToken:t[1],endTimeToken:t[2]};return t[0].forEach(function(t){var r={timetoken:t.timetoken,entry:i(e,t.message)};n.messages.push(r)}),n}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=s,t.validateParams=o,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(5),n(13)),d=r(f),p=n(15),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return d.default.PNDeleteMessagesOperation}function s(e,t){var n=t.channel,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing channel"}function o(){return!0}function a(e,t){var n=t.channel,r=t.start,i=t.end,s=e.config,o="";return r&&(o="?start="+r),i&&(o+=(""!==o?"&":"?")+"end="+i),"/v3/history/sub-key/"+s.subscribeKey+"/channel/"+g.default.encodeString(n)+o}function u(e){return e.config.getTransactionTimeout()}function c(){return!0}function l(e,t){var n=t.start,r=t.end,i={};return n&&(i.start=n),r&&(i.end=r),{}}function h(e,t){return t.payload}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.useDelete=o,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(5),n(13)),d=r(f),p=n(15),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){var n=e.config,r=e.crypto;if(!n.cipherKey)return t;try{return r.decrypt(t)}catch(e){return t}}function s(){return d.default.PNFetchMessagesOperation}function o(e,t){var n=t.channels,r=e.config;return n&&0!==n.length?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing channels"}function a(e,t){var n=t.channels,r=void 0===n?[]:n,i=e.config,s=r.length>0?r.join(","):",";return"/v3/history/sub-key/"+i.subscribeKey+"/channel/"+g.default.encodeString(s)}function u(e){return e.config.getTransactionTimeout()}function c(){return!0}function l(e,t){var n=t.start,r=t.end,i=t.count,s={};return i&&(s.max=i),n&&(s.start=n),r&&(s.end=r),s}function h(e,t){var n={channels:{}};return Object.keys(t.channels||{}).forEach(function(r){n.channels[r]=[],(t.channels[r]||[]).forEach(function(t){var s={};s.channel=r,s.subscription=null,s.timetoken=t.timetoken,s.message=i(e,t.message),n.channels[r].push(s)})}),n}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=s,t.validateParams=o,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(5),n(13)),d=r(f),p=n(15),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNSubscribeOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/subscribe/"+n.subscribeKey+"/"+p.default.encodeString(s)+"/0"}function a(e){return e.config.getSubscribeTimeout()}function u(){return!0}function c(e,t){var n=e.config,r=t.channelGroups,i=void 0===r?[]:r,s=t.timetoken,o=t.filterExpression,a=t.region,u={heartbeat:n.getPresenceTimeout()};return i.length>0&&(u["channel-group"]=i.join(",")),o&&o.length>0&&(u["filter-expr"]=o),s&&(u.tt=s),a&&(u.tr=a),u}function l(e,t){var n=[];t.m.forEach(function(e){var t={publishTimetoken:e.p.t,region:e.p.r},r={shard:parseInt(e.a,10),subscriptionMatch:e.b,channel:e.c,payload:e.d,flags:e.f,issuingClientId:e.i,subscribeKey:e.k,originationTimetoken:e.o,userMetadata:e.u,publishMetaData:t};n.push(r)});var r={timetoken:t.t.t,region:t.t.r};return{messages:n,metadata:r}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),o=n(2),a=(r(o),n(10)),u=r(a),c=(n(5),function(){function e(t){var n=this;i(this,e),this._modules={},Object.keys(t).forEach(function(e){n._modules[e]=t[e].bind(n)})}return s(e,[{key:"init",value:function(e){this._config=e,this._maxSubDomain=20,this._currentSubDomain=Math.floor(Math.random()*this._maxSubDomain),this._providedFQDN=(this._config.secure?"https://":"http://")+this._config.origin,this._coreParams={},this.shiftStandardOrigin()}},{key:"nextOrigin",value:function(){if(-1===this._providedFQDN.indexOf("pubsub."))return this._providedFQDN;var e=void 0;return this._currentSubDomain=this._currentSubDomain+1,this._currentSubDomain>=this._maxSubDomain&&(this._currentSubDomain=1),e=this._currentSubDomain.toString(),this._providedFQDN.replace("pubsub","ps"+e)}},{key:"shiftStandardOrigin",value:function(){var e=arguments.length>0&&void 0!==arguments[0]&&arguments[0];return this._standardOrigin=this.nextOrigin(e),this._standardOrigin}},{key:"getStandardOrigin",value:function(){return this._standardOrigin}},{key:"POST",value:function(e,t,n,r){return this._modules.post(e,t,n,r)}},{key:"GET",value:function(e,t,n){return this._modules.get(e,t,n)}},{key:"DELETE",value:function(e,t,n){return this._modules.del(e,t,n)}},{key:"_detectErrorCategory",value:function(e){if("ENOTFOUND"===e.code)return u.default.PNNetworkIssuesCategory;if("ECONNREFUSED"===e.code)return u.default.PNNetworkIssuesCategory;if("ECONNRESET"===e.code)return u.default.PNNetworkIssuesCategory;if("EAI_AGAIN"===e.code)return u.default.PNNetworkIssuesCategory;if(0===e.status||e.hasOwnProperty("status")&&void 0===e.status)return u.default.PNNetworkIssuesCategory;if(e.timeout)return u.default.PNTimeoutCategory;if(e.response){if(e.response.badRequest)return u.default.PNBadRequestCategory;if(e.response.forbidden)return u.default.PNAccessDeniedCategory}return u.default.PNUnknownCategory}}]),e}());t.default=c,e.exports=t.default},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={get:function(e){try{return localStorage.getItem(e)}catch(e){return null}},set:function(e,t){try{return localStorage.setItem(e,t)}catch(e){return null}}},e.exports=t.default},function(e,t,n){"use strict";function r(e){var t=(new Date).getTime(),n=(new Date).toISOString(),r=function(){return console&&console.log?console:window&&window.console&&window.console.log?window.console:console}();r.log("<<<<<"),r.log("["+n+"]","\n",e.url,"\n",e.qs),r.log("-----"),e.on("response",function(n){var i=(new Date).getTime(),s=i-t,o=(new Date).toISOString();r.log(">>>>>>"),r.log("["+o+" / "+s+"]","\n",e.url,"\n",e.qs,"\n",n.text),r.log("-----")})}function i(e,t,n){var i=this;return this._config.logVerbosity&&(e=e.use(r)),this._config.proxy&&this._modules.proxy&&(e=this._modules.proxy.call(this,e)),this._config.keepAlive&&this._modules.keepAlive&&(e=this._modules.keepAlive(e)),e.timeout(t.timeout).end(function(e,r){var s={};if(s.error=null!==e,s.operation=t.operation,r&&r.status&&(s.statusCode=r.status),e)return s.errorData=e,s.category=i._detectErrorCategory(e),n(s,null);var o=JSON.parse(r.text);return o.error&&1===o.error&&o.status&&o.message&&o.service?(s.errorData=o,s.statusCode=o.status,s.error=!0,s.category=i._detectErrorCategory(s),n(s,null)):n(s,o)})}function s(e,t,n){var r=c.default.get(this.getStandardOrigin()+t.url).query(e);return i.call(this,r,t,n)}function o(e,t,n,r){var s=c.default.post(this.getStandardOrigin()+n.url).query(e).send(t);return i.call(this,s,n,r)}function a(e,t,n){var r=c.default.delete(this.getStandardOrigin()+t.url).query(e);return i.call(this,r,t,n)}Object.defineProperty(t,"__esModule",{value:!0}),t.get=s,t.post=o,t.del=a;var u=n(42),c=function(e){return e&&e.__esModule?e:{default:e}}(u);n(5)},function(e,t,n){function r(){}function i(e){if(!b(e))return e;var t=[];for(var n in e)s(t,n,e[n]);return t.join("&")}function s(e,t,n){if(null!=n)if(Array.isArray(n))n.forEach(function(n){s(e,t,n)});else if(b(n))for(var r in n)s(e,t+"["+r+"]",n[r]);else e.push(encodeURIComponent(t)+"="+encodeURIComponent(n));else null===n&&e.push(encodeURIComponent(t))}function o(e){for(var t,n,r={},i=e.split("&"),s=0,o=i.length;s<o;++s)t=i[s],n=t.indexOf("="),-1==n?r[decodeURIComponent(t)]="":r[decodeURIComponent(t.slice(0,n))]=decodeURIComponent(t.slice(n+1));return r}function a(e){var t,n,r,i,s=e.split(/\r?\n/),o={};s.pop();for(var a=0,u=s.length;a<u;++a)n=s[a],t=n.indexOf(":"),r=n.slice(0,t).toLowerCase(),i=_(n.slice(t+1)),o[r]=i;return o}function u(e){return/[\/+]json\b/.test(e)}function c(e){return e.split(/ *; */).shift()}function l(e){return e.split(/ *; */).reduce(function(e,t){var n=t.split(/ *= */),r=n.shift(),i=n.shift();return r&&i&&(e[r]=i),e},{})}function h(e,t){t=t||{},this.req=e,this.xhr=this.req.xhr,this.text="HEAD"!=this.req.method&&(""===this.xhr.responseType||"text"===this.xhr.responseType)||void 0===this.xhr.responseType?this.xhr.responseText:null,this.statusText=this.req.xhr.statusText,this._setStatusProperties(this.xhr.status),this.header=this.headers=a(this.xhr.getAllResponseHeaders()),this.header["content-type"]=this.xhr.getResponseHeader("content-type"),this._setHeaderProperties(this.header),this.body="HEAD"!=this.req.method?this._parseBody(this.text?this.text:this.xhr.response):null}function f(e,t){var n=this;this._query=this._query||[],this.method=e,this.url=t,this.header={},this._header={},this.on("end",function(){var e=null,t=null;try{t=new h(n)}catch(t){return e=new Error("Parser is unable to parse the response"),e.parse=!0,e.original=t,e.rawResponse=n.xhr&&n.xhr.responseText?n.xhr.responseText:null,e.statusCode=n.xhr&&n.xhr.status?n.xhr.status:null,n.callback(e)}n.emit("response",t);var r;try{(t.status<200||t.status>=300)&&(r=new Error(t.statusText||"Unsuccessful HTTP response"),r.original=e,r.response=t,r.status=t.status)}catch(e){r=e}r?n.callback(r,t):n.callback(null,t)})}function d(e,t){var n=v("DELETE",e);return t&&n.end(t),n}var p;"undefined"!=typeof window?p=window:"undefined"!=typeof self?p=self:(console.warn("Using browser-only version of superagent in non-browser environment"),p=this);var g=n(43),y=n(44),b=n(45),v=e.exports=n(46).bind(null,f);v.getXHR=function(){if(!(!p.XMLHttpRequest||p.location&&"file:"==p.location.protocol&&p.ActiveXObject))return new XMLHttpRequest;try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.6.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.3.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP")}catch(e){}throw Error("Browser-only verison of superagent could not find XHR")};var _="".trim?function(e){return e.trim()}:function(e){return e.replace(/(^\s*|\s*$)/g,"")};v.serializeObject=i,v.parseString=o,v.types={html:"text/html",json:"application/json",xml:"application/xml",urlencoded:"application/x-www-form-urlencoded",form:"application/x-www-form-urlencoded","form-data":"application/x-www-form-urlencoded"},v.serialize={"application/x-www-form-urlencoded":i,"application/json":JSON.stringify},v.parse={"application/x-www-form-urlencoded":o,"application/json":JSON.parse},h.prototype.get=function(e){return this.header[e.toLowerCase()]},h.prototype._setHeaderProperties=function(e){var t=this.header["content-type"]||"";this.type=c(t);var n=l(t);for(var r in n)this[r]=n[r]},h.prototype._parseBody=function(e){var t=v.parse[this.type];return!t&&u(this.type)&&(t=v.parse["application/json"]),t&&e&&(e.length||e instanceof Object)?t(e):null},h.prototype._setStatusProperties=function(e){1223===e&&(e=204);var t=e/100|0;this.status=this.statusCode=e,this.statusType=t,this.info=1==t,this.ok=2==t,this.clientError=4==t,this.serverError=5==t,this.error=(4==t||5==t)&&this.toError(),this.accepted=202==e,this.noContent=204==e,this.badRequest=400==e,this.unauthorized=401==e,this.notAcceptable=406==e,this.notFound=404==e,this.forbidden=403==e},h.prototype.toError=function(){var e=this.req,t=e.method,n=e.url,r="cannot "+t+" "+n+" ("+this.status+")",i=new Error(r);return i.status=this.status,i.method=t,i.url=n,i},v.Response=h,g(f.prototype);for(var m in y)f.prototype[m]=y[m];f.prototype.type=function(e){return this.set("Content-Type",v.types[e]||e),this},f.prototype.responseType=function(e){return this._responseType=e,this},f.prototype.accept=function(e){return this.set("Accept",v.types[e]||e),this},f.prototype.auth=function(e,t,n){switch(n||(n={type:"basic"}),n.type){case"basic":var r=btoa(e+":"+t);this.set("Authorization","Basic "+r);break;case"auto":this.username=e,this.password=t}return this},f.prototype.query=function(e){return"string"!=typeof e&&(e=i(e)),e&&this._query.push(e),this},f.prototype.attach=function(e,t,n){return this._getFormData().append(e,t,n||t.name),this},f.prototype._getFormData=function(){return this._formData||(this._formData=new p.FormData),this._formData},f.prototype.callback=function(e,t){var n=this._callback;this.clearTimeout(),n(e,t)},f.prototype.crossDomainError=function(){var e=new Error("Request has been terminated\nPossible causes: the network is offline, Origin is not allowed by Access-Control-Allow-Origin, the page is being unloaded, etc.");e.crossDomain=!0,e.status=this.status,e.method=this.method,e.url=this.url,this.callback(e)},f.prototype._timeoutError=function(){var e=this._timeout,t=new Error("timeout of "+e+"ms exceeded");t.timeout=e,this.callback(t)},f.prototype._appendQueryString=function(){var e=this._query.join("&");e&&(this.url+=~this.url.indexOf("?")?"&"+e:"?"+e)},f.prototype.end=function(e){var t=this,n=this.xhr=v.getXHR(),i=this._timeout,s=this._formData||this._data;this._callback=e||r,n.onreadystatechange=function(){if(4==n.readyState){var e;try{e=n.status}catch(t){e=0}if(0==e){if(t.timedout)return t._timeoutError();if(t._aborted)return;return t.crossDomainError()}t.emit("end")}};var o=function(e,n){n.total>0&&(n.percent=n.loaded/n.total*100),n.direction=e,t.emit("progress",n)};if(this.hasListeners("progress"))try{n.onprogress=o.bind(null,"download"),n.upload&&(n.upload.onprogress=o.bind(null,"upload"))}catch(e){}if(i&&!this._timer&&(this._timer=setTimeout(function(){t.timedout=!0,t.abort()},i)),this._appendQueryString(),this.username&&this.password?n.open(this.method,this.url,!0,this.username,this.password):n.open(this.method,this.url,!0),this._withCredentials&&(n.withCredentials=!0),"GET"!=this.method&&"HEAD"!=this.method&&"string"!=typeof s&&!this._isHost(s)){var a=this._header["content-type"],c=this._serializer||v.serialize[a?a.split(";")[0]:""];!c&&u(a)&&(c=v.serialize["application/json"]),c&&(s=c(s))}for(var l in this.header)null!=this.header[l]&&n.setRequestHeader(l,this.header[l]);return this._responseType&&(n.responseType=this._responseType),this.emit("request",this),n.send(void 0!==s?s:null),this},v.Request=f,v.get=function(e,t,n){var r=v("GET",e);return"function"==typeof t&&(n=t,t=null),t&&r.query(t),n&&r.end(n),r},v.head=function(e,t,n){var r=v("HEAD",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.options=function(e,t,n){var r=v("OPTIONS",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.del=d,v.delete=d,v.patch=function(e,t,n){var r=v("PATCH",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.post=function(e,t,n){var r=v("POST",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.put=function(e,t,n){var r=v("PUT",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r}},function(e,t,n){function r(e){if(e)return i(e)}function i(e){for(var t in r.prototype)e[t]=r.prototype[t];return e}e.exports=r,r.prototype.on=r.prototype.addEventListener=function(e,t){return this._callbacks=this._callbacks||{},(this._callbacks["$"+e]=this._callbacks["$"+e]||[]).push(t),this},r.prototype.once=function(e,t){function n(){this.off(e,n),t.apply(this,arguments)}return n.fn=t,this.on(e,n),this},r.prototype.off=r.prototype.removeListener=r.prototype.removeAllListeners=r.prototype.removeEventListener=function(e,t){if(this._callbacks=this._callbacks||{},0==arguments.length)return this._callbacks={},this;var n=this._callbacks["$"+e];if(!n)return this;if(1==arguments.length)return delete this._callbacks["$"+e],this;for(var r,i=0;i<n.length;i++)if((r=n[i])===t||r.fn===t){n.splice(i,1);break}return this},r.prototype.emit=function(e){this._callbacks=this._callbacks||{};var t=[].slice.call(arguments,1),n=this._callbacks["$"+e];if(n){n=n.slice(0);for(var r=0,i=n.length;r<i;++r)n[r].apply(this,t)}return this},r.prototype.listeners=function(e){return this._callbacks=this._callbacks||{},this._callbacks["$"+e]||[]},r.prototype.hasListeners=function(e){return!!this.listeners(e).length}},function(e,t,n){var r=n(45);t.clearTimeout=function(){return this._timeout=0,clearTimeout(this._timer),this},t.parse=function(e){return this._parser=e,this},t.serialize=function(e){return this._serializer=e,this},t.timeout=function(e){return this._timeout=e,this},t.then=function(e,t){if(!this._fullfilledPromise){var n=this;this._fullfilledPromise=new Promise(function(e,t){n.end(function(n,r){n?t(n):e(r)})})}return this._fullfilledPromise.then(e,t)},t.catch=function(e){return this.then(void 0,e)},t.use=function(e){return e(this),this},t.get=function(e){return this._header[e.toLowerCase()]},t.getHeader=t.get,t.set=function(e,t){if(r(e)){for(var n in e)this.set(n,e[n]);return this}return this._header[e.toLowerCase()]=t,this.header[e]=t,this},t.unset=function(e){return delete this._header[e.toLowerCase()],delete this.header[e],this},t.field=function(e,t){if(null===e||void 0===e)throw new Error(".field(name, val) name can not be empty");if(r(e)){for(var n in e)this.field(n,e[n]);return this}if(null===t||void 0===t)throw new Error(".field(name, val) val can not be empty");return this._getFormData().append(e,t),this},t.abort=function(){return this._aborted?this:(this._aborted=!0,this.xhr&&this.xhr.abort(),this.req&&this.req.abort(),this.clearTimeout(),this.emit("abort"),this)},t.withCredentials=function(){return this._withCredentials=!0,this},t.redirects=function(e){return this._maxRedirects=e,this},t.toJSON=function(){return{method:this.method,url:this.url,data:this._data,headers:this._header}},t._isHost=function(e){switch({}.toString.call(e)){case"[object File]":case"[object Blob]":case"[object FormData]":return!0;default:return!1}},t.send=function(e){var t=r(e),n=this._header["content-type"];if(t&&r(this._data))for(var i in e)this._data[i]=e[i];else"string"==typeof e?(n||this.type("form"),n=this._header["content-type"],this._data="application/x-www-form-urlencoded"==n?this._data?this._data+"&"+e:e:(this._data||"")+e):this._data=e;return!t||this._isHost(e)?this:(n||this.type("json"),this)}},function(e,t){function n(e){return null!==e&&"object"==typeof e}e.exports=n},function(e,t){function n(e,t,n){return"function"==typeof n?new e("GET",t).end(n):2==arguments.length?new e("GET",t):new e(t,n)}e.exports=n}])});
+!function(e,t){ true?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.PubNub=t():e.PubNub=t()}(this,function(){return function(e){function t(r){if(n[r])return n[r].exports;var i=n[r]={exports:{},id:r,loaded:!1};return e[r].call(i.exports,i,i.exports,t),i.loaded=!0,i.exports}var n={};return t.m=e,t.c=n,t.p="",t(0)}([function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function s(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function o(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}function a(e){if(!navigator||!navigator.sendBeacon)return!1;navigator.sendBeacon(e)}Object.defineProperty(t,"__esModule",{value:!0});var u=n(1),c=r(u),l=n(39),h=r(l),f=n(40),d=r(f),p=n(41),g=(n(5),function(e){function t(e){i(this,t);var n=e.listenToBrowserNetworkEvents,r=void 0===n||n;e.db=d.default,e.sdkFamily="Web",e.networking=new h.default({del:p.del,get:p.get,post:p.post,sendBeacon:a});var o=s(this,(t.__proto__||Object.getPrototypeOf(t)).call(this,e));return r&&(window.addEventListener("offline",function(){o.networkDownDetected()}),window.addEventListener("online",function(){o.networkUpDetected()})),o}return o(t,e),t}(c.default));t.default=g,e.exports=t.default},function(e,t,n){"use strict";function r(e){if(e&&e.__esModule)return e;var t={};if(null!=e)for(var n in e)Object.prototype.hasOwnProperty.call(e,n)&&(t[n]=e[n]);return t.default=e,t}function i(e){return e&&e.__esModule?e:{default:e}}function s(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var o=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),a=n(2),u=i(a),c=n(6),l=i(c),h=n(8),f=i(h),d=n(9),p=i(d),g=n(16),y=i(g),b=n(17),v=r(b),_=n(18),m=r(_),k=n(19),P=r(k),S=n(20),O=r(S),w=n(21),C=r(w),T=n(22),M=r(T),E=n(23),x=r(E),N=n(24),R=r(N),A=n(25),K=r(A),D=n(26),j=r(D),G=n(27),U=r(G),I=n(28),H=r(I),B=n(29),L=r(B),F=n(30),q=r(F),z=n(31),X=r(z),W=n(32),J=r(W),V=n(33),$=r(V),Q=n(34),Y=r(Q),Z=n(35),ee=r(Z),te=n(36),ne=r(te),re=n(37),ie=r(re),se=n(12),oe=r(se),ae=n(38),ue=r(ae),ce=n(13),le=i(ce),he=n(10),fe=i(he),de=(n(5),n(3)),pe=i(de),ge=function(){function e(t){var n=this;s(this,e);var r=t.db,i=t.networking,o=this._config=new u.default({setup:t,db:r}),a=new l.default({config:o});i.init(o);var c={config:o,networking:i,crypto:a},h=y.default.bind(this,c,oe),d=y.default.bind(this,c,j),g=y.default.bind(this,c,H),b=y.default.bind(this,c,q),_=y.default.bind(this,c,ue),k=this._listenerManager=new p.default,S=new f.default({timeEndpoint:h,leaveEndpoint:d,heartbeatEndpoint:g,setStateEndpoint:b,subscribeEndpoint:_,crypto:c.crypto,config:c.config,listenerManager:k});this.addListener=k.addListener.bind(k),this.removeListener=k.removeListener.bind(k),this.removeAllListeners=k.removeAllListeners.bind(k),this.channelGroups={listGroups:y.default.bind(this,c,O),listChannels:y.default.bind(this,c,C),addChannels:y.default.bind(this,c,v),removeChannels:y.default.bind(this,c,m),deleteGroup:y.default.bind(this,c,P)},this.push={addChannels:y.default.bind(this,c,M),removeChannels:y.default.bind(this,c,x),deleteDevice:y.default.bind(this,c,K),listChannels:y.default.bind(this,c,R)},this.hereNow=y.default.bind(this,c,X),this.whereNow=y.default.bind(this,c,U),this.getState=y.default.bind(this,c,L),this.setState=S.adaptStateChange.bind(S),this.grant=y.default.bind(this,c,$),this.audit=y.default.bind(this,c,J),this.publish=y.default.bind(this,c,Y),this.fire=function(e,t){return e.replicate=!1,e.storeInHistory=!1,n.publish(e,t)},this.history=y.default.bind(this,c,ee),this.deleteMessages=y.default.bind(this,c,ne),this.fetchMessages=y.default.bind(this,c,ie),this.time=h,this.subscribe=S.adaptSubscribeChange.bind(S),this.presence=S.adaptPresenceChange.bind(S),this.unsubscribe=S.adaptUnsubscribeChange.bind(S),this.disconnect=S.disconnect.bind(S),this.reconnect=S.reconnect.bind(S),this.destroy=function(e){S.unsubscribeAll(e),S.disconnect()},this.stop=this.destroy,this.unsubscribeAll=S.unsubscribeAll.bind(S),this.getSubscribedChannels=S.getSubscribedChannels.bind(S),this.getSubscribedChannelGroups=S.getSubscribedChannelGroups.bind(S),this.encrypt=a.encrypt.bind(a),this.decrypt=a.decrypt.bind(a),this.getAuthKey=c.config.getAuthKey.bind(c.config),this.setAuthKey=c.config.setAuthKey.bind(c.config),this.setCipherKey=c.config.setCipherKey.bind(c.config),this.getUUID=c.config.getUUID.bind(c.config),this.setUUID=c.config.setUUID.bind(c.config),this.getFilterExpression=c.config.getFilterExpression.bind(c.config),this.setFilterExpression=c.config.setFilterExpression.bind(c.config),this.setHeartbeatInterval=c.config.setHeartbeatInterval.bind(c.config),i.hasModule("proxy")&&(this.setProxy=function(e){c.config.setProxy(e),n.reconnect()})}return o(e,[{key:"getVersion",value:function(){return this._config.getVersion()}},{key:"networkDownDetected",value:function(){this._listenerManager.announceNetworkDown(),this._config.restore?this.disconnect():this.destroy(!0)}},{key:"networkUpDetected",value:function(){this._listenerManager.announceNetworkUp(),this.reconnect()}}],[{key:"generateUUID",value:function(){return pe.default.createUUID()}}]),e}();ge.OPERATIONS=le.default,ge.CATEGORIES=fe.default,t.default=ge,e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(3),o=function(e){return e&&e.__esModule?e:{default:e}}(s),a=(n(5),function(){function e(t){var n=t.setup,i=t.db;r(this,e),this._db=i,this.instanceId="pn-"+o.default.createUUID(),this.secretKey=n.secretKey||n.secret_key,this.subscribeKey=n.subscribeKey||n.subscribe_key,this.publishKey=n.publishKey||n.publish_key,this.sdkName=n.sdkName,this.sdkFamily=n.sdkFamily,this.partnerId=n.partnerId,this.setAuthKey(n.authKey),this.setCipherKey(n.cipherKey),this.setFilterExpression(n.filterExpression),this.origin=n.origin||"pubsub.pndsn.com",this.secure=n.ssl||!1,this.restore=n.restore||!1,this.proxy=n.proxy,this.keepAlive=n.keepAlive,this.keepAliveSettings=n.keepAliveSettings,this.autoNetworkDetection=n.autoNetworkDetection||!1,this.dedupeOnSubscribe=n.dedupeOnSubscribe||!1,this.maximumCacheSize=n.maximumCacheSize||100,this.customEncrypt=n.customEncrypt,this.customDecrypt=n.customDecrypt,"undefined"!=typeof location&&"https:"===location.protocol&&(this.secure=!0),this.logVerbosity=n.logVerbosity||!1,this.suppressLeaveEvents=n.suppressLeaveEvents||!1,this.announceFailedHeartbeats=n.announceFailedHeartbeats||!0,this.announceSuccessfulHeartbeats=n.announceSuccessfulHeartbeats||!1,this.useInstanceId=n.useInstanceId||!1,this.useRequestId=n.useRequestId||!1,this.requestMessageCountThreshold=n.requestMessageCountThreshold,this.setTransactionTimeout(n.transactionalRequestTimeout||15e3),this.setSubscribeTimeout(n.subscribeRequestTimeout||31e4),this.setSendBeaconConfig(n.useSendBeacon||!0),this.setPresenceTimeout(n.presenceTimeout||300),null!=n.heartbeatInterval&&this.setHeartbeatInterval(n.heartbeatInterval),this.setUUID(this._decideUUID(n.uuid))}return i(e,[{key:"getAuthKey",value:function(){return this.authKey}},{key:"setAuthKey",value:function(e){return this.authKey=e,this}},{key:"setCipherKey",value:function(e){return this.cipherKey=e,this}},{key:"getUUID",value:function(){return this.UUID}},{key:"setUUID",value:function(e){return this._db&&this._db.set&&this._db.set(this.subscribeKey+"uuid",e),this.UUID=e,this}},{key:"getFilterExpression",value:function(){return this.filterExpression}},{key:"setFilterExpression",value:function(e){return this.filterExpression=e,this}},{key:"getPresenceTimeout",value:function(){return this._presenceTimeout}},{key:"setPresenceTimeout",value:function(e){return this._presenceTimeout=e,this.setHeartbeatInterval(this._presenceTimeout/2-1),this}},{key:"setProxy",value:function(e){this.proxy=e}},{key:"getHeartbeatInterval",value:function(){return this._heartbeatInterval}},{key:"setHeartbeatInterval",value:function(e){return this._heartbeatInterval=e,this}},{key:"getSubscribeTimeout",value:function(){return this._subscribeRequestTimeout}},{key:"setSubscribeTimeout",value:function(e){return this._subscribeRequestTimeout=e,this}},{key:"getTransactionTimeout",value:function(){return this._transactionalRequestTimeout}},{key:"setTransactionTimeout",value:function(e){return this._transactionalRequestTimeout=e,this}},{key:"isSendBeaconEnabled",value:function(){return this._useSendBeacon}},{key:"setSendBeaconConfig",value:function(e){return this._useSendBeacon=e,this}},{key:"getVersion",value:function(){return"4.20.0"}},{key:"_decideUUID",value:function(e){return e||(this._db&&this._db.get&&this._db.get(this.subscribeKey+"uuid")?this._db.get(this.subscribeKey+"uuid"):"pn-"+o.default.createUUID())}}]),e}());t.default=a,e.exports=t.default},function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r=n(4),i=function(e){return e&&e.__esModule?e:{default:e}}(r);t.default={createUUID:function(){return i.default.uuid?i.default.uuid():(0,i.default)()}},e.exports=t.default},function(e,t,n){var r,i,s;!function(n,o){i=[t],r=o,void 0!==(s="function"==typeof r?r.apply(t,i):r)&&(e.exports=s)}(0,function(e){function t(){var e,t,n="";for(e=0;e<32;e++)t=16*Math.random()|0,8!==e&&12!==e&&16!==e&&20!==e||(n+="-"),n+=(12===e?4:16===e?3&t|8:t).toString(16);return n}function n(e,t){var n=r[t||"all"];return n&&n.test(e)||!1}var r={3:/^[0-9A-F]{8}-[0-9A-F]{4}-3[0-9A-F]{3}-[0-9A-F]{4}-[0-9A-F]{12}$/i,4:/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,5:/^[0-9A-F]{8}-[0-9A-F]{4}-5[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i,all:/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i};t.isUUID=n,t.VERSION="0.1.0",e.uuid=t,e.isUUID=n})},function(e,t){"use strict";e.exports={}},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),o=n(2),a=(r(o),n(7)),u=r(a),c=function(){function e(t){var n=t.config;i(this,e),this._config=n,this._iv="0123456789012345",this._allowedKeyEncodings=["hex","utf8","base64","binary"],this._allowedKeyLengths=[128,256],this._allowedModes=["ecb","cbc"],this._defaultOptions={encryptKey:!0,keyEncoding:"utf8",keyLength:256,mode:"cbc"}}return s(e,[{key:"HMACSHA256",value:function(e){return u.default.HmacSHA256(e,this._config.secretKey).toString(u.default.enc.Base64)}},{key:"SHA256",value:function(e){return u.default.SHA256(e).toString(u.default.enc.Hex)}},{key:"_parseOptions",value:function(e){var t=e||{};return t.hasOwnProperty("encryptKey")||(t.encryptKey=this._defaultOptions.encryptKey),t.hasOwnProperty("keyEncoding")||(t.keyEncoding=this._defaultOptions.keyEncoding),t.hasOwnProperty("keyLength")||(t.keyLength=this._defaultOptions.keyLength),t.hasOwnProperty("mode")||(t.mode=this._defaultOptions.mode),-1===this._allowedKeyEncodings.indexOf(t.keyEncoding.toLowerCase())&&(t.keyEncoding=this._defaultOptions.keyEncoding),-1===this._allowedKeyLengths.indexOf(parseInt(t.keyLength,10))&&(t.keyLength=this._defaultOptions.keyLength),-1===this._allowedModes.indexOf(t.mode.toLowerCase())&&(t.mode=this._defaultOptions.mode),t}},{key:"_decodeKey",value:function(e,t){return"base64"===t.keyEncoding?u.default.enc.Base64.parse(e):"hex"===t.keyEncoding?u.default.enc.Hex.parse(e):e}},{key:"_getPaddedKey",value:function(e,t){return e=this._decodeKey(e,t),t.encryptKey?u.default.enc.Utf8.parse(this.SHA256(e).slice(0,32)):e}},{key:"_getMode",value:function(e){return"ecb"===e.mode?u.default.mode.ECB:u.default.mode.CBC}},{key:"_getIV",value:function(e){return"cbc"===e.mode?u.default.enc.Utf8.parse(this._iv):null}},{key:"encrypt",value:function(e,t,n){return this._config.customEncrypt?this._config.customEncrypt(e):this.pnEncrypt(e,t,n)}},{key:"decrypt",value:function(e,t,n){return this._config.customDecrypt?this._config.customDecrypt(e):this.pnDecrypt(e,t,n)}},{key:"pnEncrypt",value:function(e,t,n){if(!t&&!this._config.cipherKey)return e;n=this._parseOptions(n);var r=this._getIV(n),i=this._getMode(n),s=this._getPaddedKey(t||this._config.cipherKey,n);return u.default.AES.encrypt(e,s,{iv:r,mode:i}).ciphertext.toString(u.default.enc.Base64)||e}},{key:"pnDecrypt",value:function(e,t,n){if(!t&&!this._config.cipherKey)return e;n=this._parseOptions(n);var r=this._getIV(n),i=this._getMode(n),s=this._getPaddedKey(t||this._config.cipherKey,n);try{var o=u.default.enc.Base64.parse(e),a=u.default.AES.decrypt({ciphertext:o},s,{iv:r,mode:i}).toString(u.default.enc.Utf8);return JSON.parse(a)}catch(e){return null}}}]),e}();t.default=c,e.exports=t.default},function(e,t){"use strict";var n=n||function(e,t){var n={},r=n.lib={},i=function(){},s=r.Base={extend:function(e){i.prototype=this;var t=new i;return e&&t.mixIn(e),t.hasOwnProperty("init")||(t.init=function(){t.$super.init.apply(this,arguments)}),t.init.prototype=t,t.$super=this,t},create:function(){var e=this.extend();return e.init.apply(e,arguments),e},init:function(){},mixIn:function(e){for(var t in e)e.hasOwnProperty(t)&&(this[t]=e[t]);e.hasOwnProperty("toString")&&(this.toString=e.toString)},clone:function(){return this.init.prototype.extend(this)}},o=r.WordArray=s.extend({init:function(e,t){e=this.words=e||[],this.sigBytes=void 0!=t?t:4*e.length},toString:function(e){return(e||u).stringify(this)},concat:function(e){var t=this.words,n=e.words,r=this.sigBytes;if(e=e.sigBytes,this.clamp(),r%4)for(var i=0;i<e;i++)t[r+i>>>2]|=(n[i>>>2]>>>24-i%4*8&255)<<24-(r+i)%4*8;else if(65535<n.length)for(i=0;i<e;i+=4)t[r+i>>>2]=n[i>>>2];else t.push.apply(t,n);return this.sigBytes+=e,this},clamp:function(){var t=this.words,n=this.sigBytes;t[n>>>2]&=4294967295<<32-n%4*8,t.length=e.ceil(n/4)},clone:function(){var e=s.clone.call(this);return e.words=this.words.slice(0),e},random:function(t){for(var n=[],r=0;r<t;r+=4)n.push(4294967296*e.random()|0);return new o.init(n,t)}}),a=n.enc={},u=a.Hex={stringify:function(e){var t=e.words;e=e.sigBytes;for(var n=[],r=0;r<e;r++){var i=t[r>>>2]>>>24-r%4*8&255;n.push((i>>>4).toString(16)),n.push((15&i).toString(16))}return n.join("")},parse:function(e){for(var t=e.length,n=[],r=0;r<t;r+=2)n[r>>>3]|=parseInt(e.substr(r,2),16)<<24-r%8*4;return new o.init(n,t/2)}},c=a.Latin1={stringify:function(e){var t=e.words;e=e.sigBytes;for(var n=[],r=0;r<e;r++)n.push(String.fromCharCode(t[r>>>2]>>>24-r%4*8&255));return n.join("")},parse:function(e){for(var t=e.length,n=[],r=0;r<t;r++)n[r>>>2]|=(255&e.charCodeAt(r))<<24-r%4*8;return new o.init(n,t)}},l=a.Utf8={stringify:function(e){try{return decodeURIComponent(escape(c.stringify(e)))}catch(e){throw Error("Malformed UTF-8 data")}},parse:function(e){return c.parse(unescape(encodeURIComponent(e)))}},h=r.BufferedBlockAlgorithm=s.extend({reset:function(){this._data=new o.init,this._nDataBytes=0},_append:function(e){"string"==typeof e&&(e=l.parse(e)),this._data.concat(e),this._nDataBytes+=e.sigBytes},_process:function(t){var n=this._data,r=n.words,i=n.sigBytes,s=this.blockSize,a=i/(4*s),a=t?e.ceil(a):e.max((0|a)-this._minBufferSize,0);if(t=a*s,i=e.min(4*t,i),t){for(var u=0;u<t;u+=s)this._doProcessBlock(r,u);u=r.splice(0,t),n.sigBytes-=i}return new o.init(u,i)},clone:function(){var e=s.clone.call(this);return e._data=this._data.clone(),e},_minBufferSize:0});r.Hasher=h.extend({cfg:s.extend(),init:function(e){this.cfg=this.cfg.extend(e),this.reset()},reset:function(){h.reset.call(this),this._doReset()},update:function(e){return this._append(e),this._process(),this},finalize:function(e){return e&&this._append(e),this._doFinalize()},blockSize:16,_createHelper:function(e){return function(t,n){return new e.init(n).finalize(t)}},_createHmacHelper:function(e){return function(t,n){return new f.HMAC.init(e,n).finalize(t)}}});var f=n.algo={};return n}(Math);!function(e){for(var t=n,r=t.lib,i=r.WordArray,s=r.Hasher,r=t.algo,o=[],a=[],u=function(e){return 4294967296*(e-(0|e))|0},c=2,l=0;64>l;){var h;e:{h=c;for(var f=e.sqrt(h),d=2;d<=f;d++)if(!(h%d)){h=!1;break e}h=!0}h&&(8>l&&(o[l]=u(e.pow(c,.5))),a[l]=u(e.pow(c,1/3)),l++),c++}var p=[],r=r.SHA256=s.extend({_doReset:function(){this._hash=new i.init(o.slice(0))},_doProcessBlock:function(e,t){for(var n=this._hash.words,r=n[0],i=n[1],s=n[2],o=n[3],u=n[4],c=n[5],l=n[6],h=n[7],f=0;64>f;f++){if(16>f)p[f]=0|e[t+f];else{var d=p[f-15],g=p[f-2];p[f]=((d<<25|d>>>7)^(d<<14|d>>>18)^d>>>3)+p[f-7]+((g<<15|g>>>17)^(g<<13|g>>>19)^g>>>10)+p[f-16]}d=h+((u<<26|u>>>6)^(u<<21|u>>>11)^(u<<7|u>>>25))+(u&c^~u&l)+a[f]+p[f],g=((r<<30|r>>>2)^(r<<19|r>>>13)^(r<<10|r>>>22))+(r&i^r&s^i&s),h=l,l=c,c=u,u=o+d|0,o=s,s=i,i=r,r=d+g|0}n[0]=n[0]+r|0,n[1]=n[1]+i|0,n[2]=n[2]+s|0,n[3]=n[3]+o|0,n[4]=n[4]+u|0,n[5]=n[5]+c|0,n[6]=n[6]+l|0,n[7]=n[7]+h|0},_doFinalize:function(){var t=this._data,n=t.words,r=8*this._nDataBytes,i=8*t.sigBytes;return n[i>>>5]|=128<<24-i%32,n[14+(i+64>>>9<<4)]=e.floor(r/4294967296),n[15+(i+64>>>9<<4)]=r,t.sigBytes=4*n.length,this._process(),this._hash},clone:function(){var e=s.clone.call(this);return e._hash=this._hash.clone(),e}});t.SHA256=s._createHelper(r),t.HmacSHA256=s._createHmacHelper(r)}(Math),function(){var e=n,t=e.enc.Utf8;e.algo.HMAC=e.lib.Base.extend({init:function(e,n){e=this._hasher=new e.init,"string"==typeof n&&(n=t.parse(n));var r=e.blockSize,i=4*r;n.sigBytes>i&&(n=e.finalize(n)),n.clamp();for(var s=this._oKey=n.clone(),o=this._iKey=n.clone(),a=s.words,u=o.words,c=0;c<r;c++)a[c]^=1549556828,u[c]^=909522486;s.sigBytes=o.sigBytes=i,this.reset()},reset:function(){var e=this._hasher;e.reset(),e.update(this._iKey)},update:function(e){return this._hasher.update(e),this},finalize:function(e){var t=this._hasher;return e=t.finalize(e),t.reset(),t.finalize(this._oKey.clone().concat(e))}})}(),function(){var e=n,t=e.lib.WordArray;e.enc.Base64={stringify:function(e){var t=e.words,n=e.sigBytes,r=this._map;e.clamp(),e=[];for(var i=0;i<n;i+=3)for(var s=(t[i>>>2]>>>24-i%4*8&255)<<16|(t[i+1>>>2]>>>24-(i+1)%4*8&255)<<8|t[i+2>>>2]>>>24-(i+2)%4*8&255,o=0;4>o&&i+.75*o<n;o++)e.push(r.charAt(s>>>6*(3-o)&63));if(t=r.charAt(64))for(;e.length%4;)e.push(t);return e.join("")},parse:function(e){var n=e.length,r=this._map,i=r.charAt(64);i&&-1!=(i=e.indexOf(i))&&(n=i);for(var i=[],s=0,o=0;o<n;o++)if(o%4){var a=r.indexOf(e.charAt(o-1))<<o%4*2,u=r.indexOf(e.charAt(o))>>>6-o%4*2;i[s>>>2]|=(a|u)<<24-s%4*8,s++}return t.create(i,s)},_map:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="}}(),function(e){function t(e,t,n,r,i,s,o){return((e=e+(t&n|~t&r)+i+o)<<s|e>>>32-s)+t}function r(e,t,n,r,i,s,o){return((e=e+(t&r|n&~r)+i+o)<<s|e>>>32-s)+t}function i(e,t,n,r,i,s,o){return((e=e+(t^n^r)+i+o)<<s|e>>>32-s)+t}function s(e,t,n,r,i,s,o){return((e=e+(n^(t|~r))+i+o)<<s|e>>>32-s)+t}for(var o=n,a=o.lib,u=a.WordArray,c=a.Hasher,a=o.algo,l=[],h=0;64>h;h++)l[h]=4294967296*e.abs(e.sin(h+1))|0;a=a.MD5=c.extend({_doReset:function(){this._hash=new u.init([1732584193,4023233417,2562383102,271733878])},_doProcessBlock:function(e,n){for(var o=0;16>o;o++){var a=n+o,u=e[a];e[a]=16711935&(u<<8|u>>>24)|4278255360&(u<<24|u>>>8)}var o=this._hash.words,a=e[n+0],u=e[n+1],c=e[n+2],h=e[n+3],f=e[n+4],d=e[n+5],p=e[n+6],g=e[n+7],y=e[n+8],b=e[n+9],v=e[n+10],_=e[n+11],m=e[n+12],k=e[n+13],P=e[n+14],S=e[n+15],O=o[0],w=o[1],C=o[2],T=o[3],O=t(O,w,C,T,a,7,l[0]),T=t(T,O,w,C,u,12,l[1]),C=t(C,T,O,w,c,17,l[2]),w=t(w,C,T,O,h,22,l[3]),O=t(O,w,C,T,f,7,l[4]),T=t(T,O,w,C,d,12,l[5]),C=t(C,T,O,w,p,17,l[6]),w=t(w,C,T,O,g,22,l[7]),O=t(O,w,C,T,y,7,l[8]),T=t(T,O,w,C,b,12,l[9]),C=t(C,T,O,w,v,17,l[10]),w=t(w,C,T,O,_,22,l[11]),O=t(O,w,C,T,m,7,l[12]),T=t(T,O,w,C,k,12,l[13]),C=t(C,T,O,w,P,17,l[14]),w=t(w,C,T,O,S,22,l[15]),O=r(O,w,C,T,u,5,l[16]),T=r(T,O,w,C,p,9,l[17]),C=r(C,T,O,w,_,14,l[18]),w=r(w,C,T,O,a,20,l[19]),O=r(O,w,C,T,d,5,l[20]),T=r(T,O,w,C,v,9,l[21]),C=r(C,T,O,w,S,14,l[22]),w=r(w,C,T,O,f,20,l[23]),O=r(O,w,C,T,b,5,l[24]),T=r(T,O,w,C,P,9,l[25]),C=r(C,T,O,w,h,14,l[26]),w=r(w,C,T,O,y,20,l[27]),O=r(O,w,C,T,k,5,l[28]),T=r(T,O,w,C,c,9,l[29]),C=r(C,T,O,w,g,14,l[30]),w=r(w,C,T,O,m,20,l[31]),O=i(O,w,C,T,d,4,l[32]),T=i(T,O,w,C,y,11,l[33]),C=i(C,T,O,w,_,16,l[34]),w=i(w,C,T,O,P,23,l[35]),O=i(O,w,C,T,u,4,l[36]),T=i(T,O,w,C,f,11,l[37]),C=i(C,T,O,w,g,16,l[38]),w=i(w,C,T,O,v,23,l[39]),O=i(O,w,C,T,k,4,l[40]),T=i(T,O,w,C,a,11,l[41]),C=i(C,T,O,w,h,16,l[42]),w=i(w,C,T,O,p,23,l[43]),O=i(O,w,C,T,b,4,l[44]),T=i(T,O,w,C,m,11,l[45]),C=i(C,T,O,w,S,16,l[46]),w=i(w,C,T,O,c,23,l[47]),O=s(O,w,C,T,a,6,l[48]),T=s(T,O,w,C,g,10,l[49]),C=s(C,T,O,w,P,15,l[50]),w=s(w,C,T,O,d,21,l[51]),O=s(O,w,C,T,m,6,l[52]),T=s(T,O,w,C,h,10,l[53]),C=s(C,T,O,w,v,15,l[54]),w=s(w,C,T,O,u,21,l[55]),O=s(O,w,C,T,y,6,l[56]),T=s(T,O,w,C,S,10,l[57]),C=s(C,T,O,w,p,15,l[58]),w=s(w,C,T,O,k,21,l[59]),O=s(O,w,C,T,f,6,l[60]),T=s(T,O,w,C,_,10,l[61]),C=s(C,T,O,w,c,15,l[62]),w=s(w,C,T,O,b,21,l[63]);o[0]=o[0]+O|0,o[1]=o[1]+w|0,o[2]=o[2]+C|0,o[3]=o[3]+T|0},_doFinalize:function(){var t=this._data,n=t.words,r=8*this._nDataBytes,i=8*t.sigBytes;n[i>>>5]|=128<<24-i%32;var s=e.floor(r/4294967296);for(n[15+(i+64>>>9<<4)]=16711935&(s<<8|s>>>24)|4278255360&(s<<24|s>>>8),n[14+(i+64>>>9<<4)]=16711935&(r<<8|r>>>24)|4278255360&(r<<24|r>>>8),t.sigBytes=4*(n.length+1),this._process(),t=this._hash,n=t.words,r=0;4>r;r++)i=n[r],n[r]=16711935&(i<<8|i>>>24)|4278255360&(i<<24|i>>>8);return t},clone:function(){var e=c.clone.call(this);return e._hash=this._hash.clone(),e}}),o.MD5=c._createHelper(a),o.HmacMD5=c._createHmacHelper(a)}(Math),function(){var e=n,t=e.lib,r=t.Base,i=t.WordArray,t=e.algo,s=t.EvpKDF=r.extend({cfg:r.extend({keySize:4,hasher:t.MD5,iterations:1}),init:function(e){this.cfg=this.cfg.extend(e)},compute:function(e,t){for(var n=this.cfg,r=n.hasher.create(),s=i.create(),o=s.words,a=n.keySize,n=n.iterations;o.length<a;){u&&r.update(u);var u=r.update(e).finalize(t);r.reset();for(var c=1;c<n;c++)u=r.finalize(u),r.reset();s.concat(u)}return s.sigBytes=4*a,s}});e.EvpKDF=function(e,t,n){return s.create(n).compute(e,t)}}(),n.lib.Cipher||function(e){var t=n,r=t.lib,i=r.Base,s=r.WordArray,o=r.BufferedBlockAlgorithm,a=t.enc.Base64,u=t.algo.EvpKDF,c=r.Cipher=o.extend({cfg:i.extend(),createEncryptor:function(e,t){return this.create(this._ENC_XFORM_MODE,e,t)},createDecryptor:function(e,t){return this.create(this._DEC_XFORM_MODE,e,t)},init:function(e,t,n){this.cfg=this.cfg.extend(n),this._xformMode=e,this._key=t,this.reset()},reset:function(){o.reset.call(this),this._doReset()},process:function(e){return this._append(e),this._process()},finalize:function(e){return e&&this._append(e),this._doFinalize()},keySize:4,ivSize:4,_ENC_XFORM_MODE:1,_DEC_XFORM_MODE:2,_createHelper:function(e){return{encrypt:function(t,n,r){return("string"==typeof n?g:p).encrypt(e,t,n,r)},decrypt:function(t,n,r){return("string"==typeof n?g:p).decrypt(e,t,n,r)}}}});r.StreamCipher=c.extend({_doFinalize:function(){return this._process(!0)},blockSize:1});var l=t.mode={},h=function(e,t,n){var r=this._iv;r?this._iv=void 0:r=this._prevBlock;for(var i=0;i<n;i++)e[t+i]^=r[i]},f=(r.BlockCipherMode=i.extend({createEncryptor:function(e,t){return this.Encryptor.create(e,t)},createDecryptor:function(e,t){return this.Decryptor.create(e,t)},init:function(e,t){this._cipher=e,this._iv=t}})).extend();f.Encryptor=f.extend({processBlock:function(e,t){var n=this._cipher,r=n.blockSize;h.call(this,e,t,r),n.encryptBlock(e,t),this._prevBlock=e.slice(t,t+r)}}),f.Decryptor=f.extend({processBlock:function(e,t){var n=this._cipher,r=n.blockSize,i=e.slice(t,t+r);n.decryptBlock(e,t),h.call(this,e,t,r),this._prevBlock=i}}),l=l.CBC=f,f=(t.pad={}).Pkcs7={pad:function(e,t){for(var n=4*t,n=n-e.sigBytes%n,r=n<<24|n<<16|n<<8|n,i=[],o=0;o<n;o+=4)i.push(r);n=s.create(i,n),e.concat(n)},unpad:function(e){e.sigBytes-=255&e.words[e.sigBytes-1>>>2]}},r.BlockCipher=c.extend({cfg:c.cfg.extend({mode:l,padding:f}),reset:function(){c.reset.call(this);var e=this.cfg,t=e.iv,e=e.mode;if(this._xformMode==this._ENC_XFORM_MODE)var n=e.createEncryptor;else n=e.createDecryptor,this._minBufferSize=1;this._mode=n.call(e,this,t&&t.words)},_doProcessBlock:function(e,t){this._mode.processBlock(e,t)},_doFinalize:function(){var e=this.cfg.padding;if(this._xformMode==this._ENC_XFORM_MODE){e.pad(this._data,this.blockSize);var t=this._process(!0)}else t=this._process(!0),e.unpad(t);return t},blockSize:4});var d=r.CipherParams=i.extend({init:function(e){this.mixIn(e)},toString:function(e){return(e||this.formatter).stringify(this)}}),l=(t.format={}).OpenSSL={stringify:function(e){var t=e.ciphertext;return e=e.salt,(e?s.create([1398893684,1701076831]).concat(e).concat(t):t).toString(a)},parse:function(e){e=a.parse(e);var t=e.words;if(1398893684==t[0]&&1701076831==t[1]){var n=s.create(t.slice(2,4));t.splice(0,4),e.sigBytes-=16}return d.create({ciphertext:e,salt:n})}},p=r.SerializableCipher=i.extend({cfg:i.extend({format:l}),encrypt:function(e,t,n,r){r=this.cfg.extend(r);var i=e.createEncryptor(n,r);return t=i.finalize(t),i=i.cfg,d.create({ciphertext:t,key:n,iv:i.iv,algorithm:e,mode:i.mode,padding:i.padding,blockSize:e.blockSize,formatter:r.format})},decrypt:function(e,t,n,r){return r=this.cfg.extend(r),t=this._parse(t,r.format),e.createDecryptor(n,r).finalize(t.ciphertext)},_parse:function(e,t){return"string"==typeof e?t.parse(e,this):e}}),t=(t.kdf={}).OpenSSL={execute:function(e,t,n,r){return r||(r=s.random(8)),e=u.create({keySize:t+n}).compute(e,r),n=s.create(e.words.slice(t),4*n),e.sigBytes=4*t,d.create({key:e,iv:n,salt:r})}},g=r.PasswordBasedCipher=p.extend({cfg:p.cfg.extend({kdf:t}),encrypt:function(e,t,n,r){return r=this.cfg.extend(r),n=r.kdf.execute(n,e.keySize,e.ivSize),r.iv=n.iv,e=p.encrypt.call(this,e,t,n.key,r),e.mixIn(n),e},decrypt:function(e,t,n,r){return r=this.cfg.extend(r),t=this._parse(t,r.format),n=r.kdf.execute(n,e.keySize,e.ivSize,t.salt),r.iv=n.iv,p.decrypt.call(this,e,t,n.key,r)}})}(),function(){for(var e=n,t=e.lib.BlockCipher,r=e.algo,i=[],s=[],o=[],a=[],u=[],c=[],l=[],h=[],f=[],d=[],p=[],g=0;256>g;g++)p[g]=128>g?g<<1:g<<1^283;for(var y=0,b=0,g=0;256>g;g++){var v=b^b<<1^b<<2^b<<3^b<<4,v=v>>>8^255&v^99;i[y]=v,s[v]=y;var _=p[y],m=p[_],k=p[m],P=257*p[v]^16843008*v;o[y]=P<<24|P>>>8,a[y]=P<<16|P>>>16,u[y]=P<<8|P>>>24,c[y]=P,P=16843009*k^65537*m^257*_^16843008*y,l[v]=P<<24|P>>>8,h[v]=P<<16|P>>>16,f[v]=P<<8|P>>>24,d[v]=P,y?(y=_^p[p[p[k^_]]],b^=p[p[b]]):y=b=1}var S=[0,1,2,4,8,16,32,64,128,27,54],r=r.AES=t.extend({_doReset:function(){for(var e=this._key,t=e.words,n=e.sigBytes/4,e=4*((this._nRounds=n+6)+1),r=this._keySchedule=[],s=0;s<e;s++)if(s<n)r[s]=t[s];else{var o=r[s-1];s%n?6<n&&4==s%n&&(o=i[o>>>24]<<24|i[o>>>16&255]<<16|i[o>>>8&255]<<8|i[255&o]):(o=o<<8|o>>>24,o=i[o>>>24]<<24|i[o>>>16&255]<<16|i[o>>>8&255]<<8|i[255&o],o^=S[s/n|0]<<24),r[s]=r[s-n]^o}for(t=this._invKeySchedule=[],n=0;n<e;n++)s=e-n,o=n%4?r[s]:r[s-4],t[n]=4>n||4>=s?o:l[i[o>>>24]]^h[i[o>>>16&255]]^f[i[o>>>8&255]]^d[i[255&o]]},encryptBlock:function(e,t){this._doCryptBlock(e,t,this._keySchedule,o,a,u,c,i)},decryptBlock:function(e,t){var n=e[t+1];e[t+1]=e[t+3],e[t+3]=n,this._doCryptBlock(e,t,this._invKeySchedule,l,h,f,d,s),n=e[t+1],e[t+1]=e[t+3],e[t+3]=n},_doCryptBlock:function(e,t,n,r,i,s,o,a){for(var u=this._nRounds,c=e[t]^n[0],l=e[t+1]^n[1],h=e[t+2]^n[2],f=e[t+3]^n[3],d=4,p=1;p<u;p++)var g=r[c>>>24]^i[l>>>16&255]^s[h>>>8&255]^o[255&f]^n[d++],y=r[l>>>24]^i[h>>>16&255]^s[f>>>8&255]^o[255&c]^n[d++],b=r[h>>>24]^i[f>>>16&255]^s[c>>>8&255]^o[255&l]^n[d++],f=r[f>>>24]^i[c>>>16&255]^s[l>>>8&255]^o[255&h]^n[d++],c=g,l=y,h=b;g=(a[c>>>24]<<24|a[l>>>16&255]<<16|a[h>>>8&255]<<8|a[255&f])^n[d++],y=(a[l>>>24]<<24|a[h>>>16&255]<<16|a[f>>>8&255]<<8|a[255&c])^n[d++],b=(a[h>>>24]<<24|a[f>>>16&255]<<16|a[c>>>8&255]<<8|a[255&l])^n[d++],f=(a[f>>>24]<<24|a[c>>>16&255]<<16|a[l>>>8&255]<<8|a[255&h])^n[d++],e[t]=g,e[t+1]=y,e[t+2]=b,e[t+3]=f},keySize:8});e.AES=t._createHelper(r)}(),n.mode.ECB=function(){var e=n.lib.BlockCipherMode.extend();return e.Encryptor=e.extend({processBlock:function(e,t){this._cipher.encryptBlock(e,t)}}),e.Decryptor=e.extend({processBlock:function(e,t){this._cipher.decryptBlock(e,t)}}),e}(),e.exports=n},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),o=n(6),a=(r(o),n(2)),u=(r(a),n(9)),c=(r(u),n(11)),l=r(c),h=n(14),f=r(h),d=n(15),p=r(d),g=(n(5),n(10)),y=r(g),b=function(){function e(t){var n=t.subscribeEndpoint,r=t.leaveEndpoint,s=t.heartbeatEndpoint,o=t.setStateEndpoint,a=t.timeEndpoint,u=t.config,c=t.crypto,h=t.listenerManager;i(this,e),this._listenerManager=h,this._config=u,this._leaveEndpoint=r,this._heartbeatEndpoint=s,this._setStateEndpoint=o,this._subscribeEndpoint=n,this._crypto=c,this._channels={},this._presenceChannels={},this._heartbeatChannels={},this._heartbeatChannelGroups={},this._channelGroups={},this._presenceChannelGroups={},this._pendingChannelSubscriptions=[],this._pendingChannelGroupSubscriptions=[],this._currentTimetoken=0,this._lastTimetoken=0,this._storedTimetoken=null,this._subscriptionStatusAnnounced=!1,this._isOnline=!0,this._reconnectionManager=new l.default({timeEndpoint:a}),this._dedupingManager=new f.default({config:u})}return s(e,[{key:"adaptStateChange",value:function(e,t){var n=this,r=e.state,i=e.channels,s=void 0===i?[]:i,o=e.channelGroups,a=void 0===o?[]:o;return s.forEach(function(e){e in n._channels&&(n._channels[e].state=r)}),a.forEach(function(e){e in n._channelGroups&&(n._channelGroups[e].state=r)}),this._setStateEndpoint({state:r,channels:s,channelGroups:a},t)}},{key:"adaptPresenceChange",value:function(e){var t=this,n=e.connected,r=e.channels,i=void 0===r?[]:r,s=e.channelGroups,o=void 0===s?[]:s;n?(i.forEach(function(e){t._heartbeatChannels[e]={state:{}}}),o.forEach(function(e){t._heartbeatChannelGroups[e]={state:{}}})):(i.forEach(function(e){e in t._heartbeatChannels&&delete t._heartbeatChannels[e]}),o.forEach(function(e){e in t._heartbeatChannelGroups&&delete t._heartbeatChannelGroups[e]}),!1===this._config.suppressLeaveEvents&&this._leaveEndpoint({channels:i,channelGroups:o},function(e){t._listenerManager.announceStatus(e)})),this.reconnect()}},{key:"adaptSubscribeChange",value:function(e){var t=this,n=e.timetoken,r=e.channels,i=void 0===r?[]:r,s=e.channelGroups,o=void 0===s?[]:s,a=e.withPresence,u=void 0!==a&&a;if(!this._config.subscribeKey||""===this._config.subscribeKey)return void(console&&console.log&&console.log("subscribe key missing; aborting subscribe"));n&&(this._lastTimetoken=this._currentTimetoken,this._currentTimetoken=n),
+"0"!==this._currentTimetoken&&(this._storedTimetoken=this._currentTimetoken,this._currentTimetoken=0),i.forEach(function(e){t._channels[e]={state:{}},u&&(t._presenceChannels[e]={}),t._pendingChannelSubscriptions.push(e)}),o.forEach(function(e){t._channelGroups[e]={state:{}},u&&(t._presenceChannelGroups[e]={}),t._pendingChannelGroupSubscriptions.push(e)}),this._subscriptionStatusAnnounced=!1,this.reconnect()}},{key:"adaptUnsubscribeChange",value:function(e,t){var n=this,r=e.channels,i=void 0===r?[]:r,s=e.channelGroups,o=void 0===s?[]:s,a=[],u=[];i.forEach(function(e){e in n._channels&&(delete n._channels[e],a.push(e)),e in n._presenceChannels&&(delete n._presenceChannels[e],a.push(e))}),o.forEach(function(e){e in n._channelGroups&&(delete n._channelGroups[e],u.push(e)),e in n._presenceChannelGroups&&(delete n._channelGroups[e],u.push(e))}),0===a.length&&0===u.length||(!1!==this._config.suppressLeaveEvents||t||this._leaveEndpoint({channels:a,channelGroups:u},function(e){e.affectedChannels=a,e.affectedChannelGroups=u,e.currentTimetoken=n._currentTimetoken,e.lastTimetoken=n._lastTimetoken,n._listenerManager.announceStatus(e)}),0===Object.keys(this._channels).length&&0===Object.keys(this._presenceChannels).length&&0===Object.keys(this._channelGroups).length&&0===Object.keys(this._presenceChannelGroups).length&&(this._lastTimetoken=0,this._currentTimetoken=0,this._storedTimetoken=null,this._region=null,this._reconnectionManager.stopPolling()),this.reconnect())}},{key:"unsubscribeAll",value:function(e){this.adaptUnsubscribeChange({channels:this.getSubscribedChannels(),channelGroups:this.getSubscribedChannelGroups()},e)}},{key:"getHeartbeatChannels",value:function(){return Object.keys(this._heartbeatChannels)}},{key:"getHeartbeatChannelGroups",value:function(){return Object.keys(this._heartbeatChannelGroups)}},{key:"getSubscribedChannels",value:function(){return Object.keys(this._channels)}},{key:"getSubscribedChannelGroups",value:function(){return Object.keys(this._channelGroups)}},{key:"reconnect",value:function(){this._startSubscribeLoop(),this._registerHeartbeatTimer()}},{key:"disconnect",value:function(){this._stopSubscribeLoop(),this._stopHeartbeatTimer(),this._reconnectionManager.stopPolling()}},{key:"_registerHeartbeatTimer",value:function(){this._stopHeartbeatTimer(),0!==this._config.getHeartbeatInterval()&&(this._performHeartbeatLoop(),this._heartbeatTimer=setInterval(this._performHeartbeatLoop.bind(this),1e3*this._config.getHeartbeatInterval()))}},{key:"_stopHeartbeatTimer",value:function(){this._heartbeatTimer&&(clearInterval(this._heartbeatTimer),this._heartbeatTimer=null)}},{key:"_performHeartbeatLoop",value:function(){var e=this,t=[];t=t.concat(this.getHeartbeatChannels()),t=t.concat(this.getSubscribedChannels());var n=[];n=n.concat(this.getHeartbeatChannelGroups()),n=n.concat(this.getSubscribedChannelGroups());var r={};if(0!==t.length||0!==n.length){this.getSubscribedChannels().forEach(function(t){var n=e._channels[t].state;Object.keys(n).length&&(r[t]=n)}),this.getSubscribedChannelGroups().forEach(function(t){var n=e._channelGroups[t].state;Object.keys(n).length&&(r[t]=n)});var i=function(t){t.error&&e._config.announceFailedHeartbeats&&e._listenerManager.announceStatus(t),t.error&&e._config.autoNetworkDetection&&e._isOnline&&(e._isOnline=!1,e.disconnect(),e._listenerManager.announceNetworkDown(),e.reconnect()),!t.error&&e._config.announceSuccessfulHeartbeats&&e._listenerManager.announceStatus(t)};this._heartbeatEndpoint({channels:t,channelGroups:n,state:r},i.bind(this))}}},{key:"_startSubscribeLoop",value:function(){this._stopSubscribeLoop();var e=[],t=[];if(Object.keys(this._channels).forEach(function(t){return e.push(t)}),Object.keys(this._presenceChannels).forEach(function(t){return e.push(t+"-pnpres")}),Object.keys(this._channelGroups).forEach(function(e){return t.push(e)}),Object.keys(this._presenceChannelGroups).forEach(function(e){return t.push(e+"-pnpres")}),0!==e.length||0!==t.length){var n={channels:e,channelGroups:t,timetoken:this._currentTimetoken,filterExpression:this._config.filterExpression,region:this._region};this._subscribeCall=this._subscribeEndpoint(n,this._processSubscribeResponse.bind(this))}}},{key:"_processSubscribeResponse",value:function(e,t){var n=this;if(e.error)return void(e.category===y.default.PNTimeoutCategory?this._startSubscribeLoop():e.category===y.default.PNNetworkIssuesCategory?(this.disconnect(),e.error&&this._config.autoNetworkDetection&&this._isOnline&&(this._isOnline=!1,this._listenerManager.announceNetworkDown()),this._reconnectionManager.onReconnection(function(){n._config.autoNetworkDetection&&!n._isOnline&&(n._isOnline=!0,n._listenerManager.announceNetworkUp()),n.reconnect(),n._subscriptionStatusAnnounced=!0;var t={category:y.default.PNReconnectedCategory,operation:e.operation,lastTimetoken:n._lastTimetoken,currentTimetoken:n._currentTimetoken};n._listenerManager.announceStatus(t)}),this._reconnectionManager.startPolling(),this._listenerManager.announceStatus(e)):e.category===y.default.PNBadRequestCategory?(this._stopHeartbeatTimer(),this._listenerManager.announceStatus(e)):this._listenerManager.announceStatus(e));if(this._storedTimetoken?(this._currentTimetoken=this._storedTimetoken,this._storedTimetoken=null):(this._lastTimetoken=this._currentTimetoken,this._currentTimetoken=t.metadata.timetoken),!this._subscriptionStatusAnnounced){var r={};r.category=y.default.PNConnectedCategory,r.operation=e.operation,r.affectedChannels=this._pendingChannelSubscriptions,r.subscribedChannels=this.getSubscribedChannels(),r.affectedChannelGroups=this._pendingChannelGroupSubscriptions,r.lastTimetoken=this._lastTimetoken,r.currentTimetoken=this._currentTimetoken,this._subscriptionStatusAnnounced=!0,this._listenerManager.announceStatus(r),this._pendingChannelSubscriptions=[],this._pendingChannelGroupSubscriptions=[]}var i=t.messages||[],s=this._config,o=s.requestMessageCountThreshold,a=s.dedupeOnSubscribe;if(o&&i.length>=o){var u={};u.category=y.default.PNRequestMessageCountExceededCategory,u.operation=e.operation,this._listenerManager.announceStatus(u)}i.forEach(function(e){var t=e.channel,r=e.subscriptionMatch,i=e.publishMetaData;if(t===r&&(r=null),a){if(n._dedupingManager.isDuplicate(e))return;n._dedupingManager.addEntry(e)}if(p.default.endsWith(e.channel,"-pnpres")){var s={};s.channel=null,s.subscription=null,s.actualChannel=null!=r?t:null,s.subscribedChannel=null!=r?r:t,t&&(s.channel=t.substring(0,t.lastIndexOf("-pnpres"))),r&&(s.subscription=r.substring(0,r.lastIndexOf("-pnpres"))),s.action=e.payload.action,s.state=e.payload.data,s.timetoken=i.publishTimetoken,s.occupancy=e.payload.occupancy,s.uuid=e.payload.uuid,s.timestamp=e.payload.timestamp,e.payload.join&&(s.join=e.payload.join),e.payload.leave&&(s.leave=e.payload.leave),e.payload.timeout&&(s.timeout=e.payload.timeout),n._listenerManager.announcePresence(s)}else{var o={};o.channel=null,o.subscription=null,o.actualChannel=null!=r?t:null,o.subscribedChannel=null!=r?r:t,o.channel=t,o.subscription=r,o.timetoken=i.publishTimetoken,o.publisher=e.issuingClientId,e.userMetadata&&(o.userMetadata=e.userMetadata),n._config.cipherKey?o.message=n._crypto.decrypt(e.payload):o.message=e.payload,n._listenerManager.announceMessage(o)}}),this._region=t.metadata.region,this._startSubscribeLoop()}},{key:"_stopSubscribeLoop",value:function(){this._subscribeCall&&("function"==typeof this._subscribeCall.abort&&this._subscribeCall.abort(),this._subscribeCall=null)}}]),e}();t.default=b,e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=(n(5),n(10)),o=function(e){return e&&e.__esModule?e:{default:e}}(s),a=function(){function e(){r(this,e),this._listeners=[]}return i(e,[{key:"addListener",value:function(e){this._listeners.push(e)}},{key:"removeListener",value:function(e){var t=[];this._listeners.forEach(function(n){n!==e&&t.push(n)}),this._listeners=t}},{key:"removeAllListeners",value:function(){this._listeners=[]}},{key:"announcePresence",value:function(e){this._listeners.forEach(function(t){t.presence&&t.presence(e)})}},{key:"announceStatus",value:function(e){this._listeners.forEach(function(t){t.status&&t.status(e)})}},{key:"announceMessage",value:function(e){this._listeners.forEach(function(t){t.message&&t.message(e)})}},{key:"announceNetworkUp",value:function(){var e={};e.category=o.default.PNNetworkUpCategory,this.announceStatus(e)}},{key:"announceNetworkDown",value:function(){var e={};e.category=o.default.PNNetworkDownCategory,this.announceStatus(e)}}]),e}();t.default=a,e.exports=t.default},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={PNNetworkUpCategory:"PNNetworkUpCategory",PNNetworkDownCategory:"PNNetworkDownCategory",PNNetworkIssuesCategory:"PNNetworkIssuesCategory",PNTimeoutCategory:"PNTimeoutCategory",PNBadRequestCategory:"PNBadRequestCategory",PNAccessDeniedCategory:"PNAccessDeniedCategory",PNUnknownCategory:"PNUnknownCategory",PNReconnectedCategory:"PNReconnectedCategory",PNConnectedCategory:"PNConnectedCategory",PNRequestMessageCountExceededCategory:"PNRequestMessageCountExceededCategory"},e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(12),o=(function(e){e&&e.__esModule}(s),n(5),function(){function e(t){var n=t.timeEndpoint;r(this,e),this._timeEndpoint=n}return i(e,[{key:"onReconnection",value:function(e){this._reconnectionCallback=e}},{key:"startPolling",value:function(){this._timeTimer=setInterval(this._performTimeLoop.bind(this),3e3)}},{key:"stopPolling",value:function(){clearInterval(this._timeTimer)}},{key:"_performTimeLoop",value:function(){var e=this;this._timeEndpoint(function(t){t.error||(clearInterval(e._timeTimer),e._reconnectionCallback())})}}]),e}());t.default=o,e.exports=t.default},function(e,t,n){"use strict";function r(){return h.default.PNTimeOperation}function i(){return"/time/0"}function s(e){return e.config.getTransactionTimeout()}function o(){return{}}function a(){return!1}function u(e,t){return{timetoken:t[0]}}function c(){}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.getURL=i,t.getRequestTimeout=s,t.prepareParams=o,t.isAuthSupported=a,t.handleResponse=u,t.validateParams=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={PNTimeOperation:"PNTimeOperation",PNHistoryOperation:"PNHistoryOperation",PNDeleteMessagesOperation:"PNDeleteMessagesOperation",PNFetchMessagesOperation:"PNFetchMessagesOperation",PNSubscribeOperation:"PNSubscribeOperation",PNUnsubscribeOperation:"PNUnsubscribeOperation",PNPublishOperation:"PNPublishOperation",PNPushNotificationEnabledChannelsOperation:"PNPushNotificationEnabledChannelsOperation",PNRemoveAllPushNotificationsOperation:"PNRemoveAllPushNotificationsOperation",PNWhereNowOperation:"PNWhereNowOperation",PNSetStateOperation:"PNSetStateOperation",PNHereNowOperation:"PNHereNowOperation",PNGetStateOperation:"PNGetStateOperation",PNHeartbeatOperation:"PNHeartbeatOperation",PNChannelGroupsOperation:"PNChannelGroupsOperation",PNRemoveGroupOperation:"PNRemoveGroupOperation",PNChannelsForGroupOperation:"PNChannelsForGroupOperation",PNAddChannelsToGroupOperation:"PNAddChannelsToGroupOperation",PNRemoveChannelsFromGroupOperation:"PNRemoveChannelsFromGroupOperation",PNAccessManagerGrant:"PNAccessManagerGrant",PNAccessManagerAudit:"PNAccessManagerAudit"},e.exports=t.default},function(e,t,n){"use strict";function r(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var i=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),s=n(2),o=(function(e){e&&e.__esModule}(s),n(5),function(e){var t=0;if(0===e.length)return t;for(var n=0;n<e.length;n+=1){t=(t<<5)-t+e.charCodeAt(n),t&=t}return t}),a=function(){function e(t){var n=t.config;r(this,e),this.hashHistory=[],this._config=n}return i(e,[{key:"getKey",value:function(e){var t=o(JSON.stringify(e.payload)).toString();return e.publishMetaData.publishTimetoken+"-"+t}},{key:"isDuplicate",value:function(e){return this.hashHistory.includes(this.getKey(e))}},{key:"addEntry",value:function(e){this.hashHistory.length>=this._config.maximumCacheSize&&this.hashHistory.shift(),this.hashHistory.push(this.getKey(e))}},{key:"clearHistory",value:function(){this.hashHistory=[]}}]),e}();t.default=a,e.exports=t.default},function(e,t){"use strict";function n(e){var t=[];return Object.keys(e).forEach(function(e){return t.push(e)}),t}function r(e){return encodeURIComponent(e).replace(/[!~*'()]/g,function(e){return"%"+e.charCodeAt(0).toString(16).toUpperCase()})}function i(e){return n(e).sort()}function s(e){return i(e).map(function(t){return t+"="+r(e[t])}).join("&")}function o(e,t){return-1!==e.indexOf(t,this.length-t.length)}function a(){var e=void 0,t=void 0;return{promise:new Promise(function(n,r){e=n,t=r}),reject:t,fulfill:e}}e.exports={signPamFromParams:s,endsWith:o,createPromise:a,encodeString:r}},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function s(e,t){if(!e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return!t||"object"!=typeof t&&"function"!=typeof t?e:t}function o(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function, not "+typeof t);e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}),t&&(Object.setPrototypeOf?Object.setPrototypeOf(e,t):e.__proto__=t)}function a(e,t){return e.type=t,e.error=!0,e}function u(e){return a({message:e},"validationError")}function c(e,t,n){return e.usePost&&e.usePost(t,n)?e.postURL(t,n):e.getURL(t,n)}function l(e){if(e.sdkName)return e.sdkName;var t="PubNub-JS-"+e.sdkFamily;return e.partnerId&&(t+="-"+e.partnerId),t+="/"+e.getVersion()}function h(e,t,n){var r=e.config,i=e.crypto;n.timestamp=Math.floor((new Date).getTime()/1e3);var s=r.subscribeKey+"\n"+r.publishKey+"\n"+t+"\n";s+=g.default.signPamFromParams(n);var o=i.HMACSHA256(s);o=o.replace(/\+/g,"-"),o=o.replace(/\//g,"_"),n.signature=o}Object.defineProperty(t,"__esModule",{value:!0}),t.default=function(e,t){var n=e.networking,r=e.config,i=null,s=null,o={};t.getOperation()===v.default.PNTimeOperation||t.getOperation()===v.default.PNChannelGroupsOperation?i=arguments.length<=2?void 0:arguments[2]:(o=arguments.length<=2?void 0:arguments[2],i=arguments.length<=3?void 0:arguments[3]),"undefined"==typeof Promise||i||(s=g.default.createPromise());var a=t.validateParams(e,o);if(!a){var f=t.prepareParams(e,o),p=c(t,e,o),y=void 0,b={url:p,operation:t.getOperation(),timeout:t.getRequestTimeout(e)};f.uuid=r.UUID,f.pnsdk=l(r),r.useInstanceId&&(f.instanceid=r.instanceId),r.useRequestId&&(f.requestid=d.default.createUUID()),t.isAuthSupported()&&r.getAuthKey()&&(f.auth=r.getAuthKey()),r.secretKey&&h(e,p,f);var m=function(n,r){if(n.error)return void(i?i(n):s&&s.reject(new _("PubNub call failed, check status for details",n)));var a=t.handleResponse(e,r,o);i?i(n,a):s&&s.fulfill(a)};if(t.usePost&&t.usePost(e,o)){var k=t.postPayload(e,o);y=n.POST(f,k,b,m)}else y=t.useDelete&&t.useDelete()?n.DELETE(f,b,m):n.GET(f,b,m);return t.getOperation()===v.default.PNSubscribeOperation?y:s?s.promise:void 0}return i?i(u(a)):s?(s.reject(new _("Validation failed, check status for details",u(a))),s.promise):void 0};var f=n(3),d=r(f),p=(n(5),n(15)),g=r(p),y=n(2),b=(r(y),n(13)),v=r(b),_=function(e){function t(e,n){i(this,t);var r=s(this,(t.__proto__||Object.getPrototypeOf(t)).call(this,e));return r.name=r.constructor.name,r.status=n,r.message=e,r}return o(t,e),t}(Error);e.exports=t.default},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNAddChannelsToGroupOperation}function s(e,t){var n=t.channels,r=t.channelGroup,i=e.config;return r?n&&0!==n.length?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channels;return{add:(void 0===n?[]:n).join(",")}}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNRemoveChannelsFromGroupOperation}function s(e,t){var n=t.channels,r=t.channelGroup,i=e.config;return r?n&&0!==n.length?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channels;return{remove:(void 0===n?[]:n).join(",")}}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNRemoveGroupOperation}function s(e,t){var n=t.channelGroup,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)+"/remove"}function a(){return!0}function u(e){return e.config.getTransactionTimeout()}function c(){return{}}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.isAuthSupported=a,t.getRequestTimeout=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNChannelGroupsOperation}function i(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function s(e){return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group"}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(){return{}}function c(e,t){return{groups:t.payload.groups}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNChannelsForGroupOperation}function s(e,t){var n=t.channelGroup,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channel Group"}function o(e,t){var n=t.channelGroup;return"/v1/channel-registration/sub-key/"+e.config.subscribeKey+"/channel-group/"+p.default.encodeString(n)}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(){return{}}function l(e,t){return{channels:t.payload.channels}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNPushNotificationEnabledChannelsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=t.channels,s=e.config;return n?r?i&&0!==i.length?s.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){var n=t.pushGateway,r=t.channels;return{type:n,add:(void 0===r?[]:r).join(",")}}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNPushNotificationEnabledChannelsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=t.channels,s=e.config;return n?r?i&&0!==i.length?s.subscribeKey?void 0:"Missing Subscribe Key":"Missing Channels":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){var n=t.pushGateway,r=t.channels;return{type:n,remove:(void 0===r?[]:r).join(",")}}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNPushNotificationEnabledChannelsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=e.config;return n?r?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){return{type:t.pushGateway}}function c(e,t){return{channels:t}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNRemoveAllPushNotificationsOperation}function i(e,t){var n=t.device,r=t.pushGateway,i=e.config;return n?r?i.subscribeKey?void 0:"Missing Subscribe Key":"Missing GW Type (pushGateway: gcm or apns)":"Missing Device ID (device)"}function s(e,t){var n=t.device;return"/v1/push/sub-key/"+e.config.subscribeKey+"/devices/"+n+"/remove"}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(e,t){return{type:t.pushGateway}}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNUnsubscribeOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(s)+"/leave"}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i={};return r.length>0&&(i["channel-group"]=r.join(",")),i}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNWhereNowOperation}function i(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function s(e,t){var n=e.config,r=t.uuid,i=void 0===r?n.UUID:r;return"/v2/presence/sub-key/"+n.subscribeKey+"/uuid/"+i}function o(e){return e.config.getTransactionTimeout()}function a(){return!0}function u(){return{}}function c(e,t){return t.payload?{channels:t.payload.channels}:{channels:[]}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNHeartbeatOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(s)+"/heartbeat"}function a(){return!0}function u(e){return e.config.getTransactionTimeout()}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i=t.state,s=void 0===i?{}:i,o=e.config,a={};return r.length>0&&(a["channel-group"]=r.join(",")),a.state=JSON.stringify(s),a.heartbeat=o.getPresenceTimeout(),a}function l(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.isAuthSupported=a,t.getRequestTimeout=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNGetStateOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.uuid,i=void 0===r?n.UUID:r,s=t.channels,o=void 0===s?[]:s,a=o.length>0?o.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(a)+"/uuid/"+i}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i={};return r.length>0&&(i["channel-group"]=r.join(",")),i}function l(e,t,n){var r=n.channels,i=void 0===r?[]:r,s=n.channelGroups,o=void 0===s?[]:s,a={};return 1===i.length&&0===o.length?a[i[0]]=t.payload:a=t.payload,{channels:a}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNSetStateOperation}function s(e,t){var n=e.config,r=t.state,i=t.channels,s=void 0===i?[]:i,o=t.channelGroups,a=void 0===o?[]:o;return r?n.subscribeKey?0===s.length&&0===a.length?"Please provide a list of channels and/or channel-groups":void 0:"Missing Subscribe Key":"Missing State"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/presence/sub-key/"+n.subscribeKey+"/channel/"+p.default.encodeString(s)+"/uuid/"+n.UUID+"/data"}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.state,r=t.channelGroups,i=void 0===r?[]:r,s={};return s.state=JSON.stringify(n),i.length>0&&(s["channel-group"]=i.join(",")),s}function l(e,t){return{state:t.payload}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNHereNowOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=t.channelGroups,o=void 0===s?[]:s,a="/v2/presence/sub-key/"+n.subscribeKey;if(i.length>0||o.length>0){var u=i.length>0?i.join(","):",";a+="/channel/"+p.default.encodeString(u)}return a}function a(e){return e.config.getTransactionTimeout()}function u(){return!0}function c(e,t){var n=t.channelGroups,r=void 0===n?[]:n,i=t.includeUUIDs,s=void 0===i||i,o=t.includeState,a=void 0!==o&&o,u={};return s||(u.disable_uuids=1),a&&(u.state=1),r.length>0&&(u["channel-group"]=r.join(",")),u}function l(e,t,n){var r=n.channels,i=void 0===r?[]:r,s=n.channelGroups,o=void 0===s?[]:s,a=n.includeUUIDs,u=void 0===a||a,c=n.includeState,l=void 0!==c&&c;return i.length>1||o.length>0||0===o.length&&0===i.length?function(){var e={};return e.totalChannels=t.payload.total_channels,e.totalOccupancy=t.payload.total_occupancy,e.channels={},Object.keys(t.payload.channels).forEach(function(n){var r=t.payload.channels[n],i=[];return e.channels[n]={occupants:i,name:n,occupancy:r.occupancy},u&&r.uuids.forEach(function(e){l?i.push({state:e.state,uuid:e.uuid}):i.push({state:null,uuid:e})}),e}),e}():function(){var e={},n=[];return e.totalChannels=1,e.totalOccupancy=t.occupancy,e.channels={},e.channels[i[0]]={occupants:n,name:i[0],occupancy:t.occupancy},u&&t.uuids&&t.uuids.forEach(function(e){l?n.push({state:e.state,uuid:e.uuid}):n.push({state:null,uuid:e})}),e}()}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(){return h.default.PNAccessManagerAudit}function i(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function s(e){return"/v2/auth/audit/sub-key/"+e.config.subscribeKey}function o(e){return e.config.getTransactionTimeout()}function a(){return!1}function u(e,t){var n=t.channel,r=t.channelGroup,i=t.authKeys,s=void 0===i?[]:i,o={};return n&&(o.channel=n),r&&(o["channel-group"]=r),s.length>0&&(o.auth=s.join(",")),o}function c(e,t){return t.payload}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{default:e}}(l)},function(e,t,n){"use strict";function r(){return h.default.PNAccessManagerGrant}function i(e){var t=e.config;return t.subscribeKey?t.publishKey?t.secretKey?void 0:"Missing Secret Key":"Missing Publish Key":"Missing Subscribe Key"}function s(e){return"/v2/auth/grant/sub-key/"+e.config.subscribeKey}function o(e){return e.config.getTransactionTimeout()}function a(){return!1}function u(e,t){var n=t.channels,r=void 0===n?[]:n,i=t.channelGroups,s=void 0===i?[]:i,o=t.ttl,a=t.read,u=void 0!==a&&a,c=t.write,l=void 0!==c&&c,h=t.manage,f=void 0!==h&&h,d=t.authKeys,p=void 0===d?[]:d,g={};return g.r=u?"1":"0",g.w=l?"1":"0",g.m=f?"1":"0",r.length>0&&(g.channel=r.join(",")),s.length>0&&(g["channel-group"]=s.join(",")),p.length>0&&(g.auth=p.join(",")),(o||0===o)&&(g.ttl=o),g}function c(){return{}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=r,t.validateParams=i,t.getURL=s,t.getRequestTimeout=o,t.isAuthSupported=a,t.prepareParams=u,t.handleResponse=c;var l=(n(5),n(13)),h=function(e){return e&&e.__esModule?e:{
+default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){var n=e.crypto,r=e.config,i=JSON.stringify(t);return r.cipherKey&&(i=n.encrypt(i),i=JSON.stringify(i)),i}function s(){return b.default.PNPublishOperation}function o(e,t){var n=e.config,r=t.message;return t.channel?r?n.subscribeKey?void 0:"Missing Subscribe Key":"Missing Message":"Missing Channel"}function a(e,t){var n=t.sendByPost;return void 0!==n&&n}function u(e,t){var n=e.config,r=t.channel,s=t.message,o=i(e,s);return"/publish/"+n.publishKey+"/"+n.subscribeKey+"/0/"+_.default.encodeString(r)+"/0/"+_.default.encodeString(o)}function c(e,t){var n=e.config,r=t.channel;return"/publish/"+n.publishKey+"/"+n.subscribeKey+"/0/"+_.default.encodeString(r)+"/0"}function l(e){return e.config.getTransactionTimeout()}function h(){return!0}function f(e,t){return i(e,t.message)}function d(e,t){var n=t.meta,r=t.replicate,i=void 0===r||r,s=t.storeInHistory,o=t.ttl,a={};return null!=s&&(a.store=s?"1":"0"),o&&(a.ttl=o),!1===i&&(a.norep="true"),n&&"object"===(void 0===n?"undefined":g(n))&&(a.meta=JSON.stringify(n)),a}function p(e,t){return{timetoken:t[2]}}Object.defineProperty(t,"__esModule",{value:!0});var g="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e};t.getOperation=s,t.validateParams=o,t.usePost=a,t.getURL=u,t.postURL=c,t.getRequestTimeout=l,t.isAuthSupported=h,t.postPayload=f,t.prepareParams=d,t.handleResponse=p;var y=(n(5),n(13)),b=r(y),v=n(15),_=r(v)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){var n=e.config,r=e.crypto;if(!n.cipherKey)return t;try{return r.decrypt(t)}catch(e){return t}}function s(){return d.default.PNHistoryOperation}function o(e,t){var n=t.channel,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing channel"}function a(e,t){var n=t.channel;return"/v2/history/sub-key/"+e.config.subscribeKey+"/channel/"+g.default.encodeString(n)}function u(e){return e.config.getTransactionTimeout()}function c(){return!0}function l(e,t){var n=t.start,r=t.end,i=t.reverse,s=t.count,o=void 0===s?100:s,a=t.stringifiedTimeToken,u=void 0!==a&&a,c={include_token:"true"};return c.count=o,n&&(c.start=n),r&&(c.end=r),u&&(c.string_message_token="true"),null!=i&&(c.reverse=i.toString()),c}function h(e,t){var n={messages:[],startTimeToken:t[1],endTimeToken:t[2]};return t[0].forEach(function(t){var r={timetoken:t.timetoken,entry:i(e,t.message)};n.messages.push(r)}),n}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=s,t.validateParams=o,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(5),n(13)),d=r(f),p=n(15),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return d.default.PNDeleteMessagesOperation}function s(e,t){var n=t.channel,r=e.config;return n?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing channel"}function o(){return!0}function a(e,t){var n=t.channel,r=t.start,i=t.end,s=e.config,o="";return r&&(o="?start="+r),i&&(o+=(""!==o?"&":"?")+"end="+i),"/v3/history/sub-key/"+s.subscribeKey+"/channel/"+g.default.encodeString(n)+o}function u(e){return e.config.getTransactionTimeout()}function c(){return!0}function l(e,t){var n=t.start,r=t.end,i={};return n&&(i.start=n),r&&(i.end=r),{}}function h(e,t){return t.payload}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.useDelete=o,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(5),n(13)),d=r(f),p=n(15),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){var n=e.config,r=e.crypto;if(!n.cipherKey)return t;try{return r.decrypt(t)}catch(e){return t}}function s(){return d.default.PNFetchMessagesOperation}function o(e,t){var n=t.channels,r=e.config;return n&&0!==n.length?r.subscribeKey?void 0:"Missing Subscribe Key":"Missing channels"}function a(e,t){var n=t.channels,r=void 0===n?[]:n,i=e.config,s=r.length>0?r.join(","):",";return"/v3/history/sub-key/"+i.subscribeKey+"/channel/"+g.default.encodeString(s)}function u(e){return e.config.getTransactionTimeout()}function c(){return!0}function l(e,t){var n=t.start,r=t.end,i=t.count,s={};return i&&(s.max=i),n&&(s.start=n),r&&(s.end=r),s}function h(e,t){var n={channels:{}};return Object.keys(t.channels||{}).forEach(function(r){n.channels[r]=[],(t.channels[r]||[]).forEach(function(t){var s={};s.channel=r,s.subscription=null,s.timetoken=t.timetoken,s.message=i(e,t.message),n.channels[r].push(s)})}),n}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=s,t.validateParams=o,t.getURL=a,t.getRequestTimeout=u,t.isAuthSupported=c,t.prepareParams=l,t.handleResponse=h;var f=(n(5),n(13)),d=r(f),p=n(15),g=r(p)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(){return f.default.PNSubscribeOperation}function s(e){if(!e.config.subscribeKey)return"Missing Subscribe Key"}function o(e,t){var n=e.config,r=t.channels,i=void 0===r?[]:r,s=i.length>0?i.join(","):",";return"/v2/subscribe/"+n.subscribeKey+"/"+p.default.encodeString(s)+"/0"}function a(e){return e.config.getSubscribeTimeout()}function u(){return!0}function c(e,t){var n=e.config,r=t.channelGroups,i=void 0===r?[]:r,s=t.timetoken,o=t.filterExpression,a=t.region,u={heartbeat:n.getPresenceTimeout()};return i.length>0&&(u["channel-group"]=i.join(",")),o&&o.length>0&&(u["filter-expr"]=o),s&&(u.tt=s),a&&(u.tr=a),u}function l(e,t){var n=[];t.m.forEach(function(e){var t={publishTimetoken:e.p.t,region:e.p.r},r={shard:parseInt(e.a,10),subscriptionMatch:e.b,channel:e.c,payload:e.d,flags:e.f,issuingClientId:e.i,subscribeKey:e.k,originationTimetoken:e.o,userMetadata:e.u,publishMetaData:t};n.push(r)});var r={timetoken:t.t.t,region:t.t.r};return{messages:n,metadata:r}}Object.defineProperty(t,"__esModule",{value:!0}),t.getOperation=i,t.validateParams=s,t.getURL=o,t.getRequestTimeout=a,t.isAuthSupported=u,t.prepareParams=c,t.handleResponse=l;var h=(n(5),n(13)),f=r(h),d=n(15),p=r(d)},function(e,t,n){"use strict";function r(e){return e&&e.__esModule?e:{default:e}}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}Object.defineProperty(t,"__esModule",{value:!0});var s=function(){function e(e,t){for(var n=0;n<t.length;n++){var r=t[n];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}return function(t,n,r){return n&&e(t.prototype,n),r&&e(t,r),t}}(),o=n(2),a=(r(o),n(10)),u=r(a),c=(n(5),function(){function e(t){var n=this;i(this,e),this._modules={},Object.keys(t).forEach(function(e){n._modules[e]=t[e].bind(n)})}return s(e,[{key:"init",value:function(e){this._config=e,this._maxSubDomain=20,this._currentSubDomain=Math.floor(Math.random()*this._maxSubDomain),this._providedFQDN=(this._config.secure?"https://":"http://")+this._config.origin,this._coreParams={},this.shiftStandardOrigin()}},{key:"nextOrigin",value:function(){if(-1===this._providedFQDN.indexOf("pubsub."))return this._providedFQDN;var e=void 0;return this._currentSubDomain=this._currentSubDomain+1,this._currentSubDomain>=this._maxSubDomain&&(this._currentSubDomain=1),e=this._currentSubDomain.toString(),this._providedFQDN.replace("pubsub","ps"+e)}},{key:"hasModule",value:function(e){return e in this._modules}},{key:"shiftStandardOrigin",value:function(){var e=arguments.length>0&&void 0!==arguments[0]&&arguments[0];return this._standardOrigin=this.nextOrigin(e),this._standardOrigin}},{key:"getStandardOrigin",value:function(){return this._standardOrigin}},{key:"POST",value:function(e,t,n,r){return this._modules.post(e,t,n,r)}},{key:"GET",value:function(e,t,n){return this._modules.get(e,t,n)}},{key:"DELETE",value:function(e,t,n){return this._modules.del(e,t,n)}},{key:"_detectErrorCategory",value:function(e){if("ENOTFOUND"===e.code)return u.default.PNNetworkIssuesCategory;if("ECONNREFUSED"===e.code)return u.default.PNNetworkIssuesCategory;if("ECONNRESET"===e.code)return u.default.PNNetworkIssuesCategory;if("EAI_AGAIN"===e.code)return u.default.PNNetworkIssuesCategory;if(0===e.status||e.hasOwnProperty("status")&&void 0===e.status)return u.default.PNNetworkIssuesCategory;if(e.timeout)return u.default.PNTimeoutCategory;if(e.response){if(e.response.badRequest)return u.default.PNBadRequestCategory;if(e.response.forbidden)return u.default.PNAccessDeniedCategory}return u.default.PNUnknownCategory}}]),e}());t.default=c,e.exports=t.default},function(e,t){"use strict";Object.defineProperty(t,"__esModule",{value:!0}),t.default={get:function(e){try{return localStorage.getItem(e)}catch(e){return null}},set:function(e,t){try{return localStorage.setItem(e,t)}catch(e){return null}}},e.exports=t.default},function(e,t,n){"use strict";function r(e){var t=(new Date).getTime(),n=(new Date).toISOString(),r=function(){return console&&console.log?console:window&&window.console&&window.console.log?window.console:console}();r.log("<<<<<"),r.log("["+n+"]","\n",e.url,"\n",e.qs),r.log("-----"),e.on("response",function(n){var i=(new Date).getTime(),s=i-t,o=(new Date).toISOString();r.log(">>>>>>"),r.log("["+o+" / "+s+"]","\n",e.url,"\n",e.qs,"\n",n.text),r.log("-----")})}function i(e,t,n){var i=this;return this._config.logVerbosity&&(e=e.use(r)),this._config.proxy&&this._modules.proxy&&(e=this._modules.proxy.call(this,e)),this._config.keepAlive&&this._modules.keepAlive&&(e=this._modules.keepAlive(e)),e.timeout(t.timeout).end(function(e,r){var s={};if(s.error=null!==e,s.operation=t.operation,r&&r.status&&(s.statusCode=r.status),e)return s.errorData=e,s.category=i._detectErrorCategory(e),n(s,null);var o=JSON.parse(r.text);return o.error&&1===o.error&&o.status&&o.message&&o.service?(s.errorData=o,s.statusCode=o.status,s.error=!0,s.category=i._detectErrorCategory(s),n(s,null)):n(s,o)})}function s(e,t,n){var r=c.default.get(this.getStandardOrigin()+t.url).query(e);return i.call(this,r,t,n)}function o(e,t,n,r){var s=c.default.post(this.getStandardOrigin()+n.url).query(e).send(t);return i.call(this,s,n,r)}function a(e,t,n){var r=c.default.delete(this.getStandardOrigin()+t.url).query(e);return i.call(this,r,t,n)}Object.defineProperty(t,"__esModule",{value:!0}),t.get=s,t.post=o,t.del=a;var u=n(42),c=function(e){return e&&e.__esModule?e:{default:e}}(u);n(5)},function(e,t,n){function r(){}function i(e){if(!b(e))return e;var t=[];for(var n in e)s(t,n,e[n]);return t.join("&")}function s(e,t,n){if(null!=n)if(Array.isArray(n))n.forEach(function(n){s(e,t,n)});else if(b(n))for(var r in n)s(e,t+"["+r+"]",n[r]);else e.push(encodeURIComponent(t)+"="+encodeURIComponent(n));else null===n&&e.push(encodeURIComponent(t))}function o(e){for(var t,n,r={},i=e.split("&"),s=0,o=i.length;s<o;++s)t=i[s],n=t.indexOf("="),-1==n?r[decodeURIComponent(t)]="":r[decodeURIComponent(t.slice(0,n))]=decodeURIComponent(t.slice(n+1));return r}function a(e){var t,n,r,i,s=e.split(/\r?\n/),o={};s.pop();for(var a=0,u=s.length;a<u;++a)n=s[a],t=n.indexOf(":"),r=n.slice(0,t).toLowerCase(),i=_(n.slice(t+1)),o[r]=i;return o}function u(e){return/[\/+]json\b/.test(e)}function c(e){return e.split(/ *; */).shift()}function l(e){return e.split(/ *; */).reduce(function(e,t){var n=t.split(/ *= */),r=n.shift(),i=n.shift();return r&&i&&(e[r]=i),e},{})}function h(e,t){t=t||{},this.req=e,this.xhr=this.req.xhr,this.text="HEAD"!=this.req.method&&(""===this.xhr.responseType||"text"===this.xhr.responseType)||void 0===this.xhr.responseType?this.xhr.responseText:null,this.statusText=this.req.xhr.statusText,this._setStatusProperties(this.xhr.status),this.header=this.headers=a(this.xhr.getAllResponseHeaders()),this.header["content-type"]=this.xhr.getResponseHeader("content-type"),this._setHeaderProperties(this.header),this.body="HEAD"!=this.req.method?this._parseBody(this.text?this.text:this.xhr.response):null}function f(e,t){var n=this;this._query=this._query||[],this.method=e,this.url=t,this.header={},this._header={},this.on("end",function(){var e=null,t=null;try{t=new h(n)}catch(t){return e=new Error("Parser is unable to parse the response"),e.parse=!0,e.original=t,e.rawResponse=n.xhr&&n.xhr.responseText?n.xhr.responseText:null,e.statusCode=n.xhr&&n.xhr.status?n.xhr.status:null,n.callback(e)}n.emit("response",t);var r;try{(t.status<200||t.status>=300)&&(r=new Error(t.statusText||"Unsuccessful HTTP response"),r.original=e,r.response=t,r.status=t.status)}catch(e){r=e}r?n.callback(r,t):n.callback(null,t)})}function d(e,t){var n=v("DELETE",e);return t&&n.end(t),n}var p;"undefined"!=typeof window?p=window:"undefined"!=typeof self?p=self:(console.warn("Using browser-only version of superagent in non-browser environment"),p=this);var g=n(43),y=n(44),b=n(45),v=e.exports=n(46).bind(null,f);v.getXHR=function(){if(!(!p.XMLHttpRequest||p.location&&"file:"==p.location.protocol&&p.ActiveXObject))return new XMLHttpRequest;try{return new ActiveXObject("Microsoft.XMLHTTP")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.6.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP.3.0")}catch(e){}try{return new ActiveXObject("Msxml2.XMLHTTP")}catch(e){}throw Error("Browser-only verison of superagent could not find XHR")};var _="".trim?function(e){return e.trim()}:function(e){return e.replace(/(^\s*|\s*$)/g,"")};v.serializeObject=i,v.parseString=o,v.types={html:"text/html",json:"application/json",xml:"application/xml",urlencoded:"application/x-www-form-urlencoded",form:"application/x-www-form-urlencoded","form-data":"application/x-www-form-urlencoded"},v.serialize={"application/x-www-form-urlencoded":i,"application/json":JSON.stringify},v.parse={"application/x-www-form-urlencoded":o,"application/json":JSON.parse},h.prototype.get=function(e){return this.header[e.toLowerCase()]},h.prototype._setHeaderProperties=function(e){var t=this.header["content-type"]||"";this.type=c(t);var n=l(t);for(var r in n)this[r]=n[r]},h.prototype._parseBody=function(e){var t=v.parse[this.type];return!t&&u(this.type)&&(t=v.parse["application/json"]),t&&e&&(e.length||e instanceof Object)?t(e):null},h.prototype._setStatusProperties=function(e){1223===e&&(e=204);var t=e/100|0;this.status=this.statusCode=e,this.statusType=t,this.info=1==t,this.ok=2==t,this.clientError=4==t,this.serverError=5==t,this.error=(4==t||5==t)&&this.toError(),this.accepted=202==e,this.noContent=204==e,this.badRequest=400==e,this.unauthorized=401==e,this.notAcceptable=406==e,this.notFound=404==e,this.forbidden=403==e},h.prototype.toError=function(){var e=this.req,t=e.method,n=e.url,r="cannot "+t+" "+n+" ("+this.status+")",i=new Error(r);return i.status=this.status,i.method=t,i.url=n,i},v.Response=h,g(f.prototype);for(var m in y)f.prototype[m]=y[m];f.prototype.type=function(e){return this.set("Content-Type",v.types[e]||e),this},f.prototype.responseType=function(e){return this._responseType=e,this},f.prototype.accept=function(e){return this.set("Accept",v.types[e]||e),this},f.prototype.auth=function(e,t,n){switch(n||(n={type:"basic"}),n.type){case"basic":var r=btoa(e+":"+t);this.set("Authorization","Basic "+r);break;case"auto":this.username=e,this.password=t}return this},f.prototype.query=function(e){return"string"!=typeof e&&(e=i(e)),e&&this._query.push(e),this},f.prototype.attach=function(e,t,n){return this._getFormData().append(e,t,n||t.name),this},f.prototype._getFormData=function(){return this._formData||(this._formData=new p.FormData),this._formData},f.prototype.callback=function(e,t){var n=this._callback;this.clearTimeout(),n(e,t)},f.prototype.crossDomainError=function(){var e=new Error("Request has been terminated\nPossible causes: the network is offline, Origin is not allowed by Access-Control-Allow-Origin, the page is being unloaded, etc.");e.crossDomain=!0,e.status=this.status,e.method=this.method,e.url=this.url,this.callback(e)},f.prototype._timeoutError=function(){var e=this._timeout,t=new Error("timeout of "+e+"ms exceeded");t.timeout=e,this.callback(t)},f.prototype._appendQueryString=function(){var e=this._query.join("&");e&&(this.url+=~this.url.indexOf("?")?"&"+e:"?"+e)},f.prototype.end=function(e){var t=this,n=this.xhr=v.getXHR(),i=this._timeout,s=this._formData||this._data;this._callback=e||r,n.onreadystatechange=function(){if(4==n.readyState){var e;try{e=n.status}catch(t){e=0}if(0==e){if(t.timedout)return t._timeoutError();if(t._aborted)return;return t.crossDomainError()}t.emit("end")}};var o=function(e,n){n.total>0&&(n.percent=n.loaded/n.total*100),n.direction=e,t.emit("progress",n)};if(this.hasListeners("progress"))try{n.onprogress=o.bind(null,"download"),n.upload&&(n.upload.onprogress=o.bind(null,"upload"))}catch(e){}if(i&&!this._timer&&(this._timer=setTimeout(function(){t.timedout=!0,t.abort()},i)),this._appendQueryString(),this.username&&this.password?n.open(this.method,this.url,!0,this.username,this.password):n.open(this.method,this.url,!0),this._withCredentials&&(n.withCredentials=!0),"GET"!=this.method&&"HEAD"!=this.method&&"string"!=typeof s&&!this._isHost(s)){var a=this._header["content-type"],c=this._serializer||v.serialize[a?a.split(";")[0]:""];!c&&u(a)&&(c=v.serialize["application/json"]),c&&(s=c(s))}for(var l in this.header)null!=this.header[l]&&n.setRequestHeader(l,this.header[l]);return this._responseType&&(n.responseType=this._responseType),this.emit("request",this),n.send(void 0!==s?s:null),this},v.Request=f,v.get=function(e,t,n){var r=v("GET",e);return"function"==typeof t&&(n=t,t=null),t&&r.query(t),n&&r.end(n),r},v.head=function(e,t,n){var r=v("HEAD",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.options=function(e,t,n){var r=v("OPTIONS",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.del=d,v.delete=d,v.patch=function(e,t,n){var r=v("PATCH",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.post=function(e,t,n){var r=v("POST",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r},v.put=function(e,t,n){var r=v("PUT",e);return"function"==typeof t&&(n=t,t=null),t&&r.send(t),n&&r.end(n),r}},function(e,t,n){function r(e){if(e)return i(e)}function i(e){for(var t in r.prototype)e[t]=r.prototype[t];return e}e.exports=r,r.prototype.on=r.prototype.addEventListener=function(e,t){return this._callbacks=this._callbacks||{},(this._callbacks["$"+e]=this._callbacks["$"+e]||[]).push(t),this},r.prototype.once=function(e,t){function n(){this.off(e,n),t.apply(this,arguments)}return n.fn=t,this.on(e,n),this},r.prototype.off=r.prototype.removeListener=r.prototype.removeAllListeners=r.prototype.removeEventListener=function(e,t){if(this._callbacks=this._callbacks||{},0==arguments.length)return this._callbacks={},this;var n=this._callbacks["$"+e];if(!n)return this;if(1==arguments.length)return delete this._callbacks["$"+e],this;for(var r,i=0;i<n.length;i++)if((r=n[i])===t||r.fn===t){n.splice(i,1);break}return this},r.prototype.emit=function(e){this._callbacks=this._callbacks||{};var t=[].slice.call(arguments,1),n=this._callbacks["$"+e];if(n){n=n.slice(0);for(var r=0,i=n.length;r<i;++r)n[r].apply(this,t)}return this},r.prototype.listeners=function(e){return this._callbacks=this._callbacks||{},this._callbacks["$"+e]||[]},r.prototype.hasListeners=function(e){return!!this.listeners(e).length}},function(e,t,n){var r=n(45);t.clearTimeout=function(){return this._timeout=0,clearTimeout(this._timer),this},t.parse=function(e){return this._parser=e,this},t.serialize=function(e){return this._serializer=e,this},t.timeout=function(e){return this._timeout=e,this},t.then=function(e,t){if(!this._fullfilledPromise){var n=this;this._fullfilledPromise=new Promise(function(e,t){n.end(function(n,r){n?t(n):e(r)})})}return this._fullfilledPromise.then(e,t)},t.catch=function(e){return this.then(void 0,e)},t.use=function(e){return e(this),this},t.get=function(e){return this._header[e.toLowerCase()]},t.getHeader=t.get,t.set=function(e,t){if(r(e)){for(var n in e)this.set(n,e[n]);return this}return this._header[e.toLowerCase()]=t,this.header[e]=t,this},t.unset=function(e){return delete this._header[e.toLowerCase()],delete this.header[e],this},t.field=function(e,t){if(null===e||void 0===e)throw new Error(".field(name, val) name can not be empty");if(r(e)){for(var n in e)this.field(n,e[n]);return this}if(null===t||void 0===t)throw new Error(".field(name, val) val can not be empty");return this._getFormData().append(e,t),this},t.abort=function(){return this._aborted?this:(this._aborted=!0,this.xhr&&this.xhr.abort(),this.req&&this.req.abort(),this.clearTimeout(),this.emit("abort"),this)},t.withCredentials=function(){return this._withCredentials=!0,this},t.redirects=function(e){return this._maxRedirects=e,this},t.toJSON=function(){return{method:this.method,url:this.url,data:this._data,headers:this._header}},t._isHost=function(e){switch({}.toString.call(e)){case"[object File]":case"[object Blob]":case"[object FormData]":return!0;default:return!1}},t.send=function(e){var t=r(e),n=this._header["content-type"];if(t&&r(this._data))for(var i in e)this._data[i]=e[i];else"string"==typeof e?(n||this.type("form"),n=this._header["content-type"],this._data="application/x-www-form-urlencoded"==n?this._data?this._data+"&"+e:e:(this._data||"")+e):this._data=e;return!t||this._isHost(e)?this:(n||this.type("json"),this)}},function(e,t){function n(e){return null!==e&&"object"==typeof e}e.exports=n},function(e,t){function n(e,t,n){return"function"==typeof n?new e("GET",t).end(n):2==arguments.length?new e("GET",t):new e(t,n)}e.exports=n}])});
 
 /***/ }),
 /* 52 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.4","description":"ChatEngine","main":"src/index.js","scripts":{"deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.6","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.8.4","description":"ChatEngine","main":"dist/chat-engine.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.2","babel-preset-env":"^1.6.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.6","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"^2.1.2","axios":"^0.16.2","eventemitter2":"^2.2.1","pubnub":"^4.17.0"}}
 
 /***/ }),
 /* 53 */
@@ -9851,9 +9917,9 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
   if (true) {
      // AMD. Register as an anonymous module.
-    !(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+    !(__WEBPACK_AMD_DEFINE_RESULT__ = (function() {
       return EventEmitter;
-    }.call(exports, __webpack_require__, exports, module),
+    }).call(exports, __webpack_require__, exports, module),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   } else if (typeof exports === 'object') {
     // CommonJS
@@ -9870,10 +9936,23 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const async = __webpack_require__(15);
-const Emitter = __webpack_require__(5);
-const Event = __webpack_require__(23);
-const Search = __webpack_require__(60);
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var async = __webpack_require__(15);
+var Emitter = __webpack_require__(5);
+var Event = __webpack_require__(23);
+var Search = __webpack_require__(60);
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -9890,26 +9969,38 @@ const Search = __webpack_require__(60);
  @fires Chat#$"."online"."*
  @fires Chat#$"."offline"."*
  */
-class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), isPrivate = false, autoConnect = true, meta = {}, group = 'custom') {
+var Chat = function (_Emitter) {
+    _inherits(Chat, _Emitter);
 
-        super(chatEngine);
+    function Chat(chatEngine) {
+        var channel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Date().getTime();
+        var isPrivate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+        var autoConnect = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+        var meta = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
 
-        this.chatEngine = chatEngine;
+        var _ret;
 
-        this.name = 'Chat';
+        var group = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 'custom';
 
-        this.meta = meta;
+        _classCallCheck(this, Chat);
 
-        this.group = group;
+        var _this = _possibleConstructorReturn(this, (Chat.__proto__ || Object.getPrototypeOf(Chat)).call(this, chatEngine));
+
+        _this.chatEngine = chatEngine;
+
+        _this.name = 'Chat';
+
+        _this.meta = meta;
+
+        _this.group = group;
 
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
         * @type Boolean
         * @readonly
         */
-        this.isPrivate = isPrivate;
+        _this.isPrivate = isPrivate;
 
         /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
@@ -9918,112 +10009,116 @@ class Chat extends Emitter {
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
 
-        this.meta = {};
+        _this.meta = {};
 
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
         * @type Boolean
         * @readonly
         */
-        this.isPrivate = isPrivate;
+        _this.isPrivate = isPrivate;
 
-        this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
+        _this.channel = _this.chatEngine.augmentChannel(channel, _this.isPrivate);
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
          Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
-
-         @type Object
+          @type Object
          @readonly
          */
-        this.users = {};
+        _this.users = {};
 
         /**
          * Boolean value that indicates of the Chat is connected to the network
          * @type {Boolean}
          */
-        this.connected = false;
+        _this.connected = false;
 
-        this.chatEngine.chats[this.channel] = this;
+        _this.chatEngine.chats[_this.channel] = _this;
 
         if (autoConnect) {
-            this.connect();
+            _this.connect();
         }
 
-        return this;
-
+        return _ret = _this, _possibleConstructorReturn(_this, _ret);
     }
 
     /**
      Updates list of {@link User}s in this {@link Chat}
      based on who is online now.
-
-     @private
+      @private
      @param {Object} status The response status
      @param {Object} response The response payload object
      */
-    onHereNow(status, response) {
 
-        if (status.error) {
 
-            /**
-             * There was a problem fetching the presence of this chat
-             * @event Chat#$"."error"."presence
-             */
-            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
+    _createClass(Chat, [{
+        key: 'onHereNow',
+        value: function onHereNow(status, response) {
+            var _this2 = this;
 
-        } else {
+            if (status.error) {
 
-            // get the list of occupants in this channel
-            let occupants = response.channels[this.channel].occupants;
+                /**
+                 * There was a problem fetching the presence of this chat
+                 * @event Chat#$"."error"."presence
+                 */
+                this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
+            } else {
 
-            // format the userList for rltm.js standard
-            occupants.forEach((occupant) => {
-                this.userUpdate(occupant.uuid, occupant.state);
-            });
+                // get the list of occupants in this channel
+                var occupants = response.channels[this.channel].occupants;
 
+                // format the userList for rltm.js standard
+                occupants.forEach(function (occupant) {
+                    _this2.userUpdate(occupant.uuid, occupant.state);
+                });
+            }
         }
 
-    }
+        /**
+        * Turns a {@link Chat} into a JSON representation.
+        * @return {Object}
+        */
 
-    /**
-    * Turns a {@link Chat} into a JSON representation.
-    * @return {Object}
-    */
-    objectify() {
+    }, {
+        key: 'objectify',
+        value: function objectify() {
 
-        return {
-            channel: this.channel,
-            group: this.group,
-            private: this.isPrivate,
-            meta: this.meta
-        };
+            return {
+                channel: this.channel,
+                group: this.group,
+                private: this.isPrivate,
+                meta: this.meta
+            };
+        }
 
-    }
+        /**
+         * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
+         * @param {User} user The {@link User} to invite to this chatroom.
+         * @fires Me#event:$"."invite
+         * @example
+         * // one user running ChatEngine
+         * let secretChat = new ChatEngine.Chat('secret-channel');
+         * secretChat.invite(someoneElse);
+         *
+         * // someoneElse in another instance of ChatEngine
+         * me.direct.on('$.invite', (payload) => {
+         *     let secretChat = new ChatEngine.Chat(payload.data.channel);
+         * });
+         */
 
-    /**
-     * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
-     * @param {User} user The {@link User} to invite to this chatroom.
-     * @fires Me#event:$"."invite
-     * @example
-     * // one user running ChatEngine
-     * let secretChat = new ChatEngine.Chat('secret-channel');
-     * secretChat.invite(someoneElse);
-     *
-     * // someoneElse in another instance of ChatEngine
-     * me.direct.on('$.invite', (payload) => {
-     *     let secretChat = new ChatEngine.Chat(payload.data.channel);
-     * });
-     */
-    invite(user) {
+    }, {
+        key: 'invite',
+        value: function invite(user) {
+            var _this3 = this;
 
-        this.chatEngine.request('post', 'invite', {
-            to: user.uuid,
-            chat: this.objectify()
-        })
-            .then(() => {
+            this.chatEngine.request('post', 'invite', {
+                to: user.uuid,
+                chat: this.objectify()
+            }).then(function () {
 
-                let send = () => {
+                var send = function send() {
 
                     /**
                      * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
@@ -10036,9 +10131,8 @@ class Chat extends Emitter {
                      * });
                      */
                     user.direct.emit('$.invite', {
-                        channel: this.channel
+                        channel: _this3.channel
                     });
-
                 };
 
                 if (!user.direct.connected) {
@@ -10047,468 +10141,465 @@ class Chat extends Emitter {
                 } else {
                     send();
                 }
-
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            }).catch(function (error) {
+                _this3.chatEngine.throwError(_this3, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error: error });
             });
+        }
 
-    }
+        /**
+         Keep track of {@link User}s in the room by subscribing to PubNub presence events.
+          @private
+         @param {Object} data The PubNub presence response for this event
+         */
 
-    /**
-     Keep track of {@link User}s in the room by subscribing to PubNub presence events.
+    }, {
+        key: 'onPresence',
+        value: function onPresence(presenceEvent) {
 
-     @private
-     @param {Object} data The PubNub presence response for this event
-     */
-    onPresence(presenceEvent) {
+            // make sure channel matches this channel
 
-        // make sure channel matches this channel
+            // someone joins channel
+            if (presenceEvent.action === 'join') {
 
-        // someone joins channel
-        if (presenceEvent.action === 'join') {
+                var user = this.createUser(presenceEvent.uuid, presenceEvent.state);
 
-            let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
+                /**
+                 * Fired when a {@link User} has joined the room.
+                 *
+                 * @event Chat#$"."online"."join
+                 * @param {Object} data The payload returned by the event
+                 * @param {User} data.user The {@link User} that came online
+                 * @example
+                 * chat.on('$.join', (data) => {
+                              *     console.log('User has joined the room!', data.user);
+                              * });
+                 */
 
-            /**
-             * Fired when a {@link User} has joined the room.
-             *
-             * @event Chat#$"."online"."join
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
-             * @example
-             * chat.on('$.join', (data) => {
-                          *     console.log('User has joined the room!', data.user);
-                          * });
-             */
-
-            // It's possible for PubNub to send us both a join and have the user appear in here_now
-            // Avoid firing duplicate $.online events.
-            if (!this.users[user.uuid]) {
-                this.trigger('$.online.join', { user });
+                // It's possible for PubNub to send us both a join and have the user appear in here_now
+                // Avoid firing duplicate $.online events.
+                if (!this.users[user.uuid]) {
+                    this.trigger('$.online.join', { user: user });
+                }
             }
 
+            // someone leaves channel
+            if (presenceEvent.action === 'leave') {
+                this.userLeave(presenceEvent.uuid);
+            }
+
+            // someone timesout
+            if (presenceEvent.action === 'timeout') {
+                this.userDisconnect(presenceEvent.uuid);
+            }
+
+            // someone's state is updated
+            if (presenceEvent.action === 'state-change') {
+                this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+            }
+        }
+    }, {
+        key: 'update',
+        value: function update(data) {
+            var _this4 = this;
+
+            var oldMeta = this.meta || {};
+            this.meta = Object.assign(oldMeta, data);
+
+            this.chatEngine.request('post', 'chat', {
+                chat: this.objectify()
+            }).then(function () {}).catch(function (error) {
+                _this4.chatEngine.throwError(_this4, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error: error });
+            });
         }
 
-        // someone leaves channel
-        if (presenceEvent.action === 'leave') {
-            this.userLeave(presenceEvent.uuid);
+        /**
+         * Send events to other clients in this {@link User}.
+         * Events are trigger over the network  and all events are made
+         * on behalf of {@link Me}
+         *
+         * @param {String} event The event name
+         * @param {Object} data The event payload object
+         * @example
+         * chat.emit('custom-event', {value: true});
+         * chat.on('custom-event', (payload) => {
+          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
+          * });
+         */
+
+    }, {
+        key: 'emit',
+        value: function emit(event, data) {
+            var _this5 = this;
+
+            if (event === 'message' && (typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== 'object') {
+                throw new Error('the payload has to be an object');
+            }
+
+            // create a standardized payload object
+            var payload = {
+                data: data, // the data supplied from params
+                sender: this.chatEngine.me.uuid, // my own uuid
+                chat: this, // an instance of this chat
+                event: event,
+                chatengineSDK: this.chatEngine.package.version
+            };
+
+            // run the plugin queue to modify the event
+            this.runPluginQueue('emit', event, function (next) {
+                next(null, payload);
+            }, function (err, pluginResponse) {
+
+                // remove chat otherwise it would be serialized
+                // instead, it's rebuilt on the other end.
+                // see this.trigger
+                delete pluginResponse.chat;
+
+                // publish the event and data over the configured channel
+
+                // ensure the event exists within the global space
+                _this5.events[event] = _this5.events[event] || new Event(_this5.chatEngine, _this5, event);
+
+                _this5.events[event].publish(pluginResponse);
+            });
         }
 
-        // someone timesout
-        if (presenceEvent.action === 'timeout') {
-            this.userDisconnect(presenceEvent.uuid);
+        /**
+         Add a user to the {@link Chat}, creating it if it doesn't already exist.
+          @private
+         @param {String} uuid The user uuid
+         @param {Object} state The user initial state
+         @param {Boolean} trigger Force a trigger that this user is online
+         */
+
+    }, {
+        key: 'createUser',
+        value: function createUser(uuid, state) {
+
+            // Ensure that this user exists in the global list
+            // so we can reference it from here out
+            this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
+            this.chatEngine.users[uuid].assign(state);
+
+            // trigger the join event over this chatroom
+            if (!this.users[uuid]) {
+
+                /**
+                 * Broadcast that a {@link User} has come online. This is when
+                 * the framework firsts learn of a user. This can be triggered
+                 * by, ```$.join```, or other network events that
+                 * notify the framework of a new user.
+                 *
+                 * @event Chat#$"."online"."here
+                 * @param {Object} data The payload returned by the event
+                 * @param {User} data.user The {@link User} that came online
+                 * @example
+                 * chat.on('$.online.here', (data) => {
+                          *     console.log('User has come online:', data.user);
+                          * });
+                 */
+
+                this.trigger('$.online.here', {
+                    user: this.chatEngine.users[uuid]
+                });
+            }
+
+            // store this user in the chatroom
+            this.users[uuid] = this.chatEngine.users[uuid];
+
+            // return the instance of this user
+            return this.chatEngine.users[uuid];
         }
 
-        // someone's state is updated
-        if (presenceEvent.action === 'state-change') {
-            this.userUpdate(presenceEvent.uuid, presenceEvent.state);
-        }
+        /**
+         * Update a user's state.
+         * @private
+         * @param {String} uuid The {@link User} uuid
+         * @param {Object} state State to update for the user
+         */
 
+    }, {
+        key: 'userUpdate',
+        value: function userUpdate(uuid, state) {
 
-    }
+            // ensure the user exists within the global space
+            this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
-    update(data) {
+            // if we don't know about this user
+            if (!this.users[uuid]) {
+                // do the whole join thing
+                this.createUser(uuid, state);
+            }
 
-        let oldMeta = this.meta || {};
-        this.meta = Object.assign(oldMeta, data);
-
-        this.chatEngine.request('post', 'chat', {
-            chat: this.objectify()
-        }).then(() => {
-        }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        });
-
-    }
-
-    /**
-     * Send events to other clients in this {@link User}.
-     * Events are trigger over the network  and all events are made
-     * on behalf of {@link Me}
-     *
-     * @param {String} event The event name
-     * @param {Object} data The event payload object
-     * @example
-     * chat.emit('custom-event', {value: true});
-     * chat.on('custom-event', (payload) => {
-      *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
-      * });
-     */
-    emit(event, data) {
-        if (event === 'message' && typeof data !== 'object') {
-            throw new Error('the payload has to be an object');
-        }
-
-        // create a standardized payload object
-        let payload = {
-            data, // the data supplied from params
-            sender: this.chatEngine.me.uuid, // my own uuid
-            chat: this, // an instance of this chat
-            event,
-            chatengineSDK: this.chatEngine.package.version
-        };
-
-        // run the plugin queue to modify the event
-        this.runPluginQueue('emit', event, (next) => {
-            next(null, payload);
-        }, (err, pluginResponse) => {
-
-            // remove chat otherwise it would be serialized
-            // instead, it's rebuilt on the other end.
-            // see this.trigger
-            delete pluginResponse.chat;
-
-            // publish the event and data over the configured channel
-
-            // ensure the event exists within the global space
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
-
-            this.events[event].publish(pluginResponse);
-
-        });
-
-    }
-
-    /**
-     Add a user to the {@link Chat}, creating it if it doesn't already exist.
-
-     @private
-     @param {String} uuid The user uuid
-     @param {Object} state The user initial state
-     @param {Boolean} trigger Force a trigger that this user is online
-     */
-    createUser(uuid, state) {
-
-        // Ensure that this user exists in the global list
-        // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-        this.chatEngine.users[uuid].assign(state);
-
-        // trigger the join event over this chatroom
-        if (!this.users[uuid]) {
+            // update this user's state in this chatroom
+            this.users[uuid].assign(state);
 
             /**
-             * Broadcast that a {@link User} has come online. This is when
-             * the framework firsts learn of a user. This can be triggered
-             * by, ```$.join```, or other network events that
-             * notify the framework of a new user.
-             *
-             * @event Chat#$"."online"."here
+             * Broadcast that a {@link User} has changed state.
+             * @event ChatEngine#$"."state
              * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
+             * @param {User} data.user The {@link User} that changed state
+             * @param {Object} data.state The new user state
              * @example
-             * chat.on('$.online.here', (data) => {
-                      *     console.log('User has come online:', data.user);
-                      * });
+             * ChatEngine.on('$.state', (data) => {
+             *     console.log('User has changed state:', data.user, 'new state:', data.state);
+             * });
              */
-
-            this.trigger('$.online.here', {
-                user: this.chatEngine.users[uuid]
+            this.chatEngine._emit('$.state', {
+                user: this.users[uuid],
+                state: this.users[uuid].state
             });
-
         }
-
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
-
-        // return the instance of this user
-        return this.chatEngine.users[uuid];
-
-    }
-
-    /**
-     * Update a user's state.
-     * @private
-     * @param {String} uuid The {@link User} uuid
-     * @param {Object} state State to update for the user
-     */
-    userUpdate(uuid, state) {
-
-        // ensure the user exists within the global space
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-
-        // if we don't know about this user
-        if (!this.users[uuid]) {
-            // do the whole join thing
-            this.createUser(uuid, state);
-        }
-
-        // update this user's state in this chatroom
-        this.users[uuid].assign(state);
 
         /**
-         * Broadcast that a {@link User} has changed state.
-         * @event ChatEngine#$"."state
-         * @param {Object} data The payload returned by the event
-         * @param {User} data.user The {@link User} that changed state
-         * @param {Object} data.state The new user state
+         * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
+         * receiving events.
+         * @fires Chat#event:$"."offline"."leave
          * @example
-         * ChatEngine.on('$.state', (data) => {
-         *     console.log('User has changed state:', data.user, 'new state:', data.state);
-         * });
+         * chat.leave();
          */
-        this.chatEngine._emit('$.state', {
-            user: this.users[uuid],
-            state: this.users[uuid].state
-        });
 
-    }
+    }, {
+        key: 'leave',
+        value: function leave() {
+            var _this6 = this;
 
-    /**
-     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
-     * receiving events.
-     * @fires Chat#event:$"."offline"."leave
-     * @example
-     * chat.leave();
-     */
-    leave() {
-
-        // unsubscribe from the channel locally
-        this.chatEngine.pubnub.unsubscribe({
-            channels: [this.channel]
-        });
-
-        this.chatEngine.request('post', 'leave', { chat: this.objectify() })
-            .then(() => {
-
-                this.connected = false;
-
-                this.trigger('$.disconnected');
-
-                this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
-
-            })
-            .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            // unsubscribe from the channel locally
+            this.chatEngine.pubnub.unsubscribe({
+                channels: [this.channel]
             });
 
-    }
+            this.chatEngine.request('post', 'leave', { chat: this.objectify() }).then(function () {
 
-    /**
-     Perform updates when a user has left the {@link Chat}.
+                _this6.connected = false;
 
-     @private
-     */
-    userLeave(uuid) {
+                _this6.trigger('$.disconnected');
 
-        // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
-
-            // if a user leaves, trigger the event
-
-            /**
-             * Fired when a {@link User} intentionally leaves a {@link Chat}.
-             *
-             * @event Chat#$"."offline"."leave
-             * @param {Object} data The data payload from the event
-             * @param {User} user The {@link User} that has left the room
-             * @example
-             * chat.on('$.offline.leave', (data) => {
-                      *     console.log('User left the room manually:', data.user);
-                      * });
-             */
-            this.trigger('$.offline.leave', {
-                user: this.users[uuid]
+                _this6.chatEngine.me.sync.emit('$.session.chat.leave', { subject: _this6.objectify() });
+            }).catch(function (error) {
+                _this6.chatEngine.throwError(_this6, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error: error });
             });
-
-            // remove the user from the local list of users
-            delete this.users[uuid];
-
-            // we don't remove the user from the global list,
-            // because they may be online in other channels
-
-        } else {
-
-            // that user isn't in the user list
-            // we never knew about this user or they already left
-
-            // console.log('user already left');
         }
-    }
-
-    /**
-     Fired when a user disconnects from the {@link Chat}
-
-     @private
-     @param {String} uuid The uuid of the {@link Chat} that left
-     */
-    userDisconnect(uuid) {
-
-        // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
-
-            /**
-             * Fired specifically when a {@link User} looses network connection
-             * to the {@link Chat} involuntarily.
-             *
-             * @event Chat#$"."offline"."disconnect
-             * @param {Object} data The {@link User} that disconnected
-             * @param {Object} data.user The {@link User} that disconnected
-             * @example
-             * chat.on('$.offline.disconnect', (data) => {
-                      *     console.log('User disconnected from the network:', data.user);
-                      * });
-             */
-
-            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
-        }
-
-    }
-
-    /**
-     Set the state for {@link Me} within this {@link User}.
-     Broadcasts the ```$.state``` event on other clients
-
-     @private
-     @param {Object} state The new state {@link Me} will have within this {@link User}
-     */
-    setState(state) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
-            // handle status, response
-        });
-    }
-
-    /**
-     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
-     which will emit all old events unless ```config.event``` is supplied.
-     @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
-     @param {Event} [config.event] The {@link Event} to search for.
-     @param {User} [config.sender] The {@link User} who sent the message.
-     @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
-     @param {Number} [config.start=0] The timetoken to begin searching between.
-     @param {Number} [config.end=0] The timetoken to end searching between.
-     @param {Boolean} [config.reverse=false] Search oldest messages first.
-     @return {Search}
-     @example
-    chat.search({
-        event: 'my-custom-event',
-        sender: ChatEngine.me,
-        limit: 20
-    }).on('my-custom-event', (event) => {
-        console.log('this is an old event!', event);
-    }).on('$.search.finish', () => {
-        console.log('we have all our results!')
-    });
-     */
-    search(config) {
-        return new Search(this.chatEngine, this, config);
-    }
-
-    onConnectionReady() {
 
         /**
-         * Broadcast that the {@link Chat} is connected to the network.
-         * @event Chat#$"."connected
-         * @example
-         * chat.on('$.connected', () => {
-                *     console.log('chat is ready to go!');
-                * });
+         Perform updates when a user has left the {@link Chat}.
+          @private
          */
-        this.trigger('$.connected');
 
-        this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
+    }, {
+        key: 'userLeave',
+        value: function userLeave(uuid) {
 
-        this.connected = true;
+            // make sure this event is real, user may have already left
+            if (this.users[uuid]) {
 
-        // add self to list of users
-        this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
+                // if a user leaves, trigger the event
 
-        // trigger my own online event
-        this.trigger('$.online.join', {
-            user: this.chatEngine.me
+                /**
+                 * Fired when a {@link User} intentionally leaves a {@link Chat}.
+                 *
+                 * @event Chat#$"."offline"."leave
+                 * @param {Object} data The data payload from the event
+                 * @param {User} user The {@link User} that has left the room
+                 * @example
+                 * chat.on('$.offline.leave', (data) => {
+                          *     console.log('User left the room manually:', data.user);
+                          * });
+                 */
+                this.trigger('$.offline.leave', {
+                    user: this.users[uuid]
+                });
+
+                // remove the user from the local list of users
+                delete this.users[uuid];
+
+                // we don't remove the user from the global list,
+                // because they may be online in other channels
+            } else {
+
+                    // that user isn't in the user list
+                    // we never knew about this user or they already left
+
+                    // console.log('user already left');
+                }
+        }
+
+        /**
+         Fired when a user disconnects from the {@link Chat}
+          @private
+         @param {String} uuid The uuid of the {@link Chat} that left
+         */
+
+    }, {
+        key: 'userDisconnect',
+        value: function userDisconnect(uuid) {
+
+            // make sure this event is real, user may have already left
+            if (this.users[uuid]) {
+
+                /**
+                 * Fired specifically when a {@link User} looses network connection
+                 * to the {@link Chat} involuntarily.
+                 *
+                 * @event Chat#$"."offline"."disconnect
+                 * @param {Object} data The {@link User} that disconnected
+                 * @param {Object} data.user The {@link User} that disconnected
+                 * @example
+                 * chat.on('$.offline.disconnect', (data) => {
+                          *     console.log('User disconnected from the network:', data.user);
+                          * });
+                 */
+
+                this.trigger('$.offline.disconnect', { user: this.users[uuid] });
+            }
+        }
+
+        /**
+         Set the state for {@link Me} within this {@link User}.
+         Broadcasts the ```$.state``` event on other clients
+          @private
+         @param {Object} state The new state {@link Me} will have within this {@link User}
+         */
+
+    }, {
+        key: 'setState',
+        value: function setState(state) {
+            this.chatEngine.pubnub.setState({ state: state, channels: [this.chatEngine.global.channel] }, function () {
+                // handle status, response
+            });
+        }
+
+        /**
+         Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
+         which will emit all old events unless ```config.event``` is supplied.
+         @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
+         @param {Event} [config.event] The {@link Event} to search for.
+         @param {User} [config.sender] The {@link User} who sent the message.
+         @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
+         @param {Number} [config.start=0] The timetoken to begin searching between.
+         @param {Number} [config.end=0] The timetoken to end searching between.
+         @param {Boolean} [config.reverse=false] Search oldest messages first.
+         @return {Search}
+         @example
+        chat.search({
+            event: 'my-custom-event',
+            sender: ChatEngine.me,
+            limit: 20
+        }).on('my-custom-event', (event) => {
+            console.log('this is an old event!', event);
+        }).on('$.search.finish', () => {
+            console.log('we have all our results!')
         });
+         */
 
-        // global channel updates are triggered manually, only get presence on custom chats
-        if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+    }, {
+        key: 'search',
+        value: function search(config) {
+            return new Search(this.chatEngine, this, config);
+        }
+    }, {
+        key: 'onConnectionReady',
+        value: function onConnectionReady() {
+            var _this7 = this;
 
-            this.getUserUpdates();
+            /**
+             * Broadcast that the {@link Chat} is connected to the network.
+             * @event Chat#$"."connected
+             * @example
+             * chat.on('$.connected', () => {
+                    *     console.log('chat is ready to go!');
+                    * });
+             */
+            this.trigger('$.connected');
 
-            // we may miss updates, so call this again 5 seconds later
-            setTimeout(() => {
+            this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
+
+            this.connected = true;
+
+            // add self to list of users
+            this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
+
+            // trigger my own online event
+            this.trigger('$.online.join', {
+                user: this.chatEngine.me
+            });
+
+            // global channel updates are triggered manually, only get presence on custom chats
+            if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+
                 this.getUserUpdates();
-            }, 5000);
 
+                // we may miss updates, so call this again 5 seconds later
+                setTimeout(function () {
+                    _this7.getUserUpdates();
+                }, 5000);
+            }
+        }
+    }, {
+        key: 'getUserUpdates',
+        value: function getUserUpdates() {
+
+            // get a list of users online now
+            // ask PubNub for information about connected users in this channel
+            this.chatEngine.pubnub.hereNow({
+                channels: [this.channel],
+                includeUUIDs: true,
+                includeState: true
+            }, this.onHereNow.bind(this));
         }
 
-    }
+        /**
+         * Connect to PubNub servers to initialize the chat.
+         * @example
+         * // create a new chatroom, but don't connect to it automatically
+         * let chat = new Chat('some-chat', false)
+         *
+         * // connect to the chat when we feel like it
+         * chat.connect();
+         */
 
-    getUserUpdates() {
+    }, {
+        key: 'connect',
+        value: function connect() {
+            var _this8 = this;
 
-        // get a list of users online now
-        // ask PubNub for information about connected users in this channel
-        this.chatEngine.pubnub.hereNow({
-            channels: [this.channel],
-            includeUUIDs: true,
-            includeState: true
-        }, this.onHereNow.bind(this));
-
-    }
-
-    /**
-     * Connect to PubNub servers to initialize the chat.
-     * @example
-     * // create a new chatroom, but don't connect to it automatically
-     * let chat = new Chat('some-chat', false)
-     *
-     * // connect to the chat when we feel like it
-     * chat.connect();
-     */
-    connect() {
-
-        async.waterfall([
-            (next) => {
-                if (!this.chatEngine.pubnub) {
+            async.waterfall([function (next) {
+                if (!_this8.chatEngine.pubnub) {
                     next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
                 } else {
                     next();
                 }
-            },
-            (next) => {
+            }, function (next) {
 
-                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
-                    .then(() => {
-                        next();
-                    })
-                    .catch(next);
+                _this8.chatEngine.request('post', 'grant', { chat: _this8.objectify() }).then(function () {
+                    next();
+                }).catch(next);
+            }, function (next) {
 
-            },
-            (next) => {
+                _this8.chatEngine.request('post', 'join', { chat: _this8.objectify() }).then(function () {
+                    next();
+                }).catch(next);
+            }, function (next) {
 
-                this.chatEngine.request('post', 'join', { chat: this.objectify() })
-                    .then(() => {
-                        next();
-                    })
-                    .catch(next);
+                _this8.chatEngine.request('get', 'chat', {}, { channel: _this8.channel }).then(function (response) {
 
-            },
-            (next) => {
+                    if (response.data.found) {
+                        _this8.meta = response.data.chat.meta;
+                    } else {
+                        _this8.update(_this8.meta);
+                    }
 
-                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then((response) => {
+                    _this8.onConnectionReady();
+                }).catch(next);
+            }], function (error) {
+                _this8.chatEngine.throwError(_this8, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error: error });
+            });
+        }
+    }]);
 
-                        if (response.data.found) {
-                            this.meta = response.data.chat.meta;
-                        } else {
-                            this.update(this.meta);
-                        }
-
-                        this.onConnectionReady();
-
-                    })
-                    .catch(next);
-
-            }
-        ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-        });
-
-    }
-
-}
+    return Chat;
+}(Emitter);
 
 module.exports = Chat;
-
 
 /***/ }),
 /* 55 */
@@ -11018,8 +11109,17 @@ exports.default = wrap(_defer);
 /* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const Emitter = __webpack_require__(5);
-const eachSeries = __webpack_require__(61);
+"use strict";
+
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Emitter = __webpack_require__(5);
+var eachSeries = __webpack_require__(61);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 
@@ -11033,60 +11133,64 @@ Returned by {@link Chat#search}. This is our Search class which allows one to se
  @param chat
  @param config
  */
-class Search extends Emitter {
 
-    constructor(chatEngine, chat, config = {}) {
+var Search = function (_Emitter) {
+    _inherits(Search, _Emitter);
 
-        super();
+    function Search(chatEngine, chat) {
+        var config = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
-        this.chatEngine = chatEngine;
+        _classCallCheck(this, Search);
+
+        var _this = _possibleConstructorReturn(this, (Search.__proto__ || Object.getPrototypeOf(Search)).call(this));
+
+        _this.chatEngine = chatEngine;
 
         /**
         Handy property to identify what this class is.
         @type String
         */
-        this.name = 'Search';
+        _this.name = 'Search';
 
         /**
         The {@link Chat} used for searching.
         @type Chat
         */
-        this.chat = chat;
+        _this.chat = chat;
 
         /**
         An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
         @type {Object}
         */
-        this.config = config;
-        this.config.event = config.event;
-        this.config.limit = config.limit || 20;
-        this.config.channel = this.chat.channel;
-        this.config.includeTimetoken = true;
-        this.config.stringifiedTimeToken = true;
-        this.config.count = this.config.count || 100;
+        _this.config = config;
+        _this.config.event = config.event;
+        _this.config.limit = config.limit || 20;
+        _this.config.channel = _this.chat.channel;
+        _this.config.includeTimetoken = true;
+        _this.config.stringifiedTimeToken = true;
+        _this.config.count = _this.config.count || 100;
 
-        this.config.pages = this.config.pages || 10;
+        _this.config.pages = _this.config.pages || 10;
 
-        this.needleCount = 0;
+        _this.needleCount = 0;
 
-        this.firstTT = 0;
-        this.lastTT = 0;
+        _this.firstTT = 0;
+        _this.lastTT = 0;
 
-        this.firstPage = true;
+        _this.firstPage = true;
 
         /**
         * @private
         */
-        this.sortHistory = (messages, desc) => {
+        _this.sortHistory = function (messages, desc) {
 
-            messages.sort((a, b) => {
-                let e1 = desc ? b : a;
-                let e2 = desc ? a : b;
+            messages.sort(function (a, b) {
+                var e1 = desc ? b : a;
+                var e2 = desc ? a : b;
                 return parseInt(e1.timetoken, 10) - parseInt(e2.timetoken, 10);
             });
 
             return messages;
-
         };
 
         /**
@@ -11094,26 +11198,26 @@ class Search extends Emitter {
          * Unapologetically stolen from https://www.pubnub.com/docs/web-javascript/storage-and-history
          * @private
          */
-        this.page = (pageDone) => {
+        _this.page = function (pageDone) {
 
             /**
              * Requesting another page from PubNub History.
              * @event Search#$"."page"."request
              */
-            this._emit('$.search.page.request');
+            _this._emit('$.search.page.request');
 
             // only set start if this is the first call and the user hasn't set it themselves
-            this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
+            _this.config.start = _this.config.reverse ? _this.lastTT : _this.firstTT;
 
-            this.firstPage = false;
+            _this.firstPage = false;
 
-            this.chatEngine.pubnub.history(this.config, (status, response) => {
+            _this.chatEngine.pubnub.history(_this.config, function (status, response) {
 
                 /**
                  * PubNub History returned a response.
                  * @event Search#$"."page"."response
                  */
-                this._emit('$.search.page.response');
+                _this._emit('$.search.page.response');
 
                 if (status.error) {
 
@@ -11121,30 +11225,27 @@ class Search extends Emitter {
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    this.chatEngine.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
-
+                    _this.chatEngine.throwError(_this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
                 } else {
 
                     // timetoken of the first message in response
-                    this.firstTT = response.startTimeToken;
+                    _this.firstTT = response.startTimeToken;
                     // timetoken of the last message in response
-                    this.lastTT = response.endTimeToken;
+                    _this.lastTT = response.endTimeToken;
 
-                    response.messages = this.sortHistory(response.messages);
+                    response.messages = _this.sortHistory(response.messages);
 
                     pageDone(response);
-
                 }
-
             });
         };
 
-        let eventFilter = (event) => {
+        var eventFilter = function eventFilter(event) {
             return {
                 middleware: {
                     on: {
-                        '*': (payload, next) => {
-                            let matches = payload && payload.event && payload.event === event;
+                        '*': function _(payload, next) {
+                            var matches = payload && payload.event && payload.event === event;
                             next(!matches, payload);
                         }
                     }
@@ -11152,12 +11253,12 @@ class Search extends Emitter {
             };
         };
 
-        let senderFilter = (user) => {
+        var senderFilter = function senderFilter(user) {
             return {
                 middleware: {
                     on: {
-                        '*': (payload, next) => {
-                            let matches = payload && payload.sender && payload.sender.uuid === user.uuid;
+                        '*': function _(payload, next) {
+                            var matches = payload && payload.sender && payload.sender.uuid === user.uuid;
                             next(!matches, payload);
                         }
                     }
@@ -11165,100 +11266,91 @@ class Search extends Emitter {
             };
         };
 
-        this.needleCount = 0;
+        _this.needleCount = 0;
 
         /**
          * @private
          */
-        this.triggerHistory = (message, cb) => {
+        _this.triggerHistory = function (message, cb) {
 
-            if (this.needleCount < this.config.limit) {
+            if (_this.needleCount < _this.config.limit) {
 
-                this.trigger(message.entry.event, message.entry, (reject) => {
+                _this.trigger(message.entry.event, message.entry, function (reject) {
 
                     if (!reject) {
-                        this.needleCount += 1;
+                        _this.needleCount += 1;
                     }
                     cb();
-
                 });
-
             } else {
                 cb();
             }
-
         };
 
-        this.maxPage = 10;
-        this.numPage = 0;
+        _this.maxPage = 10;
+        _this.numPage = 0;
 
-        this.next = () => {
+        _this.next = function () {
 
-            this.maxPage = this.maxPage + this.config.pages;
+            _this.maxPage = _this.maxPage + _this.config.pages;
 
-            this.find();
-
+            _this.find();
         };
 
         /**
          * @private
          */
-        this.find = () => {
+        _this.find = function () {
 
-            this.page((response) => {
+            _this.page(function (response) {
 
-                if (!this.config.reverse) {
+                if (!_this.config.reverse) {
                     response.messages.reverse();
                 }
 
-                eachSeries(response.messages, this.triggerHistory, () => {
+                eachSeries(response.messages, _this.triggerHistory, function () {
 
-                    if (this.numPage === this.maxPage) {
-                        this._emit('$.search.pause');
-                    } else if (
-                        response.messages &&
-                        response.messages.length === this.config.count &&
-                        this.needleCount < this.config.limit) {
-                        this.numPage += 1;
-                        this.find();
+                    if (_this.numPage === _this.maxPage) {
+                        _this._emit('$.search.pause');
+                    } else if (response.messages && response.messages.length === _this.config.count && _this.needleCount < _this.config.limit) {
+                        _this.numPage += 1;
+                        _this.find();
                     } else {
 
                         /**
                          * Search has returned all results or reached the end of history.
                          * @event Search#$"."search"."finish
                          */
-                        this._emit('$.search.finish');
+                        _this._emit('$.search.finish');
                     }
-
                 });
-
             });
 
-            return this;
-
+            return _this;
         };
 
-        if (this.config.event) {
-            this.plugin(eventFilter(this.config.event));
+        if (_this.config.event) {
+            _this.plugin(eventFilter(_this.config.event));
         }
 
-        if (this.config.sender) {
-            this.plugin(senderFilter(this.config.sender));
+        if (_this.config.sender) {
+            _this.plugin(senderFilter(_this.config.sender));
         }
 
         /**
          * Search has started.
          * @event Search#$"."search"."start
          */
-        this._emit('$.search.start');
-        this.find();
+        _this._emit('$.search.start');
+        _this.find();
 
+        return _this;
     }
 
-}
+    return Search;
+}(Emitter);
 
 module.exports = Search;
-
 
 /***/ }),
 /* 61 */
@@ -12220,7 +12312,20 @@ module.exports = exports["default"];
 /* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const User = __webpack_require__(29);
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var User = __webpack_require__(29);
 
 /**
  Represents the client connection as a special {@link User} with write permissions.
@@ -12234,143 +12339,158 @@ const User = __webpack_require__(29);
  @extends RootEmitter
  @param {String} uuid The uuid of this user
  */
-class Me extends User {
 
-    constructor(chatEngine, uuid, authData) {
+var Me = function (_User) {
+    _inherits(Me, _User);
+
+    function Me(chatEngine, uuid, authData) {
+        var _ret;
+
+        _classCallCheck(this, Me);
+
+        var _this = _possibleConstructorReturn(this, (Me.__proto__ || Object.getPrototypeOf(Me)).call(this, chatEngine, uuid));
 
         // call the User constructor
-        super(chatEngine, uuid);
 
-        this.name = 'Me';
 
-        this.authData = authData;
-        this.chatEngine = chatEngine;
+        _this.name = 'Me';
+
+        _this.authData = authData;
+        _this.chatEngine = chatEngine;
 
         /**
          * Stores a map of {@link Chat} objects that this {@link Me} has joined across all clients.
          * @type {Object}
          */
-        this.session = {};
+        _this.session = {};
 
-        this.sync = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
+        _this.sync = new _this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
 
-        this.sync.on('$.session.chat.join', (payload) => {
-            this.addChatToSession(payload.data.subject);
+        _this.sync.on('$.session.chat.join', function (payload) {
+            _this.addChatToSession(payload.data.subject);
         });
 
-        this.sync.on('$.session.chat.leave', (payload) => {
-            this.removeChatFromSession(payload.data.subject);
+        _this.sync.on('$.session.chat.leave', function (payload) {
+            _this.removeChatFromSession(payload.data.subject);
         });
 
-        return this;
-
+        return _ret = _this, _possibleConstructorReturn(_this, _ret);
     }
 
     // assign updates from network
-    assign(state) {
-        // we call "update" because calling "super.assign"
-        // will direct back to "this.update" which creates
-        // a loop of network updates
-        super.update(state);
-    }
 
-    /**
-     * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
-     * will be notified of this change via ```$.state```.
-     * Retrieve state at any time with {@link User#state}.
-     * @param {Object} state The new state for {@link Me}
-     * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
-     * Defaults to ```ChatEngine.global```.
-     * @fires Chat#event:$"."state
-     * @example
-     * // update state
-     * me.update({value: true});
-     */
-    update(state) {
 
-        // run the root update function
-        super.update(state);
-
-        // publish the update over the global channel
-        this.chatEngine.global.setState(state);
-
-    }
-
-    /**
-    Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
-    @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
-    @private
-    */
-    addChatToSession(chat) {
-
-        // create the chat group if it doesn't exist
-        this.session[chat.group] = this.session[chat.group] || {};
-
-        // check the chat exists within the global list but is not grouped
-        let existingChat = this.chatEngine.chats[chat.channel];
-
-        // if it exists
-        if (existingChat) {
-            // assign it to the group
-            this.session[chat.group][chat.channel] = existingChat;
-        } else {
-
-            // otherwise, try to recreate it with the server information
-            this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
-
-            /**
-            Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-            Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            ChatEngine stores sessions on the server side identified by {@link User#uuid}.
-            @event Me#$"."session"."chat"."join
-            @example
-            *
-            * // Logged in as "Ian" in first window
-            * ChatEngine.me.on('$.session.chat.join', (data) => {
-            *     console.log('I joined a new chat in a second window!', data.chat);
-            * });
-            *
-            * // Logged in as "Ian" in second window
-            * new ChatEngine.Chat('another-chat');
-            */
-            // this.trigger('$.session.chat.join', {
-            //     chat: this.session[chat.group][chat.channel]
-            // });
-            //
-            this.trigger('$.session.chat.join', { chat: this.session[chat.group][chat.channel] });
-
+    _createClass(Me, [{
+        key: 'assign',
+        value: function assign(state) {
+            // we call "update" because calling "super.assign"
+            // will direct back to "this.update" which creates
+            // a loop of network updates
+            _get(Me.prototype.__proto__ || Object.getPrototypeOf(Me.prototype), 'update', this).call(this, state);
         }
 
-    }
+        /**
+         * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
+         * will be notified of this change via ```$.state```.
+         * Retrieve state at any time with {@link User#state}.
+         * @param {Object} state The new state for {@link Me}
+         * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
+         * Defaults to ```ChatEngine.global```.
+         * @fires Chat#event:$"."state
+         * @example
+         * // update state
+         * me.update({value: true});
+         */
 
-    /**
-    Removes {@link Chat} within this.session
-    @private
-    */
-    removeChatFromSession(chat) {
+    }, {
+        key: 'update',
+        value: function update(state) {
 
-        if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
+            // run the root update function
+            _get(Me.prototype.__proto__ || Object.getPrototypeOf(Me.prototype), 'update', this).call(this, state);
 
-            chat = this.session[chat.group][chat.channel] || chat;
-
-            /**
-            * Fired when another identical instance of {@link ChatEngine} with an identical {@link Me} leaves a {@link Chat} via {@link Chat#leave}.
-            * @event Me#$"."session"."chat"."leave
-            */
-
-            delete this.chatEngine.chats[chat.channel];
-            delete this.session[chat.group][chat.channel];
-
-            this.trigger('$.session.chat.leave', { chat });
-
+            // publish the update over the global channel
+            this.chatEngine.global.setState(state);
         }
 
-    }
+        /**
+        Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
+        @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
+        @private
+        */
 
-}
+    }, {
+        key: 'addChatToSession',
+        value: function addChatToSession(chat) {
+
+            // create the chat group if it doesn't exist
+            this.session[chat.group] = this.session[chat.group] || {};
+
+            // check the chat exists within the global list but is not grouped
+            var existingChat = this.chatEngine.chats[chat.channel];
+
+            // if it exists
+            if (existingChat) {
+                // assign it to the group
+                this.session[chat.group][chat.channel] = existingChat;
+            } else {
+
+                // otherwise, try to recreate it with the server information
+                this.session[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
+
+                /**
+                Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+                Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+                ChatEngine stores sessions on the server side identified by {@link User#uuid}.
+                @event Me#$"."session"."chat"."join
+                @example
+                *
+                * // Logged in as "Ian" in first window
+                * ChatEngine.me.on('$.session.chat.join', (data) => {
+                *     console.log('I joined a new chat in a second window!', data.chat);
+                * });
+                *
+                * // Logged in as "Ian" in second window
+                * new ChatEngine.Chat('another-chat');
+                */
+                // this.trigger('$.session.chat.join', {
+                //     chat: this.session[chat.group][chat.channel]
+                // });
+                //
+                this.trigger('$.session.chat.join', { chat: this.session[chat.group][chat.channel] });
+            }
+        }
+
+        /**
+        Removes {@link Chat} within this.session
+        @private
+        */
+
+    }, {
+        key: 'removeChatFromSession',
+        value: function removeChatFromSession(chat) {
+
+            if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
+
+                chat = this.session[chat.group][chat.channel] || chat;
+
+                /**
+                * Fired when another identical instance of {@link ChatEngine} with an identical {@link Me} leaves a {@link Chat} via {@link Chat#leave}.
+                * @event Me#$"."session"."chat"."leave
+                */
+
+                delete this.chatEngine.chats[chat.channel];
+                delete this.session[chat.group][chat.channel];
+
+                this.trigger('$.session.chat.leave', { chat: chat });
+            }
+        }
+    }]);
+
+    return Me;
+}(User);
 
 module.exports = Me;
-
 
 /***/ })
 /******/ ]);
