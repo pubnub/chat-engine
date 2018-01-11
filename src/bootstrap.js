@@ -24,7 +24,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
     ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
 
-    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
+    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || false;
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
     /**
@@ -416,7 +416,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // create a new chat to use as global chat
         // we don't do auth on this one because it's assumed to be done with the /auth request below
         ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
-        
+
         // build the current user
         ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
         ChatEngine.me.update(state);

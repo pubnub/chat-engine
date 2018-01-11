@@ -8,6 +8,8 @@ let ChatEngine;
 let ChatEngineYou;
 let ChatEngineClone;
 let ChatEngineAlt;
+
+let logVerbosity = false;
 let globalChannel = 'global' + new Date().getTime();
 
 let cleanup = function () {
@@ -22,7 +24,8 @@ let yousername = 'stephen' + new Date().getTime();
 
 let ceConfig = {
     globalChannel,
-    throwErrors: true
+    throwErrors: true,
+    endpoint: 'https://ssp.pubnub.com/v1/blocks/sub-key/sub-c-696d9116-c668-11e7-afd4-56ea5891403c/chat-engine-server'
 };
 
 function createChatEngine(done) {
@@ -32,7 +35,7 @@ function createChatEngine(done) {
     ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: true,
+        logVerbosity: logVerbosity,
         origin: 'ssp.pubnub.com'
     }, ceConfig);
     ChatEngine.connect(username, { works: true }, username);
@@ -40,7 +43,7 @@ function createChatEngine(done) {
         done();
     });
     ChatEngine.onAny((a) => {
-        console.log(a);
+        // console.log(a);
     });
 
 }
@@ -52,7 +55,7 @@ function createChatEngineClone(done) {
     ChatEngineClone = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: true,
+        logVerbosity: logVerbosity,
         origin: 'ssp.pubnub.com'
     }, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
@@ -69,7 +72,7 @@ function createChatEngineYou(done) {
     ChatEngineYou = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: true,
+        logVerbosity: logVerbosity,
         origin: 'ssp.pubnub.com'
     }, ceConfig);
     ChatEngineYou.connect(yousername, { works: true }, yousername);
