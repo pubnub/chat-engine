@@ -1,0 +1,13 @@
+GET /v2/subscribe/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/%2C/0?heartbeat=60&channel-group=global2%23ian%23rooms%2Cglobal2%23ian%23system%2Cglobal2%23ian%23custom%2Cglobal2%23ian%23rooms-pnpres%2Cglobal2%23ian%23system-pnpres%2Cglobal2%23ian%23custom-pnpres&tt=15157860106416816&tr=2&uuid=ian&pnsdk=PubNub-JS-Nodejs%2F4.19.0&auth=ian
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:40:10 GMT
+content-type: text/javascript; charset="UTF-8"
+transfer-encoding: chunked
+connection: close
+cache-control: no-cache
+access-control-allow-origin: *
+access-control-allow-methods: GET
+
+{"t":{"t":"15157860107698520","r":2},"m":[{"a":"1","f":0,"p":{"t":"15157860106968412","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#user#ian#me.#sync-pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":1},"b":"global2#ian#system-pnpres"},{"a":"1","f":0,"p":{"t":"15157860106971349","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#chat#public.#secret-channel--pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":2},"b":"global2#ian#custom-pnpres"},{"a":"1","f":0,"p":{"t":"15157860107026064","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#user#ian#write.#direct-pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":1},"b":"global2#ian#system-pnpres"},{"a":"1","f":0,"p":{"t":"15157860107559419","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#chat#public.#chatengine-get-message-pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":1},"b":"global2#ian#custom-pnpres"},{"a":"1","f":0,"p":{"t":"15157860107647380","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#chat#public.#chat-history-8-pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":1},"b":"global2#ian#custom-pnpres"},{"a":"1","f":0,"p":{"t":"15157860107688803","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#chat#public.#chatengine-connected-pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":1},"b":"global2#ian#custom-pnpres"},{"a":"1","f":0,"p":{"t":"15157860107703465","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#chat#public.#chatengine-connected-cb-pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":1},"b":"global2#ian#custom-pnpres"},{"a":"1","f":0,"p":{"t":"15157860107709907","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#chat#public.#chat-history-3-pnpres","d":{"action":"join","uuid":"ian","timestamp":1515786010,"occupancy":1},"b":"global2#ian#custom-pnpres"}]}

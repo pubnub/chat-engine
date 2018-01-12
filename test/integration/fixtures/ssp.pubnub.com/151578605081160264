@@ -1,0 +1,16 @@
+GET /v2/presence/sub-key/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/channel/global2%23chat%23private.%23sync-chat?state=1&uuid=ian&pnsdk=PubNub-JS-Nodejs%2F4.19.0&auth=ian
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:40:50 GMT
+content-type: text/javascript; charset="UTF-8"
+content-length: 84
+connection: close
+access-control-allow-origin: *
+access-control-allow-methods: OPTIONS, GET, POST
+cache-control: no-cache
+accept-ranges: bytes
+age: 0
+server: Pubnub Presence
+
+{"status": 200, "message": "OK", "occupancy": 0, "uuids": [], "service": "Presence"}

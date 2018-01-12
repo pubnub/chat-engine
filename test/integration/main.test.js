@@ -29,7 +29,7 @@ function createChatEngine(done) {
         subscribeKey: subkey,
         logVerbosity: false,
         origin: 'ssp.pubnub.com',
-        useRequestId: true
+        useRequestId: false
     }, ceConfig);
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
@@ -49,7 +49,7 @@ function createChatEngineClone(done) {
         subscribeKey: subkey,
         logVerbosity: false,
         origin: 'ssp.pubnub.com',
-        useRequestId: true
+        useRequestId: false
     }, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
@@ -66,7 +66,7 @@ function createChatEngineYou(done) {
         publishKey: pubkey,
         subscribeKey: subkey,
         origin: 'ssp.pubnub.com',
-        useRequestId: true
+        useRequestId: false
     }, ceConfig);
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
@@ -238,7 +238,7 @@ describe('chat', () => {
             console.log(a)
         })
 
-        let chat3 = new ChatEngine.Chat('chatengine-join');
+        let chat3 = new ChatEngine.Chat('chatengine-get-message');
 
         chat3.once('something', (payload) => {
 
@@ -248,6 +248,8 @@ describe('chat', () => {
         });
 
         chat3.on('$.connected', () => {
+
+            console.log('connected and emitting hello world');
 
             chat3.emit('something', {
                 text: 'hello world'
