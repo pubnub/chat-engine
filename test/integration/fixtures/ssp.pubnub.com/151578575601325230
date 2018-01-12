@@ -1,0 +1,16 @@
+GET /v1/channel-registration/sub-key/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/channel-group/global2%23ian%23system?uuid=ian&pnsdk=PubNub-JS-Nodejs%2F4.19.0&requestid=910e33e1-9cb2-4b2d-983d-ac7dfaa07b8a&auth=ian
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:35:56 GMT
+content-type: text/javascript; charset="UTF-8"
+content-length: 225
+connection: close
+cache-control: no-cache
+access-control-allow-origin: *
+access-control-allow-methods: GET
+accept-ranges: bytes
+age: 0
+server: Pubnub
+
+{"status": 200, "payload": {"channels": ["global2", "global2#user#ian#me.#sync", "global2#user#ian#read.#feed", "global2#user#ian#write.#direct"], "group": "global2#ian#system"}, "service": "channel-registry", "error": false}

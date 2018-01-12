@@ -1,0 +1,16 @@
+GET /v2/presence/sub-key/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/channel/global2/uuid/ian/data?state=%7B%22works%22%3Atrue%7D&uuid=ian&pnsdk=PubNub-JS-Nodejs%2F4.19.0&requestid=4c79bd55-f0fb-4fcc-9bb2-e34d6f565e4f&auth=ian
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:35:53 GMT
+content-type: text/javascript; charset="UTF-8"
+content-length: 83
+connection: close
+access-control-allow-origin: *
+access-control-allow-methods: OPTIONS, GET, POST
+cache-control: no-cache
+accept-ranges: bytes
+age: 0
+server: Pubnub Presence
+
+{"status": 200, "message": "OK", "payload": {"works": true}, "service": "Presence"}

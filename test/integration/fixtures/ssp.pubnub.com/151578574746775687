@@ -1,0 +1,16 @@
+GET /v1/channel-registration/sub-key/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/channel-group/global2%23ian%23rooms?uuid=ian&pnsdk=PubNub-JS-Nodejs%2F4.19.0&requestid=7928d128-b0c4-4a0c-9a47-6ec3154dd0f9&auth=ian
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:35:47 GMT
+content-type: text/javascript; charset="UTF-8"
+content-length: 121
+connection: close
+cache-control: no-cache
+access-control-allow-origin: *
+access-control-allow-methods: GET
+accept-ranges: bytes
+age: 0
+server: Pubnub
+
+{"status": 200, "payload": {"channels": [], "group": "global2#ian#rooms"}, "service": "channel-registry", "error": false}

@@ -16,7 +16,8 @@ let yousername = 'stephen';
 
 let ceConfig = {
     globalChannel,
-    throwErrors: true
+    throwErrors: true,
+    endpoint: 'https://ssp.pubnub.com/v1/blocks/sub-key/'+subkey+'/chat-engine-server'
 };
 
 function createChatEngine(done) {
@@ -26,12 +27,16 @@ function createChatEngine(done) {
     ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: false
+        logVerbosity: false,
+        origin: 'ssp.pubnub.com',
+        useRequestId: true
     }, ceConfig);
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
     });
+    // Cha
+    //
 
 }
 
@@ -42,7 +47,9 @@ function createChatEngineClone(done) {
     ChatEngineClone = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey,
-        logVerbosity: false
+        logVerbosity: false,
+        origin: 'ssp.pubnub.com',
+        useRequestId: true
     }, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
@@ -57,7 +64,9 @@ function createChatEngineYou(done) {
 
     ChatEngineYou = ChatEngineCore.create({
         publishKey: pubkey,
-        subscribeKey: subkey
+        subscribeKey: subkey,
+        origin: 'ssp.pubnub.com',
+        useRequestId: true
     }, ceConfig);
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
@@ -225,20 +234,26 @@ describe('chat', () => {
 
         this.timeout(12000);
 
-        chat.once('something', (payload) => {
+        ChatEngine.onAny((a) => {
+            console.log(a)
+        })
+
+        let chat3 = new ChatEngine.Chat('chatengine-join');
+
+        chat3.once('something', (payload) => {
 
             assert.isObject(payload);
             done();
 
         });
 
-        setTimeout(() => {
+        chat3.on('$.connected', () => {
 
-            chat.emit('something', {
+            chat3.emit('something', {
                 text: 'hello world'
             });
 
-        }, 1000);
+        });
 
     });
 
@@ -383,7 +398,7 @@ describe('remote chat list', () => {
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
-        this.timeout(10000);
+        this.timeout(20000);
 
         // first instance looking or new chats
         ChatEngine.me.on('$.session.chat.join', (payload) => {

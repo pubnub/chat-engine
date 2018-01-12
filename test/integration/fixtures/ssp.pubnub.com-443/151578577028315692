@@ -1,0 +1,15 @@
+POST /v1/blocks/sub-key/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/chat-engine-server?route=grant
+accept: application/json, text/plain, */*
+content-type: application/json;charset=utf-8
+body: {\"uuid\":\"ian\",\"global\":\"global2\",\"authKey\":\"ian\",\"chat\":{\"channel\":\"global2\",\"group\":\"system\",\"private\":false,\"meta\":{}}}
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:36:10 GMT
+content-type: text/plain; charset=utf-8
+content-length: 0
+connection: close
+access-control-allow-headers: Origin, X-Requested-With, Content-Type, Accept
+access-control-allow-methods: GET, POST, OPTIONS, PUT, DELETE
+access-control-expose-headers: Access-Control-Allow-Origin, Access-Control-Allow-Headers, Access-Control-Allow-Methods
+access-control-allow-credentials: true
+

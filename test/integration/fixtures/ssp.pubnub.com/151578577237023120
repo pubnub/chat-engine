@@ -1,0 +1,13 @@
+GET /v2/subscribe/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/%2C/0?heartbeat=60&channel-group=global2%23ian%23rooms%2Cglobal2%23ian%23system%2Cglobal2%23ian%23custom%2Cglobal2%23ian%23rooms-pnpres%2Cglobal2%23ian%23system-pnpres%2Cglobal2%23ian%23custom-pnpres&tt=15157857722290968&tr=2&uuid=ian&pnsdk=PubNub-JS-Nodejs%2F4.19.0&requestid=1a5480e6-39f2-4dad-aa8d-88eb0f4e88bb&auth=ian
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:36:12 GMT
+content-type: text/javascript; charset="UTF-8"
+transfer-encoding: chunked
+connection: close
+cache-control: no-cache
+access-control-allow-origin: *
+access-control-allow-methods: GET
+
+{"t":{"t":"15157857723189905","r":2},"m":[{"a":"1","f":0,"i":"ian","p":{"t":"15157857723034214","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#user#ian#me.#sync","d":{"data":{"subject":{"channel":"global2","group":"system","private":false,"meta":{}}},"sender":"ian","event":"$.session.chat.join","chatengineSDK":"0.8.4"},"b":"global2#ian#system"},{"a":"1","f":0,"i":"ian","p":{"t":"15157857723168139","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#user#ian#me.#sync","d":{"data":{"subject":{"channel":"global2#user#ian#me.#sync","group":"system","private":false,"meta":{}}},"sender":"ian","event":"$.session.chat.join","chatengineSDK":"0.8.4"},"b":"global2#ian#system"},{"a":"1","f":0,"i":"ian","p":{"t":"15157857723189044","r":2},"k":"sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c","c":"global2#user#ian#me.#sync","d":{"data":{"subject":{"channel":"global2#user#ian#write.#direct","group":"system","private":false,"meta":{}}},"sender":"ian","event":"$.session.chat.join","chatengineSDK":"0.8.4"},"b":"global2#ian#system"}]}

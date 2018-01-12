@@ -1,0 +1,13 @@
+GET /time/0?uuid=ian&pnsdk=PubNub-JS-Nodejs%2F4.19.0&requestid=c8335a78-cf76-47b8-a790-9194e93e6e48
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 19:36:16 GMT
+content-type: text/javascript; charset="UTF-8"
+content-length: 19
+connection: close
+cache-control: no-cache
+access-control-allow-origin: *
+access-control-allow-methods: GET
+
+[15157857761217730]
