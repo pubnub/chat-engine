@@ -639,9 +639,9 @@ class Chat extends Emitter {
             this.getUserUpdates();
 
             // we may miss updates, so call this again 5 seconds later
-            // setTimeout(() => {
-            //     this.getUserUpdates();
-            // }, 5000);
+            setTimeout(() => {
+                this.getUserUpdates();
+            }, 5000);
 
         }
 
@@ -651,6 +651,8 @@ class Chat extends Emitter {
      * Ask PubNub for information about {@link User}s in this {@link Chat}.
      */
     getUserUpdates() {
+
+        console.log('get here now for', this.channel)
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
