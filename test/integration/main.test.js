@@ -1,8 +1,8 @@
 const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
 
-const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
-const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
+const pubkey = 'pub-c-df1f983b-8334-44aa-b32b-2fa23eff1f8f';
+const subkey = 'sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c';
 
 let ChatEngine;
 let ChatEngineYou;
@@ -10,7 +10,8 @@ let ChatEngineClone;
 let ChatEngineAlt;
 
 let logVerbosity = false;
-let globalChannel = 'global' + new Date().getTime();
+let origin = 'pubsub.pubnub.com';
+let globalChannel = 'global3';
 
 let cleanup = function () {
     ChatEngine = false;
@@ -19,13 +20,13 @@ let cleanup = function () {
     ChatEngineAlt = false;
 };
 
-let username = 'ian' + new Date().getTime();
-let yousername = 'stephen' + new Date().getTime();
+let username = 'ian';
+let yousername = 'stephen';
 
 let ceConfig = {
     globalChannel,
     throwErrors: true,
-    endpoint: 'https://ssp.pubnub.com/v1/blocks/sub-key/sub-c-696d9116-c668-11e7-afd4-56ea5891403c/chat-engine-server'
+    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/'+subkey+'/chat-engine-server'
 };
 
 function createChatEngine(done) {
@@ -36,14 +37,12 @@ function createChatEngine(done) {
         publishKey: pubkey,
         subscribeKey: subkey,
         logVerbosity: logVerbosity,
-        origin: 'ssp.pubnub.com'
+        origin: origin,
+        useRequestId: true
     }, ceConfig);
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
-    });
-    ChatEngine.onAny((a) => {
-        // console.log(a);
     });
 
 }
@@ -56,7 +55,8 @@ function createChatEngineClone(done) {
         publishKey: pubkey,
         subscribeKey: subkey,
         logVerbosity: logVerbosity,
-        origin: 'ssp.pubnub.com'
+        origin: origin,
+        useRequestId: false
     }, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
@@ -73,7 +73,8 @@ function createChatEngineYou(done) {
         publishKey: pubkey,
         subscribeKey: subkey,
         logVerbosity: logVerbosity,
-        origin: 'ssp.pubnub.com'
+        origin: origin,
+        useRequestId: true
     }, ceConfig);
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
@@ -90,28 +91,28 @@ describe('setup', () => {
         assert.isObject(ChatEngineCore, 'was successfully created');
     });
 
-    it('Should populate history tests', function populateSecondHistory(done) {
+    // it('Should populate history tests', function populateSecondHistory(done) {
 
-        this.timeout(80000);
+    //     this.timeout(80000);
 
-        let k = new ChatEngine.Chat('chat-history', false);
+    //     let k = new ChatEngine.Chat('chat-history', false);
 
-        for (let i = 0; i < 200; i++) {
+    //     for (let i = 0; i < 200; i++) {
 
-            k.emit('tester', {
-                text: 'hello world ' + i
-            });
-            k.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+    //         k.emit('tester', {
+    //             text: 'hello world ' + i
+    //         });
+    //         k.emit('not-tester', {
+    //             text: 'hello world ' + i
+    //         });
 
-        }
+    //     }
 
-        setTimeout(() => {
-            done();
-        }, 60000);
+    //     setTimeout(() => {
+    //         done();
+    //     }, 60000);
 
-    });
+    // });
 
 });
 
@@ -161,17 +162,13 @@ describe('connect', () => {
 
         assert.isObject(ChatEngine.me);
 
-        ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation);
-        });
-
     });
 
     it('should notify chatengine on created', function join(done) {
 
         this.timeout(6000);
 
-        let newChat = 'notify-on-created' + new Date().getTime();
+        let newChat = 'chatengine-created';
         let a = false;
 
         ChatEngine.on('$.created.chat', (data, source) => {
@@ -185,10 +182,6 @@ describe('connect', () => {
         });
 
         a = new ChatEngine.Chat(newChat);
-
-        setTimeout(() => {
-            a.leave();
-        }, 1000);
 
     });
 
@@ -204,7 +197,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat1 = new ChatEngine.Chat('notify-on-connected');
+        createdEventChat1 = new ChatEngine.Chat('chatengine-connected');
 
     });
 
@@ -221,7 +214,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date());
+        createdEventChat2 = new ChatEngine.Chat('chatengine-disconnected');
 
         createdEventChat2.on('$.connected', () => {
             createdEventChat2.leave();
@@ -241,9 +234,9 @@ describe('chat', () => {
 
         this.timeout(10000);
 
-        chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
+        chat = new ChatEngine.Chat('chatengine-join');
 
-        chat.on('$.online.*', (p) => {
+        chat.once('$.online.*', (p) => {
 
             if (p.user.uuid === ChatEngine.me.uuid) {
                 done();
@@ -257,7 +250,7 @@ describe('chat', () => {
 
         this.timeout(5000);
 
-        let chat2 = new ChatEngine.Chat('get-connected-callback' + new Date().getTime());
+        let chat2 = new ChatEngine.Chat('chatengine-connected-cb');
         chat2.on('$.connected', () => {
 
             done();
@@ -270,7 +263,9 @@ describe('chat', () => {
 
         this.timeout(12000);
 
-        chat.once('something', (payload) => {
+        let chat3 = new ChatEngine.Chat('chatengine-get-message');
+
+        chat3.once('something', (payload) => {
 
             assert.isObject(payload);
             done();
@@ -284,6 +279,14 @@ describe('chat', () => {
             });
 
         }, 5000);
+
+        chat3.on('$.connected', () => {
+
+            chat3.emit('something', {
+                text: 'hello world'
+            });
+
+        });
 
     });
 
@@ -397,7 +400,7 @@ describe('history', () => {
 
 let syncChat;
 
-let newChannel = 'sync-chat' + new Date().getTime();
+let newChannel = 'sync-chat';
 
 describe('remote chat list', () => {
 
@@ -411,9 +414,8 @@ describe('remote chat list', () => {
         // first instance looking or new chats
         ChatEngine.me.on('$.session.chat.join', (payload) => {
 
-            console.log('session chat joined called')
-
-            console.log(payload)
+            assert.isObject(ChatEngine.me.session.system);
+            assert.isObject(ChatEngine.me.session.custom);
 
             if (payload.chat.channel.indexOf(newChannel) > -1) {
                 done();
@@ -455,7 +457,7 @@ let myChat;
 
 let yourChat;
 
-let privChannel = 'secret-channel-' + new Date().getTime();
+let privChannel = 'secret-channel-';
 
 describe('invite', () => {
 
@@ -466,11 +468,7 @@ describe('invite', () => {
 
         this.timeout(60000);
 
-        yourChat = new ChatEngineYou.Chat(privChannel);
-        // console.log(privChannel);
-        // yourChat.onAny((a) => {
-        //     console.log('yourchat', a);
-        // });
+        yourChat = new ChatEngineYou.Chat(privChannel, false, false);
 
         yourChat.on('$.connected', () => {
 
@@ -488,91 +486,94 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            console.log(payload.data.channel);
-
             myChat = new ChatEngine.Chat(payload.data.channel);
-            // myChat.onAny((a) => {
-            //     console.log('myChat', a);
-            // });
 
-            myChat.on('$.connected', () => {
+            let emit = () => {
 
-                setTimeout(() => {
+                myChat.emit('message', {
+                    text: 'sup?'
+                });
 
-                    myChat.emit('message', {
-                        text: 'sup?'
-                    });
+            };
 
-                }, 5000);
-
-            });
+            if (myChat.connected) {
+                emit();
+            } else {
+                // it's already in our session
+                myChat.connect();
+                myChat.on('$.connected', () => {
+                    emit();
+                });
+            }
 
         });
+
+        yourChat.connect();
 
     });
 
 });
 
-// describe('connection management', () => {
+describe('connection management', () => {
 
-//     beforeEach(createChatEngine);
-//     afterEach(cleanup);
+    beforeEach(createChatEngine);
+    afterEach(cleanup);
 
-//     it('change user', function beIdentified(done) {
+    it('change user', function beIdentified(done) {
 
-//         this.timeout(20000);
+        this.timeout(20000);
 
-//         let newUsername = 'stephen' + new Date().getTime();
+        let newUsername = 'stephen' + new Date().getTime();
 
-//         ChatEngine.once('$.disconnected', () => {
+        ChatEngine.once('$.disconnected', () => {
 
-//             ChatEngine = ChatEngineCore.create({
-//                 publishKey: pubkey,
-//                 subscribeKey: subkey
-//             }, ceConfig);
+            ChatEngine = ChatEngineCore.create({
+                publishKey: pubkey,
+                subscribeKey: subkey
+            }, ceConfig);
 
-//             ChatEngine.once('$.ready', () => {
+            ChatEngine.once('$.ready', () => {
 
-//                 done();
+                done();
 
-//             });
+            });
 
-//             ChatEngine.connect(newUsername);
+            ChatEngine.connect(newUsername);
 
-//         });
+        });
 
-//         ChatEngine.disconnect();
+        ChatEngine.disconnect();
 
-//     });
+    });
 
-//     it('should disconnect', function beIdentified(done) {
+    it('should disconnect', function beIdentified(done) {
 
-//         this.timeout(6000);
+        this.timeout(6000);
 
-//         let chat2 = new ChatEngine.Chat(new Date().getTime());
+        let chat2 = new ChatEngine.Chat(new Date().getTime());
 
-//         chat2.on('$.disconnected', () => {
-//             done();
-//         });
+        chat2.on('$.disconnected', () => {
+            done();
+        });
 
-//         chat2.on('$.connected', () => {
-//             ChatEngine.disconnect();
-//         });
+        chat2.on('$.connected', () => {
+            ChatEngine.disconnect();
+        });
 
-//     });
+    });
 
-//     it('should refresh auth', function beIdentified(done) {
+    it('should refresh auth', function beIdentified(done) {
 
-//         this.timeout(6000);
+        this.timeout(6000);
 
-//         let authKey = new Date().getTime();
+        let authKey = new Date().getTime();
 
-//         ChatEngine.reauthorize(authKey);
+        ChatEngine.reauthorize(authKey);
 
-//         ChatEngine.once('$.connected', () => {
-//             done();
-//         });
+        ChatEngine.once('$.connected', () => {
+            done();
+        });
 
-//     });
+    });
 
-// });
+});
