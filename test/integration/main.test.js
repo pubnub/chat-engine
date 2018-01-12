@@ -20,8 +20,8 @@ let cleanup = function () {
     ChatEngineAlt = false;
 };
 
-let username = 'ian';
-let yousername = 'stephen';
+let username = 'ian' + new Date().getTime();
+let yousername = 'stephen' + new Date().getTime();
 
 let ceConfig = {
     globalChannel,
@@ -56,7 +56,7 @@ function createChatEngineClone(done) {
         subscribeKey: subkey,
         logVerbosity: logVerbosity,
         origin: origin,
-        useRequestId: false
+        useRequestId: true
     }, ceConfig);
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
@@ -155,6 +155,7 @@ let createdEventChat2;
 describe('connect', () => {
 
     beforeEach(createChatEngine);
+    afterEach(cleanup);
 
     it('should be identified as new user', function beIdentified() {
 
@@ -229,6 +230,7 @@ let chat;
 describe('chat', () => {
 
     beforeEach(createChatEngine);
+    afterEach(cleanup);
 
     it('should get me as join event', function getMe(done) {
 
@@ -318,6 +320,7 @@ let chatHistory;
 describe('history', () => {
 
     beforeEach(createChatEngine);
+    afterEach(cleanup);
 
     it('should get 50 messages', function get50(done) {
 
@@ -408,14 +411,13 @@ describe('remote chat list', () => {
 
     beforeEach(createChatEngine);
     beforeEach(createChatEngineClone);
+    afterEach(cleanup);
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
         this.timeout(20000);
 
         let callback = (payload) => {
-
-            console.log(payload.chat.channel)
 
             if (payload.chat.channel.indexOf(newChannel) > -1) {
 
@@ -470,6 +472,7 @@ describe('invite', () => {
 
     beforeEach(createChatEngine);
     beforeEach(createChatEngineYou);
+    afterEach(cleanup);
 
     it('two users are able to talk to each other in private channel', function shouldInvite(done) {
 
@@ -493,9 +496,13 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
+            console.log('got invite event direct')
+
             myChat = new ChatEngine.Chat(payload.data.channel);
 
-            let emit = () => {
+            let emit2 = () => {
+
+                console.log('emitting sup')
 
                 myChat.emit('message', {
                     text: 'sup?'
@@ -503,13 +510,20 @@ describe('invite', () => {
 
             };
 
+            myChat.onAny((a) => {
+                console.log(a)
+            })
+
             if (myChat.connected) {
-                emit();
+                console.log('mychat already connected')
+                emit2();
             } else {
+                console.log('not conencted, connecting')
                 // it's already in our session
-                myChat.connect();
+                // myChat.connect();
                 myChat.on('$.connected', () => {
-                    emit();
+                    console.log('mychat conencted cb')
+                    emit2();
                 });
             }
 

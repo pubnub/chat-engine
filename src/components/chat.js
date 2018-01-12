@@ -431,6 +431,7 @@ class Chat extends Emitter {
      */
     wake() {
 
+        console.log(this.channel, 'waking')
         if (this.asleep) {
             this.handshake(() => {
                 this.onConnected();
@@ -444,6 +445,7 @@ class Chat extends Emitter {
      * @private
      */
     onConnected() {
+        console.log("onConnected")
         this.connected = true;
         this.trigger('$.connected');
     }
@@ -621,6 +623,7 @@ class Chat extends Emitter {
          *     console.log('chat is ready to go!');
          * });
          */
+        console.log(this.channel, 'connection ready')
         this.onConnected();
 
         this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
