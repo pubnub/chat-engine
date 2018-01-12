@@ -95,7 +95,7 @@ describe('setup', () => {
 
     //     this.timeout(80000);
 
-    //     let k = new ChatEngine.Chat('chat-history', false);
+    //     let k = new ChatEngine.moc'chat-history', false);
 
     //     for (let i = 0; i < 200; i++) {
 
@@ -169,7 +169,7 @@ describe('connect', () => {
 
         this.timeout(6000);
 
-        let newChat = 'chatengine-created';
+        let newChat = 'chatengine-created' + new Date().getTime();
         let a = false;
 
         ChatEngine.on('$.created.chat', (data, source) => {
@@ -198,7 +198,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat1 = new ChatEngine.Chat('chatengine-connected');
+        createdEventChat1 = new ChatEngine.Chat('chatengine-connected' + new Date().getTime());
 
     });
 
@@ -215,7 +215,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat2 = new ChatEngine.Chat('chatengine-disconnected');
+        createdEventChat2 = new ChatEngine.Chat('chatengine-disconnected' + new Date().getTime());
 
         createdEventChat2.on('$.connected', () => {
             createdEventChat2.leave();
@@ -236,7 +236,7 @@ describe('chat', () => {
 
         this.timeout(10000);
 
-        chat = new ChatEngine.Chat('chatengine-join');
+        chat = new ChatEngine.Chat('chatengine-join' + new Date().getTime());
 
         chat.once('$.online.*', (p) => {
 
@@ -252,7 +252,7 @@ describe('chat', () => {
 
         this.timeout(5000);
 
-        let chat2 = new ChatEngine.Chat('chatengine-connected-cb');
+        let chat2 = new ChatEngine.Chat('chatengine-connected-cb' + new Date().getTime());
         chat2.on('$.connected', () => {
 
             done();
@@ -265,7 +265,7 @@ describe('chat', () => {
 
         this.timeout(12000);
 
-        let chat3 = new ChatEngine.Chat('chatengine-get-message');
+        let chat3 = new ChatEngine.Chat('chatengine-get-message' + new Date().getTime());
 
         chat3.once('something', (payload) => {
 
@@ -307,7 +307,7 @@ describe('chat', () => {
 
         ChatEngine.proto('Chat', examplePlugin());
 
-        let newChat = new ChatEngine.Chat('some-other-chat');
+        let newChat = new ChatEngine.Chat('some-other-chat' + new Date().getTime());
 
         assert(newChat.constructWorks, 'bound to construct');
         assert(newChat.testPlugin.newMethod(), 'new method added');
@@ -405,7 +405,7 @@ describe('history', () => {
 
 let syncChat;
 
-let newChannel = 'sync-chat';
+let newChannel = 'sync-chat' + new Date().getTime();
 
 describe('remote chat list', () => {
 
@@ -466,7 +466,7 @@ let myChat;
 
 let yourChat;
 
-let privChannel = 'secret-channel-';
+let privChannel = 'secret-channel-' + new Date().getTime();
 
 describe('invite', () => {
 
@@ -574,7 +574,7 @@ describe('connection management', () => {
 
         this.timeout(6000);
 
-        let chat2 = new ChatEngine.Chat(new Date().getTime());
+        let chat2 = new ChatEngine.Chat('disconnect'+new Date().getTime());
 
         chat2.on('$.disconnected', () => {
             done();
