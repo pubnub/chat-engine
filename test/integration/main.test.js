@@ -1,4 +1,4 @@
-// const Replay  = require('replay');
+const Replay  = require('replay');
 
 const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
@@ -434,7 +434,7 @@ describe('invite', () => {
     beforeEach(createChatEngine);
     beforeEach(createChatEngineYou);
 
-    it('two users are able to talk to each other in private channeSwitl', function shouldInvite(done) {
+    it('two users are able to talk to each other in private channel', function shouldInvite(done) {
 
         this.timeout(60000);
 
