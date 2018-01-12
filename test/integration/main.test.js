@@ -10,7 +10,7 @@ let ChatEngineClone;
 let ChatEngineAlt;
 
 let logVerbosity = false;
-let origin = 'pubsub.pubnub.com';
+let origin = 'ssp.pubnub.com';
 let globalChannel = 'global3';
 
 let cleanup = function () {
@@ -26,7 +26,7 @@ let yousername = 'stephen';
 let ceConfig = {
     globalChannel,
     throwErrors: true,
-    endpoint: 'https://pubsub.pubnub.com/v1/blocks/sub-key/'+subkey+'/chat-engine-server'
+    endpoint: 'https://ssp.pubnub.com/v1/blocks/sub-key/'+subkey+'/chat-engine-server'
 };
 
 function createChatEngine(done) {
