@@ -639,9 +639,9 @@ class Chat extends Emitter {
             this.getUserUpdates();
 
             // we may miss updates, so call this again 5 seconds later
-            setTimeout(() => {
-                this.getUserUpdates();
-            }, 5000);
+            // setTimeout(() => {
+            //     this.getUserUpdates();
+            // }, 5000);
 
         }
 
