@@ -1,0 +1,16 @@
+GET /v1/channel-registration/sub-key/sub-c-bf3164ba-f737-11e7-b8a6-46d99af2bb8c/channel-group/global2%23stephen%23rooms?uuid=stephen&pnsdk=PubNub-JS-Nodejs%2F4.19.0&auth=stephen
+accept-encoding: gzip, deflate
+
+HTTP/1.1 200 OK
+date: Fri, 12 Jan 2018 01:48:05 GMT
+content-type: text/javascript; charset="UTF-8"
+content-length: 125
+connection: close
+cache-control: no-cache
+access-control-allow-origin: *
+access-control-allow-methods: GET
+accept-ranges: bytes
+age: 0
+server: Pubnub
+
+{"status": 200, "payload": {"channels": [], "group": "global2#stephen#rooms"}, "service": "channel-registry", "error": false}
