@@ -272,21 +272,23 @@ describe('chat', () => {
 
         });
 
-        setTimeout(() => {
-
-            chat.emit('something', {
-                text: 'hello world'
-            });
-
-        }, 5000);
-
-        chat3.on('$.connected', () => {
+        let emit = () => {
 
             chat3.emit('something', {
-                text: 'hello world'
+                text: 'sup?'
             });
 
-        });
+        };
+
+        if (chat3.connected) {
+            emit();
+        } else {
+            // it's already in our session
+            chat3.connect();
+            chat3.on('$.connected', () => {
+                emit();
+            });
+        }
 
     });
 
@@ -411,17 +413,22 @@ describe('remote chat list', () => {
 
         this.timeout(20000);
 
-        // first instance looking or new chats
-        ChatEngine.me.on('$.session.chat.join', (payload) => {
+        let callback = (payload) => {
 
-            assert.isObject(ChatEngine.me.session.system);
-            assert.isObject(ChatEngine.me.session.custom);
+            console.log(payload.chat.channel)
 
             if (payload.chat.channel.indexOf(newChannel) > -1) {
+
+                assert.isObject(ChatEngine.me.session.system);
+                assert.isObject(ChatEngine.me.session.custom);
+
                 done();
             }
 
-        });
+        };
+
+        // first instance looking or new chats
+        ChatEngine.me.on('$.session.chat.join', callback);
 
         setTimeout(() => {
 
