@@ -536,7 +536,10 @@ describe('connection management', () => {
 
             ChatEngine = ChatEngineCore.create({
                 publishKey: pubkey,
-                subscribeKey: subkey
+                subscribeKey: subkey,
+                logVerbosity: logVerbosity,
+                origin: origin,
+                useRequestId: true
             }, ceConfig);
 
             ChatEngine.once('$.ready', () => {
