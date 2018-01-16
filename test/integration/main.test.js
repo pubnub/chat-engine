@@ -30,6 +30,10 @@ function createChatEngine(done) {
         done();
     });
 
+    ChatEngine.onAny((a) => {
+        console.log(a)
+    });
+
 }
 
 function createChatEngineClone(done) {
@@ -43,6 +47,9 @@ function createChatEngineClone(done) {
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
         done();
+    });
+    ChatEngineClone.onAny((a) => {
+        console.log(a)
     });
 
 }
@@ -58,6 +65,9 @@ function createChatEngineYou(done) {
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
+    });
+    ChatEngineYou.onAny((a) => {
+        console.log(a)
     });
 
 }
@@ -275,16 +285,16 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        for (let i = 0; i < 200; i++) {
+        // for (let i = 0; i < 200; i++) {
 
-            chatHistory.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     chatHistory.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-        }
+        // }
 
         chatHistory.on('$.connected', () => {
 
@@ -318,16 +328,16 @@ describe('history', () => {
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
 
-        for (let i = 0; i < 200; i++) {
+        // for (let i = 0; i < 200; i++) {
 
-            chatHistory2.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory2.emit('not-tester', {
-                text: 'hello world ' + i
-            });
+        //     chatHistory2.emit('tester', {
+        //         text: 'hello world ' + i
+        //     });
+        //     chatHistory2.emit('not-tester', {
+        //         text: 'hello world ' + i
+        //     });
 
-        }
+        // }
 
         chatHistory2.on('$.connected', () => {
 
@@ -374,58 +384,58 @@ let syncChat;
 
 let newChannel = 'sync-chat' + new Date().getTime();
 
-describe('remote chat list', () => {
+// describe('remote chat list', () => {
 
-    beforeEach(createChatEngine);
-    beforeEach(createChatEngineClone);
+//     beforeEach(createChatEngine);
+//     beforeEach(createChatEngineClone);
 
-    it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
+//     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
-        this.timeout(10000);
+//         this.timeout(10000);
 
-        // first instance looking or new chats
-        ChatEngine.me.on('$.session.chat.join', (payload) => {
+//         // first instance looking or new chats
+//         ChatEngine.me.on('$.session.chat.join', (payload) => {
 
-            if (payload.chat.channel.indexOf(newChannel) > -1) {
-                done();
-            }
+//             if (payload.chat.channel.indexOf(newChannel) > -1) {
+//                 done();
+//             }
 
-        });
+//         });
 
-        syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+//         syncChat = new ChatEngineClone.Chat(newChannel, true, true);
 
-    });
+//     });
 
-    it('should be populated', (done) => {
+//     it('should be populated', (done) => {
 
-        assert.isObject(ChatEngine.me.session.system);
-        assert.isObject(ChatEngine.me.session.custom);
-        // assert.isObject(ChatEngine.me.session.fixed);
-        done();
+//         assert.isObject(ChatEngine.me.session.system);
+//         assert.isObject(ChatEngine.me.session.custom);
+//         // assert.isObject(ChatEngine.me.session.fixed);
+//         done();
 
-    });
+//     });
 
-    it('should get delete event', function deleteSync(done) {
+//     it('should get delete event', function deleteSync(done) {
 
-        this.timeout(10000);
+//         this.timeout(10000);
 
-        ChatEngine.me.on('$.session.chat.leave', (payload) => {
+//         ChatEngine.me.on('$.session.chat.leave', (payload) => {
 
-            if (payload.chat.channel.indexOf(newChannel) > -1) {
+//             if (payload.chat.channel.indexOf(newChannel) > -1) {
 
-                done();
-            }
+//                 done();
+//             }
 
-        });
+//         });
 
-        setTimeout(() => {
-            syncChat.leave();
-        }, 3000);
+//         setTimeout(() => {
+//             syncChat.leave();
+//         }, 3000);
 
 
-    });
+//     });
 
-});
+// });
 
 let myChat;
 
