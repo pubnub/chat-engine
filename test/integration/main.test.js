@@ -7,6 +7,7 @@ const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
 let ChatEngine;
 let ChatEngineYou;
 let ChatEngineClone;
+let ChatEngineSync;
 let globalChannel = 'global';
 
 let username = 'ian' + new Date().getTime();
@@ -14,7 +15,7 @@ let yousername = 'stephen' + new Date().getTime();
 
 let ceConfig = {
     globalChannel,
-    throwErrors: false
+    throwErrors: true
 };
 
 function createChatEngine(done) {
@@ -29,12 +30,31 @@ function createChatEngine(done) {
     ChatEngine.on('$.ready', () => {
         done();
     });
-
     ChatEngine.onAny((a) => {
-        console.log(a)
+        console.log(a);
     });
 
 }
+
+function createChatEngineSync(done) {
+
+    this.timeout(15000);
+
+    ChatEngineSync = ChatEngineCore.create({
+        publishKey: pubkey,
+        subscribeKey: subkey
+    }, {
+        globalChannel,
+        enableSync: true,
+        throwErrors: true
+    });
+    ChatEngineSync.connect(username, { works: true }, username);
+    ChatEngineSync.on('$.ready', () => {
+        done();
+    });
+
+}
+
 
 function createChatEngineClone(done) {
 
@@ -43,13 +63,14 @@ function createChatEngineClone(done) {
     ChatEngineClone = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
-    }, ceConfig);
+    }, {
+        globalChannel,
+        enableSync: true,
+        throwErrors: true
+    });
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
         done();
-    });
-    ChatEngineClone.onAny((a) => {
-        console.log(a)
     });
 
 }
@@ -65,9 +86,6 @@ function createChatEngineYou(done) {
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
-    });
-    ChatEngineYou.onAny((a) => {
-        console.log(a)
     });
 
 }
@@ -384,58 +402,64 @@ let syncChat;
 
 let newChannel = 'sync-chat' + new Date().getTime();
 
-// describe('remote chat list', () => {
+describe('remote chat list', () => {
 
-//     beforeEach(createChatEngine);
-//     beforeEach(createChatEngineClone);
+    beforeEach(createChatEngineSync);
+    beforeEach(createChatEngineClone);
 
-//     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
+    it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
-//         this.timeout(10000);
+        this.timeout(10000);
 
-//         // first instance looking or new chats
-//         ChatEngine.me.on('$.session.chat.join', (payload) => {
+        // first instance looking or new chats
+        ChatEngineSync.me.on('$.session.chat.join', (payload) => {
 
-//             if (payload.chat.channel.indexOf(newChannel) > -1) {
-//                 done();
-//             }
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+                done();
+            }
 
-//         });
+        });
 
-//         syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+        syncChat = new ChatEngineClone.Chat(newChannel, true, true);
 
-//     });
+    });
 
-//     it('should be populated', (done) => {
+    it('should be populated', function shouldBePopulated(done) {
 
-//         assert.isObject(ChatEngine.me.session.system);
-//         assert.isObject(ChatEngine.me.session.custom);
-//         // assert.isObject(ChatEngine.me.session.fixed);
-//         done();
+        this.timeout(10000);
 
-//     });
+        ChatEngineSync.once('$.session.group.restored', (payload) => {
 
-//     it('should get delete event', function deleteSync(done) {
+            console.log(ChatEngineSync.me)
 
-//         this.timeout(10000);
+            assert.isObject(ChatEngineSync.me.session[payload.group]);
 
-//         ChatEngine.me.on('$.session.chat.leave', (payload) => {
+            done();
 
-//             if (payload.chat.channel.indexOf(newChannel) > -1) {
+        });
 
-//                 done();
-//             }
+    });
 
-//         });
+    it('should get delete event', function deleteSync(done) {
 
-//         setTimeout(() => {
-//             syncChat.leave();
-//         }, 3000);
+        this.timeout(10000);
+
+        ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
+
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+                done();
+            }
+
+        });
+
+        setTimeout(() => {
+            syncChat.leave();
+        }, 3000);
 
 
-//     });
+    });
 
-// });
+});
 
 let myChat;
 

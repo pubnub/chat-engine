@@ -30,8 +30,6 @@ class Me extends User {
          */
         this.session = {};
 
-        this.syncSession();
-
         return this;
 
     }
@@ -69,71 +67,79 @@ class Me extends User {
 
     }
 
-    syncSession() {
+    subscribeToSession() {
 
         if (this.chatEngine.ceConfig.enableSync) {
 
             this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
 
-            this.sync.on('$.session.chat.join', (payload) => {
+            this.sync.on('$.session.notify.chat.join', (payload) => {
                 this.onSessionJoin(payload.data.subject);
             });
 
-            this.sync.on('$.session.chat.leave', (payload) => {
+            this.sync.on('$.session.notify.chat.leave', (payload) => {
                 this.onSessionLeave(payload.data.subject);
             });
-
-            this.restoreSession();
 
         }
 
     }
 
+    restoreSession() {
+
+        if (this.chatEngine.ceConfig.enableSync) {
+
+            let groups = ['custom', 'rooms', 'system'];
+
+            groups.forEach((group) => {
+
+                let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.uuid, group].join('#');
+
+                this.chatEngine.pubnub.channelGroups.listChannels({
+                    channelGroup
+                }, (status, response) => {
+
+                    if (status.error) {
+                        console.log('operation failed w/ error:', status);
+                        return;
+                    }
+
+                    response.channels.forEach((channel) => {
+
+                        this.onSessionJoin({
+                            channel,
+                            private: this.chatEngine.parseChannel(channel).private,
+                            group
+                        });
+
+                    });
+
+
+                    this.trigger('$.session.group.restored', {group});
+
+                });
+
+            });
+
+        }
+
+    }
+
+
     sessionJoin(chat) {
         if (this.chatEngine.ceConfig.enableSync) {
-            this.sync.emit('$.session.chat.join', { subject: chat.objectify() });
+
+            // don't rebroadcast chats in session we've already heard about
+            if (!this.session[chat.group] || !this.session[chat.group][chat.channel]) {;
+                this.sync.emit('$.session.notify.chat.join', { subject: chat.objectify() });
+            }
         }
     }
 
     sessionLeave(chat) {
         if (this.chatEngine.ceConfig.enableSync) {
-            this.sync.emit('$.session.chat.leave', { subject: chat.objectify() });
+            this.sync.emit('$.session.notify.chat.leave', { subject: chat.objectify() });
         }
-    }
-
-    restoreSession() {
-
-        let groups = ['custom', 'rooms', 'system'];
-
-        groups.forEach((group) => {
-
-            let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.uuid, group].join('#');
-
-            this.chatEngine.pubnub.channelGroups.listChannels({
-                channelGroup
-            }, (status, response) => {
-
-                if (status.error) {
-                    console.log('operation failed w/ error:', status);
-                    return;
-                }
-
-                response.channels.forEach((channel) => {
-
-                    this.onSessionJoin({
-                        channel,
-                        private: this.chatEngine.parseChannel(channel).private,
-                        group
-                    });
-
-                });
-
-                this.sync.emit('$.session.chat.restored');
-
-            });
-
-        });
-
     }
 
     /**
@@ -200,6 +206,8 @@ class Me extends User {
 
             delete this.chatEngine.chats[chat.channel];
             delete this.session[chat.group][chat.channel];
+
+            this.trigger('$.session.chat.leave', { chat });
 
         }
 
