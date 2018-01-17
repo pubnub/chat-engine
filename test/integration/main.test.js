@@ -15,7 +15,8 @@ let yousername = 'stephen' + new Date().getTime();
 
 let ceConfig = {
     globalChannel,
-    throwErrors: true
+    throwErrors: true,
+    enableSync: false
 };
 
 function createChatEngine(done) {
@@ -31,7 +32,7 @@ function createChatEngine(done) {
         done();
     });
     ChatEngine.onAny((a) => {
-        console.log(a);
+        // console.log(a);
     });
 
 }
@@ -428,9 +429,14 @@ describe('remote chat list', () => {
 
         this.timeout(10000);
 
+        ChatEngineSync.onAny((a) => {
+            console.log(a)
+        })
+
         ChatEngineSync.once('$.session.group.restored', (payload) => {
 
-            console.log(ChatEngineSync.me)
+            console.log('the group is', payload)
+            console.log(ChatEngineSync.me.session)
 
             assert.isObject(ChatEngineSync.me.session[payload.group]);
 

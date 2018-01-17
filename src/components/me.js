@@ -89,7 +89,7 @@ class Me extends User {
 
         if (this.chatEngine.ceConfig.enableSync) {
 
-            let groups = ['custom', 'rooms', 'system'];
+            let groups = ['custom', 'system'];
 
             groups.forEach((group) => {
 
@@ -114,7 +114,7 @@ class Me extends User {
 
                     });
 
-
+                    console.log("done", group)
                     this.trigger('$.session.group.restored', {group});
 
                 });
@@ -130,7 +130,7 @@ class Me extends User {
         if (this.chatEngine.ceConfig.enableSync) {
 
             // don't rebroadcast chats in session we've already heard about
-            if (!this.session[chat.group] || !this.session[chat.group][chat.channel]) {;
+            if (!this.session[chat.group] || !this.session[chat.group][chat.channel]) {
                 this.sync.emit('$.session.notify.chat.join', { subject: chat.objectify() });
             }
         }
