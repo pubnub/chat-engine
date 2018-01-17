@@ -30,6 +30,8 @@ class Me extends User {
          */
         this.session = {};
 
+        this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
+
         return this;
 
     }
@@ -70,8 +72,6 @@ class Me extends User {
     subscribeToSession() {
 
         if (this.chatEngine.ceConfig.enableSync) {
-
-            this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
 
             this.sync.on('$.session.notify.chat.join', (payload) => {
                 this.onSessionJoin(payload.data.subject);

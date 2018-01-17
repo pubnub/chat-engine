@@ -429,14 +429,7 @@ describe('remote chat list', () => {
 
         this.timeout(10000);
 
-        ChatEngineSync.onAny((a) => {
-            console.log(a)
-        })
-
         ChatEngineSync.once('$.session.group.restored', (payload) => {
-
-            console.log('the group is', payload)
-            console.log(ChatEngineSync.me.session)
 
             assert.isObject(ChatEngineSync.me.session[payload.group]);
 
@@ -483,10 +476,6 @@ describe('invite', () => {
         this.timeout(60000);
 
         yourChat = new ChatEngineYou.Chat(privChannel);
-        console.log(privChannel);
-        yourChat.onAny((a) => {
-            console.log('yourchat', a);
-        });
 
         yourChat.on('$.connected', () => {
 
@@ -504,12 +493,7 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            console.log(payload.data.channel);
-
             myChat = new ChatEngine.Chat(payload.data.channel);
-            myChat.onAny((a) => {
-                console.log('myChat', a);
-            });
 
             myChat.on('$.connected', () => {
 

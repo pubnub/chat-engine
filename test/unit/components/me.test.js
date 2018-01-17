@@ -8,7 +8,7 @@ describe('#me', () => {
     let me = null;
 
     beforeEach(() => {
-        chatEngineInstance = Bootstrap({ globalChannel: 'common', insecure: true }, { publishKey: 'demo', subscribeKey: 'demo' });
+        chatEngineInstance = Bootstrap({ globalChannel: 'common', insecure: true, enableSync: true }, { publishKey: 'demo', subscribeKey: 'demo' });
 
         // mock pubnub
         chatEngineInstance.pubnub = {
@@ -26,6 +26,15 @@ describe('#me', () => {
         done();
     });
 
+    it('chat sync crated', (done) => {
+
+        me.subscribeToSession();
+
+        assert.isObject(me.sync);
+
+        done();
+    });
+
     it('add chat to session', (done) => {
 
         chatEngineInstance.on('$.session.chat.join', (payload) => {
@@ -38,8 +47,6 @@ describe('#me', () => {
     });
 
     it('remove a chat from session', (done) => {
-
-        me.addChatToSession({ group: 'default', channel: 'test' });
 
         chatEngineInstance.on('$.session.chat.leave', (payload) => {
             assert.isObject(payload.chat, 'was successfully remove');
