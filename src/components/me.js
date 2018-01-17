@@ -30,15 +30,7 @@ class Me extends User {
          */
         this.session = {};
 
-        this.sync = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
-
-        this.sync.on('$.session.chat.join', (payload) => {
-            this.addChatToSession(payload.data.subject);
-        });
-
-        this.sync.on('$.session.chat.leave', (payload) => {
-            this.removeChatFromSession(payload.data.subject);
-        });
+        this.syncSession();
 
         return this;
 
@@ -77,12 +69,79 @@ class Me extends User {
 
     }
 
+    syncSession() {
+
+        if (this.chatEngine.ceConfig.enableSync) {
+
+            this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
+
+            this.sync.on('$.session.chat.join', (payload) => {
+                this.onSessionJoin(payload.data.subject);
+            });
+
+            this.sync.on('$.session.chat.leave', (payload) => {
+                this.onSessionLeave(payload.data.subject);
+            });
+
+            this.restoreSession();
+
+        }
+
+    }
+
+    sessionJoin(chat) {
+        if (this.chatEngine.ceConfig.enableSync) {
+            this.sync.emit('$.session.chat.join', { subject: chat.objectify() });
+        }
+    }
+
+    sessionLeave(chat) {
+        if (this.chatEngine.ceConfig.enableSync) {
+            this.sync.emit('$.session.chat.leave', { subject: chat.objectify() });
+        }
+    }
+
+    restoreSession() {
+
+        let groups = ['custom', 'rooms', 'system'];
+
+        groups.forEach((group) => {
+
+            let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.uuid, group].join('#');
+
+            this.chatEngine.pubnub.channelGroups.listChannels({
+                channelGroup
+            }, (status, response) => {
+
+                if (status.error) {
+                    console.log('operation failed w/ error:', status);
+                    return;
+                }
+
+                response.channels.forEach((channel) => {
+
+                    this.onSessionJoin({
+                        channel,
+                        private: this.chatEngine.parseChannel(channel).private,
+                        group
+                    });
+
+                });
+
+                this.sync.emit('$.session.chat.restored');
+
+            });
+
+        });
+
+    }
+
     /**
     Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
     @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
     @private
     */
-    addChatToSession(chat) {
+    onSessionJoin(chat) {
 
         // create the chat group if it doesn't exist
         this.session[chat.group] = this.session[chat.group] || {};
@@ -128,7 +187,7 @@ class Me extends User {
     Removes {@link Chat} within this.session
     @private
     */
-    removeChatFromSession(chat) {
+    onSessionLeave(chat) {
 
         if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
 
@@ -141,8 +200,6 @@ class Me extends User {
 
             delete this.chatEngine.chats[chat.channel];
             delete this.session[chat.group][chat.channel];
-
-            this.trigger('$.session.chat.leave', { chat });
 
         }
 
