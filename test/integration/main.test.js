@@ -26,11 +26,7 @@ function createChatEngine(done) {
     });
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
-        console.log('!!!!!! CE READY')
         done();
-    });
-    ChatEngine.onAny((a) => {
-        // console.log(a);
     });
 
 }
@@ -50,12 +46,7 @@ function createChatEngineSync(done) {
 
     ChatEngineSync.connect(username, { works: false }, username);
     ChatEngineSync.on('$.ready', () => {
-        console.log('!!!!!! SYNC READY')
         done();
-    });
-
-    ChatEngineSync.onAny((a) => {
-        console.log(a)
     });
 
 }
@@ -436,7 +427,6 @@ describe('remote chat list', () => {
         ChatEngineSync.me.on('$.session.chat.join', (payload) => {
 
             if (payload.chat.channel.indexOf(newChannel) > -1) {
-                console.log('first test done')
                 done();
             }
 
@@ -448,13 +438,7 @@ describe('remote chat list', () => {
 
     it('should be populated', function shouldBePopulated(done) {
 
-        console.log('starting this test')
-
         this.timeout(20000);
-
-        let called = false;
-
-        console.log('BINDING TO EVENT')
 
         ChatEngineSync.me.once('$.session.group.restored', (payload) => {
 
@@ -482,7 +466,7 @@ describe('remote chat list', () => {
 
         });
 
-        syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+        syncChat = new ChatEngineClone.Chat(newChannel);
 
         syncChat.on('$.connected', () => {
 
