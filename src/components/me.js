@@ -206,9 +206,9 @@ class Me extends User {
             delete this.chatEngine.chats[chat.channel];
             delete this.session[chat.group][chat.channel];
 
-            this.trigger('$.session.chat.leave', { chat });
-
         }
+
+        this.trigger('$.session.chat.leave', { chat });
 
     }
 

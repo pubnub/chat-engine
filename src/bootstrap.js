@@ -247,8 +247,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             ChatEngine.global.on('$.connected', () => {
 
-                console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-
                 /**
                  *  Fired when ChatEngine is connected to the internet and ready to go!
                  * @event ChatEngine#$"."ready
