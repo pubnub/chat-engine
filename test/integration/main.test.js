@@ -413,6 +413,7 @@ describe('history', () => {
 let syncChat;
 
 let newChannel = 'sync-chat' + new Date().getTime();
+let newChannel2 = 'sync-chat2' + new Date().getTime();
 
 describe('remote chat list', () => {
 
@@ -425,7 +426,7 @@ describe('remote chat list', () => {
         this.timeout(60000);
 
         // first instance looking or new chats
-        ChatEngineSync.me.once('$.session.chat.join', (payload) => {
+        ChatEngineSync.me.on('$.session.chat.join', (payload) => {
 
             if (payload.chat.channel.indexOf(newChannel) > -1) {
                 done();
@@ -457,7 +458,7 @@ describe('remote chat list', () => {
 
         ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
 
-            if (payload.chat.channel.indexOf(newChannel) > -1) {
+            if (payload.chat.channel.indexOf(newChannel2) > -1) {
                 done();
             }
 
@@ -470,7 +471,7 @@ describe('remote chat list', () => {
 
         });
 
-        syncChat = new ChatEngineClone.Chat(newChannel);
+        syncChat = new ChatEngineClone.Chat(newChannel2);
 
     });
 

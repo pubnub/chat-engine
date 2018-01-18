@@ -156,6 +156,7 @@ class Me extends User {
 
         // if it exists
         if (existingChat) {
+
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;
         } else {
