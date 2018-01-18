@@ -422,7 +422,7 @@ describe('remote chat list', () => {
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
-        this.timeout(20000);
+        this.timeout(60000);
 
         // first instance looking or new chats
         ChatEngineSync.me.once('$.session.chat.join', (payload) => {
@@ -453,7 +453,7 @@ describe('remote chat list', () => {
 
     it('should get delete event', function deleteSync(done) {
 
-        this.timeout(20000);
+        this.timeout(60000);
 
         ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
 
