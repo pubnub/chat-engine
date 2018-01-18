@@ -87,11 +87,17 @@ class Me extends User {
 
     restoreSession() {
 
+        console.log('trying to restore session')
+
         if (this.chatEngine.ceConfig.enableSync) {
+
+            console.log('restoring sesssion')
 
             let groups = ['custom', 'system'];
 
             groups.forEach((group) => {
+
+                console.log('loop through group', group)
 
                 let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.uuid, group].join('#');
 
@@ -99,23 +105,27 @@ class Me extends User {
                     channelGroup
                 }, (status, response) => {
 
+                    console.log('list chan groups response', response.channels)
+
                     if (status.error) {
                         console.log('operation failed w/ error:', status);
                         return;
                     }
 
+                    console.log('looping through channels')
+
                     response.channels.forEach((channel) => {
 
+                        console.log('calling foreach for', group)
                         this.onSessionJoin({
                             channel,
                             private: this.chatEngine.parseChannel(channel).private,
                             group
                         });
 
-                    });
+                        this.trigger('$.session.group.restored', { group });
 
-                    console.log("done", group)
-                    this.trigger('$.session.group.restored', {group});
+                    });
 
                 });
 

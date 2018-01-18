@@ -57,6 +57,10 @@ class Event {
 
         m.event = this.event;
 
+        // hope that pubnub meta does not get broadcast and put it there
+        // make all requests with custom xhr -> blocks -> publish (this is what hipchat does)
+        // delete the
+
         this.chatEngine.pubnub.publish({
             message: m,
             channel: this.channel

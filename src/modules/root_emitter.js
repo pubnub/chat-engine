@@ -27,7 +27,7 @@ class RootEmitter {
         this.emitter = new EventEmitter2({
             wildcard: true,
             newListener: true,
-            maxListeners: 50,
+            maxListeners: 500,
             verboseMemoryLeak: true
         });
 

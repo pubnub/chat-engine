@@ -27,9 +27,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
-    if(typeof ChatEngine.ceConfig.enableSync == "undefined") {
+    if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
         ChatEngine.ceConfig.enableSync = false;
     }
+
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
      * @type {Object}
@@ -245,6 +246,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.me.subscribeToSession();
 
             ChatEngine.global.on('$.connected', () => {
+
+                console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
                 /**
                  *  Fired when ChatEngine is connected to the internet and ready to go!
