@@ -26,6 +26,7 @@ function createChatEngine(done) {
     });
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
+        console.log('!!!!!! CE READY')
         done();
     });
     ChatEngine.onAny((a) => {
@@ -46,8 +47,10 @@ function createChatEngineSync(done) {
         enableSync: true,
         throwErrors: true
     });
+
     ChatEngineSync.connect(username, { works: false }, username);
     ChatEngineSync.on('$.ready', () => {
+        console.log('!!!!!! SYNC READY')
         done();
     });
 
@@ -93,6 +96,15 @@ function createChatEngineYou(done) {
     ChatEngineYou.on('$.ready', () => {
         done();
     });
+
+}
+
+function reset() {
+
+    ChatEngine = false;
+    ChatEngineYou = false;
+    ChatEngineClone = false;
+    ChatEngineSync = false;
 
 }
 
@@ -410,27 +422,33 @@ let newChannel = 'sync-chat' + new Date().getTime();
 
 describe('remote chat list', () => {
 
-    beforeEach(createChatEngineSync);
     beforeEach(createChatEngineClone);
+    beforeEach(createChatEngineSync);
+    afterEach(reset)
 
-    // it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
+    it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
-    //     this.timeout(10000);
+        console.log("starting first test")
 
-    //     // first instance looking or new chats
-    //     ChatEngineSync.me.on('$.session.chat.join', (payload) => {
+        this.timeout(10000);
 
-    //         if (payload.chat.channel.indexOf(newChannel) > -1) {
-    //             done();
-    //         }
+        // first instance looking or new chats
+        ChatEngineSync.me.on('$.session.chat.join', (payload) => {
 
-    //     });
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+                console.log('first test done')
+                done();
+            }
 
-    //     syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+        });
 
-    // });
+        syncChat = new ChatEngineClone.Chat(newChannel, true, true);
+
+    });
 
     it('should be populated', function shouldBePopulated(done) {
+
+        console.log('starting this test')
 
         this.timeout(20000);
 
@@ -438,38 +456,46 @@ describe('remote chat list', () => {
 
         console.log('BINDING TO EVENT')
 
-        ChatEngineSync.me.on('$.session.group.restored', (payload) => {
+        ChatEngineSync.me.once('$.session.group.restored', (payload) => {
 
-            console.log(ChatEngineSync.me.session)
+            console.log('is ready?', ChatEngineSync.ready);
+            console.log(ChatEngineSync)
+            console.log('my uuid is', ChatEngineSync.me.uuid);
 
             assert.isObject(ChatEngineSync.me.session[payload.group]);
 
-            if (!called) {
-                done();
-                called = true;
-            }
+            done();
 
         });
 
     });
 
-    // it('should get delete event', function deleteSync(done) {
+    it('should get delete event', function deleteSync(done) {
 
-    //     this.timeout(10000);
+        this.timeout(10000);
 
-    //     ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
+        ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
 
-    //         if (payload.chat.channel.indexOf(newChannel) > -1) {
-    //             done();
-    //         }
+            if (payload.chat.channel.indexOf(newChannel) > -1) {
+                done();
+            }
 
-    //     });
+        });
 
-    //     setTimeout(() => {
-    //         syncChat.leave();
-    //     }, 3000);
+        syncChat = new ChatEngineClone.Chat(newChannel, true, true);
 
-    // });
+        syncChat.on('$.connected', () => {
+
+            setTimeout(() => {
+
+                console.log('LEAVING SYNCHAT')
+
+                syncChat.leave();
+            }, 3000);
+
+        });
+
+    });
 
 });
 
