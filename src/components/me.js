@@ -30,6 +30,11 @@ class Me extends User {
          */
         this.session = {};
 
+        /**
+         * The {@link Chat} that syncs session between instances. Only connects
+         * if "enableSync" has been set to true in ceConfig.
+         * @type {this}
+         */
         this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
 
         return this;
@@ -69,10 +74,16 @@ class Me extends User {
 
     }
 
+    /**
+     * Forwards sync events from other instances into callback functions
+     * @private
+     */
     subscribeToSession() {
 
+        // if the option has been enabled
         if (this.chatEngine.ceConfig.enableSync) {
 
+            // subscribe to the events on our sync chat and forward them
             this.sync.on('$.session.notify.chat.join', (payload) => {
                 this.onSessionJoin(payload.data.subject);
             });
@@ -85,36 +96,53 @@ class Me extends User {
 
     }
 
+    /**
+     * Uses PubNub channel groups to restore a session for this uuid
+     * @private
+     */
     restoreSession() {
 
         if (this.chatEngine.ceConfig.enableSync) {
 
+            // these are custom groups that separate custom chats from system chats
+            // for better fitlering
             let groups = ['custom', 'system'];
 
+            // loop through the groups
             groups.forEach((group) => {
 
+                // generate the channel group string for PubNub using the current uuid
                 let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.uuid, group].join('#');
 
+                // ask pubnub for a list of channels for this group
                 this.chatEngine.pubnub.channelGroups.listChannels({
                     channelGroup
                 }, (status, response) => {
 
                     if (status.error) {
-                        console.log('operation failed w/ error:', status);
-                        return;
-                    }
+                        this.chatEngine.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
+                    } else {
 
-                    response.channels.forEach((channel) => {
+                        // loop through the returned channels
+                        response.channels.forEach((channel) => {
 
-                        this.onSessionJoin({
-                            channel,
-                            private: this.chatEngine.parseChannel(channel).private,
-                            group
+                            // call the same callback as if we were notified about them
+                            this.onSessionJoin({
+                                channel,
+                                private: this.chatEngine.parseChannel(channel).private,
+                                group
+                            });
+
+                            /**
+                            Fired when session has been restored at boot. Fired once per
+                            session group.
+                            @event Me#$"."session"."group"."restored
+                            */
+                            this.trigger('$.session.group.restored', { group });
+
                         });
 
-                        this.trigger('$.session.group.restored', { group });
-
-                    });
+                    }
 
                 });
 
@@ -124,7 +152,10 @@ class Me extends User {
 
     }
 
-
+    /**
+     * Callback fired when another instance has joined a chat
+     * @private
+     */
     sessionJoin(chat) {
         if (this.chatEngine.ceConfig.enableSync) {
 
@@ -135,6 +166,10 @@ class Me extends User {
         }
     }
 
+    /**
+     * Callback fired when another instance has left a chat
+     * @private
+     */
     sessionLeave(chat) {
         if (this.chatEngine.ceConfig.enableSync) {
             this.sync.emit('$.session.notify.chat.leave', { subject: chat.objectify() });

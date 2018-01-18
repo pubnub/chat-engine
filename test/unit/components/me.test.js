@@ -26,7 +26,7 @@ describe('#me', () => {
         done();
     });
 
-    it('chat sync crated', (done) => {
+    it('chat sync created', (done) => {
 
         me.subscribeToSession();
 
