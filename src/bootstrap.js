@@ -27,8 +27,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
-    ChatEngine.ceConfig.enableSync = ChatEngine.ceConfig.enableSync || true;
-
+    if(typeof ChatEngine.ceConfig.enableSync == "undefined") {
+        ChatEngine.ceConfig.enableSync = false;
+    }
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
      * @type {Object}

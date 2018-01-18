@@ -13,12 +13,6 @@ let globalChannel = 'global';
 let username = 'ian' + new Date().getTime();
 let yousername = 'stephen' + new Date().getTime();
 
-let ceConfig = {
-    globalChannel,
-    throwErrors: true,
-    enableSync: false
-};
-
 function createChatEngine(done) {
 
     this.timeout(15000);
@@ -26,7 +20,10 @@ function createChatEngine(done) {
     ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
-    }, ceConfig);
+    }, {
+        globalChannel,
+        throwErrors: true
+    });
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
@@ -83,7 +80,11 @@ function createChatEngineYou(done) {
     ChatEngineYou = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
-    }, ceConfig);
+    }, {
+        globalChannel,
+        throwErrors: true,
+        enableSync: false
+    });
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
@@ -431,6 +432,7 @@ describe('remote chat list', () => {
 
         ChatEngineSync.once('$.session.group.restored', (payload) => {
 
+            console.log('called')
             assert.isObject(ChatEngineSync.me.session[payload.group]);
 
             done();
