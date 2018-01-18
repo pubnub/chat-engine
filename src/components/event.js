@@ -57,6 +57,11 @@ class Event {
 
         m.event = this.event;
 
+        if (this.chatEngine.ceConfig.publishAuthCredentials) {
+            m.authKey = this.chatEngine.pnConfig.authKey;
+            m.authData = this.chatEngine.me.authData;
+        }
+
         this.chatEngine.pubnub.publish({
             message: m,
             channel: this.channel

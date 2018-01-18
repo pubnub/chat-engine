@@ -27,6 +27,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
+    if (typeof ChatEngine.ceConfig.publishAuthCredentials === 'undefined') {
+        ChatEngine.ceConfig.publishAuthCredentials = false;
+    }
+
+    console.log('publish auth creds is', ChatEngine.ceConfig.publishAuthCredentials)
+
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
      * @type {Object}
