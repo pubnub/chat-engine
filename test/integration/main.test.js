@@ -324,7 +324,7 @@ describe('chat', () => {
 
         ChatEngine.proto('Chat', examplePlugin());
 
-        let newChat = new ChatEngine.Chat('some-other-chat' + new Date().getTime(););
+        let newChat = new ChatEngine.Chat('some-other-chat' + new Date().getTime());
 
         assert(newChat.constructWorks, 'bound to construct');
         assert(newChat.testPlugin.newMethod(), 'new method added');
