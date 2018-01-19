@@ -8,9 +8,11 @@ let ChatEngine;
 let ChatEngineYou;
 let ChatEngineClone;
 let ChatEngineSync;
-let globalChannel = 'global';
+let ChatEngineHistory;
 
-let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync];
+let globalChannel = 'tester' + new Date().getTime();
+
+let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory];
 
 function reset() {
 
@@ -106,6 +108,24 @@ function createChatEngineYou(done) {
     });
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
+        done();
+    });
+
+}
+
+function createChatEngineHistory(done) {
+
+    this.timeout(15000);
+
+    ChatEngineHistory = ChatEngineCore.create({
+        publishKey: pubkey,
+        subscribeKey: subkey
+    }, {
+        globalChannel: 'global',
+        throwErrors: true
+    });
+    ChatEngineHistory.connect(yousername, { works: true }, yousername);
+    ChatEngineHistory.on('$.ready', () => {
         done();
     });
 
@@ -304,7 +324,7 @@ describe('chat', () => {
 
         ChatEngine.proto('Chat', examplePlugin());
 
-        let newChat = new ChatEngine.Chat('some-other-chat');
+        let newChat = new ChatEngine.Chat('some-other-chat' + new Date().getTime(););
 
         assert(newChat.constructWorks, 'bound to construct');
         assert(newChat.testPlugin.newMethod(), 'new method added');
@@ -316,7 +336,7 @@ describe('chat', () => {
 let chatHistory;
 describe('history', () => {
 
-    beforeEach(createChatEngine);
+    beforeEach(createChatEngineHistory);
     afterEach(reset);
 
     it('should get 50 messages', function get50(done) {
@@ -325,7 +345,7 @@ describe('history', () => {
 
         this.timeout(30000);
 
-        chatHistory = new ChatEngine.Chat('chat-history-8', false);
+        chatHistory = new ChatEngineHistory.Chat('chat-history-8', false);
 
         chatHistory.on('$.connected', () => {
 
@@ -357,7 +377,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+        let chatHistory2 = new ChatEngineHistory.Chat('chat-history-3', false);
 
         chatHistory2.on('$.connected', () => {
 
