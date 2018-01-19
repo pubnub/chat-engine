@@ -292,6 +292,7 @@ class Chat extends Emitter {
       * });
      */
     emit(event, data) {
+
         if (event === 'message' && typeof data !== 'object') {
             throw new Error('the payload has to be an object');
         }
@@ -431,7 +432,6 @@ class Chat extends Emitter {
      */
     wake() {
 
-        console.log(this.channel, 'waking')
         if (this.asleep) {
             this.handshake(() => {
                 this.onConnected();
@@ -445,7 +445,6 @@ class Chat extends Emitter {
      * @private
      */
     onConnected() {
-        console.log("onConnected")
         this.connected = true;
         this.trigger('$.connected');
     }
@@ -481,7 +480,7 @@ class Chat extends Emitter {
                 this.onDisconnected();
 
                 // tell session we've left
-                this.chatEngine.me.sync.emit('$.session.chat.leave', { subject: this.objectify() });
+                this.chatEngine.me.sessionLeave(this);
 
             })
             .catch((error) => {
@@ -623,10 +622,9 @@ class Chat extends Emitter {
          *     console.log('chat is ready to go!');
          * });
          */
-        console.log(this.channel, 'connection ready')
         this.onConnected();
 
-        this.chatEngine.me.sync.emit('$.session.chat.join', { subject: this.objectify() });
+        this.chatEngine.me.sessionJoin(this);
 
         // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
@@ -654,8 +652,6 @@ class Chat extends Emitter {
      * Ask PubNub for information about {@link User}s in this {@link Chat}.
      */
     getUserUpdates() {
-
-        console.log('get here now for', this.channel)
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel

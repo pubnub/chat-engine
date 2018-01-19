@@ -8,6 +8,7 @@ Global object used to create an instance of {@link ChatEngine}.
 @param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/java-se-java/api-reference-configuration).
 @param ceConfig {Object} A list of ChatEngine specific configuration options.
 @param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link ChatEngine.global}
+@param [ceConfig.enableSync] {Boolean} Synchronizes chats between instances with the same {@link Me#uuid}. See {@link Me#sync}.
 @param [ceConfig.throwErrors=true] {Boolean} Throws errors in JS console.
 @param [ceConfig.endpoint='https://pubsub.pubnub.com/v1/blocks/sub-key/YOUR_SUB_KEY/chat-engine-server'] {String} The root URL of the server used to manage permissions for private channels. Set by default to match the PubNub functions deployed to your account. See {@tutorial privacy} for more.
 @param [ceConfig.debug] {Boolean} Logs all ChatEngine events to the console.

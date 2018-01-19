@@ -24,8 +24,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
     ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
 
-    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || false;
+    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
+
+    if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
+        ChatEngine.ceConfig.enableSync = false;
+    }
 
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
@@ -234,44 +238,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     /**
      * @private
-     * Uses PubNub channel groups to keep a set chats in sync between
-     * all clients with the same UUID.
-     */
-    ChatEngine.syncChats = () => {
-
-        let groups = ['custom', 'rooms', 'system'];
-
-        groups.forEach((group) => {
-
-            let channelGroup = [ceConfig.globalChannel, ChatEngine.pnConfig.uuid, group].join('#');
-
-            ChatEngine.pubnub.channelGroups.listChannels({
-                channelGroup
-            }, (status, response) => {
-
-                if (status.error) {
-                    console.log('operation failed w/ error:', status);
-                    return;
-                }
-
-                response.channels.forEach((channel) => {
-
-                    ChatEngine.me.addChatToSession({
-                        channel,
-                        private: ChatEngine.parseChannel(channel).private,
-                        group
-                    });
-
-                });
-
-            });
-
-        });
-
-    };
-
-    /**
-     * @private
      * Listen to PubNub events and forward them into ChatEngine system.
      */
     ChatEngine.listenToPubNub = () => {
@@ -449,7 +415,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             ChatEngine.listenToPubNub();
             ChatEngine.subscribeToPubNub();
-            ChatEngine.syncChats();
+            ChatEngine.me.restoreSession();
 
         });
 
