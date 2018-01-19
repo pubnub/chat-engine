@@ -315,17 +315,6 @@ describe('history', () => {
 
         chatHistory = new ChatEngine.Chat('chat-history-8', false);
 
-        // for (let i = 0; i < 200; i++) {
-
-        //     chatHistory.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory.emit('not-tester', {
-        //         text: 'hello world ' + i
-        //     });
-
-        // }
-
         chatHistory.on('$.connected', () => {
 
             setTimeout(() => {
@@ -357,17 +346,6 @@ describe('history', () => {
         this.timeout(60000);
 
         let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
-
-        // for (let i = 0; i < 200; i++) {
-
-        //     chatHistory2.emit('tester', {
-        //         text: 'hello world ' + i
-        //     });
-        //     chatHistory2.emit('not-tester', {
-        //         text: 'hello world ' + i
-        //     });
-
-        // }
 
         chatHistory2.on('$.connected', () => {
 
