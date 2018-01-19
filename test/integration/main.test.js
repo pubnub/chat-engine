@@ -43,6 +43,7 @@ function createChatEngine(done) {
     }, {
         globalChannel,
         throwErrors: true
+        // , debug: true
     });
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
@@ -579,7 +580,7 @@ describe('connection management', () => {
 
     it('should refresh auth', function beIdentified(done) {
 
-        this.timeout(6000);
+        this.timeout(20000);
 
         let authKey = new Date().getTime();
 

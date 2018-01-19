@@ -520,8 +520,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
         ChatEngine.disconnect();
-        ChatEngine.setAuth(authKey);
-        ChatEngine.reconnect();
+
+        ChatEngine.global.on('$.disconnected', () => {
+
+            ChatEngine.setAuth(authKey);
+            ChatEngine.reconnect();
+
+        });
 
     };
 
