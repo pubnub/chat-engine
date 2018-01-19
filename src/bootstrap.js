@@ -27,6 +27,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
+    if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
+        ChatEngine.ceConfig.enableSync = false;
+    }
+
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
      * @type {Object}
@@ -216,38 +220,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         pnConfig.authKey = authKey || PubNub.generateUUID();
 
-        let restoreSession = () => {
-
-            let groups = ['custom', 'rooms', 'system'];
-
-            groups.forEach((group) => {
-
-                let channelGroup = [ceConfig.globalChannel, pnConfig.uuid, group].join('#');
-
-                ChatEngine.pubnub.channelGroups.listChannels({
-                    channelGroup
-                }, (status, response) => {
-
-                    if (status.error) {
-                        console.log('operation failed w/ error:', status);
-                        return;
-                    }
-
-                    response.channels.forEach((channel) => {
-
-                        ChatEngine.me.addChatToSession({
-                            channel,
-                            private: ChatEngine.parseChannel(channel).private,
-                            group
-                        });
-
-                    });
-
-                });
-
-            });
-
-        };
 
         let complete = () => {
 
@@ -270,6 +242,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             * });
             */
             ChatEngine.me.onConstructed();
+
+            ChatEngine.me.subscribeToSession();
 
             ChatEngine.global.on('$.connected', () => {
 
@@ -311,7 +285,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                 ChatEngine.ready = true;
 
-                restoreSession();
+                ChatEngine.me.restoreSession();
 
             });
 

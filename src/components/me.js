@@ -30,15 +30,12 @@ class Me extends User {
          */
         this.session = {};
 
-        this.sync = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'me.', 'sync'].join('#'), false, true, {}, 'system');
-
-        this.sync.on('$.session.chat.join', (payload) => {
-            this.addChatToSession(payload.data.subject);
-        });
-
-        this.sync.on('$.session.chat.leave', (payload) => {
-            this.removeChatFromSession(payload.data.subject);
-        });
+        /**
+         * The {@link Chat} that syncs session between instances. Only connects
+         * if "enableSync" has been set to true in ceConfig.
+         * @type {this}
+         */
+        this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
 
         return this;
 
@@ -78,11 +75,113 @@ class Me extends User {
     }
 
     /**
+     * Forwards sync events from other instances into callback functions
+     * @private
+     */
+    subscribeToSession() {
+
+        // if the option has been enabled
+        if (this.chatEngine.ceConfig.enableSync) {
+
+            // subscribe to the events on our sync chat and forward them
+            this.sync.on('$.session.notify.chat.join', (payload) => {
+                this.onSessionJoin(payload.data.subject);
+            });
+
+            this.sync.on('$.session.notify.chat.leave', (payload) => {
+                this.onSessionLeave(payload.data.subject);
+            });
+
+        }
+
+    }
+
+    /**
+     * Uses PubNub channel groups to restore a session for this uuid
+     * @private
+     */
+    restoreSession() {
+
+        if (this.chatEngine.ceConfig.enableSync) {
+
+            // these are custom groups that separate custom chats from system chats
+            // for better fitlering
+            let groups = ['custom', 'system'];
+
+            // loop through the groups
+            groups.forEach((group) => {
+
+                // generate the channel group string for PubNub using the current uuid
+                let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.uuid, group].join('#');
+
+                // ask pubnub for a list of channels for this group
+                this.chatEngine.pubnub.channelGroups.listChannels({
+                    channelGroup
+                }, (status, response) => {
+
+                    if (status.error) {
+                        this.chatEngine.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
+                    } else {
+
+                        // loop through the returned channels
+                        response.channels.forEach((channel) => {
+
+                            // call the same callback as if we were notified about them
+                            this.onSessionJoin({
+                                channel,
+                                private: this.chatEngine.parseChannel(channel).private,
+                                group
+                            });
+
+                            /**
+                            Fired when session has been restored at boot. Fired once per
+                            session group.
+                            @event Me#$"."session"."group"."restored
+                            */
+                            this.trigger('$.session.group.restored', { group });
+
+                        });
+
+                    }
+
+                });
+
+            });
+
+        }
+
+    }
+
+    /**
+     * Callback fired when another instance has joined a chat
+     * @private
+     */
+    sessionJoin(chat) {
+        if (this.chatEngine.ceConfig.enableSync) {
+
+            // don't rebroadcast chats in session we've already heard about
+            if (!this.session[chat.group] || !this.session[chat.group][chat.channel]) {
+                this.sync.emit('$.session.notify.chat.join', { subject: chat.objectify() });
+            }
+        }
+    }
+
+    /**
+     * Callback fired when another instance has left a chat
+     * @private
+     */
+    sessionLeave(chat) {
+        if (this.chatEngine.ceConfig.enableSync) {
+            this.sync.emit('$.session.notify.chat.leave', { subject: chat.objectify() });
+        }
+    }
+
+    /**
     Stores {@link Chat} within ```ChatEngine.session``` keyed based on the ```chat.group``` property.
     @param {Object} chat JSON object representing {@link Chat}. Originally supplied via {@link Chat#objectify}.
     @private
     */
-    addChatToSession(chat) {
+    onSessionJoin(chat) {
 
         // create the chat group if it doesn't exist
         this.session[chat.group] = this.session[chat.group] || {};
@@ -92,6 +191,7 @@ class Me extends User {
 
         // if it exists
         if (existingChat) {
+
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;
         } else {
@@ -128,7 +228,7 @@ class Me extends User {
     Removes {@link Chat} within this.session
     @private
     */
-    removeChatFromSession(chat) {
+    onSessionLeave(chat) {
 
         if (this.session[chat.group] && this.session[chat.group][chat.channel]) {
 
@@ -142,9 +242,9 @@ class Me extends User {
             delete this.chatEngine.chats[chat.channel];
             delete this.session[chat.group][chat.channel];
 
-            this.trigger('$.session.chat.leave', { chat });
-
         }
+
+        this.trigger('$.session.chat.leave', { chat });
 
     }
 
