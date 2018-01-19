@@ -195,6 +195,8 @@ class Emitter extends RootEmitter {
                 // the user doesn't exist, create it
                 payload.sender = new this.chatEngine.User(payload.sender);
 
+                console.log('get state for', this.uuid)
+
                 payload.sender._getState(() => {
                     complete();
                 });
