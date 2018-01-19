@@ -10,15 +10,24 @@ let ChatEngineClone;
 let ChatEngineSync;
 let globalChannel = 'global';
 
+let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync];
+
 function reset() {
-    ChatEngine && ChatEngine.destroy();
-    ChatEngine = false;
-    ChatEngineYou && ChatEngineYou.destroy();
-    ChatEngineYou = false;
-    ChatEngineClone && ChatEngineClone.destroy();
-    ChatEngineClone = false;
-    ChatEngineSync && ChatEngineSync.destroy();
-    ChatEngineSync = false;
+
+    // for every instance of chatengine
+    instances.forEach((instance) => {
+
+        // if the instance is a real chatengine instance
+        if (instance) {
+            // unregister all event listeners
+            instance.destroy();
+        }
+
+        // remove the instance from memory
+        instance = false;
+
+    });
+
 }
 
 let username = 'ian' + new Date().getTime();
