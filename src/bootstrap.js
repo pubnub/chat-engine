@@ -577,6 +577,20 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    ChatEngine.destroy = function () {
+
+        Object.keys(ChatEngine.chats).forEach((chat) => {
+            ChatEngine.chats[chat].emitter.removeAllListeners();
+        });
+
+        Object.keys(ChatEngine.users).forEach((user) => {
+            ChatEngine.users[user].emitter.removeAllListeners();
+        });
+
+        ChatEngine.emitter.removeAllListeners();
+
+    };
+
     /**
      * The {@link User} class. Creates a new User when initialized, or returns an existing instance if chat has already been created.
      * @member {User} User

@@ -11,9 +11,13 @@ let ChatEngineSync;
 let globalChannel = 'global';
 
 function reset() {
+    ChatEngine && ChatEngine.destroy();
     ChatEngine = false;
+    ChatEngineYou && ChatEngineYou.destroy();
     ChatEngineYou = false;
+    ChatEngineClone && ChatEngineClone.destroy();
     ChatEngineClone = false;
+    ChatEngineSync && ChatEngineSync.destroy();
     ChatEngineSync = false;
 }
 
