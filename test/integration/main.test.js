@@ -562,14 +562,14 @@ describe('connection management', () => {
 
         let chat2 = new ChatEngine.Chat('disconnect' + new Date().getTime());
 
-        chat2.on('$.disconnected', () => {
-            done();
-        });
-
         chat2.on('$.connected', () => {
 
             // old chat may still be trying to call here_now
             setTimeout(() => {
+
+                chat2.once('$.disconnected', () => {
+                    done();
+                });
 
                 ChatEngine.disconnect();
 
