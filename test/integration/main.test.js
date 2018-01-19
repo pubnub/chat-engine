@@ -19,6 +19,7 @@ function reset() {
 
         // if the instance is a real chatengine instance
         if (instance) {
+            instance.disconnect();
             // unregister all event listeners
             instance.destroy();
         }

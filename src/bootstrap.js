@@ -473,8 +473,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // do the whole auth flow with the new authKey
         ChatEngine.handshake(() => {
 
-            ChatEngine.global.wake();
-
             // for every chat in ChatEngine.chats, call .connect()
             Object.keys(ChatEngine.chats).forEach((key) => {
                 ChatEngine.chats[key].wake();
@@ -491,7 +489,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     */
     ChatEngine.setAuth = (authKey = PubNub.generateUUID()) => {
 
-        // disconnect from old pubnub
         ChatEngine.pnConfig.authKey = authKey;
         ChatEngine.pubnub.setAuthKey(authKey);
 
