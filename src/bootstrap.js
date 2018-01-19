@@ -412,8 +412,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             ChatEngine.ready = true;
 
-            ChatEngine.global.getUserUpdates();
-
             ChatEngine.listenToPubNub();
             ChatEngine.subscribeToPubNub();
             ChatEngine.me.restoreSession();

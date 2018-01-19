@@ -543,7 +543,7 @@ describe('connection management', () => {
 
     it('should disconnect', function beIdentified(done) {
 
-        this.timeout(6000);
+        this.timeout(20000);
 
         let chat2 = new ChatEngine.Chat('disconnect' + new Date().getTime());
 
@@ -552,7 +552,14 @@ describe('connection management', () => {
         });
 
         chat2.on('$.connected', () => {
-            ChatEngine.disconnect();
+
+            // old chat may still be trying to call here_now
+            setTimeout(() => {
+
+                ChatEngine.disconnect();
+
+            }, 5000);
+
         });
 
     });

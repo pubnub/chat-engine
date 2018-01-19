@@ -635,7 +635,7 @@ class Chat extends Emitter {
         });
 
         // global channel updates are triggered manually, only get presence on custom chats
-        if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+        if (this.group === 'custom') {
 
             this.getUserUpdates();
 
