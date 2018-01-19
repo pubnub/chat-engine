@@ -394,6 +394,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         * });
         */
         ChatEngine.me.onConstructed();
+        ChatEngine.me.subscribeToSession();
 
         ChatEngine.global.once('$.connected', () => {
 

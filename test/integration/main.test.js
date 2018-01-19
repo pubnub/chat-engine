@@ -87,8 +87,7 @@ function createChatEngineYou(done) {
         subscribeKey: subkey
     }, {
         globalChannel,
-        throwErrors: true,
-        enableSync: false
+        throwErrors: true
     });
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
