@@ -191,9 +191,13 @@ class Chat extends Emitter {
                      *    let privChat = new ChatEngine.Chat(payload.data.channel));
                      * });
                      */
-                    user.direct.emit('$.invite', {
-                        channel: this.channel
-                    });
+                    setTimeout(() =>{
+
+                        user.direct.emit('$.invite', {
+                            channel: this.channel
+                        });
+
+                    }, 5000)
 
                 };
 

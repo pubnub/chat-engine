@@ -158,7 +158,6 @@ class User extends Emitter {
 
                 } else {
                     this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting user state from the PubNub network.'));
-                    console.log(response)
                 }
 
             });
