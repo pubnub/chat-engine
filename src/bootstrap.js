@@ -156,6 +156,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         body = Object.assign(body, inputBody);
         params = Object.assign(params, inputParams);
 
+        console.log(ceConfig.globalChannel, 'request', route)
+
         if (method === 'get' || method === 'delete') {
             params = Object.assign(params, body);
             return axios[method](ceConfig.endpoint, { params });
@@ -411,14 +413,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
              * })
              */
 
-             setTimeout(() => {
-
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-             }, 5000);
-
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
+            });
 
             ChatEngine.ready = true;
 

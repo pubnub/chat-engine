@@ -101,6 +101,8 @@ class Me extends User {
      */
     restoreSession() {
 
+        console.log('restoring session')
+
         if (this.chatEngine.ceConfig.enableSync) {
 
             // these are custom groups that separate custom chats from system chats
@@ -131,6 +133,8 @@ class Me extends User {
                                 private: this.chatEngine.parseChannel(channel).private,
                                 group
                             });
+
+                            console.log(this.chatEngine.ceConfig.globalChannel, 'firing restored on behalf of', this.name)
 
                             /**
                             Fired when session has been restored at boot. Fired once per

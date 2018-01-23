@@ -11,12 +11,16 @@ let ChatEngineSync;
 let ChatEngineHistory;
 
 let globalChannel;
+let username;
+let yousername;
 
 let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory];
 
 function reset() {
 
     globalChannel = 'tester' + new Date().getTime();
+    username = 'ian' + new Date().getTime();
+    yousername = 'stephen' + new Date().getTime();
 
     // for every instance of chatengine
     instances.forEach((instance) => {
@@ -34,9 +38,7 @@ function reset() {
     });
 
 }
-
-let username = 'ian' + new Date().getTime();
-let yousername = 'stephen' + new Date().getTime();
+reset();
 
 function createChatEngine(done) {
 
@@ -454,6 +456,7 @@ describe('remote chat list', () => {
 
         this.timeout(20000);
 
+        console.log('!!!! BINDING TO RESTORE EVENT')
         ChatEngineSync.me.once('$.session.group.restored', (payload) => {
 
             assert.isObject(ChatEngineSync.me.session[payload.group]);
