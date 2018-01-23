@@ -122,7 +122,7 @@ class Chat extends Emitter {
              * There was a problem fetching the presence of this chat
              * @event Chat#$"."error"."presence
              */
-            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
+            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'));
 
         } else {
 

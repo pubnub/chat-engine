@@ -404,25 +404,30 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         ChatEngine.global.once('$.connected', () => {
 
-            /**
-             *  Fired when ChatEngine is connected to the internet and ready to go!
-             * @event ChatEngine#$"."ready
-             * @example
-             * ChatEngine.on('$.ready', (data) => {
-             *     let me = data.me;
-             * })
-             */
+            setTimeout(() => {
 
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
-            });
 
-            ChatEngine.ready = true;
+                /**
+                 *  Fired when ChatEngine is connected to the internet and ready to go!
+                 * @event ChatEngine#$"."ready
+                 * @example
+                 * ChatEngine.on('$.ready', (data) => {
+                 *     let me = data.me;
+                 * })
+                 */
 
-            ChatEngine.listenToPubNub();
-            ChatEngine.subscribeToPubNub();
-            ChatEngine.global.getUserUpdates();
-            ChatEngine.me.restoreSession();
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
+                });
+
+                ChatEngine.ready = true;
+
+                ChatEngine.listenToPubNub();
+                ChatEngine.subscribeToPubNub();
+                ChatEngine.global.getUserUpdates();
+                ChatEngine.me.restoreSession();
+
+            }, 5000);
 
         });
 
