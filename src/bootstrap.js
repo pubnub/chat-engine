@@ -425,7 +425,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 ChatEngine.global.getUserUpdates();
                 ChatEngine.me.restoreSession();
 
-            }, 5000);
+            }, 10000);
 
         });
 

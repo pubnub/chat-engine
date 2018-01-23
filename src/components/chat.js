@@ -197,7 +197,7 @@ class Chat extends Emitter {
                             channel: this.channel
                         });
 
-                    }, 5000)
+                    }, 10000)
 
                 };
 
@@ -650,7 +650,7 @@ class Chat extends Emitter {
             // we may miss updates, so call this again 5 seconds later
             setTimeout(() => {
                 this.getUserUpdates();
-            }, 5000);
+            }, 10000);
 
         }
 
