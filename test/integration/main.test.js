@@ -233,7 +233,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test' + new Date());
+        createdEventChat1 = new ChatEngine.Chat('this-is-only-a-test' + new Date().getTime());
 
     });
 
@@ -250,7 +250,7 @@ describe('connect', () => {
             }
         });
 
-        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date());
+        createdEventChat2 = new ChatEngine.Chat('this-is-only-a-test-2' + new Date().getTime());
 
         createdEventChat2.on('$.connected', () => {
             createdEventChat2.leave();
