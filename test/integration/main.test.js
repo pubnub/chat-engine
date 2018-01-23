@@ -10,11 +10,13 @@ let ChatEngineClone;
 let ChatEngineSync;
 let ChatEngineHistory;
 
-let globalChannel = 'tester' + new Date().getTime();
+let globalChannel;
 
 let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory];
 
 function reset() {
+
+    globalChannel = 'tester' + new Date().getTime();
 
     // for every instance of chatengine
     instances.forEach((instance) => {
