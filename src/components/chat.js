@@ -116,6 +116,10 @@ class Chat extends Emitter {
      */
     onHereNow(status, response) {
 
+        console.log('the here now response')
+        console.log(status)
+        console.log(response)
+
         if (status.error) {
 
             /**
