@@ -134,8 +134,6 @@ class Me extends User {
                                 group
                             });
 
-                            console.log(this.chatEngine.ceConfig.globalChannel, 'firing restored on behalf of', this.name)
-
                             /**
                             Fired when session has been restored at boot. Fired once per
                             session group.

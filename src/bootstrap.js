@@ -156,7 +156,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         body = Object.assign(body, inputBody);
         params = Object.assign(params, inputParams);
 
-        console.log(ceConfig.globalChannel, 'request', route)
+        // console.log(ceConfig.globalChannel, 'request', route)
 
         if (method === 'get' || method === 'delete') {
             params = Object.assign(params, body);
