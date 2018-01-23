@@ -408,9 +408,15 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
              *     let me = data.me;
              * })
              */
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
-            });
+
+             setTimeout(() => {
+
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
+                });
+
+             }, 5000);
+
 
             ChatEngine.ready = true;
 
