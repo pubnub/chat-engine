@@ -249,9 +249,13 @@ describe('connect', () => {
 
         a = new ChatEngine.Chat(newChat);
 
-        setTimeout(() => {
-            a.leave();
-        }, 1000);
+        a.on('$.connected', () => {
+
+            setTimeout(() => {
+                a.leave();
+            }, 1000);
+
+        });
 
     });
 
