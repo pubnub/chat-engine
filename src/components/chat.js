@@ -664,13 +664,13 @@ class Chat extends Emitter {
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
-        this.chatEngine.pubnub.hereNow({
-            channels: [this.channel],
-            includeUUIDs: true,
-            includeState: true
-        }, (s, r) => {
-            this.onHereNow(s, r);
-        });
+        // this.chatEngine.pubnub.hereNow({
+        //     channels: [this.channel],
+        //     includeUUIDs: true,
+        //     includeState: true
+        // }, (s, r) => {
+        //     this.onHereNow(s, r);
+        // });
 
     }
 
