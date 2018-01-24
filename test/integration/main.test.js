@@ -16,11 +16,12 @@ let yousername;
 
 let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory];
 
+let iterations = 0;
 function reset() {
 
-    globalChannel = 'tester' + new Date().getTime();
-    username = 'ian' + new Date().getTime();
-    yousername = 'stephen' + new Date().getTime();
+    globalChannel = ['test', iterations].join('-');
+    username = ['ian', iterations].join('-');
+    yousername = ['stephen', iterations].join('-');
 
     // for every instance of chatengine
     instances.forEach((instance) => {
@@ -37,8 +38,9 @@ function reset() {
 
     });
 
+    iterations++;
+
 }
-reset();
 
 function createChatEngine(done) {
 
@@ -210,8 +212,8 @@ let createdEventChat1;
 let createdEventChat2;
 describe('connect', () => {
 
+    beforeEach(reset);
     beforeEach(createChatEngine);
-    afterEach(reset);
 
     it('should be identified as new user', function beIdentified() {
 
@@ -293,8 +295,8 @@ let chat;
 
 describe('chat', () => {
 
+    beforeEach(reset);
     beforeEach(createChatEngine);
-    afterEach(reset);
 
     it('should get me as join event', function getMe(done) {
 
@@ -369,8 +371,8 @@ describe('chat', () => {
 let chatHistory;
 describe('history', () => {
 
+    beforeEach(reset);
     beforeEach(createChatEngineHistory);
-    afterEach(reset);
 
     it('should get 50 messages', function get50(done) {
 
@@ -460,9 +462,9 @@ let newChannel2 = 'sync-chat2' + new Date().getTime();
 
 describe('remote chat list', () => {
 
+    beforeEach(reset);
     beforeEach(createChatEngineClone);
     beforeEach(createChatEngineSync);
-    afterEach(reset);
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
 
@@ -525,13 +527,13 @@ let myChat;
 
 let yourChat;
 
-let privChannel = 'secret-channel-' + new Date().getTime();
+let privChannel = 'predictable-secret-channel';
 
 describe('invite', () => {
 
+    beforeEach(reset);
     beforeEach(createChatEngine);
     beforeEach(createChatEngineYou);
-    afterEach(reset);
 
     it('two users are able to talk to each other in private channel', function shouldInvite(done) {
 
@@ -577,14 +579,14 @@ describe('invite', () => {
 
 describe('connection management', () => {
 
+    beforeEach(reset);
     beforeEach(createChatEngine);
-    afterEach(reset);
 
     it('change user', function beIdentified(done) {
 
         this.timeout(60000);
 
-        let newUsername = 'stephen' + new Date().getTime();
+        let newUsername = ['stephen', new Date().getTime()].join('-');
 
         ChatEngine.once('$.disconnected', () => {
 
@@ -633,18 +635,18 @@ describe('connection management', () => {
 
     });
 
-    it('should refresh auth', function beIdentified(done) {
+    // it('should refresh auth', function beIdentified(done) {
 
-        this.timeout(60000);
+    //     this.timeout(60000);
 
-        let authKey = new Date().getTime();
+    //     let authKey = new Date().getTime();
 
-        ChatEngine.reauthorize(authKey);
+    //     ChatEngine.reauthorize(authKey);
 
-        ChatEngine.once('$.connected', () => {
-            done();
-        });
+    //     ChatEngine.once('$.connected', () => {
+    //         done();
+    //     });
 
-    });
+    // });
 
 });
