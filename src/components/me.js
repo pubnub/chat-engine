@@ -101,9 +101,9 @@ class Me extends User {
      */
     restoreSession() {
 
-        console.log('restoring session')
-
         if (this.chatEngine.ceConfig.enableSync) {
+
+            console.log('restoring session')
 
             // these are custom groups that separate custom chats from system chats
             // for better fitlering
