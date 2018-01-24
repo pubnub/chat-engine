@@ -733,11 +733,7 @@ class Chat extends Emitter {
             (next) => {
 
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then((a) =>{
-                        setTimeout(()=>{
-                            callback(a)
-                        }, 10000);
-                    })
+                    .then(callback)
                     .catch(next);
 
             }

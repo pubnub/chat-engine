@@ -42,7 +42,7 @@ reset();
 
 function createChatEngine(done) {
 
-        this.timeout(60000);
+    this.timeout(60000);
 
     ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
