@@ -548,10 +548,17 @@ describe('invite', () => {
 
         });
 
+        let done = false;
+
         yourChat.on('message', (payload) => {
 
-            assert.equal(payload.data.text, 'sup?');
-            done();
+            if(!done) {
+
+                assert.equal(payload.data.text, 'sup?');
+                done();
+                done = true;
+
+            }
 
         });
 
