@@ -191,13 +191,9 @@ class Chat extends Emitter {
                      *    let privChat = new ChatEngine.Chat(payload.data.channel));
                      * });
                      */
-                    setTimeout(() =>{
-
-                        user.direct.emit('$.invite', {
-                            channel: this.channel
-                        });
-
-                    }, 10000)
+                    user.direct.emit('$.invite', {
+                        channel: this.channel
+                    });
 
                 };
 
@@ -645,13 +641,13 @@ class Chat extends Emitter {
         // global channel updates are triggered manually, only get presence on custom chats
         if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
 
-            // this.getUserUpdates();
+            this.getUserUpdates();
 
             // we may miss updates, so call this again 5 seconds later
             setTimeout(() => {
                 console.log('getting user updates via connectionReady for', this.channel)
                 this.getUserUpdates();
-            }, 10000);
+            }, 5000);
 
         }
 
@@ -664,13 +660,13 @@ class Chat extends Emitter {
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
-        // this.chatEngine.pubnub.hereNow({
-        //     channels: [this.channel],
-        //     includeUUIDs: true,
-        //     includeState: true
-        // }, (s, r) => {
-        //     this.onHereNow(s, r);
-        // });
+        this.chatEngine.pubnub.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, (s, r) => {
+            this.onHereNow(s, r);
+        });
 
     }
 
@@ -737,7 +733,11 @@ class Chat extends Emitter {
             (next) => {
 
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then(callback)
+                    .then((a) =>{
+                        setTimeout(()=>{
+                            callback(a)
+                        }, 10000);
+                    })
                     .catch(next);
 
             }

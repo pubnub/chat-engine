@@ -42,7 +42,7 @@ reset();
 
 function createChatEngine(done) {
 
-    this.timeout(15000);
+        this.timeout(60000);
 
     ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
@@ -66,7 +66,7 @@ function createChatEngine(done) {
 
 function createChatEngineSync(done) {
 
-    this.timeout(15000);
+    this.timeout(60000);
 
     ChatEngineSync = ChatEngineCore.create({
         publishKey: pubkey,
@@ -93,7 +93,7 @@ function createChatEngineSync(done) {
 
 function createChatEngineClone(done) {
 
-    this.timeout(15000);
+    this.timeout(60000);
 
     ChatEngineClone = ChatEngineCore.create({
         publishKey: pubkey,
@@ -118,7 +118,7 @@ function createChatEngineClone(done) {
 
 function createChatEngineYou(done) {
 
-    this.timeout(15000);
+    this.timeout(60000);
 
     ChatEngineYou = ChatEngineCore.create({
         publishKey: pubkey,
@@ -142,7 +142,7 @@ function createChatEngineYou(done) {
 
 function createChatEngineHistory(done) {
 
-    this.timeout(15000);
+    this.timeout(60000);
 
     ChatEngineHistory = ChatEngineCore.create({
         publishKey: pubkey,
@@ -215,7 +215,7 @@ describe('connect', () => {
 
     it('should be identified as new user', function beIdentified() {
 
-        this.timeout(16000);
+        this.timeout(60000);
 
         assert.isObject(ChatEngine.me);
 
@@ -227,7 +227,7 @@ describe('connect', () => {
 
     it('should notify chatengine on created', function join(done) {
 
-        this.timeout(6000);
+        this.timeout(60000);
 
         let newChat = 'this-is-only-a-test-3' + new Date().getTime();
         let a = false;
@@ -252,7 +252,7 @@ describe('connect', () => {
 
     it('should notify chatengine on connected', function join(done) {
 
-        this.timeout(10000);
+        this.timeout(60000);
 
         ChatEngine.on('$.connected', (data, source) => {
 
@@ -268,7 +268,7 @@ describe('connect', () => {
 
     it('should notify chatengine on disconnected', function disconnected(done) {
 
-        this.timeout(4000);
+        this.timeout(60000);
 
         ChatEngine.on('$.disconnected', (data, source) => {
 
@@ -298,7 +298,7 @@ describe('chat', () => {
 
     it('should get me as join event', function getMe(done) {
 
-        this.timeout(10000);
+        this.timeout(60000);
 
         chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
@@ -314,7 +314,7 @@ describe('chat', () => {
 
     it('should get connected callback', function getReadyCallback(done) {
 
-        this.timeout(5000);
+        this.timeout(60000);
 
         let chat2 = new ChatEngine.Chat('chat2' + new Date().getTime());
         chat2.on('$.connected', () => {
@@ -327,7 +327,7 @@ describe('chat', () => {
 
     it('should get message', function shouldGetMessage(done) {
 
-        this.timeout(12000);
+        this.timeout(60000);
 
         chat.once('something', (payload) => {
 
@@ -376,7 +376,7 @@ describe('history', () => {
 
         let count = 0;
 
-        this.timeout(30000);
+        this.timeout(60000);
 
         chatHistory = new ChatEngineHistory.Chat('chat-history-8', false);
 
@@ -437,7 +437,7 @@ describe('history', () => {
 
     it('should get messages without event', function get50(done) {
 
-        this.timeout(30000);
+        this.timeout(60000);
 
         chatHistory.search({
             limit: 10
@@ -483,7 +483,7 @@ describe('remote chat list', () => {
 
     it('should be populated', function shouldBePopulated(done) {
 
-        this.timeout(20000);
+        this.timeout(60000);
 
         console.log('!!!! BINDING TO RESTORE EVENT')
         ChatEngineSync.me.once('$.session.group.restored', (payload) => {
@@ -582,7 +582,7 @@ describe('connection management', () => {
 
     it('change user', function beIdentified(done) {
 
-        this.timeout(20000);
+        this.timeout(60000);
 
         let newUsername = 'stephen' + new Date().getTime();
 
@@ -612,7 +612,7 @@ describe('connection management', () => {
 
     it('should disconnect', function beIdentified(done) {
 
-        this.timeout(20000);
+        this.timeout(60000);
 
         let chat2 = new ChatEngine.Chat('disconnect' + new Date().getTime());
 
@@ -635,7 +635,7 @@ describe('connection management', () => {
 
     it('should refresh auth', function beIdentified(done) {
 
-        this.timeout(40000);
+        this.timeout(60000);
 
         let authKey = new Date().getTime();
 
