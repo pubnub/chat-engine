@@ -18,7 +18,7 @@ let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, Cha
 
 let iterations = 0;
 
-let version = process.version.replace('.', '-');
+let version = process.version.replace(/\./g, '-');
 
 function reset() {
 
