@@ -50,11 +50,13 @@ function createChatEngine(done) {
     }, {
         globalChannel,
         throwErrors: true
-        // , debug: true
     });
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
+    });
+    ChatEngine.onAny('*', (a) => {
+        console.log(a)
     });
 
 }
@@ -76,6 +78,9 @@ function createChatEngineSync(done) {
     ChatEngineSync.on('$.ready', () => {
         done();
     });
+    ChatEngineSync.onAny('*', (a) => {
+        console.log(a)
+    });
 
 }
 
@@ -96,6 +101,9 @@ function createChatEngineClone(done) {
     ChatEngineClone.on('$.ready', () => {
         done();
     });
+    ChatEngineClone.onAny('*', (a) => {
+        console.log(a)
+    });
 
 }
 
@@ -114,6 +122,9 @@ function createChatEngineYou(done) {
     ChatEngineYou.on('$.ready', () => {
         done();
     });
+    ChatEngineYou.onAny('*', (a) => {
+        console.log(a)
+    });
 
 }
 
@@ -131,6 +142,9 @@ function createChatEngineHistory(done) {
     ChatEngineHistory.connect(yousername, { works: true }, yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
+    });
+    ChatEngineHistory.onAny('*', (a) => {
+        console.log(a)
     });
 
 }
