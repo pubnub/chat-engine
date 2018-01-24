@@ -116,7 +116,7 @@ class Chat extends Emitter {
      */
     onHereNow(status, response) {
 
-        console.log('the here now response')
+        console.log('the here now response', this.chatEngine.me.uuid, this.chatEngine.pubnub.authKey)
         console.log(status)
         console.log(response)
 
