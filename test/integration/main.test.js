@@ -529,49 +529,49 @@ let yourChat;
 
 let privChannel = 'predictable-secret-channel';
 
-// describe('invite', () => {
+describe('invite', () => {
 
-//     beforeEach(reset);
-//     beforeEach(createChatEngine);
-//     beforeEach(createChatEngineYou);
+    beforeEach(reset);
+    beforeEach(createChatEngine);
+    beforeEach(createChatEngineYou);
 
-//     it('two users are able to talk to each other in private channel', function shouldInvite(done) {
+    it('two users are able to talk to each other in private channel', function shouldInvite(done) {
 
-//         this.timeout(60000);
+        this.timeout(60000);
 
-//         yourChat = new ChatEngineYou.Chat(privChannel);
+        yourChat = new ChatEngineYou.Chat(privChannel, true);
 
-//         yourChat.on('$.connected', () => {
+        yourChat.on('$.connected', () => {
 
-//             // me is the current context
-//             yourChat.invite(ChatEngine.me);
+            // me is the current context
+            yourChat.invite(ChatEngine.me);
 
-//         });
+        });
 
-//         yourChat.once('message', (payload) => {
+        yourChat.on('message', (payload) => {
 
-//             assert.equal(payload.data.text, 'sup?');
-//             done();
+            assert.equal(payload.data.text, 'sup?');
+            done();
 
-//         });
+        });
 
-//         ChatEngine.me.direct.on('$.invite', (payload) => {
+        ChatEngine.me.direct.on('$.invite', (payload) => {
 
-//             myChat = new ChatEngine.Chat(payload.data.channel, true);
+            myChat = new ChatEngine.Chat(payload.data.channel);
 
-//             myChat.on('$.connected', () => {
+            myChat.on('$.connected', () => {
 
-//                 myChat.emit('message', {
-//                     text: 'sup?'
-//                 });
+                myChat.emit('message', {
+                    text: 'sup?'
+                });
 
-//             });
+            });
 
-//         });
+        });
 
-//     });
+    });
 
-// });
+});
 
 describe('connection management', () => {
 
@@ -582,7 +582,7 @@ describe('connection management', () => {
 
         this.timeout(60000);
 
-        let newUsername = ['stephen', new Date().getTime()].join('-');
+        let newUsername = ['stephen-new', iterations].join('-');
 
         ChatEngine.once('$.disconnected', () => {
 
