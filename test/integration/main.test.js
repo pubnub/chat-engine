@@ -17,11 +17,14 @@ let yousername;
 let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory];
 
 let iterations = 0;
+
+let version = process.version.replace('.', '-');
+
 function reset() {
 
-    globalChannel = ['test', iterations].join('-');
-    username = ['ian', iterations].join('-');
-    yousername = ['stephen', iterations].join('-');
+    globalChannel = ['test', version, iterations].join('-');
+    username = ['ian', version, iterations].join('-');
+    yousername = ['stephen', version, iterations].join('-');
 
     // for every instance of chatengine
     instances.forEach((instance) => {
@@ -548,15 +551,15 @@ describe('invite', () => {
 
         });
 
-        let done = false;
+        let done2 = false;
 
         yourChat.on('message', (payload) => {
 
-            if(!done) {
+            if (!done2) {
 
                 assert.equal(payload.data.text, 'sup?');
                 done();
-                done = true;
+                done2 = true;
 
             }
 
@@ -589,7 +592,7 @@ describe('connection management', () => {
 
         this.timeout(60000);
 
-        let newUsername = ['stephen-new', iterations].join('-');
+        let newUsername = ['stephen-new', version, iterations].join('-');
 
         ChatEngine.once('$.disconnected', () => {
 
