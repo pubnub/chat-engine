@@ -55,7 +55,7 @@ function createChatEngine(done) {
     ChatEngine.on('$.ready', () => {
         done();
     });
-    ChatEngine.onAny('*', (a) => {
+    ChatEngine.onAny((a) => {
         console.log(a)
     });
 
@@ -78,7 +78,7 @@ function createChatEngineSync(done) {
     ChatEngineSync.on('$.ready', () => {
         done();
     });
-    ChatEngineSync.onAny('*', (a) => {
+    ChatEngineSync.onAny((a) => {
         console.log(a)
     });
 
@@ -101,7 +101,7 @@ function createChatEngineClone(done) {
     ChatEngineClone.on('$.ready', () => {
         done();
     });
-    ChatEngineClone.onAny('*', (a) => {
+    ChatEngineClone.onAny((a) => {
         console.log(a)
     });
 
@@ -122,7 +122,7 @@ function createChatEngineYou(done) {
     ChatEngineYou.on('$.ready', () => {
         done();
     });
-    ChatEngineYou.onAny('*', (a) => {
+    ChatEngineYou.onAny((a) => {
         console.log(a)
     });
 
@@ -143,7 +143,7 @@ function createChatEngineHistory(done) {
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
-    ChatEngineHistory.onAny('*', (a) => {
+    ChatEngineHistory.onAny((a) => {
         console.log(a)
     });
 
