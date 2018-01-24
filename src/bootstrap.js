@@ -23,8 +23,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
     ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
-    ChatEngine.pnConfig.keepAlive = true;
-    ChatEngine.pnConfig.ssl = true;
+    // ChatEngine.pnConfig.keepAlive = true;
+    // ChatEngine.pnConfig.ssl = true;
 
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
@@ -378,6 +378,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @private
      */
     ChatEngine.firstConnect = (state) => {
+
+        console.log('!!!! PUBNUB CONFIG')
+        console.log(ChatEngine.pnConfig)
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 

@@ -56,7 +56,10 @@ function createChatEngine(done) {
         done();
     });
     ChatEngine.onAny((a) => {
-        console.log(a)
+        console.log(a);
+    });
+    ChatEngine.on('$.network.down.issue', (a, b) => {
+        console.log(a, b);
     });
 
 }
@@ -81,6 +84,9 @@ function createChatEngineSync(done) {
     ChatEngineSync.onAny((a) => {
         console.log(a)
     });
+    ChatEngineSync.on('$.network.down.issue', (a, b) => {
+        console.log(a, b);
+    });
 
 }
 
@@ -104,6 +110,9 @@ function createChatEngineClone(done) {
     ChatEngineClone.onAny((a) => {
         console.log(a)
     });
+    ChatEngineClone.on('$.network.down.issue', (a, b) => {
+        console.log(a, b);
+    });
 
 }
 
@@ -125,6 +134,9 @@ function createChatEngineYou(done) {
     ChatEngineYou.onAny((a) => {
         console.log(a)
     });
+    ChatEngineYou.on('$.network.down.issue', (a, b) => {
+        console.log(a, b);
+    });
 
 }
 
@@ -145,6 +157,9 @@ function createChatEngineHistory(done) {
     });
     ChatEngineHistory.onAny((a) => {
         console.log(a)
+    });
+    ChatEngineHistory.on('$.network.down.issue', (a, b) => {
+        console.log(a, b);
     });
 
 }
