@@ -380,7 +380,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        chatHistory = new ChatEngineHistory.Chat('chat-history-8', false);
+        chatHistory = new ChatEngineHistory.Chat('chat-history-8');
 
         chatHistory.on('$.connected', () => {
 
@@ -412,7 +412,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        let chatHistory2 = new ChatEngineHistory.Chat('chat-history-3', false);
+        let chatHistory2 = new ChatEngineHistory.Chat('chat-history-3');
 
         chatHistory2.on('$.connected', () => {
 
@@ -529,53 +529,49 @@ let yourChat;
 
 let privChannel = 'predictable-secret-channel';
 
-describe('invite', () => {
+// describe('invite', () => {
 
-    beforeEach(reset);
-    beforeEach(createChatEngine);
-    beforeEach(createChatEngineYou);
+//     beforeEach(reset);
+//     beforeEach(createChatEngine);
+//     beforeEach(createChatEngineYou);
 
-    it('two users are able to talk to each other in private channel', function shouldInvite(done) {
+//     it('two users are able to talk to each other in private channel', function shouldInvite(done) {
 
-        this.timeout(60000);
+//         this.timeout(60000);
 
-        yourChat = new ChatEngineYou.Chat(privChannel);
+//         yourChat = new ChatEngineYou.Chat(privChannel);
 
-        yourChat.on('$.connected', () => {
+//         yourChat.on('$.connected', () => {
 
-            // me is the current context
-            yourChat.invite(ChatEngine.me);
+//             // me is the current context
+//             yourChat.invite(ChatEngine.me);
 
-        });
+//         });
 
-        yourChat.on('message', (payload) => {
+//         yourChat.once('message', (payload) => {
 
-            assert.equal(payload.data.text, 'sup?');
-            done();
+//             assert.equal(payload.data.text, 'sup?');
+//             done();
 
-        });
+//         });
 
-        ChatEngine.me.direct.on('$.invite', (payload) => {
+//         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            myChat = new ChatEngine.Chat(payload.data.channel);
+//             myChat = new ChatEngine.Chat(payload.data.channel, true);
 
-            myChat.on('$.connected', () => {
+//             myChat.on('$.connected', () => {
 
-                setTimeout(() => {
+//                 myChat.emit('message', {
+//                     text: 'sup?'
+//                 });
 
-                    myChat.emit('message', {
-                        text: 'sup?'
-                    });
+//             });
 
-                }, 5000);
+//         });
 
-            });
+//     });
 
-        });
-
-    });
-
-});
+// });
 
 describe('connection management', () => {
 

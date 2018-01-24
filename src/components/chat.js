@@ -52,20 +52,14 @@ class Chat extends Emitter {
         this.meta = meta || {};
 
         /**
-        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly granted access.
-        * @type Boolean
-        * @see  {@tutorial privacy}
-        * @readonly
-        */
-        this.isPrivate = isPrivate;
-
-        /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
          * @type String
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
         this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
+
+        console.log('this channel is', this.channel)
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -658,19 +652,15 @@ class Chat extends Emitter {
      */
     getUserUpdates() {
 
-        setTimeout(() => {
-
-            // get a list of users online now
-            // ask PubNub for information about connected users in this channel
-            this.chatEngine.pubnub.hereNow({
-                channels: [this.channel],
-                includeUUIDs: true,
-                includeState: true
-            }, (s, r) => {
-                this.onHereNow(s, r);
-            });
-
-        }, 10000);
+        // get a list of users online now
+        // ask PubNub for information about connected users in this channel
+        this.chatEngine.pubnub.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, (s, r) => {
+            this.onHereNow(s, r);
+        });
 
     }
 
