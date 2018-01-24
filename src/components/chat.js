@@ -649,6 +649,7 @@ class Chat extends Emitter {
 
             // we may miss updates, so call this again 5 seconds later
             setTimeout(() => {
+                console.log('getting user updates via connectionReady for', this.channel)
                 this.getUserUpdates();
             }, 10000);
 
