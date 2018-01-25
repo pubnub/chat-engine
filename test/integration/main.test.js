@@ -665,18 +665,18 @@ describe('connection management', () => {
 
     });
 
-    // it('should refresh auth', function beIdentified(done) {
+    it('should refresh auth', function beIdentified(done) {
 
-    //     this.timeout(60000);
+        this.timeout(60000);
 
-    //     let authKey = new Date().getTime();
+        let authKey = new Date().getTime();
 
-    //     ChatEngine.reauthorize(authKey);
+        ChatEngine.reauthorize(authKey);
 
-    //     ChatEngine.once('$.connected', () => {
-    //         done();
-    //     });
+        ChatEngine.once('$.connected', () => {
+            done();
+        });
 
-    // });
+    });
 
 });
