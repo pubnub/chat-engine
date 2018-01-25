@@ -643,7 +643,7 @@ describe('connection management', () => {
 
             });
 
-            ChatEngine.connect(newUsername);
+            ChatEngine.connect(newUsername, {}, newUsername);
 
         });
 
