@@ -68,9 +68,6 @@ function createChatEngine(done) {
     ChatEngine.on('$.ready', () => {
         done();
     });
-    ChatEngine.onAny((a) => {
-        console.log(a);
-    });
     ChatEngine.on('$.network.down.issue', (a, b) => {
         console.log(a, b);
     });
@@ -512,8 +509,8 @@ describe('remote chat list', () => {
     it('should get delete event', function deleteSync(done) {
 
         this.timeout(60000);
-        let newChannel2 = 'sync-chat2' + new Date().getTime();
 
+        let newChannel2 = 'sync-chat2' + new Date().getTime();
         let syncChat;
 
         ChatEngineSync.me.on('$.session.chat.leave', (payload) => {

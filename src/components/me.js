@@ -36,6 +36,10 @@ class Me extends User {
          */
         this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
 
+        this.sync.onAny((a) => {
+            console.log(a);
+        });
+
         return this;
 
     }
