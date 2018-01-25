@@ -29,8 +29,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
-    console.log(ChatEngine.ceConfig.globalChannel);
-
     if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
         ChatEngine.ceConfig.enableSync = false;
     }
@@ -379,9 +377,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.firstConnect = (state) => {
 
-        console.log('!!!! PUBNUB CONFIG')
-        console.log(ChatEngine.pnConfig)
-
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
         // create a new chat to use as global chat
@@ -479,20 +474,14 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reconnect = () => {
 
-        console.log('reconnecting')
-
         // do the whole auth flow with the new authKey
         ChatEngine.handshake(() => {
 
-            console.log('handshake complete')
-
             // for every chat in ChatEngine.chats, call .connect()
             Object.keys(ChatEngine.chats).forEach((key) => {
-                console.log('waking', key)
                 ChatEngine.chats[key].wake();
             });
 
-            console.log('subscribing')
             ChatEngine.subscribeToPubNub();
 
         });
@@ -503,8 +492,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     @private
     */
     ChatEngine.setAuth = (authKey = PubNub.generateUUID()) => {
-
-        console.log('setting auth')
 
         ChatEngine.pnConfig.authKey = authKey;
         ChatEngine.pubnub.setAuthKey(authKey);
@@ -533,12 +520,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
-        console.log('disconnecting')
         ChatEngine.disconnect();
 
         ChatEngine.global.once('$.disconnected', () => {
-
-            console.log('disconnected')
 
             ChatEngine.setAuth(authKey);
             ChatEngine.reconnect();
@@ -565,6 +549,20 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.handshake(() => {
             ChatEngine.firstConnect(state);
         });
+
+    };
+
+    ChatEngine.destroy = function () {
+
+        Object.keys(ChatEngine.chats).forEach((chat) => {
+            ChatEngine.chats[chat].emitter.removeAllListeners();
+        });
+
+        Object.keys(ChatEngine.users).forEach((user) => {
+            ChatEngine.users[user].emitter.removeAllListeners();
+        });
+
+        ChatEngine.emitter.removeAllListeners();
 
     };
 
@@ -597,20 +595,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             return newChat;
 
         }
-
-    };
-
-    ChatEngine.destroy = function () {
-
-        Object.keys(ChatEngine.chats).forEach((chat) => {
-            ChatEngine.chats[chat].emitter.removeAllListeners();
-        });
-
-        Object.keys(ChatEngine.users).forEach((user) => {
-            ChatEngine.users[user].emitter.removeAllListeners();
-        });
-
-        ChatEngine.emitter.removeAllListeners();
 
     };
 

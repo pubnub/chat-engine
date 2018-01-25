@@ -103,8 +103,6 @@ class Me extends User {
 
         if (this.chatEngine.ceConfig.enableSync) {
 
-            console.log('restoring session')
-
             // these are custom groups that separate custom chats from system chats
             // for better fitlering
             let groups = ['custom', 'system'];
@@ -192,8 +190,6 @@ class Me extends User {
 
         // if it exists
         if (existingChat) {
-
-            console.log('THAT CHAT ALREADY EXISTS IN SESSION', existingChat.channel)
 
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;

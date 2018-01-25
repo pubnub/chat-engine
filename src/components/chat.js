@@ -59,8 +59,6 @@ class Chat extends Emitter {
          */
         this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
 
-        console.log('this channel is', this.channel)
-
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
          Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
@@ -109,10 +107,6 @@ class Chat extends Emitter {
      @param {Object} response The response payload object
      */
     onHereNow(status, response) {
-
-        console.log('the here now response', this.chatEngine.me.uuid, this.chatEngine.pnConfig.authKey)
-        console.log(status)
-        console.log(response)
 
         if (status.error) {
 
@@ -228,8 +222,8 @@ class Chat extends Emitter {
              * @param {User} data.user The {@link User} that came online
              * @example
              * chat.on('$.join', (data) => {
-                          *     console.log('User has joined the room!', data.user);
-                          * });
+             *     console.log('User has joined the room!', data.user);
+             * });
              */
 
             // It's possible for PubNub to send us both a join and have the user appear in here_now
@@ -639,7 +633,6 @@ class Chat extends Emitter {
 
             // we may miss updates, so call this again 5 seconds later
             setTimeout(() => {
-                console.log('getting user updates via connectionReady for', this.channel)
                 this.getUserUpdates();
             }, 5000);
 

@@ -41,9 +41,9 @@ describe('#bootstrap', () => {
         done();
     });
 
-    it('connect', function(done) {
+    it('connect', function (done) {
 
-        this.timeout(20000)
+        this.timeout(20000);
 
         chatEngineInstance.on('$.ready', (data) => {
             assert(data.me.uuid === 'user1', 'was assigned uuid to me');

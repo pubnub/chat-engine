@@ -22,7 +22,7 @@ let version = process.version.replace(/\./g, '-');
 
 function reset(done) {
 
-    this.timeout(60000)
+    this.timeout(60000);
 
     globalChannel = ['test', version, iterations].join('-');
     username = ['ian', version, iterations].join('-');
@@ -94,9 +94,6 @@ function createChatEngineSync(done) {
     ChatEngineSync.on('$.ready', () => {
         done();
     });
-    ChatEngineSync.onAny((a) => {
-        console.log(a)
-    });
     ChatEngineSync.on('$.network.down.issue', (a, b) => {
         console.log(a, b);
     });
@@ -120,9 +117,6 @@ function createChatEngineClone(done) {
     ChatEngineClone.on('$.ready', () => {
         done();
     });
-    ChatEngineClone.onAny((a) => {
-        console.log(a)
-    });
     ChatEngineClone.on('$.network.down.issue', (a, b) => {
         console.log(a, b);
     });
@@ -144,9 +138,6 @@ function createChatEngineYou(done) {
     ChatEngineYou.on('$.ready', () => {
         done();
     });
-    ChatEngineYou.onAny((a) => {
-        console.log(a)
-    });
     ChatEngineYou.on('$.network.down.issue', (a, b) => {
         console.log(a, b);
     });
@@ -167,9 +158,6 @@ function createChatEngineHistory(done) {
     ChatEngineHistory.connect(yousername, { works: true }, yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
-    });
-    ChatEngineHistory.onAny((a) => {
-        console.log(a)
     });
     ChatEngineHistory.on('$.network.down.issue', (a, b) => {
         console.log(a, b);
@@ -494,8 +482,6 @@ describe('remote chat list', () => {
 
         this.timeout(60000);
 
-        console.log('!!!! SYCNCHAT channel', newChannel)
-
         // first instance looking or new chats
         ChatEngineSync.me.on('$.session.chat.join', (payload) => {
 
@@ -505,7 +491,7 @@ describe('remote chat list', () => {
 
         });
 
-        let a = new ChatEngineClone.Chat(newChannel);
+        let newChatToNotify = new ChatEngineClone.Chat(newChannel);
 
     });
 
@@ -513,7 +499,6 @@ describe('remote chat list', () => {
 
         this.timeout(60000);
 
-        console.log('!!!! BINDING TO RESTORE EVENT')
         ChatEngineSync.me.once('$.session.group.restored', (payload) => {
 
             assert.isObject(ChatEngineSync.me.session[payload.group]);
@@ -566,12 +551,9 @@ describe('invite', () => {
 
         this.timeout(60000);
 
-        console.log('creating yourchat')
         yourChat = new ChatEngineYou.Chat(privChannel, true);
 
         yourChat.on('$.connected', () => {
-
-            console.log('yourchat connected')
 
             // me is the current context
             yourChat.invite(ChatEngine.me);
@@ -581,8 +563,6 @@ describe('invite', () => {
         let done2 = false;
 
         yourChat.on('message', (payload) => {
-
-            console.log('yourchat message')
 
             if (!done2) {
 
@@ -596,13 +576,9 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            console.log('me direct invite')
-
             myChat = new ChatEngine.Chat(payload.data.channel);
 
             myChat.on('$.connected', () => {
-
-                console.log('mychat connected and emitting')
 
                 myChat.emit('message', {
                     text: 'sup?'
