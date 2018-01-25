@@ -676,7 +676,7 @@ describe('connection management', () => {
 
     it('should refresh auth', function beIdentified(done) {
 
-        this.timeout(60000);
+        this.timeout(120000);
 
         let authKey = new Date().getTime();
 

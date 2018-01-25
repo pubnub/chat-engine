@@ -479,14 +479,20 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reconnect = () => {
 
+        console.log('reconnecting')
+
         // do the whole auth flow with the new authKey
         ChatEngine.handshake(() => {
 
+            console.log('handshake complete')
+
             // for every chat in ChatEngine.chats, call .connect()
             Object.keys(ChatEngine.chats).forEach((key) => {
+                console.log('waking', key)
                 ChatEngine.chats[key].wake();
             });
 
+            console.log('subscribing')
             ChatEngine.subscribeToPubNub();
 
         });
@@ -497,6 +503,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     @private
     */
     ChatEngine.setAuth = (authKey = PubNub.generateUUID()) => {
+
+        console.log('setting auth')
 
         ChatEngine.pnConfig.authKey = authKey;
         ChatEngine.pubnub.setAuthKey(authKey);
@@ -525,6 +533,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
+        console.log('disconnecting')
         ChatEngine.disconnect();
 
         ChatEngine.global.once('$.disconnected', () => {
