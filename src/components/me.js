@@ -193,6 +193,8 @@ class Me extends User {
         // if it exists
         if (existingChat) {
 
+            console.log('THAT CHAT ALREADY EXISTS IN SESSION', existingChat.channel)
+
             // assign it to the group
             this.session[chat.group][chat.channel] = existingChat;
         } else {

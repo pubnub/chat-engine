@@ -31,9 +31,11 @@ function reset() {
 
         // if the instance is a real chatengine instance
         if (instance) {
+
             instance.disconnect();
             // unregister all event listeners
             instance.destroy();
+
         }
 
         // remove the instance from memory
@@ -483,6 +485,8 @@ describe('remote chat list', () => {
 
         this.timeout(60000);
 
+        console.log('!!!! SYCNCHAT channel', newChannel)
+
         // first instance looking or new chats
         ChatEngineSync.me.on('$.session.chat.join', (payload) => {
 
@@ -492,7 +496,7 @@ describe('remote chat list', () => {
 
         });
 
-        syncChat = new ChatEngineClone.Chat(newChannel);
+        let a = new ChatEngineClone.Chat(newChannel);
 
     });
 
