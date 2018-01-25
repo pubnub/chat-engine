@@ -219,8 +219,6 @@ let examplePlugin = () => {
 
 };
 
-let createdEventChat1;
-let createdEventChat2;
 describe('connect', () => {
 
     beforeEach(reset);
@@ -271,6 +269,8 @@ describe('connect', () => {
 
         this.timeout(60000);
 
+        let createdEventChat1;
+
         ChatEngine.on('$.connected', (data, source) => {
 
             assert.isObject(source);
@@ -286,6 +286,7 @@ describe('connect', () => {
     it('should notify chatengine on disconnected', function disconnected(done) {
 
         this.timeout(60000);
+        let createdEventChat2;
 
         ChatEngine.on('$.disconnected', (data, source) => {
 
@@ -306,8 +307,6 @@ describe('connect', () => {
 
 });
 
-let chat;
-
 describe('chat', () => {
 
     beforeEach(reset);
@@ -317,7 +316,7 @@ describe('chat', () => {
 
         this.timeout(60000);
 
-        chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
+        let chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
         chat.on('$.online.*', (p) => {
 
@@ -369,6 +368,8 @@ describe('chat', () => {
 
     it('should bind a plugin', () => {
 
+        let chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
+
         chat.plugin(examplePlugin());
 
         assert(chat.constructWorks, 'bound to construct');
@@ -389,7 +390,6 @@ describe('chat', () => {
 
 });
 
-let chatHistory;
 describe('history', () => {
 
     beforeEach(reset);
@@ -401,7 +401,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        chatHistory = new ChatEngineHistory.Chat('chat-history-8');
+        let chatHistory = new ChatEngineHistory.Chat('chat-history-8');
 
         chatHistory.on('$.connected', () => {
 
@@ -462,24 +462,25 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        chatHistory.search({
-            limit: 10
-        }).on('tester', (a) => {
+        let chatHistory = new ChatEngineHistory.Chat('chat-history-8');
 
-            assert.equal(a.event, 'tester');
+        chatHistory.on('$.connected', () => {
 
-        }).on('$.search.finish', () => {
-            done();
+            chatHistory.search({
+                limit: 10
+            }).on('tester', (a) => {
+
+                assert.equal(a.event, 'tester');
+
+            }).on('$.search.finish', () => {
+                done();
+            });
+
         });
 
     });
 
 });
-
-let syncChat;
-
-let newChannel = 'sync-chat' + new Date().getTime();
-let newChannel2 = 'sync-chat2' + new Date().getTime();
 
 describe('remote chat list', () => {
 
@@ -488,6 +489,8 @@ describe('remote chat list', () => {
     beforeEach(createChatEngineSync);
 
     it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
+
+        let newChannel = 'sync-chat' + new Date().getTime();
 
         this.timeout(60000);
 
@@ -524,6 +527,9 @@ describe('remote chat list', () => {
     it('should get delete event', function deleteSync(done) {
 
         this.timeout(60000);
+        let newChannel2 = 'sync-chat2' + new Date().getTime();
+
+        let syncChat;
 
         ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
 
@@ -546,12 +552,6 @@ describe('remote chat list', () => {
 
 });
 
-let myChat;
-
-let yourChat;
-
-let privChannel = 'predictable-secret-channel';
-
 describe('invite', () => {
 
     beforeEach(reset);
@@ -559,6 +559,10 @@ describe('invite', () => {
     beforeEach(createChatEngineYou);
 
     it('two users are able to talk to each other in private channel', function shouldInvite(done) {
+
+        let myChat;
+        let yourChat;
+        let privChannel = 'predictable-secret-channel';
 
         this.timeout(60000);
 
