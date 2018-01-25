@@ -338,18 +338,24 @@ describe('chat', () => {
 
         this.timeout(60000);
 
-        chat.once('something', (payload) => {
+        let chat3 = new ChatEngine.Chat('chat-teser3' + new Date().getTime());
+
+        chat3.once('something', (payload) => {
 
             assert.isObject(payload);
             done();
 
         });
 
-        setTimeout(() => {
-            chat.emit('something', {
-                text: 'hello world'
-            });
-        }, 1000);
+        chat3.on('$.connected', () => {
+
+            setTimeout(() => {
+                chat3.emit('something', {
+                    text: 'hello world'
+                });
+            }, 1000);
+
+        });
 
     });
 
