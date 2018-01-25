@@ -1,5 +1,5 @@
-const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
+let decache = require('decache');
 
 const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
 const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
@@ -25,40 +25,20 @@ function reset(done) {
 
     this.timeout(60000);
 
+    decache('../../src/index.js');
+
     globalChannel = ['test', version, iterations].join('-');
     username = ['ian', version, iterations].join('-');
     yousername = ['stephen', version, iterations].join('-');
 
-    // for every instance of chatengine
-    instances.forEach((instance) => {
-
-        // if the instance is a real chatengine instance
-        if (instance) {
-
-            instance.disconnect();
-            // unregister all event listeners
-            instance.destroy();
-
-        }
-
-        // remove the instance from memory
-        instance = false;
-
-    });
-
-    iterations++;
-
-    setTimeout(() => {
-        done();
-    }, 6000);
-
+    done();
 }
 
 function createChatEngine(done) {
 
     this.timeout(60000);
 
-    ChatEngine = ChatEngineCore.create({
+    ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -79,7 +59,7 @@ function createChatEngineSync(done) {
 
     this.timeout(60000);
 
-    ChatEngineSync = ChatEngineCore.create({
+    ChatEngineSync = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -103,7 +83,7 @@ function createChatEngineClone(done) {
 
     this.timeout(60000);
 
-    ChatEngineClone = ChatEngineCore.create({
+    ChatEngineClone = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -125,7 +105,7 @@ function createChatEngineYou(done) {
 
     this.timeout(60000);
 
-    ChatEngineYou = ChatEngineCore.create({
+    ChatEngineYou = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -146,7 +126,7 @@ function createChatEngineHistory(done) {
 
     this.timeout(60000);
 
-    ChatEngineHistory = ChatEngineCore.create({
+    ChatEngineHistory = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -167,7 +147,7 @@ function createChatEngineConnect(done) {
 
     this.timeout(60000);
 
-    ChatEngineConnect = ChatEngineCore.create({
+    ChatEngineConnect = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -184,14 +164,6 @@ function createChatEngineConnect(done) {
     });
 
 }
-
-describe('import', () => {
-
-    it('ChatEngine should be imported', () => {
-        assert.isObject(ChatEngineCore, 'was successfully created');
-    });
-
-});
 
 let examplePlugin = () => {
 
@@ -409,7 +381,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        let chatHistory = new ChatEngineHistory.Chat('chat-history-8');
+        let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
         chatHistory.on('$.connected', () => {
 
@@ -441,7 +413,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        let chatHistory2 = new ChatEngineHistory.Chat('chat-history-3');
+        let chatHistory2 = new ChatEngineHistory.Chat('chat-history');
 
         chatHistory2.on('$.connected', () => {
 
@@ -625,7 +597,7 @@ describe('connection management', () => {
 
         ChatEngineConnect.once('$.disconnected', () => {
 
-            ChatEngineConnect = ChatEngineCore.create({
+            ChatEngineConnect = require('../../src/index.js').create({
                 publishKey: pubkey,
                 subscribeKey: subkey
             }, {
