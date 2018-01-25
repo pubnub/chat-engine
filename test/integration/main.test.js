@@ -505,28 +505,28 @@ describe('remote chat list', () => {
 
     });
 
-    it('should get delete event', function deleteSync(done) {
+    // it('should get delete event', function deleteSync(done) {
 
-        this.timeout(60000);
+    //     this.timeout(60000);
 
-        ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
+    //     ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
 
-            if (payload.chat.channel.indexOf(newChannel2) > -1) {
-                done();
-            }
+    //         if (payload.chat.channel.indexOf(newChannel2) > -1) {
+    //             done();
+    //         }
 
-        });
+    //     });
 
-        // first instance looking or new chats
-        ChatEngineSync.me.once('$.session.chat.join', () => {
+    //     // first instance looking or new chats
+    //     ChatEngineSync.me.once('$.session.chat.join', () => {
 
-            syncChat.leave();
+    //         syncChat.leave();
 
-        });
+    //     });
 
-        syncChat = new ChatEngineClone.Chat(newChannel2);
+    //     syncChat = new ChatEngineClone.Chat(newChannel2);
 
-    });
+    // });
 
 });
 
