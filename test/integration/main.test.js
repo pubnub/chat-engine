@@ -9,12 +9,13 @@ let ChatEngineYou;
 let ChatEngineClone;
 let ChatEngineSync;
 let ChatEngineHistory;
+let ChatEngineConnect;
 
 let globalChannel;
 let username;
 let yousername;
 
-let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory];
+let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory, ChatEngineConnect];
 
 let iterations = 0;
 
@@ -158,6 +159,28 @@ function createChatEngineHistory(done) {
     });
     ChatEngineHistory.on('$.network.down.issue', (a, b) => {
         console.log(a, b);
+    });
+
+}
+
+function createChatEngineConnect(done) {
+
+    this.timeout(60000);
+
+    ChatEngineConnect = ChatEngineCore.create({
+        publishKey: pubkey,
+        subscribeKey: subkey
+    }, {
+        globalChannel,
+        throwErrors: true
+    });
+    ChatEngineConnect.connect(username, { works: true }, username);
+    ChatEngineConnect.on('$.ready', () => {
+
+        setTimeout(() => {
+            done();
+        }, 30000);
+
     });
 
 }
@@ -589,76 +612,76 @@ describe('invite', () => {
 
 });
 
-// describe('connection management', () => {
+describe('connection management', () => {
 
-//     beforeEach(reset);
-//     beforeEach(createChatEngine);
+    beforeEach(reset);
+    beforeEach(createChatEngineConnect);
 
-//     it('change user', function beIdentified(done) {
+    it('change user', function beIdentified(done) {
 
-//         this.timeout(60000);
+        this.timeout(60000);
 
-//         let newUsername = ['stephen-new', version, iterations].join('-');
+        let newUsername = ['stephen-new', version, iterations].join('-');
 
-//         ChatEngine.once('$.disconnected', () => {
+        ChatEngineConnect.once('$.disconnected', () => {
 
-//             ChatEngine = ChatEngineCore.create({
-//                 publishKey: pubkey,
-//                 subscribeKey: subkey
-//             }, {
-//                 globalChannel,
-//                 throwErrors: true
-//             });
+            ChatEngineConnect = ChatEngineCore.create({
+                publishKey: pubkey,
+                subscribeKey: subkey
+            }, {
+                globalChannel,
+                throwErrors: true
+            });
 
-//             ChatEngine.once('$.ready', () => {
+            ChatEngineConnect.once('$.ready', () => {
 
-//                 done();
+                done();
 
-//             });
+            });
 
-//             ChatEngine.connect(newUsername, {}, newUsername);
+            ChatEngineConnect.connect(newUsername, {}, newUsername);
 
-//         });
+        });
 
-//         ChatEngine.disconnect();
+        ChatEngineConnect.disconnect();
 
-//     });
+    });
 
-//     it('should disconnect', function beIdentified(done) {
+    it('should disconnect', function beIdentified(done) {
 
-//         this.timeout(60000);
+        this.timeout(60000);
 
-//         let chat2 = new ChatEngine.Chat('disconnect' + new Date().getTime());
+        let chat2 = new ChatEngineConnect.Chat('disconnect' + new Date().getTime());
 
-//         chat2.on('$.connected', () => {
+        chat2.on('$.connected', () => {
 
-//             // old chat may still be trying to call here_now
-//             setTimeout(() => {
+            // old chat may still be trying to call here_now
+            setTimeout(() => {
 
-//                 chat2.once('$.disconnected', () => {
-//                     done();
-//                 });
+                chat2.once('$.disconnected', () => {
+                    done();
+                });
 
-//                 ChatEngine.disconnect();
+                ChatEngineConnect.disconnect();
 
-//             }, 5000);
+            }, 5000);
 
-//         });
+        });
 
-//     });
+    });
 
-//     it('should refresh auth', function beIdentified(done) {
+    it('should refresh auth', function beIdentified(done) {
 
-//         this.timeout(120000);
+        this.timeout(120000);
 
-//         let authKey = new Date().getTime();
+        let authKey = new Date().getTime();
 
-//         ChatEngine.reauthorize(authKey);
+        ChatEngineConnect.reauthorize(authKey);
 
-//         ChatEngine.once('$.connected', () => {
-//             done();
-//         });
+        ChatEngineConnect.once('$.connected', () => {
+            done();
+        });
 
-//     });
+    });
 
-// });
+});

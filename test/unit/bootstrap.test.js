@@ -41,7 +41,7 @@ describe('#bootstrap', () => {
         done();
     });
 
-    it('connect', function (done) {
+    it('connect', function itConnect(done) {
 
         this.timeout(20000);
 

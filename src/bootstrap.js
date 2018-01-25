@@ -9,10 +9,10 @@ const User = require('./components/user');
 const async = require('async');
 
 /**
- @class ChatEngine
- @extends RootEmitter
- @return {ChatEngine} Returns an instance of {@link ChatEngine}
- */
+@class ChatEngine
+@extends RootEmitter
+@return {ChatEngine} Returns an instance of {@link ChatEngine}
+*/
 module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     // Create the root ChatEngine object
