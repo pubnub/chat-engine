@@ -538,6 +538,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         ChatEngine.global.once('$.disconnected', () => {
 
+            console.log('disconnected')
+
             ChatEngine.setAuth(authKey);
             ChatEngine.reconnect();
 
