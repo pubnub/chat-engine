@@ -566,9 +566,12 @@ describe('invite', () => {
 
         this.timeout(60000);
 
+        console.log('creating yourchat')
         yourChat = new ChatEngineYou.Chat(privChannel, true);
 
         yourChat.on('$.connected', () => {
+
+            console.log('yourchat connected')
 
             // me is the current context
             yourChat.invite(ChatEngine.me);
@@ -578,6 +581,8 @@ describe('invite', () => {
         let done2 = false;
 
         yourChat.on('message', (payload) => {
+
+            console.log('yourchat message')
 
             if (!done2) {
 
@@ -591,9 +596,13 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
+            console.log('me direct invite')
+
             myChat = new ChatEngine.Chat(payload.data.channel);
 
             myChat.on('$.connected', () => {
+
+                console.log('mychat connected and emitting')
 
                 myChat.emit('message', {
                     text: 'sup?'
