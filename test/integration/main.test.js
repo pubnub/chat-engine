@@ -20,7 +20,9 @@ let iterations = 0;
 
 let version = process.version.replace(/\./g, '-');
 
-function reset() {
+function reset(done) {
+
+    this.timeout(60000)
 
     globalChannel = ['test', version, iterations].join('-');
     username = ['ian', version, iterations].join('-');
@@ -44,6 +46,10 @@ function reset() {
     });
 
     iterations++;
+
+    setTimeout(() => {
+        done()
+    }, 6000);
 
 }
 
