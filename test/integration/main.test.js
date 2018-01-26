@@ -29,8 +29,6 @@ function reset(done) {
     username = ['ian', version, iterations].join('-');
     yousername = ['stephen', version, iterations].join('-');
 
-    decache('../../src/index.js');
-
     // for every instance of chatengine
     instances.forEach((instance) => {
 
@@ -49,6 +47,8 @@ function reset(done) {
     });
 
     iterations++;
+
+    decache('../../src/index.js');
 
     done();
 
