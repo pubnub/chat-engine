@@ -25,13 +25,33 @@ function reset(done) {
 
     this.timeout(60000);
 
-    decache('../../src/index.js');
-
     globalChannel = ['test', version, iterations].join('-');
     username = ['ian', version, iterations].join('-');
     yousername = ['stephen', version, iterations].join('-');
 
+    decache('../../src/index.js');
+
+    // for every instance of chatengine
+    instances.forEach((instance) => {
+
+        // if the instance is a real chatengine instance
+        if (instance) {
+
+            instance.disconnect();
+            // unregister all event listeners
+            instance.destroy();
+
+        }
+
+        // remove the instance from memory
+        instance = false;
+
+    });
+
+    iterations++;
+
     done();
+
 }
 
 function createChatEngine(done) {
