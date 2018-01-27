@@ -389,31 +389,18 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             });
         };
 
-        async.parallel([
-            (next) => {
-                ChatEngine.request('post', 'bootstrap').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_read').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_write').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'group').then(complete).catch(next);
-            }
-        ], (error) => {
-            if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
-            }
-        });
+        const tasks = [
+            ChatEngine.request.bind(ChatEngine, 'post', 'bootstrap'),
+            ChatEngine.request.bind(ChatEngine, 'post', 'user_read'),
+            ChatEngine.request.bind('post', 'user_write'),
+            ChatEngine.request.bind('post', 'group').then(complete)
+        ];
 
+        return Promise
+            .all(tasks)
+            .catch((error) => {
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
+            });
     };
 
     /**
