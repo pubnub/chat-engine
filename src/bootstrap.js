@@ -392,12 +392,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         const tasks = [
             ChatEngine.request.bind(ChatEngine, 'post', 'bootstrap'),
             ChatEngine.request.bind(ChatEngine, 'post', 'user_read'),
-            ChatEngine.request.bind('post', 'user_write'),
-            ChatEngine.request.bind('post', 'group').then(complete)
+            ChatEngine.request.bind(ChatEngine, 'post', 'user_write'),
+            ChatEngine.request.bind(ChatEngine, 'post', 'group')
         ];
 
         return Promise
             .all(tasks)
+            .then(() => complete())
             .catch((error) => {
                 ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').'), { error });
             });
