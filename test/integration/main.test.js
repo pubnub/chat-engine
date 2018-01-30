@@ -234,9 +234,7 @@ describe('connect', () => {
 
         a.on('$.connected', () => {
 
-            setTimeout(() => {
-                a.leave();
-            }, 1000);
+            a.leave();
 
         });
 
@@ -333,11 +331,9 @@ describe('chat', () => {
 
         chat3.on('$.connected', () => {
 
-            setTimeout(() => {
-                chat3.emit('something', {
-                    text: 'hello world'
-                });
-            }, 1000);
+            chat3.emit('something', {
+                text: 'hello world'
+            });
 
         });
 
@@ -382,23 +378,19 @@ describe('history', () => {
 
         chatHistory.on('$.connected', () => {
 
-            setTimeout(() => {
+            chatHistory.search({
+                event: 'tester',
+                limit: 50
+            }).on('tester', (a) => {
 
-                chatHistory.search({
-                    event: 'tester',
-                    limit: 50
-                }).on('tester', (a) => {
+                assert.equal(a.event, 'tester');
 
-                    assert.equal(a.event, 'tester');
+                count += 1;
 
-                    count += 1;
-
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 50, 'correct # of results');
-                    done();
-                });
-
-            }, 5000);
+            }).on('$.search.finish', () => {
+                assert.equal(count, 50, 'correct # of results');
+                done();
+            });
 
         });
 
@@ -414,22 +406,18 @@ describe('history', () => {
 
         chatHistory2.on('$.connected', () => {
 
-            setTimeout(() => {
+            chatHistory2.search({
+                event: 'tester',
+                limit: 200
+            }).on('tester', (a) => {
 
-                chatHistory2.search({
-                    event: 'tester',
-                    limit: 200
-                }).on('tester', (a) => {
+                assert.equal(a.event, 'tester');
+                count += 1;
 
-                    assert.equal(a.event, 'tester');
-                    count += 1;
-
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 200, 'correct # of results');
-                    done();
-                });
-
-            }, 5000);
+            }).on('$.search.finish', () => {
+                assert.equal(count, 200, 'correct # of results');
+                done();
+            });
 
         });
 
@@ -575,80 +563,6 @@ describe('invite', () => {
 
             });
 
-        });
-
-    });
-
-});
-
-describe('connection management', () => {
-
-    beforeEach(reset);
-    beforeEach(createChatEngineConnect);
-
-    it('change user', function beIdentified(done) {
-
-        this.timeout(60000);
-
-        let newUsername = ['stephen-new', version, iterations].join('-');
-
-        ChatEngineConnect.once('$.disconnected', () => {
-
-            ChatEngineConnect = require('../../src/index.js').create({
-                publishKey: pubkey,
-                subscribeKey: subkey
-            }, {
-                globalChannel,
-                throwErrors: true
-            });
-
-            ChatEngineConnect.once('$.ready', () => {
-
-                done();
-
-            });
-
-            ChatEngineConnect.connect(newUsername, {}, newUsername);
-
-        });
-
-        ChatEngineConnect.disconnect();
-
-    });
-
-    it('should disconnect', function beIdentified(done) {
-
-        this.timeout(60000);
-
-        let chat2 = new ChatEngineConnect.Chat('disconnect' + new Date().getTime());
-
-        chat2.on('$.connected', () => {
-
-            // old chat may still be trying to call here_now
-            setTimeout(() => {
-
-                chat2.once('$.disconnected', () => {
-                    done();
-                });
-
-                ChatEngineConnect.disconnect();
-
-            }, 5000);
-
-        });
-
-    });
-
-    it('should refresh auth', function beIdentified(done) {
-
-        this.timeout(120000);
-
-        let authKey = new Date().getTime();
-
-        ChatEngineConnect.reauthorize(authKey);
-
-        ChatEngineConnect.once('$.connected', () => {
-            done();
         });
 
     });
