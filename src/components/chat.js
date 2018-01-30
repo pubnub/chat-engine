@@ -52,6 +52,14 @@ class Chat extends Emitter {
         this.meta = meta || {};
 
         /**
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly granted access.
+        * @type Boolean
+        * @see  {@tutorial privacy}
+        * @readonly
+        */
+        this.isPrivate = isPrivate;
+
+        /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
          * @type String
          * @readonly
@@ -76,17 +84,8 @@ class Chat extends Emitter {
 
         /**
          * Keep a record if we've every successfully connected to this chat before.
-         * @type {Boolean}
          */
         this.hasConnected = false;
-
-        /**
-         * If user manually disconnects via {@link ChatEngine#disconnect}, the
-         * chat is put to "sleep". If a connection is reestablished
-         * via {@link ChatEngine#reconnect}, sleeping chats reconnect automatically.
-         * @type {Boolean}
-         */
-        this.asleep = false;
 
         this.chatEngine.chats[this.channel] = this;
 
@@ -114,7 +113,7 @@ class Chat extends Emitter {
              * There was a problem fetching the presence of this chat
              * @event Chat#$"."error"."presence
              */
-            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'));
+            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
 
         } else {
 
@@ -222,8 +221,8 @@ class Chat extends Emitter {
              * @param {User} data.user The {@link User} that came online
              * @example
              * chat.on('$.join', (data) => {
-             *     console.log('User has joined the room!', data.user);
-             * });
+                          *     console.log('User has joined the room!', data.user);
+                          * });
              */
 
             // It's possible for PubNub to send us both a join and have the user appear in here_now
@@ -405,52 +404,6 @@ class Chat extends Emitter {
     }
 
     /**
-     * Called by {@link ChatEngine#disconnect}. Fires disconnection notifications
-     * and stores "sleep" state in memory. Sleep means the Chat was previously connected.
-     * @private
-     */
-    sleep() {
-
-        if (this.connected) {
-            this.onDisconnected();
-            this.asleep = true;
-        }
-    }
-
-    /**
-     * Called by {@link ChatEngine#reconnect}. Wakes the Chat up from sleep state.
-     * Re-authenticates with the server, and fires connection events once established.
-     * @private
-     */
-    wake() {
-
-        if (this.asleep) {
-            this.handshake(() => {
-                this.onConnected();
-            });
-        }
-
-    }
-
-    /**
-     * Fired upon successful connection to the network through any means..
-     * @private
-     */
-    onConnected() {
-        this.connected = true;
-        this.trigger('$.connected');
-    }
-
-    /**
-     * Fires upon disconnection from the network through any means.
-     * @private
-     */
-    onDisconnected() {
-        this.connected = false;
-        this.trigger('$.disconnected');
-    }
-
-    /**
      * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
      * receiving events.
      * @fires Chat#event:$"."offline"."leave
@@ -464,14 +417,13 @@ class Chat extends Emitter {
             channels: [this.channel]
         });
 
-        // tell the server we left
         this.chatEngine.request('post', 'leave', { chat: this.objectify() })
             .then(() => {
 
-                // trigger the disconnect events and update state
-                this.onDisconnected();
+                this.connected = false;
 
-                // tell session we've left
+                this.trigger('$.disconnected');
+
                 this.chatEngine.me.sessionLeave(this);
 
             })
@@ -598,10 +550,9 @@ class Chat extends Emitter {
     }
 
     /**
-     * Fired when the chat first connects to network.
      * @private
      */
-    connectionReady() {
+    onConnectionReady() {
 
         this.connected = true;
         this.hasConnected = true;
@@ -614,7 +565,7 @@ class Chat extends Emitter {
          *     console.log('chat is ready to go!');
          * });
          */
-        this.onConnected();
+        this.trigger('$.connected');
 
         this.chatEngine.me.sessionJoin(this);
 
@@ -640,9 +591,6 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     * Ask PubNub for information about {@link User}s in this {@link Chat}.
-     */
     getUserUpdates() {
 
         // get a list of users online now
@@ -651,32 +599,7 @@ class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, (s, r) => {
-            this.onHereNow(s, r);
-        });
-
-    }
-
-    /**
-     * Establish authentication with the server, then subscribe with PubNub.
-     * @return {[type]} [description]
-     */
-    connect() {
-
-        // establish good will with the server
-        this.handshake((response) => {
-
-            // asign metadata locally
-            if (response.data.found) {
-                this.meta = response.data.chat.meta;
-            } else {
-                this.update(this.meta);
-            }
-
-            // now that we've got connection, do everything else via connectionReady
-            this.connectionReady();
-
-        });
+        }, this.onHereNow.bind(this));
 
     }
 
@@ -689,7 +612,7 @@ class Chat extends Emitter {
      * // connect to the chat when we feel like it
      * chat.connect();
      */
-    handshake(callback) {
+    connect() {
 
         async.waterfall([
             (next) => {
@@ -720,7 +643,17 @@ class Chat extends Emitter {
             (next) => {
 
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then(callback)
+                    .then((response) => {
+
+                        if (response.data.found) {
+                            this.meta = response.data.chat.meta;
+                        } else {
+                            this.update(this.meta);
+                        }
+
+                        this.onConnectionReady();
+
+                    })
                     .catch(next);
 
             }

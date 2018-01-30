@@ -1,4 +1,4 @@
-// what is CHATENGINECORE..??
+// allows asynchronous execution flow.
 const init = require('./bootstrap');
 
 /**

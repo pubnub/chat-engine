@@ -14,13 +14,14 @@ const User = require('./user');
  */
 class Me extends User {
 
-    constructor(chatEngine, uuid) {
+    constructor(chatEngine, uuid, authData) {
 
         // call the User constructor
         super(chatEngine, uuid);
 
         this.name = 'Me';
 
+        this.authData = authData;
         this.chatEngine = chatEngine;
 
         /**
