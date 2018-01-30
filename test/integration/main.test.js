@@ -56,8 +56,6 @@ function reset(done) {
 
 function createChatEngine(done) {
 
-    this.timeout(60000);
-
     ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
@@ -66,15 +64,11 @@ function createChatEngine(done) {
         throwErrors: true
     });
     ChatEngine.connect(username, { works: true }, username);
-    ChatEngine.on('$.ready', () => {
-        done();
-    });
+    ChatEngine.on('$.ready', () => done());
 
 }
 
 function createChatEngineSync(done) {
-
-    this.timeout(60000);
 
     ChatEngineSync = require('../../src/index.js').create({
         publishKey: pubkey,
@@ -86,16 +80,12 @@ function createChatEngineSync(done) {
     });
 
     ChatEngineSync.connect(username, { works: false }, username);
-    ChatEngineSync.on('$.ready', () => {
-        done();
-    });
+    ChatEngineSync.on('$.ready', () => done());
 
 }
 
 
 function createChatEngineClone(done) {
-
-    this.timeout(60000);
 
     ChatEngineClone = require('../../src/index.js').create({
         publishKey: pubkey,
@@ -106,15 +96,11 @@ function createChatEngineClone(done) {
         throwErrors: true
     });
     ChatEngineClone.connect(username, { works: true }, username);
-    ChatEngineClone.on('$.ready', () => {
-        done();
-    });
+    ChatEngineClone.on('$.ready', () => done());
 
 }
 
 function createChatEngineYou(done) {
-
-    this.timeout(60000);
 
     ChatEngineYou = require('../../src/index.js').create({
         publishKey: pubkey,
@@ -124,15 +110,11 @@ function createChatEngineYou(done) {
         throwErrors: true
     });
     ChatEngineYou.connect(yousername, { works: true }, yousername);
-    ChatEngineYou.on('$.ready', () => {
-        done();
-    });
+    ChatEngineYou.on('$.ready', () => done());
 
 }
 
 function createChatEngineHistory(done) {
-
-    this.timeout(60000);
 
     ChatEngineHistory = require('../../src/index.js').create({
         publishKey: pubkey,
@@ -142,15 +124,11 @@ function createChatEngineHistory(done) {
         throwErrors: true
     });
     ChatEngineHistory.connect(yousername, { works: true }, yousername);
-    ChatEngineHistory.on('$.ready', () => {
-        done();
-    });
+    ChatEngineHistory.on('$.ready', () => done());
 
 }
 
 function createChatEngineConnect(done) {
-
-    this.timeout(60000);
 
     ChatEngineConnect = require('../../src/index.js').create({
         publishKey: pubkey,
@@ -160,9 +138,7 @@ function createChatEngineConnect(done) {
         throwErrors: true
     });
     ChatEngineConnect.connect(username, { works: true }, username);
-    ChatEngineConnect.on('$.ready', () => {
-        done();
-    });
+    ChatEngineConnect.on('$.ready', () => done());
 
 }
 
