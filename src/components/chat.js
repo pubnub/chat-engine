@@ -651,9 +651,7 @@ class Chat extends Emitter {
             channels: [this.channel],
             includeUUIDs: true,
             includeState: true
-        }, (s, r) => {
-            this.onHereNow(s, r);
-        });
+        }, this.onHereNow.bind(this));
 
     }
 
