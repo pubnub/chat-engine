@@ -60,6 +60,7 @@
   "dependencies": {
     "async": "^2.1.2",
     "axios": "^0.16.2",
+    "decache": "^4.3.0",
     "eventemitter2": "^2.2.1",
     "pubnub": "^4.17.0"
   }
