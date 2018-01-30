@@ -612,11 +612,11 @@ describe('connection management', () => {
 
         chat2.on('$.connected', () => {
 
-                chat2.once('$.disconnected', () => {
-                    done();
-                });
+            chat2.once('$.disconnected', () => {
+                done();
+            });
 
-                ChatEngineConnect.disconnect();
+            ChatEngineConnect.disconnect();
 
         });
 
