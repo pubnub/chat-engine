@@ -89,9 +89,6 @@ function createChatEngineSync(done) {
     ChatEngineSync.on('$.ready', () => {
         done();
     });
-    ChatEngineSync.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
-    });
 
 }
 
@@ -112,9 +109,6 @@ function createChatEngineClone(done) {
     ChatEngineClone.on('$.ready', () => {
         done();
     });
-    ChatEngineClone.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
-    });
 
 }
 
@@ -132,9 +126,6 @@ function createChatEngineYou(done) {
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
-    });
-    ChatEngineYou.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
     });
 
 }
@@ -154,9 +145,6 @@ function createChatEngineHistory(done) {
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
-    ChatEngineHistory.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
-    });
 
 }
 
@@ -174,9 +162,6 @@ function createChatEngineConnect(done) {
     ChatEngineConnect.connect(username, { works: true }, username);
     ChatEngineConnect.on('$.ready', () => {
         done();
-    });
-    ChatEngineConnect.onAny((a, b) => {
-        console.log(a);
     });
 
 }
@@ -226,10 +211,6 @@ describe('connect', () => {
 
         assert.isObject(ChatEngine.me);
 
-        ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation);
-        });
-
     });
 
     it('should notify chatengine on created', function join(done) {
@@ -253,9 +234,7 @@ describe('connect', () => {
 
         a.on('$.connected', () => {
 
-            setTimeout(() => {
-                a.leave();
-            }, 1000);
+            a.leave();
 
         });
 
@@ -352,11 +331,9 @@ describe('chat', () => {
 
         chat3.on('$.connected', () => {
 
-            setTimeout(() => {
-                chat3.emit('something', {
-                    text: 'hello world'
-                });
-            }, 1000);
+            chat3.emit('something', {
+                text: 'hello world'
+            });
 
         });
 
@@ -401,23 +378,19 @@ describe('history', () => {
 
         chatHistory.on('$.connected', () => {
 
-            setTimeout(() => {
+            chatHistory.search({
+                event: 'tester',
+                limit: 50
+            }).on('tester', (a) => {
 
-                chatHistory.search({
-                    event: 'tester',
-                    limit: 50
-                }).on('tester', (a) => {
+                assert.equal(a.event, 'tester');
 
-                    assert.equal(a.event, 'tester');
+                count += 1;
 
-                    count += 1;
-
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 50, 'correct # of results');
-                    done();
-                });
-
-            }, 5000);
+            }).on('$.search.finish', () => {
+                assert.equal(count, 50, 'correct # of results');
+                done();
+            });
 
         });
 
@@ -433,22 +406,18 @@ describe('history', () => {
 
         chatHistory2.on('$.connected', () => {
 
-            setTimeout(() => {
+            chatHistory2.search({
+                event: 'tester',
+                limit: 200
+            }).on('tester', (a) => {
 
-                chatHistory2.search({
-                    event: 'tester',
-                    limit: 200
-                }).on('tester', (a) => {
+                assert.equal(a.event, 'tester');
+                count += 1;
 
-                    assert.equal(a.event, 'tester');
-                    count += 1;
-
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 200, 'correct # of results');
-                    done();
-                });
-
-            }, 5000);
+            }).on('$.search.finish', () => {
+                assert.equal(count, 200, 'correct # of results');
+                done();
+            });
 
         });
 
@@ -643,16 +612,11 @@ describe('connection management', () => {
 
         chat2.on('$.connected', () => {
 
-            // old chat may still be trying to call here_now
-            setTimeout(() => {
-
                 chat2.once('$.disconnected', () => {
                     done();
                 });
 
                 ChatEngineConnect.disconnect();
-
-            }, 5000);
 
         });
 
