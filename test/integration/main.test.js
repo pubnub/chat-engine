@@ -69,9 +69,6 @@ function createChatEngine(done) {
     ChatEngine.on('$.ready', () => {
         done();
     });
-    ChatEngine.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
-    });
 
 }
 
@@ -176,11 +173,10 @@ function createChatEngineConnect(done) {
     });
     ChatEngineConnect.connect(username, { works: true }, username);
     ChatEngineConnect.on('$.ready', () => {
-
-        setTimeout(() => {
-            done();
-        }, 30000);
-
+        done();
+    });
+    ChatEngineConnect.onAny((a, b) => {
+        console.log(a);
     });
 
 }
@@ -662,18 +658,18 @@ describe('connection management', () => {
 
     });
 
-    // it('should refresh auth', function beIdentified(done) {
+    it('should refresh auth', function beIdentified(done) {
 
-    //     this.timeout(120000);
+        this.timeout(120000);
 
-    //     let authKey = new Date().getTime();
+        let authKey = new Date().getTime();
 
-    //     ChatEngineConnect.reauthorize(authKey);
+        ChatEngineConnect.reauthorize(authKey);
 
-    //     ChatEngineConnect.once('$.connected', () => {
-    //         done();
-    //     });
+        ChatEngineConnect.once('$.connected', () => {
+            done();
+        });
 
-    // });
+    });
 
 });
