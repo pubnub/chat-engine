@@ -14,14 +14,13 @@ const User = require('./user');
  */
 class Me extends User {
 
-    constructor(chatEngine, uuid, authData) {
+    constructor(chatEngine, uuid) {
 
         // call the User constructor
         super(chatEngine, uuid);
 
         this.name = 'Me';
 
-        this.authData = authData;
         this.chatEngine = chatEngine;
 
         /**
@@ -36,6 +35,10 @@ class Me extends User {
          * @type {this}
          */
         this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
+
+        this.sync.onAny((a) => {
+            console.log(a);
+        });
 
         return this;
 
