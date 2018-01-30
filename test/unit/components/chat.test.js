@@ -33,7 +33,7 @@ describe('#chat', () => {
             done();
         });
 
-        chatInstance.connectionReady();
+        chatInstance.onConnectionReady();
         chatEngineInstance.pubnub.hereNow.args[0][1]({ error: false }, { channels: { [chatInstance.channel]: { occupants: [{ uuid: 'user123', state: { state: 'active' } }] } } });
     });
 

@@ -89,9 +89,6 @@ function createChatEngineSync(done) {
     ChatEngineSync.on('$.ready', () => {
         done();
     });
-    ChatEngineSync.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
-    });
 
 }
 
@@ -112,9 +109,6 @@ function createChatEngineClone(done) {
     ChatEngineClone.on('$.ready', () => {
         done();
     });
-    ChatEngineClone.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
-    });
 
 }
 
@@ -132,9 +126,6 @@ function createChatEngineYou(done) {
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
-    });
-    ChatEngineYou.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
     });
 
 }
@@ -154,9 +145,6 @@ function createChatEngineHistory(done) {
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
-    ChatEngineHistory.on('$.network.down.issue', (a, b) => {
-        console.log(a, b);
-    });
 
 }
 
@@ -174,9 +162,6 @@ function createChatEngineConnect(done) {
     ChatEngineConnect.connect(username, { works: true }, username);
     ChatEngineConnect.on('$.ready', () => {
         done();
-    });
-    ChatEngineConnect.onAny((a, b) => {
-        console.log(a);
     });
 
 }
@@ -225,10 +210,6 @@ describe('connect', () => {
         this.timeout(60000);
 
         assert.isObject(ChatEngine.me);
-
-        ChatEngine.on('$.network.*', (data) => {
-            console.log(data.operation);
-        });
 
     });
 
