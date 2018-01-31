@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Automagic Setup</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script type="text/javascript" src="./lib/chat-engine-setup.js"></script>
+
+    <script type="text/javascript">
+    $( document ).ready(function() {
+      const setup = new ChatEngineSetupCore();
+    });
+    </script>
+
+    <script type="text/javascript">
+    // analytics.page();
+    const analyticsData = {
+        type: 'page',
+        anonymousId: document.cookie.substring(document.cookie.indexOf('=') + 4, document.cookie.indexOf(';') - 3),
+        properties: {
+            path: location.pathname,
+            url: location.href,
+            title: document.title,
+            search: location.search,
+            referrer: document.referrer
+        },
+        context: {
+            library: {
+                name: 'PubNub Functions',
+                version: '0.0.1'
+            },
+            page: {
+                path: location.pathname,
+                url: location.href,
+                title: document.title,
+                search: location.search,
+                referrer: document.referrer
+            },
+            userAgent: navigator.userAgent
+        }
+    };
+    $.ajax({
+        type: 'POST',
+        url: 'https://pubsub.pubnub.com/v1/blocks/sub-key/sub-c-218ba154-c8ba-11e7-9178-bafd478c18bc/analytics',
+        data: JSON.stringify(analyticsData),
+        contentType: 'application/json; charset=utf-8'
+    });
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="load">
+        <div class="loader">Loading...</div>
+        <ul class="list-group" id="status">
+        </ul>
+    </div>
+    <div id="error">
+        <div class="alert alert-danger" role="alert">
+            <strong>Something went wrong!</strong> <span id="error-out"></span>
+        </div>
+    </div>
+    <form id="login">
+        <div id="warning">
+            <div class="alert alert-info" role="alert">
+                <strong>Don't have an account?</strong> <a href="https://admin.pubnub.com/#/register">Sign up for PubNub</a>.
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="email">PubNub Email:</label>
+            <input type="email" class="form-control" id="email" placeholder="Email">
+        </div>
+        <div class="form-group">
+            <label for="password">PubNub Password:</label>
+            <input type="password" class="form-control" id="password" placeholder="Password">
+        </div>
+        <button type="submit" class="btn btn-default">Login</button>
+    </form>
+
+    <form id="setup">
+        <button type="submit" class="btn btn-default">Setup</button>
+    </form>
+
+    <div id="output">
+        <div id="success">
+            <div class="alert alert-success" role="alert">
+                <strong>All Set!</strong> Copy and paste the code below!
+            </div>
+        </div>
+        <pre><code id="code"></code></pre>
+    </div>
+</body>
+
+</html>

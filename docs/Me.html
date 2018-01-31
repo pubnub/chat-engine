@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Me - PubNub ChatEngine</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Guides</h3><ul><li data-sidebar="getting-started"><a href="tutorial-getting-started.html">Get Started</a><ul><li data-sidebar="install"><a href="tutorial-install.html">Install ChatEngine</a></li><li data-sidebar="pubnub"><a href="tutorial-pubnub.html">Configure ChatEngine</a></li><li data-sidebar="quick"><a href="tutorial-quick.html">Quick Start Guide</a></li></ul></li><li data-sidebar="concepts"><a href="tutorial-concepts.html">Concepts</a><ul><li data-sidebar="me"><a href="tutorial-me_.html">Me</a></li><li data-sidebar="users"><a href="tutorial-users.html">Users and State</a></li><li data-sidebar="chats"><a href="tutorial-chats.html">Chats</a></li><li data-sidebar="events"><a href="tutorial-events.html">Events</a></li><li data-sidebar="payload"><a href="tutorial-payload.html">Event Payload</a></li><li data-sidebar="namespaces"><a href="tutorial-namespaces.html">Namespaces</a></li><li data-sidebar="wildcard"><a href="tutorial-wildcard.html">Wildcards</a></li><li data-sidebar="search"><a href="tutorial-search_.html">Search</a></li><li data-sidebar="globalChat"><a href="tutorial-globalChat.html">Global Chat</a></li><li data-sidebar="online-list"><a href="tutorial-online-list.html">Online List</a></li><li data-sidebar="auth"><a href="tutorial-auth.html">Authentication</a></li><li data-sidebar="privacy"><a href="tutorial-privacy.html">Privacy</a></li><li data-sidebar="private"><a href="tutorial-private.html">Private Chats</a></li><li data-sidebar="templating"><a href="tutorial-templating.html">Templating</a></li><li data-sidebar="errors"><a href="tutorial-errors.html">Errors</a></li><li data-sidebar="using"><a href="tutorial-using.html">Plugins</a></li><li data-sidebar="build"><a href="tutorial-build.html">Build a Plugin</a></li><li data-sidebar="functions"><a href="tutorial-functions.html">PubNub Functions</a></li><li data-sidebar="topology"><a href="tutorial-topology.html">PubNub Channel Topology</a></li></ul></li><li data-sidebar="angular"><a href="tutorial-angular.html">Angular</a><ul><li data-sidebar="ng-simple"><a href="tutorial-ng-simple.html">Angular Bootstrap</a></li><li data-sidebar="ng-flowtron"><a href="tutorial-ng-flowtron.html">Angular Desktop Chat</a></li></ul></li><li data-sidebar="jquery"><a href="tutorial-jquery.html">jQuery</a><ul><li data-sidebar="jq-simple"><a href="tutorial-jq-simple.html">jQuery Chat</a></li><li data-sidebar="jq-kitchen"><a href="tutorial-jq-kitchen.html">jQuery Kitchen Sink</a></li></ul></li><li data-sidebar="js"><a href="tutorial-js.html">Javascript</a><ul><li data-sidebar="chat"><a href="tutorial-chat_.html">JS Chat</a></li><li data-sidebar="friends"><a href="tutorial-friends.html">JS Friends List</a></li><li data-sidebar="online"><a href="tutorial-online.html">JS Online List</a></li><li data-sidebar="facebook"><a href="tutorial-facebook.html">JS Facebook Auth</a></li></ul></li><li data-sidebar="nodejs"><a href="tutorial-nodejs.html">NodeJS</a><ul><li data-sidebar="chatbot"><a href="tutorial-chatbot.html">NodeJS Chat Bot</a></li></ul></li><li data-sidebar="react"><a href="tutorial-react.html">React</a><ul><li data-sidebar="react-simple"><a href="tutorial-react-simple.html">React Web</a></li><li data-sidebar="react-native"><a href="tutorial-react-native.html">React Native</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatEngineCore">ChatEngineCore</a></li></ul><h3>Plugins</h3><ul><li data-sidebar="chat-engine-desktop-notifications"><a href="module-chat-engine-desktop-notifications.html">chat-engine-desktop-notifications</a></li><li data-sidebar="chat-engine-emoji"><a href="module-chat-engine-emoji.html">chat-engine-emoji</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-emoji.html#~parseEmoji">parseEmoji()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~render">render()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-gravatar"><a href="module-chat-engine-gravatar.html">chat-engine-gravatar</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-gravatar.html#~state%2522.%2522gravatar">state.gravatar</a></li></ul></ul></li><li data-sidebar="chat-engine-markdown"><a href="module-chat-engine-markdown.html">chat-engine-markdown</a></li><li data-sidebar="chat-engine-online-user-search"><a href="module-chat-engine-online-user-search.html">chat-engine-online-user-search</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-online-user-search.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-random-username"><a href="module-chat-engine-random-username.html">chat-engine-random-username</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-random-username.html#~state%2522.%2522username">state.username</a></li></ul></ul></li><li data-sidebar="chat-engine-typing-indicator"><a href="module-chat-engine-typing-indicator.html">chat-engine-typing-indicator</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522startTyping">typingindicator.startTyping()</a></li><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522stopTyping">typingindicator.stopTyping()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522startTyping">$typingIndiciator.startTyping</a></li><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522stopTyping">$typingIndiciator.stopTyping</a></li></ul></ul></li><li data-sidebar="chat-engine-unread-messages"><a href="module-chat-engine-unread-messages.html">chat-engine-unread-messages</a><ul><li><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadCount">unreadCount</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522isActive">unreadMessages.isActive</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522unreadCount">unreadMessages.unreadCount</a></li></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-unread-messages.html#~event:$unread">$unread</a></li></ul></ul></li><li data-sidebar="chat-engine-uploadcare"><a href="module-chat-engine-uploadcare.html">chat-engine-uploadcare</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-uploadcare.html#~uploadcare%2522.%2522bind">uploadcare.bind()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-uploadcare.html#~event:$uploadcare%2522.%2522upload">$uploadcare.upload</a></li></ul></ul></li></ul><h3>Reference</h3><ul><li data-sidebar="Chat"><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="Chat.html#channel">channel</a></li><li data-type='member'><a href="Chat.html#connected">connected</a></li><li data-type='member'><a href="Chat.html#group">group</a></li><li data-type='member'><a href="Chat.html#isPrivate">isPrivate</a></li><li data-type='member'><a href="Chat.html#users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="Chat.html#connect">connect()</a></li><li data-type='method'><a href="Chat.html#emit">emit()</a></li><li data-type='method'><a href="Chat.html#invite">invite()</a></li><li data-type='method'><a href="Chat.html#leave">leave()</a></li><li data-type='method'><a href="Chat.html#objectify">objectify()</a></li><li data-type='method'><a href="Chat.html#off">off()</a></li><li data-type='method'><a href="Chat.html#on">on()</a></li><li data-type='method'><a href="Chat.html#onAny">onAny()</a></li><li data-type='method'><a href="Chat.html#once">once()</a></li><li data-type='method'><a href="Chat.html#plugin">plugin()</a></li><li data-type='method'><a href="Chat.html#search">search()</a></li></ul><ul class='events'><li data-type='event'><a href="Chat.html#event:$%2522.%2522connected">$.connected</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522history">$.error.history</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522presence">$.error.presence</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522publish">$.error.publish</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect">$.offline.disconnect</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave">$.offline.leave</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522here">$.online.here</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522join">$.online.join</a></li></ul></li><li data-sidebar="ChatEngine"><a href="ChatEngine.html">ChatEngine</a><ul class='members'><li data-type='member'><a href="ChatEngine.html#.Chat">Chat</a></li><li data-type='member'><a href="ChatEngine.html#.chats">chats</a></li><li data-type='member'><a href="ChatEngine.html#.global">global</a></li><li data-type='member'><a href="ChatEngine.html#.me">me</a></li><li data-type='member'><a href="ChatEngine.html#.pubnub">pubnub</a></li><li data-type='member'><a href="ChatEngine.html#.ready">ready</a></li><li data-type='member'><a href="ChatEngine.html#.User">User</a></li><li data-type='member'><a href="ChatEngine.html#.users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="ChatEngine.html#connect">connect()</a></li><li data-type='method'><a href="ChatEngine.html#off">off()</a></li><li data-type='method'><a href="ChatEngine.html#on">on()</a></li><li data-type='method'><a href="ChatEngine.html#onAny">onAny()</a></li><li data-type='method'><a href="ChatEngine.html#once">once()</a></li><li data-type='method'><a href="ChatEngine.html#proto">proto()</a></li></ul><ul class='events'><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522chat">$.created.chat</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522me">$.created.me</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522user">$.created.user</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522auth">$.error.auth</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522session">$.error.session</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522badrequest">$.network.down.badrequest</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522decryption">$.network.down.decryption</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522denied">$.network.down.denied</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522issue">$.network.down.issue</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522malformed">$.network.down.malformed</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522offline">$.network.down.offline</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522timeout">$.network.down.timeout</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522connected">$.network.up.connected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522online">$.network.up.online</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522reconnected">$.network.up.reconnected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522state">$.state</a></li></ul></li><li data-sidebar="Emitter"><a href="Emitter.html">Emitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="Emitter.html#off">off()</a></li><li data-type='method'><a href="Emitter.html#on">on()</a></li><li data-type='method'><a href="Emitter.html#onAny">onAny()</a></li><li data-type='method'><a href="Emitter.html#once">once()</a></li><li data-type='method'><a href="Emitter.html#plugin">plugin()</a></li></ul></li><li data-sidebar="Event"><a href="Event.html">Event</a><ul class='members'><li data-type='member'><a href="Event.html#channel">channel</a></li></ul></li><li data-sidebar="Me"><a href="Me.html">Me</a><ul class='members'><li data-type='member'><a href="Me.html#direct">direct</a></li><li data-type='member'><a href="Me.html#feed">feed</a></li><li data-type='member'><a href="Me.html#session">session</a></li><li data-type='member'><a href="Me.html#state">state</a></li><li data-type='member'><a href="Me.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="Me.html#off">off()</a></li><li data-type='method'><a href="Me.html#on">on()</a></li><li data-type='method'><a href="Me.html#onAny">onAny()</a></li><li data-type='method'><a href="Me.html#once">once()</a></li><li data-type='method'><a href="Me.html#plugin">plugin()</a></li><li data-type='method'><a href="Me.html#update">update()</a></li></ul><ul class='events'><li data-type='event'><a href="Me.html#event:$%2522.%2522invite">$.invite</a></li><li data-type='event'><a href="Me.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522join">$.session.chat.join</a></li><li data-type='event'><a href="Me.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522leave">$.session.chat.leave</a></li></ul></li><li data-sidebar="RootEmitter"><a href="RootEmitter.html">RootEmitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="RootEmitter.html#off">off()</a></li><li data-type='method'><a href="RootEmitter.html#on">on()</a></li><li data-type='method'><a href="RootEmitter.html#onAny">onAny()</a></li><li data-type='method'><a href="RootEmitter.html#once">once()</a></li></ul></li><li data-sidebar="Search"><a href="Search.html">Search</a><ul class='members'><li data-type='member'><a href="Search.html#chat">chat</a></li><li data-type='member'><a href="Search.html#config">config</a></li><li data-type='member'><a href="Search.html#name">name</a></li></ul><ul class='methods'><li data-type='method'><a href="Search.html#off">off()</a></li><li data-type='method'><a href="Search.html#on">on()</a></li><li data-type='method'><a href="Search.html#onAny">onAny()</a></li><li data-type='method'><a href="Search.html#once">once()</a></li><li data-type='method'><a href="Search.html#plugin">plugin()</a></li></ul><ul class='events'><li data-type='event'><a href="Search.html#event:$%2522.%2522page%2522.%2522request">$.page.request</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522page%2522.%2522response">$.page.response</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522search%2522.%2522finish">$.search.finish</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522search%2522.%2522start">$.search.start</a></li></ul></li><li data-sidebar="User"><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="User.html#direct">direct</a></li><li data-type='member'><a href="User.html#feed">feed</a></li><li data-type='member'><a href="User.html#state">state</a></li><li data-type='member'><a href="User.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="User.html#off">off()</a></li><li data-type='method'><a href="User.html#on">on()</a></li><li data-type='method'><a href="User.html#onAny">onAny()</a></li><li data-type='method'><a href="User.html#once">once()</a></li><li data-type='method'><a href="User.html#plugin">plugin()</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Me</h1>
+    
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2>
+        Me
+        </h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+    
+    <h4 class="name" id="Me">
+
+    <span class="type-signature"></span>new Me<span class="signature">(uuid)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_me.js.html">chat-engine/src/components/me.js</a>, <a href="chat-engine_src_components_me.js.html#line3">line 3</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Represents the client connection as a special <a href="User.html">User</a> with write permissions.
+ Has the ability to update it's state on the network. An instance of
+ <a href="Me.html">Me</a> is returned by the <code>ChatEngine.connect()</code>
+ method.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>uuid</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The uuid of this user</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="User.html">User</a></li>
+    
+        <li><a href="Emitter.html">Emitter</a></li>
+    
+        <li><a href="RootEmitter.html">RootEmitter</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+
+<h4 class="name" id="direct">
+
+<span class="type-signature"></span>direct<span class="type-signature"> :<a href="Chat.html">Chat</a></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line80">line 80</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="User.html#direct">User#direct</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Direct is a private channel that anybody can publish to but only
+the user can subscribe to. Great for pushing notifications or
+inviting to other chats. Users will not be able to communicate
+with one another inside of this chat. Check out the
+<a href="Chat.html#invite">Chat#invite</a> method for private chats utilizing
+<a href="User.html#direct">User#direct</a>.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Chat.html">Chat</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>// me
+me.direct.on('private-message', (payload) -> {
+    console.log(payload.sender.uuid, 'sent your a direct message');
+});
+
+// another instance
+them.direct.connect();
+them.direct.emit('private-message', {secret: 42});</code></pre>
+
+
+
+        
+            
+
+<h4 class="name" id="feed">
+
+<span class="type-signature"></span>feed<span class="type-signature"> :<a href="Chat.html">Chat</a></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line59">line 59</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="User.html#feed">User#feed</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Feed is a Chat that only streams things a User does, like
+'startTyping' or 'idle' events for example. Anybody can subscribe
+to a User's feed, but only the User can publish to it. Users will
+not be able to converse in this channel.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Chat.html">Chat</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>// me
+me.feed.emit('update', 'I may be away from my computer right now');
+
+// another instance
+them.feed.connect();
+them.feed.on('update', (payload) => {})</code></pre>
+
+
+
+        
+            
+
+<h4 class="name" id="session">
+
+<span class="type-signature"></span>session<span class="type-signature"> :Object</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_me.js.html">chat-engine/src/components/me.js</a>, <a href="chat-engine_src_components_me.js.html#line31">line 31</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Stores a map of <a href="Chat.html">Chat</a> objects that this <a href="Me.html">Me</a> has joined across all clients.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+
+<h4 class="name" id="state">
+
+<span class="type-signature"></span>state<span class="type-signature"></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="User.html#state">User#state</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Gets the user state. See <a href="Me.html#update">Me#update</a> for how to assign state values.</p>
+</div>
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>// State
+let state = user.state;</code></pre>
+
+
+
+        
+            
+
+<h4 class="name" id="uuid">
+
+<span class="type-signature">(readonly) </span>uuid<span class="type-signature"> :String</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_user.js.html">chat-engine/src/components/user.js</a>, <a href="chat-engine_src_components_user.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="User.html#uuid">User#uuid</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>The User's unique identifier, usually a device uuid. This helps ChatEngine identify the user between events. This is public id exposed to the network.
+         Check out <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier">the wikipedia page on UUIDs</a>.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">String</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="off">
+
+    <span class="type-signature"></span>off<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_root_emitter.js.html">chat-engine/src/modules/root_emitter.js</a>, <a href="chat-engine_src_modules_root_emitter.js.html#line94">line 94</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="RootEmitter.html#off">RootEmitter#off</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Stop a callback from listening to an event.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>let callback = function(payload;) {
+   console.log('something happend!');
+};
+object.on('event', callback);
+// ...
+object.off('event', callback);</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The event name</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="on">
+
+    <span class="type-signature"></span>on<span class="signature">(event, cb)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_emitter.js.html">chat-engine/src/modules/emitter.js</a>, <a href="chat-engine_src_modules_emitter.js.html#line64">line 64</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="RootEmitter.html#on">RootEmitter#on</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Listen for a specific event and fire a callback when it's emitted. Supports wildcard matching.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>// Get notified whenever someone joins the room
+object.on('event', (payload) => {
+    console.log('event was fired').
+})
+
+// Get notified of event.a and event.b
+object.on('event.*', (payload) => {
+    console.log('event.a or event.b was fired').;
+})</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The event name</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cb</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The function to run when the event is emitted</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="onAny">
+
+    <span class="type-signature"></span>onAny<span class="signature">(callback)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_root_emitter.js.html">chat-engine/src/modules/root_emitter.js</a>, <a href="chat-engine_src_modules_root_emitter.js.html#line112">line 112</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="RootEmitter.html#onAny">RootEmitter#onAny</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Listen for any event on this object and fire a callback when it's emitted</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>object.onAny((event, payload) => {
+    console.log('All events trigger this.');
+});</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The function to run when any event is emitted. First parameter is the event name and second is the payload.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="once">
+
+    <span class="type-signature"></span>once<span class="signature">(event, callback)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_root_emitter.js.html">chat-engine/src/modules/root_emitter.js</a>, <a href="chat-engine_src_modules_root_emitter.js.html#line131">line 131</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="RootEmitter.html#once">RootEmitter#once</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Listen for an event and only fire the callback a single time</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>object.once('message', => (event, payload) {
+    console.log('This is only fired once!');
+});</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The event name</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The function to run once</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="plugin">
+
+    <span class="type-signature"></span>plugin<span class="signature">(module)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_emitter.js.html">chat-engine/src/modules/emitter.js</a>, <a href="chat-engine_src_modules_emitter.js.html#line96">line 96</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Emitter.html#plugin">Emitter#plugin</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-tutorial">Tutorials:</dt>
+    <dd class="tag-tutorial">
+        <ul>
+            <li><a href="tutorial-using.html">Plugins</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Binds a plugin to this object</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>module</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The plugin module</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="update">
+
+    <span class="type-signature"></span>update<span class="signature">(state, chat)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_me.js.html">chat-engine/src/components/me.js</a>, <a href="chat-engine_src_components_me.js.html#line63">line 63</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        User#update
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Update <a href="Me.html">Me</a>'s state in a <a href="Chat.html">Chat</a>. All other <a href="User.html">User</a>s
+will be notified of this change via <code>$.state</code>.
+Retrieve state at any time with <a href="User.html#state">User#state</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>// update state
+me.update({value: true});</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>state</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The new state for <a href="Me.html">Me</a></p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>chat</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="Chat.html">Chat</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>An instance of the <a href="Chat.html">Chat</a> where state will be updated.
+Defaults to <code>ChatEngine.global</code>.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<h5>Fires:</h5>
+<ul>
+    <li>$.state</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
+        <h3 class="subsection-title">Events</h3>
+
+        
+            
+
+    
+    <h4 class="name" id="event:$%22.%22invite">
+
+    $.invite</h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_chat.js.html">chat-engine/src/components/chat.js</a>, <a href="chat-engine_src_components_chat.js.html#line155">line 155</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-tutorial">Tutorials:</dt>
+    <dd class="tag-tutorial">
+        <ul>
+            <li><a href="tutorial-private.html">Private Chats</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Notifies <a href="Me.html">Me</a> that they've been invited to a new private <a href="Chat.html">Chat</a>.
+Fired by the <a href="Chat.html#invite">Chat#invite</a> method.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>me.direct.on('$.invite', (payload) => {
+   let privChat = new ChatEngine.Chat(payload.data.channel));
+});</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+    <h4 class="name" id="event:$%22.%22session%22.%22chat%22.%22join">
+
+    $.session.chat.join</h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_me.js.html">chat-engine/src/components/me.js</a>, <a href="chat-engine_src_components_me.js.html#line94">line 94</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Fired when another identical instance of <a href="ChatEngine.html">ChatEngine</a> and <a href="Me.html">Me</a> joins a <a href="Chat.html">Chat</a> that this instance of <a href="ChatEngine.html">ChatEngine</a> is unaware of.
+            Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            ChatEngine stores sessions on the server side identified by <a href="User.html#uuid">User#uuid</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>// Logged in as "Ian" in first window
+ChatEngine.me.on('$.session.chat.join', (data) => {
+    console.log('I joined a new chat in a second window!', data.chat);
+});
+
+// Logged in as "Ian" in second window
+new ChatEngine.Chat('another-chat');</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+    <h4 class="name" id="event:$%22.%22session%22.%22chat%22.%22leave">
+
+    $.session.chat.leave</h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_me.js.html">chat-engine/src/components/me.js</a>, <a href="chat-engine_src_components_me.js.html#line126">line 126</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Fired when another identical instance of <a href="ChatEngine.html">ChatEngine</a> with an identical <a href="Me.html">Me</a> leaves a <a href="Chat.html">Chat</a> via <a href="Chat.html#leave">Chat#leave</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

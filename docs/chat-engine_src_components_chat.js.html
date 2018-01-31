@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>chat-engine/src/components/chat.js - PubNub ChatEngine</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Guides</h3><ul><li data-sidebar="getting-started"><a href="tutorial-getting-started.html">Get Started</a><ul><li data-sidebar="install"><a href="tutorial-install.html">Install ChatEngine</a></li><li data-sidebar="pubnub"><a href="tutorial-pubnub.html">Configure ChatEngine</a></li><li data-sidebar="quick"><a href="tutorial-quick.html">Quick Start Guide</a></li></ul></li><li data-sidebar="concepts"><a href="tutorial-concepts.html">Concepts</a><ul><li data-sidebar="me"><a href="tutorial-me_.html">Me</a></li><li data-sidebar="users"><a href="tutorial-users.html">Users and State</a></li><li data-sidebar="chats"><a href="tutorial-chats.html">Chats</a></li><li data-sidebar="events"><a href="tutorial-events.html">Events</a></li><li data-sidebar="payload"><a href="tutorial-payload.html">Event Payload</a></li><li data-sidebar="namespaces"><a href="tutorial-namespaces.html">Namespaces</a></li><li data-sidebar="wildcard"><a href="tutorial-wildcard.html">Wildcards</a></li><li data-sidebar="search"><a href="tutorial-search_.html">Search</a></li><li data-sidebar="globalChat"><a href="tutorial-globalChat.html">Global Chat</a></li><li data-sidebar="online-list"><a href="tutorial-online-list.html">Online List</a></li><li data-sidebar="auth"><a href="tutorial-auth.html">Authentication</a></li><li data-sidebar="privacy"><a href="tutorial-privacy.html">Privacy</a></li><li data-sidebar="private"><a href="tutorial-private.html">Private Chats</a></li><li data-sidebar="templating"><a href="tutorial-templating.html">Templating</a></li><li data-sidebar="errors"><a href="tutorial-errors.html">Errors</a></li><li data-sidebar="using"><a href="tutorial-using.html">Plugins</a></li><li data-sidebar="build"><a href="tutorial-build.html">Build a Plugin</a></li><li data-sidebar="functions"><a href="tutorial-functions.html">PubNub Functions</a></li><li data-sidebar="topology"><a href="tutorial-topology.html">PubNub Channel Topology</a></li></ul></li><li data-sidebar="angular"><a href="tutorial-angular.html">Angular</a><ul><li data-sidebar="ng-simple"><a href="tutorial-ng-simple.html">Angular Bootstrap</a></li><li data-sidebar="ng-flowtron"><a href="tutorial-ng-flowtron.html">Angular Desktop Chat</a></li></ul></li><li data-sidebar="jquery"><a href="tutorial-jquery.html">jQuery</a><ul><li data-sidebar="jq-simple"><a href="tutorial-jq-simple.html">jQuery Chat</a></li><li data-sidebar="jq-kitchen"><a href="tutorial-jq-kitchen.html">jQuery Kitchen Sink</a></li></ul></li><li data-sidebar="js"><a href="tutorial-js.html">Javascript</a><ul><li data-sidebar="chat"><a href="tutorial-chat_.html">JS Chat</a></li><li data-sidebar="friends"><a href="tutorial-friends.html">JS Friends List</a></li><li data-sidebar="online"><a href="tutorial-online.html">JS Online List</a></li><li data-sidebar="facebook"><a href="tutorial-facebook.html">JS Facebook Auth</a></li></ul></li><li data-sidebar="nodejs"><a href="tutorial-nodejs.html">NodeJS</a><ul><li data-sidebar="chatbot"><a href="tutorial-chatbot.html">NodeJS Chat Bot</a></li></ul></li><li data-sidebar="react"><a href="tutorial-react.html">React</a><ul><li data-sidebar="react-simple"><a href="tutorial-react-simple.html">React Web</a></li><li data-sidebar="react-native"><a href="tutorial-react-native.html">React Native</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatEngineCore">ChatEngineCore</a></li></ul><h3>Plugins</h3><ul><li data-sidebar="chat-engine-desktop-notifications"><a href="module-chat-engine-desktop-notifications.html">chat-engine-desktop-notifications</a></li><li data-sidebar="chat-engine-emoji"><a href="module-chat-engine-emoji.html">chat-engine-emoji</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-emoji.html#~parseEmoji">parseEmoji()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~render">render()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-gravatar"><a href="module-chat-engine-gravatar.html">chat-engine-gravatar</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-gravatar.html#~state%2522.%2522gravatar">state.gravatar</a></li></ul></ul></li><li data-sidebar="chat-engine-markdown"><a href="module-chat-engine-markdown.html">chat-engine-markdown</a></li><li data-sidebar="chat-engine-online-user-search"><a href="module-chat-engine-online-user-search.html">chat-engine-online-user-search</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-online-user-search.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-random-username"><a href="module-chat-engine-random-username.html">chat-engine-random-username</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-random-username.html#~state%2522.%2522username">state.username</a></li></ul></ul></li><li data-sidebar="chat-engine-typing-indicator"><a href="module-chat-engine-typing-indicator.html">chat-engine-typing-indicator</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522startTyping">typingindicator.startTyping()</a></li><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522stopTyping">typingindicator.stopTyping()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522startTyping">$typingIndiciator.startTyping</a></li><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522stopTyping">$typingIndiciator.stopTyping</a></li></ul></ul></li><li data-sidebar="chat-engine-unread-messages"><a href="module-chat-engine-unread-messages.html">chat-engine-unread-messages</a><ul><li><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadCount">unreadCount</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522isActive">unreadMessages.isActive</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522unreadCount">unreadMessages.unreadCount</a></li></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-unread-messages.html#~event:$unread">$unread</a></li></ul></ul></li><li data-sidebar="chat-engine-uploadcare"><a href="module-chat-engine-uploadcare.html">chat-engine-uploadcare</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-uploadcare.html#~uploadcare%2522.%2522bind">uploadcare.bind()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-uploadcare.html#~event:$uploadcare%2522.%2522upload">$uploadcare.upload</a></li></ul></ul></li></ul><h3>Reference</h3><ul><li data-sidebar="Chat"><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="Chat.html#channel">channel</a></li><li data-type='member'><a href="Chat.html#connected">connected</a></li><li data-type='member'><a href="Chat.html#group">group</a></li><li data-type='member'><a href="Chat.html#isPrivate">isPrivate</a></li><li data-type='member'><a href="Chat.html#users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="Chat.html#connect">connect()</a></li><li data-type='method'><a href="Chat.html#emit">emit()</a></li><li data-type='method'><a href="Chat.html#invite">invite()</a></li><li data-type='method'><a href="Chat.html#leave">leave()</a></li><li data-type='method'><a href="Chat.html#objectify">objectify()</a></li><li data-type='method'><a href="Chat.html#off">off()</a></li><li data-type='method'><a href="Chat.html#on">on()</a></li><li data-type='method'><a href="Chat.html#onAny">onAny()</a></li><li data-type='method'><a href="Chat.html#once">once()</a></li><li data-type='method'><a href="Chat.html#plugin">plugin()</a></li><li data-type='method'><a href="Chat.html#search">search()</a></li></ul><ul class='events'><li data-type='event'><a href="Chat.html#event:$%2522.%2522connected">$.connected</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522history">$.error.history</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522presence">$.error.presence</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522publish">$.error.publish</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect">$.offline.disconnect</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave">$.offline.leave</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522here">$.online.here</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522join">$.online.join</a></li></ul></li><li data-sidebar="ChatEngine"><a href="ChatEngine.html">ChatEngine</a><ul class='members'><li data-type='member'><a href="ChatEngine.html#.Chat">Chat</a></li><li data-type='member'><a href="ChatEngine.html#.chats">chats</a></li><li data-type='member'><a href="ChatEngine.html#.global">global</a></li><li data-type='member'><a href="ChatEngine.html#.me">me</a></li><li data-type='member'><a href="ChatEngine.html#.pubnub">pubnub</a></li><li data-type='member'><a href="ChatEngine.html#.ready">ready</a></li><li data-type='member'><a href="ChatEngine.html#.User">User</a></li><li data-type='member'><a href="ChatEngine.html#.users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="ChatEngine.html#connect">connect()</a></li><li data-type='method'><a href="ChatEngine.html#off">off()</a></li><li data-type='method'><a href="ChatEngine.html#on">on()</a></li><li data-type='method'><a href="ChatEngine.html#onAny">onAny()</a></li><li data-type='method'><a href="ChatEngine.html#once">once()</a></li><li data-type='method'><a href="ChatEngine.html#proto">proto()</a></li></ul><ul class='events'><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522chat">$.created.chat</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522me">$.created.me</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522user">$.created.user</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522auth">$.error.auth</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522error%2522.%2522session">$.error.session</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522badrequest">$.network.down.badrequest</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522decryption">$.network.down.decryption</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522denied">$.network.down.denied</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522issue">$.network.down.issue</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522malformed">$.network.down.malformed</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522offline">$.network.down.offline</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522timeout">$.network.down.timeout</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522connected">$.network.up.connected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522online">$.network.up.online</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522reconnected">$.network.up.reconnected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522state">$.state</a></li></ul></li><li data-sidebar="Emitter"><a href="Emitter.html">Emitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="Emitter.html#off">off()</a></li><li data-type='method'><a href="Emitter.html#on">on()</a></li><li data-type='method'><a href="Emitter.html#onAny">onAny()</a></li><li data-type='method'><a href="Emitter.html#once">once()</a></li><li data-type='method'><a href="Emitter.html#plugin">plugin()</a></li></ul></li><li data-sidebar="Event"><a href="Event.html">Event</a><ul class='members'><li data-type='member'><a href="Event.html#channel">channel</a></li></ul></li><li data-sidebar="Me"><a href="Me.html">Me</a><ul class='members'><li data-type='member'><a href="Me.html#direct">direct</a></li><li data-type='member'><a href="Me.html#feed">feed</a></li><li data-type='member'><a href="Me.html#session">session</a></li><li data-type='member'><a href="Me.html#state">state</a></li><li data-type='member'><a href="Me.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="Me.html#off">off()</a></li><li data-type='method'><a href="Me.html#on">on()</a></li><li data-type='method'><a href="Me.html#onAny">onAny()</a></li><li data-type='method'><a href="Me.html#once">once()</a></li><li data-type='method'><a href="Me.html#plugin">plugin()</a></li><li data-type='method'><a href="Me.html#update">update()</a></li></ul><ul class='events'><li data-type='event'><a href="Me.html#event:$%2522.%2522invite">$.invite</a></li><li data-type='event'><a href="Me.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522join">$.session.chat.join</a></li><li data-type='event'><a href="Me.html#event:$%2522.%2522session%2522.%2522chat%2522.%2522leave">$.session.chat.leave</a></li></ul></li><li data-sidebar="RootEmitter"><a href="RootEmitter.html">RootEmitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="RootEmitter.html#off">off()</a></li><li data-type='method'><a href="RootEmitter.html#on">on()</a></li><li data-type='method'><a href="RootEmitter.html#onAny">onAny()</a></li><li data-type='method'><a href="RootEmitter.html#once">once()</a></li></ul></li><li data-sidebar="Search"><a href="Search.html">Search</a><ul class='members'><li data-type='member'><a href="Search.html#chat">chat</a></li><li data-type='member'><a href="Search.html#config">config</a></li><li data-type='member'><a href="Search.html#name">name</a></li></ul><ul class='methods'><li data-type='method'><a href="Search.html#off">off()</a></li><li data-type='method'><a href="Search.html#on">on()</a></li><li data-type='method'><a href="Search.html#onAny">onAny()</a></li><li data-type='method'><a href="Search.html#once">once()</a></li><li data-type='method'><a href="Search.html#plugin">plugin()</a></li></ul><ul class='events'><li data-type='event'><a href="Search.html#event:$%2522.%2522page%2522.%2522request">$.page.request</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522page%2522.%2522response">$.page.response</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522search%2522.%2522finish">$.search.finish</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522search%2522.%2522start">$.search.start</a></li></ul></li><li data-sidebar="User"><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="User.html#direct">direct</a></li><li data-type='member'><a href="User.html#feed">feed</a></li><li data-type='member'><a href="User.html#state">state</a></li><li data-type='member'><a href="User.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="User.html#off">off()</a></li><li data-type='method'><a href="User.html#on">on()</a></li><li data-type='method'><a href="User.html#onAny">onAny()</a></li><li data-type='method'><a href="User.html#once">once()</a></li><li data-type='method'><a href="User.html#plugin">plugin()</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">chat-engine/src/components/chat.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const axios = require('axios');
+
+const Emitter = require('../modules/emitter');
+const Event = require('../components/event');
+const User = require('../components/user');
+const Search = require('../components/search');
+
+/**
+ This is the root {@link Chat} class that represents a chat room
+
+ @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
+ @param {Boolean} [needGrant=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
+ @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
+ @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+ @class Chat
+ @extends Emitter
+ @extends RootEmitter
+ @fires Chat#$"."ready
+ @fires Chat#$"."state
+ @fires Chat#$"."online"."*
+ @fires Chat#$"."offline"."*
+ */
+class Chat extends Emitter {
+
+    constructor(chatEngine, channel = new Date().getTime(), needGrant = true, autoConnect = true, group = 'default') {
+
+        super(chatEngine);
+
+        this.chatEngine = chatEngine;
+
+        this.name = 'Chat';
+
+        /**
+         * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
+         * @type String
+         * @readonly
+         * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+         */
+        this.channel = channel.toString();
+
+        // public.* has PubNub permissions for everyone to read and write
+        // private.* is totally locked down and users must be granted access one by one
+        let chanPrivString = 'public.';
+
+        if (needGrant) {
+            chanPrivString = 'private.';
+        }
+
+        if (this.channel.indexOf(this.chatEngine.ceConfig.globalChannel) === -1) {
+            this.channel = [this.chatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        }
+
+        /**
+        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
+        * @type Boolean
+        * @readonly
+        */
+        this.isPrivate = needGrant;
+
+        /**
+        * This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+        * @type String
+        * @readonly
+        */
+        this.group = group;
+
+        /**
+         A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
+         Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
+
+         @type Object
+         @readonly
+         */
+        this.users = {};
+
+        /**
+         * Boolean value that indicates of the Chat is connected to the network
+         * @type {Boolean}
+         */
+        this.connected = false;
+
+        if (autoConnect) {
+            this.connect();
+        }
+
+        this.chatEngine.chats[this.channel] = this;
+
+    }
+    /**
+     Updates list of {@link User}s in this {@link Chat}
+     based on who is online now.
+
+     @private
+     @param {Object} status The response status
+     @param {Object} response The response payload object
+     */
+    onHereNow(status, response) {
+
+        if (status.error) {
+
+            /**
+             * There was a problem fetching the presence of this chat
+             * @event Chat#$"."error"."presence
+             */
+            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'), status);
+
+        } else {
+
+            // get the list of occupants in this channel
+            let occupants = response.channels[this.channel].occupants;
+
+            // format the userList for rltm.js standard
+            occupants.forEach((occupant) => {
+                this.userUpdate(occupant.uuid, occupant.state);
+            });
+
+        }
+
+    }
+
+    /**
+    * Turns a {@link Chat} into a JSON representation.
+    * @return {Object}
+    */
+    objectify() {
+
+        return {
+            channel: this.channel,
+            group: this.group,
+            private: this.isPrivate
+        };
+
+    }
+
+    /**
+     * Invite a user to this Chat. Authorizes the invited user in the Chat and sends them an invite via {@link User#direct}.
+     * @param {User} user The {@link User} to invite to this chatroom.
+     * @fires Me#event:$"."invite
+     * @example
+     * // one user running ChatEngine
+     * let secretChat = new ChatEngine.Chat('secret-channel');
+     * secretChat.invite(someoneElse);
+     *
+     * // someoneElse in another instance of ChatEngine
+     * me.direct.on('$.invite', (payload) => {
+     *     let secretChat = new ChatEngine.Chat(payload.data.channel);
+     * });
+     */
+    invite(user) {
+
+        let complete = () => {
+
+            let send = () => {
+
+                /**
+                 * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                 * Fired by the {@link Chat#invite} method.
+                 * @event Me#$"."invite
+                 * @tutorial private
+                 * @example
+                 * me.direct.on('$.invite', (payload) => {
+                              *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                              * });
+                 */
+                user.direct.emit('$.invite', {
+                    channel: this.channel
+                });
+
+            };
+
+            if (!user.direct.connected) {
+                user.direct.connect();
+                user.direct.on('$.connected', send);
+            } else {
+                send();
+            }
+
+        };
+
+        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/invite', {
+            authKey: this.chatEngine.pnConfig.authKey,
+            uuid: user.uuid,
+            myUUID: this.chatEngine.me.uuid,
+            authData: this.chatEngine.me.authData,
+            chat: this.objectify()
+        })
+            .then(() => {
+                complete();
+            })
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            });
+
+    }
+
+    /**
+     Keep track of {@link User}s in the room by subscribing to PubNub presence events.
+
+     @private
+     @param {Object} data The PubNub presence response for this event
+     */
+    onPresence(presenceEvent) {
+
+        // make sure channel matches this channel
+        if (this.channel === presenceEvent.channel) {
+
+            // someone joins channel
+            if (presenceEvent.action === 'join') {
+
+                let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
+
+                /**
+                 * Fired when a {@link User} has joined the room.
+                 *
+                 * @event Chat#$"."online"."join
+                 * @param {Object} data The payload returned by the event
+                 * @param {User} data.user The {@link User} that came online
+                 * @example
+                 * chat.on('$.join', (data) => {
+                              *     console.log('User has joined the room!', data.user);
+                              * });
+                 */
+
+                // It's possible for PubNub to send us both a join and have the user appear in here_now
+                // Avoid firing duplicate $.online events.
+                if (!this.users[user.uuid]) {
+                    this.trigger('$.online.join', { user });
+                }
+
+            }
+
+            // someone leaves channel
+            if (presenceEvent.action === 'leave') {
+                this.userLeave(presenceEvent.uuid);
+            }
+
+            // someone timesout
+            if (presenceEvent.action === 'timeout') {
+                this.userDisconnect(presenceEvent.uuid);
+            }
+
+            // someone's state is updated
+            if (presenceEvent.action === 'state-change') {
+                this.userUpdate(presenceEvent.uuid, presenceEvent.state);
+            }
+
+        }
+
+    }
+
+    /**
+     * @private
+     */
+    onPrep() {
+
+        if (!this.connected) {
+
+            if (!this.chatEngine.pubnub) {
+                this.chatEngine.throwError(this, 'trigger', 'setup', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
+            }
+
+            // this will trigger ready callbacks
+
+            // subscribe to the PubNub channel for this Chat
+            this.chatEngine.pubnub.subscribe({
+                channels: [this.channel],
+                withPresence: true
+            });
+
+        }
+
+    }
+
+    /**
+     * @private
+     */
+    grant() {
+
+        let createChat = () => {
+
+            axios.post(this.chatEngine.ceConfig.endpoint + '/chats', {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            })
+                .then(() => {
+                    this.onPrep();
+                })
+                .catch((error) => {
+                    this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+                });
+        };
+
+        axios.post(this.chatEngine.ceConfig.endpoint + '/chat/grant', {
+            globalChannel: this.chatEngine.ceConfig.globalChannel,
+            authKey: this.chatEngine.pnConfig.authKey,
+            uuid: this.chatEngine.pnConfig.uuid,
+            authData: this.chatEngine.me.authData,
+            chat: this.objectify()
+        })
+            .then(() => {
+                createChat();
+            })
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            });
+
+    }
+
+    /**
+     * Connect to PubNub servers to initialize the chat.
+     * @example
+     * // create a new chatroom, but don't connect to it automatically
+     * let chat = new Chat('some-chat', false)
+     *
+     * // connect to the chat when we feel like it
+     * chat.connect();
+     */
+    connect() {
+        this.grant();
+    }
+
+    /**
+     * Send events to other clients in this {@link User}.
+     * Events are trigger over the network  and all events are made
+     * on behalf of {@link Me}
+     *
+     * @param {String} event The event name
+     * @param {Object} data The event payload object
+     * @example
+     * chat.emit('custom-event', {value: true});
+     * chat.on('custom-event', (payload) => {
+          *     console.log(payload.sender.uuid, 'emitted the value', payload.data.value);
+          * });
+     */
+    emit(event, data) {
+
+        // create a standardized payload object
+        let payload = {
+            data, // the data supplied from params
+            sender: this.chatEngine.me.uuid, // my own uuid
+            chat: this, // an instance of this chat
+        };
+
+        // run the plugin queue to modify the event
+        this.runPluginQueue('emit', event, (next) => {
+            next(null, payload);
+        }, (err, pluginResponse) => {
+
+            // remove chat otherwise it would be serialized
+            // instead, it's rebuilt on the other end.
+            // see this.trigger
+            delete pluginResponse.chat;
+
+            // publish the event and data over the configured channel
+
+            // ensure the event exists within the global space
+            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
+
+            this.events[event].publish(pluginResponse);
+
+        });
+
+    }
+
+    /**
+     Add a user to the {@link Chat}, creating it if it doesn't already exist.
+
+     @private
+     @param {String} uuid The user uuid
+     @param {Object} state The user initial state
+     @param {Boolean} trigger Force a trigger that this user is online
+     */
+    createUser(uuid, state) {
+
+        // Ensure that this user exists in the global list
+        // so we can reference it from here out
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+
+        this.chatEngine.users[uuid].assign(state);
+
+        // trigger the join event over this chatroom
+        if (!this.users[uuid]) {
+
+            /**
+             * Broadcast that a {@link User} has come online. This is when
+             * the framework firsts learn of a user. This can be triggered
+             * by, ```$.join```, or other network events that
+             * notify the framework of a new user.
+             *
+             * @event Chat#$"."online"."here
+             * @param {Object} data The payload returned by the event
+             * @param {User} data.user The {@link User} that came online
+             * @example
+             * chat.on('$.online.here', (data) => {
+                      *     console.log('User has come online:', data.user);
+                      * });
+             */
+
+            this.trigger('$.online.here', {
+                user: this.chatEngine.users[uuid]
+            });
+
+        }
+
+        // store this user in the chatroom
+        this.users[uuid] = this.chatEngine.users[uuid];
+
+        // return the instance of this user
+        return this.chatEngine.users[uuid];
+
+    }
+
+    /**
+     * Update a user's state.
+     * @private
+     * @param {String} uuid The {@link User} uuid
+     * @param {Object} state State to update for the user
+     */
+    userUpdate(uuid, state) {
+
+        // ensure the user exists within the global space
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new User(this.chatEngine, uuid);
+
+        // if we don't know about this user
+        if (!this.users[uuid]) {
+            // do the whole join thing
+            this.createUser(uuid, state);
+        }
+
+        // update this user's state in this chatroom
+        this.users[uuid].assign(state);
+
+        /**
+         * Broadcast that a {@link User} has changed state.
+         * @event ChatEngine#$"."state
+         * @param {Object} data The payload returned by the event
+         * @param {User} data.user The {@link User} that changed state
+         * @param {Object} data.state The new user state
+         * @example
+         * ChatEngine.on('$.state', (data) => {
+         *     console.log('User has changed state:', data.user, 'new state:', data.state);
+         * });
+         */
+        this.chatEngine._emit('$.state', {
+            user: this.users[uuid],
+            state: this.users[uuid].state
+        });
+
+    }
+
+    /**
+     * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
+     * receiving events.
+     * @fires Chat#event:$"."offline"."leave
+     * @example
+     * chat.leave();
+     */
+    leave() {
+
+        // unsubscribe from the channel locally
+        this.chatEngine.pubnub.unsubscribe({
+            channels: [this.channel]
+        });
+
+        // delete the chat in the remote list
+        axios.delete(this.chatEngine.ceConfig.endpoint + '/chats', {
+            data: {
+                globalChannel: this.chatEngine.ceConfig.globalChannel,
+                authKey: this.chatEngine.pnConfig.authKey,
+                uuid: this.chatEngine.pnConfig.uuid,
+                authData: this.chatEngine.me.authData,
+                chat: this.objectify()
+            } })
+            .then(() => {})
+            .catch((error) => {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to chat server.'), { error });
+            });
+
+
+        this.connected = false;
+
+        this.trigger('$.disconnected');
+
+    }
+
+    /**
+     Perform updates when a user has left the {@link Chat}.
+
+     @private
+     */
+    userLeave(uuid) {
+
+        // make sure this event is real, user may have already left
+        if (this.users[uuid]) {
+
+            // if a user leaves, trigger the event
+
+            /**
+             * Fired when a {@link User} intentionally leaves a {@link Chat}.
+             *
+             * @event Chat#$"."offline"."leave
+             * @param {Object} data The data payload from the event
+             * @param {User} user The {@link User} that has left the room
+             * @example
+             * chat.on('$.offline.leave', (data) => {
+                      *     console.log('User left the room manually:', data.user);
+                      * });
+             */
+            this.trigger('$.offline.leave', {
+                user: this.users[uuid]
+            });
+
+            // remove the user from the local list of users
+            delete this.users[uuid];
+
+            // we don't remove the user from the global list,
+            // because they may be online in other channels
+
+        } else {
+
+            // that user isn't in the user list
+            // we never knew about this user or they already left
+
+            // console.log('user already left');
+        }
+    }
+
+    /**
+     Fired when a user disconnects from the {@link Chat}
+
+     @private
+     @param {String} uuid The uuid of the {@link Chat} that left
+     */
+    userDisconnect(uuid) {
+
+        // make sure this event is real, user may have already left
+        if (this.users[uuid]) {
+
+            /**
+             * Fired specifically when a {@link User} looses network connection
+             * to the {@link Chat} involuntarily.
+             *
+             * @event Chat#$"."offline"."disconnect
+             * @param {Object} data The {@link User} that disconnected
+             * @param {Object} data.user The {@link User} that disconnected
+             * @example
+             * chat.on('$.offline.disconnect', (data) => {
+                      *     console.log('User disconnected from the network:', data.user);
+                      * });
+             */
+
+            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
+        }
+
+    }
+
+    /**
+     Set the state for {@link Me} within this {@link User}.
+     Broadcasts the ```$.state``` event on other clients
+
+     @private
+     @param {Object} state The new state {@link Me} will have within this {@link User}
+     */
+    setState(state) {
+        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
+            // handle status, response
+        });
+    }
+
+    /**
+     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
+     which will emit all old events unless ```config.event``` is supplied.
+     @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
+     @param {Event} [config.event] The {@link Event} to search for.
+     @param {User} [config.sender] The {@link User} who sent the message.
+     @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
+     @param {Number} [config.start=0] The timetoken to begin searching between.
+     @param {Number} [config.end=0] The timetoken to end searching between.
+     @param {Boolean} [config.reverse=false] Search oldest messages first.
+     @return {Search}
+     @example
+    chat.search({
+        event: 'my-custom-event',
+        sender: ChatEngine.me,
+        limit: 20
+    }).on('my-custom-event', (event) => {
+        console.log('this is an old event!', event);
+    }).on('$.search.finish', () => {
+        console.log('we have all our results!')
+    });
+     */
+    search(config) {
+        return new Search(this.chatEngine, this, config);
+    }
+
+    onConnectionReady() {
+
+        /**
+         * Broadcast that the {@link Chat} is connected to the network.
+         * @event Chat#$"."connected
+         * @example
+         * chat.on('$.connected', () => {
+                *     console.log('chat is ready to go!');
+                * });
+         */
+        this.trigger('$.connected');
+
+        this.connected = true;
+
+        // get a list of users online now
+        // ask PubNub for information about connected users in this channel
+        this.chatEngine.pubnub.hereNow({
+            channels: [this.channel],
+            includeUUIDs: true,
+            includeState: true
+        }, this.onHereNow.bind(this));
+
+        // listen to all PubNub events for this Chat
+        this.chatEngine.pubnub.addListener({
+            presence: this.onPresence.bind(this)
+        });
+
+    }
+
+}
+
+module.exports = Chat;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

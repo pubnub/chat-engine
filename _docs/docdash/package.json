@@ -1,0 +1,60 @@
+{
+  "name": "docdash",
+  "version": "0.4.0",
+  "description": "A clean, responsive documentation template theme for JSDoc 3 inspired by lodash and minami",
+  "main": "publish.js",
+  "scripts": {
+    "test": "jsdoc -c fixtures/fixtures.conf.json",
+    "sync": "browser-sync start -s ../fixtures-doc -f ../fixtures-doc --reload-delay 1000 --no-ui --no-notify",
+    "watch": "watch-run -d 1000 -p tmpl/**,static/** \"npm run test\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clenemt/docdash.git"
+  },
+  "devDependencies": {
+    "jsdoc": "latest",
+    "browser-sync": "latest",
+    "watch-run": "latest"
+  },
+  "author": {
+    "name": "Clement Moron",
+    "email": "clement.moron@gmail.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "jsdoc",
+    "template"
+  ],
+  "gitHead": "cb5d8d7bc82b852888c93829dccbd462e886ca45",
+  "bugs": {
+    "url": "https://github.com/clenemt/docdash/issues"
+  },
+  "homepage": "https://github.com/clenemt/docdash#readme",
+  "_id": "docdash@0.4.0",
+  "_shasum": "05c3a50d83189981699ee0c076d3a3950db7ec00",
+  "_from": "docdash@>=0.4.0 <0.5.0",
+  "_npmVersion": "2.15.1",
+  "_nodeVersion": "4.4.3",
+  "_npmUser": {
+    "name": "clenemt",
+    "email": "clement.moron@gmail.com"
+  },
+  "dist": {
+    "shasum": "05c3a50d83189981699ee0c076d3a3950db7ec00",
+    "tarball": "https://registry.npmjs.org/docdash/-/docdash-0.4.0.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "clenemt",
+      "email": "clement.moron@gmail.com"
+    }
+  ],
+  "_npmOperationalInternal": {
+    "host": "packages-16-east.internal.npmjs.com",
+    "tmp": "tmp/docdash-0.4.0.tgz_1465122961832_0.5139319018926471"
+  },
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/docdash/-/docdash-0.4.0.tgz",
+  "readme": "ERROR: No README data found!"
+}
