@@ -636,11 +636,15 @@ class Chat extends Emitter {
         // global channel updates are triggered manually, only get presence on custom chats
         if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
 
-            this.getUserUpdates();
+            setTimeout(() => {
 
-            // we may miss updates, so call this again 5 seconds later
-            this.delayedGetUserUpdates = setTimeout(() => {
                 this.getUserUpdates();
+
+                // we may miss updates, so call this again 5 seconds later
+                this.delayedGetUserUpdates = setTimeout(() => {
+                    this.getUserUpdates();
+                }, 5000);
+
             }, 5000);
 
         }
@@ -726,9 +730,7 @@ class Chat extends Emitter {
 
                 this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
                     .then((data) => {
-                        setTimeout(() => {
-                            callback(data);
-                        }, 2000);
+                        callback(data);
                     })
                     .catch(next);
 
