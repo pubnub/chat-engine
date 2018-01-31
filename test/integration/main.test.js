@@ -313,7 +313,7 @@ describe('chat', () => {
 
         let chat3 = new ChatEngine.Chat('chat-teser3' + new Date().getTime());
 
-        chat3.once('something', (payload) => {
+        chat3.on('something', (payload) => {
 
             assert.isObject(payload);
             done();
