@@ -446,6 +446,7 @@ class Chat extends Emitter {
      * @private
      */
     onDisconnected() {
+
         this.connected = false;
         this.trigger('$.disconnected');
     }
