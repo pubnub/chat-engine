@@ -476,12 +476,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // do the whole auth flow with the new authKey
         ChatEngine.handshake(() => {
 
+            ChatEngine.subscribeToPubNub();
+
             // for every chat in ChatEngine.chats, call .connect()
             Object.keys(ChatEngine.chats).forEach((key) => {
                 ChatEngine.chats[key].wake();
             });
-
-            ChatEngine.subscribeToPubNub();
 
         });
 
