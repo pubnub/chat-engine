@@ -1,4 +1,4 @@
-const async = require('async');
+const asyncWaterfall = require('async/waterfall');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
 const Search = require('../components/search');
@@ -79,6 +79,8 @@ class Chat extends Emitter {
          * @type {Boolean}
          */
         this.hasConnected = false;
+
+        this.delayedGetUserUpdates = false;
 
         /**
          * If user manually disconnects via {@link ChatEngine#disconnect}, the
@@ -447,6 +449,10 @@ class Chat extends Emitter {
      */
     onDisconnected() {
 
+        if (this.delayedGetUserUpdates) {
+            clearTimeout(this.delayedGetUserUpdates);
+        }
+
         this.connected = false;
         this.trigger('$.disconnected');
     }
@@ -502,8 +508,8 @@ class Chat extends Emitter {
              * @param {User} user The {@link User} that has left the room
              * @example
              * chat.on('$.offline.leave', (data) => {
-                      *     console.log('User left the room manually:', data.user);
-                      * });
+             *     console.log('User left the room manually:', data.user);
+             * });
              */
             this.trigger('$.offline.leave', {
                 user: this.users[uuid]
@@ -633,7 +639,7 @@ class Chat extends Emitter {
             this.getUserUpdates();
 
             // we may miss updates, so call this again 5 seconds later
-            setTimeout(() => {
+            this.delayedGetUserUpdates = setTimeout(() => {
                 this.getUserUpdates();
             }, 5000);
 
@@ -690,7 +696,7 @@ class Chat extends Emitter {
      */
     handshake(callback) {
 
-        async.waterfall([
+        asyncWaterfall([
             (next) => {
                 if (!this.chatEngine.pubnub) {
                     next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');

@@ -150,7 +150,6 @@ class User extends Emitter {
 
                             })
                             .catch((err) => {
-                                // console.log('this is hte err', err);
                                 this.chatEngine.throwError(this, 'trigger', 'getState', err);
                             });
 
