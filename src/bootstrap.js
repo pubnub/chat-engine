@@ -24,6 +24,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
     ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
 
+    ChatEngine.pnConfig.keepAlive = true;
+    ChatEngine.pnConfig.keepAliveSettings = {
+        keepAlive: true,
+        keepAliveMsecs: 5 * 1000 * 60,
+        timeout: 5 * 1000 * 60
+    };
+
     ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
     ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
 
