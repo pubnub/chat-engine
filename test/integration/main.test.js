@@ -313,7 +313,7 @@ describe('history', () => {
 
         this.timeout(30000);
 
-        chatHistory = new ChatEngine.Chat('chat-history-8', false);
+        chatHistory = new ChatEngine.Chat('chat-history', false);
 
         chatHistory.on('$.connected', () => {
 
@@ -345,7 +345,7 @@ describe('history', () => {
 
         this.timeout(60000);
 
-        let chatHistory2 = new ChatEngine.Chat('chat-history-3', false);
+        let chatHistory2 = new ChatEngine.Chat('chat-history', false);
 
         chatHistory2.on('$.connected', () => {
 
