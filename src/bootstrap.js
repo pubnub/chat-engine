@@ -34,7 +34,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     ChatEngine.pnConfig.keepAlive = true;
     ChatEngine.pnConfig.keepAliveSettings = {
-        keepAlive: true
+        keepAlive: true,
+        timeout: 5 * 1000 * 60
     };
 
     /**
