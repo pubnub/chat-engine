@@ -40,6 +40,8 @@ class User extends Emitter {
 
         this._stateFetched = false;
 
+        this._stateInProgress = false;
+
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -118,8 +120,9 @@ class User extends Emitter {
     */
     _getState(callback) {
 
-        if (!this._stateFetched) {
+        if (!this._stateFetched && !this._stateInProgress) {
 
+            this._stateInProgress = true;
             console.log('getting state for', this.chatEngine.global.channel, this.uuid);
 
             this.chatEngine.pubnub.getState({
