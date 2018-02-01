@@ -29,23 +29,6 @@ function reset(done) {
     username = ['ian', version, iterations].join('-');
     yousername = ['stephen', version, iterations].join('-');
 
-    // for every instance of chatengine
-    instances.forEach((instance) => {
-
-        // if the instance is a real chatengine instance
-        if (instance) {
-
-            instance.disconnect();
-            // unregister all event listeners
-            instance.destroy();
-
-        }
-
-        // remove the instance from memory
-        instance = false;
-
-    });
-
     iterations++;
 
     decache('../../src/index.js');
