@@ -15,8 +15,6 @@ let globalChannel;
 let username;
 let yousername;
 
-let instances = [ChatEngine, ChatEngineYou, ChatEngineClone, ChatEngineSync, ChatEngineHistory, ChatEngineConnect];
-
 let iterations = 0;
 
 let version = process.version.replace(/\./g, '-');
