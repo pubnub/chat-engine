@@ -563,7 +563,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    ChatEngine.destroy = function () {
+    ChatEngine.destroy = () => {
 
         Object.keys(ChatEngine.chats).forEach((chat) => {
             ChatEngine.chats[chat].emitter.removeAllListeners();
