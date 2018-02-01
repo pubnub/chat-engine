@@ -120,7 +120,7 @@ class User extends Emitter {
 
         if (!this._stateFetched) {
 
-            console.log('getting state for', this.chatEngine.global.channel, this.uuid)
+            console.log('getting state for', this.chatEngine.global.channel, this.uuid);
 
             this.chatEngine.pubnub.getState({
                 uuid: this.uuid,
@@ -160,7 +160,7 @@ class User extends Emitter {
 
                 } else {
 
-                    console.log(status, response)
+                    console.log(status, response);
 
                     this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting user state from the PubNub network.'));
                 }
