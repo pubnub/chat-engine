@@ -520,7 +520,7 @@ describe('invite', () => {
 
         ChatEngine.onAny((a) => {
             console.log(a)
-        })
+        });
 
         yourChat = new ChatEngineYou.Chat(privChannel, true);
 
