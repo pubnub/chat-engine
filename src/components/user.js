@@ -125,6 +125,8 @@ class User extends Emitter {
                 channels: [this.chatEngine.global.channel]
             }, (status, response) => {
 
+                console.log(status, response)
+
                 if (status.statusCode === 200) {
 
                     let pnState = response.channels[this.chatEngine.global.channel];
