@@ -573,78 +573,78 @@ describe('invite', () => {
 
 });
 
-describe('connection management', () => {
+// describe('connection management', () => {
 
-    beforeEach(reset);
-    beforeEach(createChatEngineConnect);
+//     beforeEach(reset);
+//     beforeEach(createChatEngineConnect);
 
-    it('change user', function beIdentified(done) {
+//     it('change user', function beIdentified(done) {
 
-        this.timeout(60000);
+//         this.timeout(60000);
 
-        let newUsername = ['stephen-new', version, iterations].join('-');
+//         let newUsername = ['stephen-new', version, iterations].join('-');
 
-        ChatEngineConnect.once('$.disconnected', () => {
+//         ChatEngineConnect.once('$.disconnected', () => {
 
-            ChatEngineConnect = require('../../src/index.js').create({
-                publishKey: pubkey,
-                subscribeKey: subkey
-            }, {
-                globalChannel,
-                throwErrors: true
-            });
+//             ChatEngineConnect = require('../../src/index.js').create({
+//                 publishKey: pubkey,
+//                 subscribeKey: subkey
+//             }, {
+//                 globalChannel,
+//                 throwErrors: true
+//             });
 
-            ChatEngineConnect.once('$.ready', () => {
+//             ChatEngineConnect.once('$.ready', () => {
 
-                done();
+//                 done();
 
-            });
+//             });
 
-            ChatEngineConnect.connect(newUsername, {}, newUsername);
+//             ChatEngineConnect.connect(newUsername, {}, newUsername);
 
-        });
+//         });
 
-        ChatEngineConnect.disconnect();
+//         ChatEngineConnect.disconnect();
 
-    });
+//     });
 
-    it('should disconnect', function beIdentified(done) {
+//     it('should disconnect', function beIdentified(done) {
 
-        this.timeout(60000);
+//         this.timeout(60000);
 
-        let chat2 = new ChatEngineConnect.Chat('disconnect' + new Date().getTime());
+//         let chat2 = new ChatEngineConnect.Chat('disconnect' + new Date().getTime());
 
-        chat2.on('$.connected', () => {
+//         chat2.on('$.connected', () => {
 
-            // old chat may still be trying to call here_now
-            setTimeout(() => {
+//             // old chat may still be trying to call here_now
+//             setTimeout(() => {
 
-                chat2.once('$.disconnected', () => {
-                    done();
-                });
+//                 chat2.once('$.disconnected', () => {
+//                     done();
+//                 });
 
-                ChatEngineConnect.disconnect();
+//                 ChatEngineConnect.disconnect();
 
-            }, 5000);
+//             }, 5000);
 
-        });
+//         });
 
-    });
+//     });
 
-    it('should refresh auth', function beIdentified(done) {
+//     it('should refresh auth', function beIdentified(done) {
 
-        this.timeout(120000);
+//         this.timeout(120000);
 
-        let authKey = new Date().getTime();
+//         let authKey = new Date().getTime();
 
-        ChatEngineConnect.once('$.connected', () => {
-            done();
-        });
+//         ChatEngineConnect.once('$.connected', () => {
+//             done();
+//         });
 
-        setTimeout(() => {
-            ChatEngineConnect.reauthorize(authKey);
-        }, 5000);
+//         setTimeout(() => {
+//             ChatEngineConnect.reauthorize(authKey);
+//         }, 5000);
 
-    });
+//     });
 
-});
+// });
