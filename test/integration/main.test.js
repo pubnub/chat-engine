@@ -317,15 +317,12 @@ describe('chat', () => {
 
         });
 
-        chat3.on('$.connected', () => {
+        setTimeout(() => {
+            chat3.emit('something', {
+                text: 'hello world'
+            });
+        }, 5000);
 
-            setTimeout(() => {
-                chat3.emit('something', {
-                    text: 'hello world'
-                });
-            }, 1000);
-
-        });
 
     });
 
