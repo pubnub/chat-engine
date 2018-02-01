@@ -484,6 +484,13 @@ describe('remote chat list', () => {
         let newChannel2 = 'sync-chat2' + new Date().getTime();
         let syncChat;
 
+        ChatEngineClone.onAny((a) => {
+            console.log('clone', a);
+        });
+        ChatEngineSync.onAny((a) => {
+            console.log('sync', a);
+        });
+
         ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
 
             if (payload.chat.channel.indexOf(newChannel2) > -1) {
@@ -492,18 +499,11 @@ describe('remote chat list', () => {
 
         });
 
-        // first instance looking or new chats
-        ChatEngineSync.me.once('$.session.chat.join', (payload) => {
-
-            console.log('session chat join', payload.chat.channel)
-
-            if(payload.chat.channel == syncChat.channel) {
-                syncChat.leave();
-            }
-
-        });
-
         syncChat = new ChatEngineClone.Chat(newChannel2);
+
+        setTimeout(() => {
+            syncChat.leave();
+        }, 5000);
 
     });
 
