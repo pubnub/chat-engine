@@ -32,7 +32,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.ceConfig.enableSync = false;
     }
 
-    if (ChatEngine.ceConfig.keepAliveDebug) {
+    // if (ChatEngine.ceConfig.keepAliveDebug) {
 
         ChatEngine.pnConfig.keepAlive = true;
         ChatEngine.pnConfig.keepAliveSettings = {
@@ -41,7 +41,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             timeout: 5 * 1000 * 60
         };
 
-    }
+    // }
 
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.

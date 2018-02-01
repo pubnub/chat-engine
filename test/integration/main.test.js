@@ -24,8 +24,8 @@ function reset(done) {
     this.timeout(60000);
 
     globalChannel = ['test', version, iterations].join('-');
-    username = ['ian', version, iterations].join('-');
-    yousername = ['stephen', version, iterations].join('-');
+    username = ['ian', version, iterations].join('-') + new Date().getTime();
+    yousername = ['stephen', version, iterations].join('-') + new Date().getTime();
 
     iterations++;
 
@@ -367,23 +367,19 @@ describe('history', () => {
 
         chatHistory.on('$.connected', () => {
 
-            setTimeout(() => {
+            chatHistory.search({
+                event: 'tester',
+                limit: 50
+            }).on('tester', (a) => {
 
-                chatHistory.search({
-                    event: 'tester',
-                    limit: 50
-                }).on('tester', (a) => {
+                assert.equal(a.event, 'tester');
 
-                    assert.equal(a.event, 'tester');
+                count += 1;
 
-                    count += 1;
-
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 50, 'correct # of results');
-                    done();
-                });
-
-            }, 5000);
+            }).on('$.search.finish', () => {
+                assert.equal(count, 50, 'correct # of results');
+                done();
+            });
 
         });
 
@@ -399,22 +395,18 @@ describe('history', () => {
 
         chatHistory2.on('$.connected', () => {
 
-            setTimeout(() => {
+            chatHistory2.search({
+                event: 'tester',
+                limit: 200
+            }).on('tester', (a) => {
 
-                chatHistory2.search({
-                    event: 'tester',
-                    limit: 200
-                }).on('tester', (a) => {
+                assert.equal(a.event, 'tester');
+                count += 1;
 
-                    assert.equal(a.event, 'tester');
-                    count += 1;
-
-                }).on('$.search.finish', () => {
-                    assert.equal(count, 200, 'correct # of results');
-                    done();
-                });
-
-            }, 5000);
+            }).on('$.search.finish', () => {
+                assert.equal(count, 200, 'correct # of results');
+                done();
+            });
 
         });
 
@@ -525,6 +517,10 @@ describe('invite', () => {
         let privChannel = 'predictable-secret-channel';
 
         this.timeout(60000);
+
+        ChatEngine.onAny((a) => {
+            console.log(a)
+        })
 
         yourChat = new ChatEngineYou.Chat(privChannel, true);
 
