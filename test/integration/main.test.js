@@ -492,9 +492,13 @@ describe('remote chat list', () => {
         });
 
         // first instance looking or new chats
-        ChatEngineSync.me.once('$.session.chat.join', () => {
+        ChatEngineSync.me.once('$.session.chat.join', (payload) => {
 
-            syncChat.leave();
+            console.log('session chat join', payload.chat.channel)
+
+            if(payload.chat.channel == syncChat.channel) {
+                syncChat.leave();
+            }
 
         });
 
