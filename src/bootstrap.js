@@ -35,9 +35,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.pnConfig.keepAlive = true;
     ChatEngine.pnConfig.keepAliveSettings = {
         keepAlive: true,
-        keepAliveMsecs: 5 * 1000 * 60,
         timeout: 5 * 1000 * 60
-    }
+    };
 
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
