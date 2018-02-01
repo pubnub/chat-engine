@@ -134,6 +134,7 @@ class User extends Emitter {
 
                         this.assign(response.data);
 
+                        console.log('setting this _stateFetched true')
                         this._stateFetched = true;
                         callback(this.state);
 
@@ -147,6 +148,7 @@ class User extends Emitter {
 
                                 this.assign(res.data);
 
+                                console.log('setting this _stateFetched true')
                                 this._stateFetched = true;
                                 callback(this.state);
 

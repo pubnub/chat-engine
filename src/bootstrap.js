@@ -215,7 +215,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.handshake = (complete) => {
 
-        async.parallel([
+        async.series([
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
