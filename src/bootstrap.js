@@ -389,22 +389,24 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // we don't do auth on this one because it's assumed to be done with the /auth request below
         ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
 
-        // build the current user
-        ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
-        ChatEngine.me.update(state);
-
-        /**
-        * Fired when a {@link Me} has been created within ChatEngine.
-        * @event ChatEngine#$"."created"."me
-        * @example
-        * ChatEngine.on('$.created.me', (data, me) => {
-        *     console.log('Me was created', me);
-        * });
-        */
-        ChatEngine.me.onConstructed();
-        ChatEngine.me.subscribeToSession();
-
         ChatEngine.global.once('$.connected', () => {
+
+
+            // build the current user
+            ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
+
+            /**
+            * Fired when a {@link Me} has been created within ChatEngine.
+            * @event ChatEngine#$"."created"."me
+            * @example
+            * ChatEngine.on('$.created.me', (data, me) => {
+            *     console.log('Me was created', me);
+            * });
+            */
+            ChatEngine.me.onConstructed();
+            ChatEngine.me.subscribeToSession();
+
+            ChatEngine.me.update(state);
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
