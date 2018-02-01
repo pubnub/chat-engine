@@ -394,7 +394,9 @@ describe('remote chat list', () => {
 
         });
 
-        let newChatToNotify = new ChatEngineClone.Chat(newChannel);
+        setTimeout(() => {
+            let newChatToNotify = new ChatEngineClone.Chat(newChannel);
+        }, 5000);
 
     });
 
