@@ -467,7 +467,9 @@ describe('remote chat list', () => {
 
         });
 
-        let newChatToNotify = new ChatEngineClone.Chat(newChannel);
+        setTimeout(() => {
+            let newChatToNotify = new ChatEngineClone.Chat(newChannel);
+        }, 3000);
 
     });
 
@@ -478,7 +480,6 @@ describe('remote chat list', () => {
         ChatEngineSync.me.once('$.session.group.restored', (payload) => {
 
             assert.isObject(ChatEngineSync.me.session[payload.group]);
-
             done();
 
         });
