@@ -23,7 +23,7 @@ function reset(done) {
 
     this.timeout(60000);
 
-    globalChannel = ['test', version, iterations].join('-');
+    globalChannel = ['test', version, iterations].join('-') + new Date().getTime();
     username = ['ian', version, iterations].join('-') + new Date().getTime();
     yousername = ['stephen', version, iterations].join('-') + new Date().getTime();
 
@@ -523,30 +523,7 @@ describe('invite', () => {
         this.timeout(60000);
 
         ChatEngine.onAny((a) => {
-            console.log(a)
-        });
-
-        yourChat = new ChatEngineYou.Chat(privChannel, true);
-
-        yourChat.on('$.connected', () => {
-
-            // me is the current context
-            yourChat.invite(ChatEngine.me);
-
-        });
-
-        let done2 = false;
-
-        yourChat.on('message', (payload) => {
-
-            if (!done2) {
-
-                assert.equal(payload.data.text, 'sup?');
-                done();
-                done2 = true;
-
-            }
-
+            console.log(a);
         });
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
@@ -560,6 +537,35 @@ describe('invite', () => {
                 });
 
             });
+
+        });
+
+        yourChat = new ChatEngineYou.Chat(privChannel, true);
+
+        yourChat.on('$.connected', () => {
+
+            setTimeout(() => {
+
+                // me is the current context
+                yourChat.invite(ChatEngine.me);
+
+            }, 5000);
+
+        });
+
+        let done2 = false;
+
+        yourChat.on('message', (payload) => {
+
+            console.log('subscribed to new chat')
+
+            if (!done2) {
+
+                assert.equal(payload.data.text, 'sup?');
+                done();
+                done2 = true;
+
+            }
 
         });
 
