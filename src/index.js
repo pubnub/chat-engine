@@ -6,7 +6,7 @@ Global object used to create an instance of {@link ChatEngine}.
 @alias ChatEngineCore
 @param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/java-se-java/api-reference-configuration).
 @param ceConfig {Object} A list of ChatEngine specific configuration options.
-@param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link ChatEngine.global}
+@param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link global}
 @param [ceConfig.enableSync] {Boolean} Synchronizes chats between instances with the same {@link Me#uuid}. See {@link Me#sync}.
 @param [ceConfig.throwErrors=true] {Boolean} Throws errors in JS console.
 @param [ceConfig.endpoint='https://pubsub.pubnub.com/v1/blocks/sub-key/YOUR_SUB_KEY/chat-engine-server'] {String} The root URL of the server used to manage permissions for private channels. Set by default to match the PubNub functions deployed to your account. See {@tutorial privacy} for more.
@@ -31,17 +31,17 @@ const create = (pnConfig, ceConfig = {}) => {
         ceConfig.throwErrors = true;
     }
 
-    if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
-        ChatEngine.ceConfig.enableSync = false;
+    if (typeof ceConfig.enableSync === 'undefined') {
+        ceConfig.enableSync = false;
     }
 
-    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
+    ceConfig.endpoint = ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/chat-engine-server';
 
-    ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
-    ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
+    pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 30;
+    pnConfig.presenceTimeout = pnConfig.presenceTimeout || 60;
 
-    ChatEngine.pnConfig.keepAlive = true;
-    ChatEngine.pnConfig.keepAliveSettings = {
+    pnConfig.keepAlive = true;
+    pnConfig.keepAliveSettings = {
         keepAlive: true,
         timeout: 5 * 1000 * 60
     };
