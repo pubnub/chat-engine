@@ -109,6 +109,11 @@ Run ```gulp``` to compile, but you should probably run ```gulp watch``` to get c
 
 Run ```gulp test```.
 
+## PubNub Functions and Account Setup
+
+You can find the scripts for the [PubNub Automagic Setup](https://www.pubnub.com/docs/chat-engine/getting-started) here:
+[https://github.com/pubnub/chat-engine-setup](https://github.com/pubnub/chat-engine-setup).
+
 ## Releasing a patch (chat engine and plugins)
 
 ```

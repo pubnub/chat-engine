@@ -36,23 +36,10 @@ gulp.task('build_code', () => {
         .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('build_setup', () => {
-    return gulp.src('setup/src/script.js')
-        .pipe(webpack(require('./webpack_setup.config.js')))
-        .pipe(gulp.dest('./setup/lib/'));
-});
-
 gulp.task('clean', () => {
-    return gulp.src(['setup/lib', 'dist'], { read: false })
+    return gulp.src(['dist'], { read: false })
         .pipe(clean());
 });
-
-gulp.task('deploy', [], function () {
-  return surge({
-    project: './setup',         // Path to your static build directory
-    domain: 'ce-setup.surge.sh'  // Your domain or Surge subdomain
-  })
-})
 
 gulp.task('minify_code', () => {
     return gulp.src('dist/chat-engine.js')
@@ -130,7 +117,7 @@ gulp.task('serve_docs', () => {
 });
 
 gulp.task('compile', (done) => {
-    runSequence('clean', 'build_code', 'build_setup', 'minify_code', done);
+    runSequence('clean', 'build_code', 'minify_code', done);
 });
 
 gulp.task('docs_dev', () => {
