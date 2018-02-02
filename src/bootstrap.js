@@ -21,22 +21,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig = ceConfig;
     ChatEngine.pnConfig = pnConfig;
 
-    ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
-    ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
-
-    ChatEngine.pnConfig.keepAlive = true;
-    ChatEngine.pnConfig.keepAliveSettings = {
-        keepAlive: true,
-        timeout: 5 * 1000 * 60
-    };
-
-    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
-    ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
-
-    if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
-        ChatEngine.ceConfig.enableSync = false;
-    }
-
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
      * @type {Object}

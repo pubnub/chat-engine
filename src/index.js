@@ -31,6 +31,21 @@ const create = (pnConfig, ceConfig = {}) => {
         ceConfig.throwErrors = true;
     }
 
+    if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
+        ChatEngine.ceConfig.enableSync = false;
+    }
+
+    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
+
+    ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
+    ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
+
+    ChatEngine.pnConfig.keepAlive = true;
+    ChatEngine.pnConfig.keepAliveSettings = {
+        keepAlive: true,
+        timeout: 5 * 1000 * 60
+    };
+
     // return an instance of ChatEngine
     return init(ceConfig, pnConfig);
 
