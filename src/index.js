@@ -1,4 +1,3 @@
-// allows asynchronous execution flow.
 const init = require('./bootstrap');
 
 /**

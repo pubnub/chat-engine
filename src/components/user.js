@@ -40,6 +40,8 @@ class User extends Emitter {
 
         this._stateFetched = false;
 
+        this._stateInProgress = false;
+
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -118,7 +120,9 @@ class User extends Emitter {
     */
     _getState(callback) {
 
-        if (!this._stateFetched) {
+        if (!this._stateFetched && !this._stateInProgress) {
+
+            this._stateInProgress = true;
 
             this.chatEngine.pubnub.getState({
                 uuid: this.uuid,
@@ -131,11 +135,11 @@ class User extends Emitter {
                     if (Object.keys(pnState).length) {
 
                         this.assign(response.data);
-
                         this._stateFetched = true;
                         callback(this.state);
 
                     } else {
+
 
                         this.chatEngine.request('get', 'user_state', {
                             user: this.uuid
@@ -143,7 +147,6 @@ class User extends Emitter {
                             .then((res) => {
 
                                 this.assign(res.data);
-
                                 this._stateFetched = true;
                                 callback(this.state);
 
@@ -156,7 +159,7 @@ class User extends Emitter {
                     }
 
                 } else {
-                    this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting state from the PubNub network.'));
+                    this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting user state from the PubNub network.'));
                 }
 
             });
