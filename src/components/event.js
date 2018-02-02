@@ -57,9 +57,13 @@ class Event {
 
         m.event = this.event;
 
+        let meta = m.data.meta;
+        delete m.data.meta;
+
         this.chatEngine.pubnub.publish({
             message: m,
-            channel: this.channel
+            channel: this.channel,
+            meta: meta
         }, (status) => {
 
             if (status.statusCode === 200) {
