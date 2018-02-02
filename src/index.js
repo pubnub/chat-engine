@@ -1,4 +1,3 @@
-// what is CHATENGINECORE..??
 const init = require('./bootstrap');
 
 /**

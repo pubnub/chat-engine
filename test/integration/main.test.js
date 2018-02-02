@@ -457,6 +457,8 @@ describe('remote chat list', () => {
 
         setTimeout(() => {
             let newChatToNotify = new ChatEngineClone.Chat(newChannel);
+            // we dont need this, just gets linter to pass
+            newChatToNotify.objectify();
         }, 3000);
 
     });
@@ -480,13 +482,6 @@ describe('remote chat list', () => {
 
         let newChannel2 = 'sync-chat2' + new Date().getTime();
         let syncChat;
-
-        ChatEngineClone.onAny((a) => {
-            console.log('clone', a);
-        });
-        ChatEngineSync.onAny((a) => {
-            console.log('sync', a);
-        });
 
         ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
 
@@ -520,10 +515,6 @@ describe('invite', () => {
 
         this.timeout(60000);
 
-        ChatEngine.onAny((a) => {
-            console.log(a);
-        });
-
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
             myChat = new ChatEngine.Chat(payload.data.channel);
@@ -554,8 +545,6 @@ describe('invite', () => {
         let done2 = false;
 
         yourChat.on('message', (payload) => {
-
-            console.log('subscribed to new chat')
 
             if (!done2) {
 
