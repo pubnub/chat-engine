@@ -77,7 +77,7 @@ class Search extends Emitter {
              * Requesting another page from PubNub History.
              * @event Search#$"."page"."request
              */
-            this._emit('$.search.page.request');
+            this._emit('$.search.page.util.request');
 
             // only set start if this is the first call and the user hasn't set it themselves
             this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
@@ -98,7 +98,7 @@ class Search extends Emitter {
                      * There was a problem fetching the history of this chat
                      * @event Chat#$"."error"."history
                      */
-                    this.chatEngine.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
+                    this.chatEngine.util.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
 
                 } else {
 
