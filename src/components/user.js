@@ -141,7 +141,7 @@ class User extends Emitter {
                     } else {
 
 
-                        this.chatEngine.request('get', 'user_state', {
+                        this.chatEngine.util.request('get', 'user_state', {
                             user: this.uuid
                         })
                             .then((res) => {
@@ -153,13 +153,13 @@ class User extends Emitter {
                             })
                             .catch((err) => {
                                 // console.log('this is hte err', err);
-                                this.chatEngine.throwError(this, 'trigger', 'getState', err);
+                                this.chatEngine.util.throwError(this, 'trigger', 'getState', err);
                             });
 
                     }
 
                 } else {
-                    this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting user state from the PubNub network.'));
+                    this.chatEngine.util.throwError(this, 'trigger', 'getState', new Error('There was a problem getting user state from the PubNub network.'));
                 }
 
             });

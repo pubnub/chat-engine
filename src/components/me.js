@@ -119,7 +119,7 @@ class Me extends User {
                 }, (status, response) => {
 
                     if (status.error) {
-                        this.chatEngine.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
+                        this.chatEngine.util.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
                     } else {
 
                         // loop through the returned channels
@@ -128,7 +128,7 @@ class Me extends User {
                             // call the same callback as if we were notified about them
                             this.onSessionJoin({
                                 channel,
-                                private: this.chatEngine.parseChannel(channel).private,
+                                private: this.chatEngine.util.parseChannel(channel).private,
                                 group
                             });
 

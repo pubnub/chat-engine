@@ -57,7 +57,7 @@ class Chat extends Emitter {
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
-        this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
+        this.channel = this.chatEngine.util.augmentChannel(channel, this.isPrivate);
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -114,7 +114,7 @@ class Chat extends Emitter {
              * There was a problem fetching the presence of this chat
              * @event Chat#$"."error"."presence
              */
-            this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'));
+            this.chatEngine.util.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'));
 
         } else {
 
@@ -161,7 +161,7 @@ class Chat extends Emitter {
      */
     invite(user) {
 
-        this.chatEngine.request('post', 'invite', {
+        this.chatEngine.util.request('post', 'invite', {
             to: user.uuid,
             chat: this.objectify()
         })
@@ -194,7 +194,7 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'search', new Error('Something went wrong while making a request to authentication server.'), { error });
+                this.chatEngine.util.throwError(this, 'trigger', 'search', new Error('Something went wrong while making a request to authentication server.'), { error });
             });
 
     }
@@ -261,11 +261,11 @@ class Chat extends Emitter {
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);
 
-        this.chatEngine.request('post', 'chat', {
+        this.chatEngine.util.request('post', 'chat', {
             chat: this.objectify()
         }).then(() => {
         }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
+            this.chatEngine.util.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
         });
 
     }
@@ -465,7 +465,7 @@ class Chat extends Emitter {
         });
 
         // tell the server we left
-        this.chatEngine.request('post', 'leave', { chat: this.objectify() })
+        this.chatEngine.util.request('post', 'leave', { chat: this.objectify() })
             .then(() => {
 
                 // trigger the disconnect events and update state
@@ -476,7 +476,7 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
+                this.chatEngine.util.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
             });
 
     }
@@ -592,7 +592,7 @@ class Chat extends Emitter {
         if (this.hasConnected) {
             return new Search(this.chatEngine, this, config);
         } else {
-            this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'));
+            this.chatEngine.util.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'));
         }
 
     }
@@ -701,7 +701,7 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
+                this.chatEngine.util.request('post', 'grant', { chat: this.objectify() })
                     .then(() => {
                         next();
                     })
@@ -710,7 +710,7 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('post', 'join', { chat: this.objectify() })
+                this.chatEngine.util.request('post', 'join', { chat: this.objectify() })
                     .then(() => {
                         next();
                     })
@@ -719,13 +719,13 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+                this.chatEngine.util.request('get', 'chat', {}, { channel: this.channel })
                     .then(callback)
                     .catch(next);
 
             }
         ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            this.chatEngine.util.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
         });
 
     }

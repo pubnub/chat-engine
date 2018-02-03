@@ -1,4 +1,3 @@
-const axios = require('axios');
 const PubNub = require('pubnub');
 const pack = require('../package.json');
 
@@ -6,6 +5,8 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
+const Utility = require('./utility');
+
 const async = require('async');
 
 /**
@@ -36,6 +37,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
         ChatEngine.ceConfig.enableSync = false;
     }
+
+    ChatEngine.util = new Utility(ChatEngine);
 
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
@@ -85,48 +88,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.package = pack;
 
-    ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
-
-        if (ceConfig.throwErrors) {
-            // throw ceError;
-            console.error(payload);
-            throw ceError;
-        }
-
-        payload.ceError = ceError.toString();
-
-        self[cb](['$', 'error', key].join('.'), payload);
-
-    };
-
-    let countObject = {};
-
-    if (ceConfig.debug) {
-
-        ChatEngine.onAny((event, payload) => {
-
-            console.info('debug:', event, payload);
-
-            countObject['event: ' + event] = countObject[event] || 0;
-            countObject['event: ' + event] += 1;
-
-        });
-
-    }
-
-    if (ceConfig.profiling) {
-
-        setInterval(() => {
-
-            countObject.chats = Object.keys(ChatEngine.chats).length;
-            countObject.users = Object.keys(ChatEngine.users).length;
-
-            console.table(countObject);
-
-        }, 3000);
-
-    }
-
     ChatEngine.protoPlugins = {};
 
     /**
@@ -140,73 +101,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.protoPlugins[className].push(plugin);
     };
 
-    /**
-     * @private
-     */
-    ChatEngine.request = (method, route, inputBody = {}, inputParams = {}) => {
 
-        let body = {
-            uuid: ChatEngine.pnConfig.uuid,
-            global: ceConfig.globalChannel,
-            authKey: ChatEngine.pnConfig.authKey
-        };
-
-        let params = {
-            route
-        };
-
-        body = Object.assign(body, inputBody);
-        params = Object.assign(params, inputParams);
-
-        if (method === 'get' || method === 'delete') {
-            params = Object.assign(params, body);
-            return axios[method](ceConfig.endpoint, { params });
-        } else {
-            return axios[method](ceConfig.endpoint, body, { params });
-        }
-
-
-    };
-
-    /**
-     * Parse a channel name into chat object parts
-     * @private
-     */
-    ChatEngine.parseChannel = (channel) => {
-
-        let info = channel.split('#');
-
-        return {
-            global: info[0],
-            type: info[1],
-            private: info[2] === 'private.'
-        };
-
-    };
-
-    /**
-     * Get the internal channel name of supplied string
-     * @private
-     */
-    ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = true) => {
-
-        let channel = original.toString();
-
-        // public.* has PubNub permissions for everyone to read and write
-        // private.* is totally locked down and users must be granted access one by one
-        let chanPrivString = 'public.';
-
-        if (isPrivate) {
-            chanPrivString = 'private.';
-        }
-
-        if (channel.indexOf(ChatEngine.ceConfig.globalChannel) === -1) {
-            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
-        }
-
-        return channel;
-
-    };
 
     /**
      * Initial communication with the server. Server grants permissions to
@@ -217,26 +112,26 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         async.series([
             (next) => {
-                ChatEngine.request('post', 'bootstrap').then(() => {
+                ChatEngine.util.request('post', 'bootstrap').then(() => {
                     next(null);
                 }).catch(next);
             },
             (next) => {
-                ChatEngine.request('post', 'user_read').then(() => {
+                ChatEngine.util.request('post', 'user_read').then(() => {
                     next(null);
                 }).catch(next);
             },
             (next) => {
-                ChatEngine.request('post', 'user_write').then(() => {
+                ChatEngine.util.request('post', 'user_write').then(() => {
                     next(null);
                 }).catch(next);
             },
             (next) => {
-                ChatEngine.request('post', 'group').then(complete).catch(next);
+                ChatEngine.util.request('post', 'group').then(complete).catch(next);
             }
         ], (error) => {
             if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+                ChatEngine.util.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
             }
         });
 
@@ -580,7 +475,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.Chat = function (...args) {
 
-        let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
+        let internalChannel = ChatEngine.util.augmentChannel(args[0], args[1]);
 
         if (ChatEngine.chats[internalChannel]) {
             return ChatEngine.chats[internalChannel];
