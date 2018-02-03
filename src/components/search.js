@@ -77,7 +77,7 @@ class Search extends Emitter {
              * Requesting another page from PubNub History.
              * @event Search#$"."page"."request
              */
-            this._emit('$.search.page.util.request');
+            this._emit('$.search.page.request');
 
             // only set start if this is the first call and the user hasn't set it themselves
             this.config.start = this.config.reverse ? this.lastTT : this.firstTT;
