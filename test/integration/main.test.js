@@ -1,4 +1,6 @@
 const assert = require('chai').assert;
+const expect = require('chai').expect;
+
 let decache = require('decache');
 
 const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
@@ -557,6 +559,52 @@ describe('invite', () => {
         });
 
     });
+
+});
+
+describe('memory', () => {
+
+    beforeEach(reset);
+    beforeEach(createChatEngine);
+    beforeEach(createChatEngineYou);
+
+    it('should keep track of user list', function shouldKeepTrack(done) {
+
+        this.timeout(60000);
+
+        let a = new ChatEngine.Chat('new-chat');
+        let b = new ChatEngineYou.Chat('new-chat');
+
+        let checkDone = () => {
+
+            let aUsers = Object.keys(a.users);
+            let bUsers = Object.keys(b.users);
+
+            if (aUsers.length > 1 && bUsers.length > 1) {
+
+                expect(Object.keys(a.users)).to.include.members(Object.keys(b.users));
+
+                // now we test leaving
+                a.on('$.offline.leave', () => {
+                    expect(Object.keys(a.users)).to.eql([ChatEngine.me.uuid]);
+                    done();
+                });
+
+                b.leave();
+
+            }
+
+        };
+
+        a.on('$.online.*', () => {
+            checkDone();
+        });
+        b.on('$.online.*', () => {
+            checkDone();
+        });
+
+    });
+
 
 });
 

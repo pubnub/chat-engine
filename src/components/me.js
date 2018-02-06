@@ -83,11 +83,11 @@ class Me extends User {
         if (this.chatEngine.ceConfig.enableSync) {
 
             // subscribe to the events on our sync chat and forward them
-            this.sync.on('$.session.notify.chat.join', (payload) => {
+            this.sync.on('$.system.chat.join', (payload) => {
                 this.onSessionJoin(payload.data.subject);
             });
 
-            this.sync.on('$.session.notify.chat.leave', (payload) => {
+            this.sync.on('$.system.chat.leave', (payload) => {
                 this.onSessionLeave(payload.data.subject);
             });
 
@@ -160,7 +160,7 @@ class Me extends User {
 
             // don't rebroadcast chats in session we've already heard about
             if (!this.session[chat.group] || !this.session[chat.group][chat.channel]) {
-                this.sync.emit('$.session.notify.chat.join', { subject: chat.objectify() });
+                this.sync.emit('$.system.chat.join', { subject: chat.objectify() });
             }
         }
     }
@@ -171,7 +171,7 @@ class Me extends User {
      */
     sessionLeave(chat) {
         if (this.chatEngine.ceConfig.enableSync) {
-            this.sync.emit('$.session.notify.chat.leave', { subject: chat.objectify() });
+            this.sync.emit('$.system.chat.leave', { subject: chat.objectify() });
         }
     }
 
