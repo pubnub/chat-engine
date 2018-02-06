@@ -452,6 +452,14 @@ class Chat extends Emitter {
         this.connected = false;
         this.trigger('$.disconnected');
     }
+    /**
+     * Fires upon disconnection from the network through any means.
+     * @private
+     */
+    onLeave() {
+        this.connected = false;
+        this.trigger('$.left');
+    }
 
     /**
      * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
@@ -472,7 +480,7 @@ class Chat extends Emitter {
             .then(() => {
 
                 // trigger the disconnect events and update state
-                this.onDisconnected();
+                this.onLeave();
 
                 this.emit('$.system.leave', { subject: this.objectify() });
 
