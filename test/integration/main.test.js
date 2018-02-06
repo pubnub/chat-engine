@@ -585,7 +585,7 @@ describe('memory', () => {
                 expect(Object.keys(a.users)).to.include.members(Object.keys(b.users));
 
                 // now we test leaving
-                a.on('$.offline.leave', () => {
+                a.once('$.offline.leave', () => {
                     expect(Object.keys(a.users)).to.eql([ChatEngine.me.uuid]);
                     done();
                 });
