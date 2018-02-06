@@ -453,7 +453,7 @@ class Chat extends Emitter {
         this.trigger('$.disconnected');
     }
     /**
-     * Fires upon disconnection from the network through any means.
+     * Fires upon manually invoked leaving.
      * @private
      */
     onLeave() {
@@ -482,6 +482,7 @@ class Chat extends Emitter {
                 // trigger the disconnect events and update state
                 this.onLeave();
 
+                // tell the chat we've left
                 this.emit('$.system.leave', { subject: this.objectify() });
 
                 // tell session we've left
@@ -555,8 +556,8 @@ class Chat extends Emitter {
              * @param {Object} data.user The {@link User} that disconnected
              * @example
              * chat.on('$.offline.disconnect', (data) => {
-                      *     console.log('User disconnected from the network:', data.user);
-                      * });
+             *     console.log('User disconnected from the network:', data.user);
+             * });
              */
             this.trigger('$.offline.disconnect', { user });
 
