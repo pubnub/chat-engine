@@ -436,7 +436,7 @@ class Chat extends Emitter {
     }
 
     /**
-     * Fired upon successful connection to the network through any means..
+     * Fired upon successful connection to the network.
      * @private
      */
     onConnected() {
