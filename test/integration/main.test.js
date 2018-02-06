@@ -574,13 +574,16 @@ describe('memory', () => {
 
         let a = new ChatEngine.Chat('new-chat');
         let b = new ChatEngineYou.Chat('new-chat');
+        let doneCalled = false;
 
         let checkDone = () => {
 
             let aUsers = Object.keys(a.users);
             let bUsers = Object.keys(b.users);
 
-            if (aUsers.length > 1 && bUsers.length > 1) {
+            if (aUsers.length > 1 && bUsers.length > 1 && !doneCalled) {
+
+                doneCalled = true;
 
                 expect(Object.keys(a.users)).to.include.members(Object.keys(b.users));
 
