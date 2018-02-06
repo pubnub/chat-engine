@@ -457,8 +457,8 @@ class Chat extends Emitter {
      * @private
      */
     onLeave() {
-        this.connected = false;
         this.trigger('$.left');
+        this.onDisconnected();
     }
 
     /**
