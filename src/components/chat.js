@@ -472,7 +472,9 @@ class Chat extends Emitter {
                 this.onDisconnected();
 
                 // tell session we've left
-                this.chatEngine.me.sessionLeave(this);
+                if (this.chatEngine.me.session) {
+                    this.chatEngine.me.session.leave(this);
+                }
 
             })
             .catch((error) => {
@@ -616,7 +618,9 @@ class Chat extends Emitter {
          */
         this.onConnected();
 
-        this.chatEngine.me.sessionJoin(this);
+        if(this.chatEngine.me.session) {
+            this.chatEngine.me.session.join(this);
+        }
 
         // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
