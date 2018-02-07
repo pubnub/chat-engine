@@ -50,53 +50,49 @@ class Session extends Emitter {
      */
     restore() {
 
-        if (this.chatEngine.ceConfig.enableSync) {
+        // these are custom groups that separate custom chats from system chats
+        // for better fitlering
+        let groups = ['custom', 'system'];
 
-            // these are custom groups that separate custom chats from system chats
-            // for better fitlering
-            let groups = ['custom', 'system'];
+        // loop through the groups
+        groups.forEach((group) => {
 
-            // loop through the groups
-            groups.forEach((group) => {
+            // generate the channel group string for PubNub using the current uuid
+            let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.chatEngine.me.uuid, group].join('#');
 
-                // generate the channel group string for PubNub using the current uuid
-                let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.chatEngine.me.uuid, group].join('#');
+            // ask pubnub for a list of channels for this group
+            this.chatEngine.pubnub.channelGroups.listChannels({
+                channelGroup
+            }, (status, response) => {
 
-                // ask pubnub for a list of channels for this group
-                this.chatEngine.pubnub.channelGroups.listChannels({
-                    channelGroup
-                }, (status, response) => {
+                if (status.error) {
+                    this.chatEngine.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
+                } else {
 
-                    if (status.error) {
-                        this.chatEngine.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
-                    } else {
+                    // loop through the returned channels
+                    response.channels.forEach((channel) => {
 
-                        // loop through the returned channels
-                        response.channels.forEach((channel) => {
-
-                            // call the same callback as if we were notified about them
-                            this.onJoin({
-                                channel,
-                                private: this.chatEngine.parseChannel(channel).private,
-                                group
-                            });
-
-                            /**
-                            Fired when session has been restored at boot. Fired once per
-                            session group.
-                            @event Me#$"."session"."group"."restored
-                            */
-                            this.trigger('$.session.group.restored', { group });
-
+                        // call the same callback as if we were notified about them
+                        this.onJoin({
+                            channel,
+                            private: this.chatEngine.parseChannel(channel).private,
+                            group
                         });
 
-                    }
+                        /**
+                        Fired when session has been restored at boot. Fired once per
+                        session group.
+                        @event Me#$"."session"."group"."restored
+                        */
+                        this.trigger('$.session.group.restored', { group });
 
-                });
+                    });
+
+                }
 
             });
 
-        }
+        });
 
     }
 

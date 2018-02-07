@@ -10,7 +10,7 @@ const Search = require('../components/search');
  @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
- @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+ @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
  @class Chat
  @extends Emitter
  @extends RootEmitter
@@ -618,7 +618,7 @@ class Chat extends Emitter {
          */
         this.onConnected();
 
-        if(this.chatEngine.me.session) {
+        if (this.chatEngine.me.session) {
             this.chatEngine.me.session.join(this);
         }
 
