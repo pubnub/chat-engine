@@ -84,7 +84,7 @@ class Session extends Emitter {
                         session group.
                         @event Me#$"."session"."group"."restored
                         */
-                        this.trigger('$.session.group.restored', { group });
+                        this.trigger('$.group.restored', { group });
 
                     });
 
@@ -148,14 +148,14 @@ class Session extends Emitter {
             @example
             *
             * // Logged in as "Ian" in first window
-            * ChatEngine.me.on('$.session.chat.join', (data) => {
+            * ChatEngine.me.session.on('$.chat.join', (data) => {
             *     console.log('I joined a new chat in a second window!', data.chat);
             * });
             *
             * // Logged in as "Ian" in second window
             * new ChatEngine.Chat('another-chat');
             */
-            this.trigger('$.session.chat.join', { chat: this.chats[chat.group][chat.channel] });
+            this.trigger('$.chat.join', { chat: this.chats[chat.group][chat.channel] });
 
         }
 
@@ -181,7 +181,7 @@ class Session extends Emitter {
 
         }
 
-        this.trigger('$.session.chat.leave', { chat });
+        this.trigger('$.chat.leave', { chat });
 
     }
 
