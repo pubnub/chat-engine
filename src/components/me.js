@@ -62,6 +62,7 @@ class Me extends User {
         this.chatEngine.global.setState(state);
 
     }
+
 }
 
 module.exports = Me;
