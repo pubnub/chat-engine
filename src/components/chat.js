@@ -249,7 +249,6 @@ class Chat extends Emitter {
             this.userUpdate(presenceEvent.uuid, presenceEvent.state);
         }
 
-
     }
 
     /**
@@ -334,8 +333,15 @@ class Chat extends Emitter {
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
         this.chatEngine.users[uuid].assign(state);
 
+        // check if the user already exists within the chatroom
+        // so we know if we need to notify or not
+        let userAlreadyHere = this.users[uuid];
+
+        // assign the user to the chatroom
+        this.users[uuid] = this.chatEngine.users[uuid];
+
         // trigger the join event over this chatroom
-        if (!this.users[uuid]) {
+        if (!userAlreadyHere) {
 
             /**
              * Broadcast that a {@link User} has come online. This is when
@@ -357,9 +363,6 @@ class Chat extends Emitter {
             });
 
         }
-
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
 
         // return the instance of this user
         return this.chatEngine.users[uuid];
@@ -433,7 +436,7 @@ class Chat extends Emitter {
     }
 
     /**
-     * Fired upon successful connection to the network through any means..
+     * Fired upon successful connection to the network.
      * @private
      */
     onConnected() {
@@ -448,6 +451,14 @@ class Chat extends Emitter {
     onDisconnected() {
         this.connected = false;
         this.trigger('$.disconnected');
+    }
+    /**
+     * Fires upon manually invoked leaving.
+     * @private
+     */
+    onLeave() {
+        this.trigger('$.left');
+        this.onDisconnected();
     }
 
     /**
@@ -469,7 +480,10 @@ class Chat extends Emitter {
             .then(() => {
 
                 // trigger the disconnect events and update state
-                this.onDisconnected();
+                this.onLeave();
+
+                // tell the chat we've left
+                this.emit('$.system.leave', { subject: this.objectify() });
 
                 // tell session we've left
                 this.chatEngine.me.sessionLeave(this);
@@ -488,8 +502,11 @@ class Chat extends Emitter {
      */
     userLeave(uuid) {
 
+        let user = this.users[uuid];
+        delete this.users[uuid];
+
         // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
+        if (user) {
 
             // if a user leaves, trigger the event
 
@@ -504,9 +521,7 @@ class Chat extends Emitter {
                       *     console.log('User left the room manually:', data.user);
                       * });
              */
-            this.trigger('$.offline.leave', {
-                user: this.users[uuid]
-            });
+            this.trigger('$.offline.leave', { user });
 
             // remove the user from the local list of users
             delete this.users[uuid];
@@ -514,13 +529,8 @@ class Chat extends Emitter {
             // we don't remove the user from the global list,
             // because they may be online in other channels
 
-        } else {
-
-            // that user isn't in the user list
-            // we never knew about this user or they already left
-
-            // console.log('user already left');
         }
+
     }
 
     /**
@@ -531,8 +541,11 @@ class Chat extends Emitter {
      */
     userDisconnect(uuid) {
 
+        let user = this.users[uuid];
+        delete this.users[uuid];
+
         // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
+        if (user) {
 
             /**
              * Fired specifically when a {@link User} looses network connection
@@ -543,11 +556,11 @@ class Chat extends Emitter {
              * @param {Object} data.user The {@link User} that disconnected
              * @example
              * chat.on('$.offline.disconnect', (data) => {
-                      *     console.log('User disconnected from the network:', data.user);
-                      * });
+             *     console.log('User disconnected from the network:', data.user);
+             * });
              */
+            this.trigger('$.offline.disconnect', { user });
 
-            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
         }
 
     }
@@ -637,6 +650,10 @@ class Chat extends Emitter {
             }, 5000);
 
         }
+
+        this.on('$.system.leave', (payload) => {
+            this.userLeave(payload.sender.uuid);
+        });
 
     }
 
