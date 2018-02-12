@@ -1,14 +1,18 @@
 language: node_js
 sudo: false
 node_js:
-  - '6'
-  - '7'
-  - '8'
+- '6'
+- '7'
+- '8'
 cache: yarn
 script:
-  - gulp test
+- gulp test
 after_success:
-  - npm install codecov codacy-coverage
-  - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
+- npm install codecov codacy-coverage
+- cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
 addons:
   srcclr: true
+env:
+  global:
+  - secure: oulkhOSNfCW671KPGqbSrrJOdZlPn3fcBZaoedZTObz6fCzPzNW4G6pSe+Fuotm3Gnrsn3/Vx4CB5m111lo7xCCh24eVRNWUUtVJm5j3QkGn0QwElrBsjVQMnIRjLIGd4HIbfLs4TKAEeIE1BYQMrGZO2zOOt9VD8j3ackP1zz7/NVvqx9oGMcBRFVXAa1pc1LusZl6DwRAsZ5dgX+MFpxroK8e+r1L0vQxYVnuZjoDjDuEZYFFK9bzRkQJR/0Kizb7O5helVPJDXOW3JMVgslhXOU0V6yNginxQzfNHrGPqWKR7Iwg7fZb4q5EeTB9FQJmImSiFQiPpn8hwZx/jYYrVRgUVqRk+UpfOI5YDTXTXKXvi5VigfJqyoVuEBP8SWeKDHrDddlmnv2UzMjU6YPrwnXYWqzTpcAAsiLGwDTP8CuRgM9UY62TCBUepn3pylT/F04N3XLq/ePynGaVu2cKtNM5dr9GGyM6XG/hFgAhIqlFcAT7m9Iqxz/SWPbtoD3N71BnpktINZkq8BvgU4mGLjK8X5/+R95v2/UX0iQl+QJgJqLv4Ov0X/nCbcnsFmLkmW9ukJ+QcZF44EdWfZBD/2u8+3QGAiVkKP7MTHnk3/VavtokZfSJ3p+o8qIVTzsZFBxweOCrZMn50zS9aSTTUmaOco0tC+5Xz5ulD/Y4=
+  - secure: Ep97Bj79uRzaxNcbuCA4Nhe+tazRYzf6e4jygry0n+jYJhJmocIefKYWp77RQYfjZdz9LkCO+wV4DeJdxhgpxCUmTHdeZ3JhATLyoAw6ZXYs2It9pluZX724Al/ItSxcaJpWATtenZM3rm5azp11YgkcBZ+ythvErldGS5/eYkTTZfFe+3oaFu3TlIjRCbuMYm+rDZpZqMdN2xy31LqKiWOF5BLav/oT00EVB/8oNlH2cW/Oa6TsAFsB/HHImRs/QLYGudHk8asa1oJkfnLXFydB5vwBUbnDxoHTb4X/aP+rvwMCVLoE01PKWfHRapN+NtDt0bHJt7EXzp3KtyBofFEs9oz0F9HKrR9Qa2/yuL2GI5mmLw7rz/mj001e7Cbw7L0G5sH9P+cIrn/sBC2U0t7gERDEBBKlhdNgFZN0hySiD5VJURhHWTkxbLSPVrwrcTr0dsN2W544ZliW+HQxWFe1++d9pwlrdanrkmUlykL2eTqQ4wfCVSEiB9RwbZUAmKEgaryc6ISZjXX3mUCqPc2qrujm5GR4sODBBvBk7+U2MZJW8AcI2Cb1UBdglhAI+8UH2F9rfCMCu2d5gJr+pANi9jlfNKHmBoQZPSZd0CDHBjt2p1f+l4oDAYoxU4XpyeiMOL5G0tywvFC0e0GIhKweBvhQxzz8kA1i65nUWFA=
