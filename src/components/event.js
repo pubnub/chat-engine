@@ -68,7 +68,9 @@ class Event extends RootEmitter {
 
             if (status.statusCode === 200) {
 
-                m.timetoken = response.timetoken;
+                if (response) {
+                    m.timetoken = response.timetoken;
+                }
 
                 /**
                  * Message successfully published

@@ -32,7 +32,8 @@ describe('#event', () => {
     });
 
     it('should emit a message', (done) => {
-        chat.on('$.publish.success', () => {
+
+        event.on('$.emitted', () => {
             done();
         });
 
