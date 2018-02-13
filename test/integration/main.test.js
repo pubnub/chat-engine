@@ -285,8 +285,6 @@ describe('chat', () => {
 
         let event = chat.emit('test');
 
-        // console.log('returned', event )
-
         event.on('$.emitted', (a) => {
             console.log(a);
         });
