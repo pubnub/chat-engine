@@ -16,8 +16,8 @@ let myChat = null;
 let chats = [];
 
 let ChatEngine = ChatEngineCore.create({
-    publishKey: process.env.PUBLISH_KEY,
-    subscribeKey: process.env.SUBSCRIBE_KEY
+    publishKey: process.env.PUB_KEY_2,
+    subscribeKey: process.env.SUB_KEY_2
 }, {
     endpoint: 'http://localhost:3000/insecure',
     globalChannel,
@@ -35,8 +35,8 @@ let others = [];
 
 for (let u = 1; u <= numberOfUsers; u += 1) {
     let ChatEngineYou = ChatEngineCore.create({
-        publishKey: process.env.PUBLISH_KEY,
-        subscribeKey: process.env.SUBSCRIBE_KEY
+        publishKey: process.env.PUB_KEY_2,
+        subscribeKey: process.env.SUB_KEY_2
     }, {
         endpoint: 'http://localhost:3000/insecure',
         globalChannel

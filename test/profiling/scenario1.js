@@ -3,8 +3,8 @@ const ChatEngineCore = require('../../src/index.js');
 let globalChannel = 'global';
 
 let ChatEngine = ChatEngineCore.create({
-    publishKey: process.env.PUBLISH_KEY,
-    subscribeKey: process.env.SUBSCRIBE_KEY,
+    publishKey: process.env.PUB_KEY_1,
+    subscribeKey: process.env.SUB_KEY_1,
 }, {
     endpoint: 'http://localhost:3000/insecure',
     globalChannel,
