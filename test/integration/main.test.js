@@ -314,6 +314,7 @@ describe('chat', () => {
 
         chat3.once('something', (payload) => {
 
+            assert(payload.timetoken);
             assert.isObject(payload);
             done();
 

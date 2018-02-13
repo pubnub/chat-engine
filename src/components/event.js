@@ -41,6 +41,8 @@ class Event {
 
     onMessage(m) {
 
+        m.message.timetoken = m.timetoken;
+
         if (this.channel === m.channel && m.message.event === this.event) {
             this.chat.trigger(m.message.event, m.message);
         }

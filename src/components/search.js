@@ -151,6 +151,8 @@ class Search extends Emitter {
 
             if (this.needleCount < this.config.limit) {
 
+                console.log(message)
+
                 this.trigger(message.entry.event, message.entry, (reject) => {
 
                     if (!reject) {
