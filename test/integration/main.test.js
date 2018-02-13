@@ -286,7 +286,8 @@ describe('chat', () => {
         let event = chat.emit('test');
 
         event.on('$.emitted', (a) => {
-            console.log(a);
+            assert(a.timetoken, 'Timetoken exposed on emit');
+            done();
         });
 
     });
