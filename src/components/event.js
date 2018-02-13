@@ -1,10 +1,14 @@
+const RootEmitter = require('../modules/root_emitter');
+
 /**
  * @class Event
  * Represents an event that may be emitted or subscribed to.
  */
-class Event {
+class Event extends RootEmitter {
 
     constructor(chatEngine, chat, event) {
+
+        super();
 
         /**
          Events are always a property of a {@link Chat}. Responsible for
@@ -60,16 +64,19 @@ class Event {
         this.chatEngine.pubnub.publish({
             message: m,
             channel: this.channel
-        }, (status) => {
+        }, (status, response) => {
 
             if (status.statusCode === 200) {
+
+                m.timetoken = response.timetoken;
 
                 /**
                  * Message successfully published
                  * @event Chat#$"."publish"."success
                  * @param {Object} data The message object
                  */
-                this.chat.trigger('$.publish.success', m);
+                this._emit('$.emitted', m);
+
             } else {
 
                 /**

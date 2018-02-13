@@ -297,6 +297,8 @@ class Chat extends Emitter {
             chatengineSDK: this.chatEngine.package.version
         };
 
+        let tracer = new Event(this.chatEngine, this, event);
+
         // run the plugin queue to modify the event
         this.runPluginQueue('emit', event, (next) => {
             next(null, payload);
@@ -310,11 +312,12 @@ class Chat extends Emitter {
             // publish the event and data over the configured channel
 
             // ensure the event exists within the global space
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
 
-            this.events[event].publish(pluginResponse);
+            tracer.publish(pluginResponse);
 
         });
+
+        return tracer;
 
     }
 
