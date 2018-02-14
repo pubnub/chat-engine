@@ -71,8 +71,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
-        // console.log(self, cb, key, ceError, payload);
-
         if (ceConfig.throwErrors) {
             // throw ceError;
             console.error(payload);
@@ -245,8 +243,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                 if (ChatEngine.chats[m.channel]) {
                     ChatEngine.chats[m.channel].trigger(m.message.event, m.message);
-                } else {
-                    console.log('message missed', m);
                 }
 
             },
@@ -254,8 +250,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                 if (ChatEngine.chats[payload.channel]) {
                     ChatEngine.chats[payload.channel].onPresence(payload);
-                } else {
-                    console.log('message missed', payload.channel);
                 }
 
             },
