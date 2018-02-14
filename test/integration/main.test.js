@@ -314,6 +314,7 @@ describe('chat', () => {
 
         chat3.once('something', (payload) => {
 
+            assert(payload.timetoken);
             assert.isObject(payload);
             done();
 
@@ -372,6 +373,7 @@ describe('history', () => {
                 limit: 50
             }).on('tester', (a) => {
 
+                assert(a.timetoken);
                 assert.equal(a.event, 'tester');
 
                 count += 1;
@@ -400,6 +402,7 @@ describe('history', () => {
                 limit: 200
             }).on('tester', (a) => {
 
+                assert(a.timetoken);
                 assert.equal(a.event, 'tester');
                 count += 1;
 
