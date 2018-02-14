@@ -53,8 +53,8 @@ const create = (pnConfig, ceConfig = {}) => {
 
 // export the ChatEngine api
 const ChatEngineCore = {
-  plugin: {},
-  create: create
+    plugin: {},
+    create: create
 };
 
 module.exports = ChatEngineCore;
