@@ -1,10 +1,10 @@
-const RootEmitter = require('../modules/root_emitter');
+const Emitter = require('../modules/root_emitter');
 
 /**
  * @class Event
  * Represents an event that may be emitted or subscribed to.
  */
-class Event extends RootEmitter {
+class Event extends Emitter {
 
     constructor(chatEngine, chat, event) {
 
@@ -34,20 +34,7 @@ class Event extends RootEmitter {
          @param {Object} data The event payload object
          */
 
-        // call onMessage when PubNub receives an event
-        this.chatEngine.pubnub.addListener({
-            message: this.onMessage.bind(this)
-        });
-
         return this;
-
-    }
-
-    onMessage(m) {
-
-        if (this.channel === m.channel && m.message.event === this.event) {
-            this.chat.trigger(m.message.event, m.message);
-        }
 
     }
 

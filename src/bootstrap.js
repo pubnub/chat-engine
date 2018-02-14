@@ -71,6 +71,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
 
+        // console.log(self, cb, key, ceError, payload);
+
         if (ceConfig.throwErrors) {
             // throw ceError;
             console.error(payload);
@@ -239,10 +241,21 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
          @param {Object} statusEvent The response status
          */
         ChatEngine.pubnub.addListener({
+            message: (m) => {
+
+                if (ChatEngine.chats[m.channel]) {
+                    ChatEngine.chats[m.channel].trigger(m.message.event, m.message);
+                } else {
+                    console.log('message missed', m);
+                }
+
+            },
             presence: (payload) => {
 
                 if (ChatEngine.chats[payload.channel]) {
                     ChatEngine.chats[payload.channel].onPresence(payload);
+                } else {
+                    console.log('message missed', payload.channel);
                 }
 
             },
@@ -372,7 +385,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
 
         ChatEngine.global.once('$.connected', () => {
-
 
             // build the current user
             ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
