@@ -109,13 +109,17 @@ Run ```gulp``` to compile, but you should probably run ```gulp watch``` to get c
 
 You will need to assign environment variables ```PUB_KEY_0``` and ```SUB_KEY_0``` to your own PubNub keys. Add these variables into your ```.bashrc``` or ```.zshrc```.
 
-```js
+```sh
 # pubnub chatengine keys
 export PUB_KEY_0="YOUR PUBNUB PUBLISH KEY"
 export SUB_KEY_0="YOUR PUBNUB SUBSCRIBE KEY"
 ```
 
-To run the tests, run ```gulp test```.
+Then, in the root folder run:
+
+```
+gulp test
+```
 
 ## PubNub Functions and Account Setup
 
