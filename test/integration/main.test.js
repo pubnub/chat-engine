@@ -3,8 +3,8 @@ const expect = require('chai').expect;
 
 let decache = require('decache');
 
-const pubkey = 'pub-c-fab5d74d-8118-444c-b652-4a8ee0beee92';
-const subkey = 'sub-c-696d9116-c668-11e7-afd4-56ea5891403c';
+const pubkey = process.env.PUB_KEY_0;
+const subkey = process.env.SUB_KEY_0;
 
 let ChatEngine;
 let ChatEngineYou;
