@@ -241,6 +241,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.pubnub.addListener({
             message: (m) => {
 
+                m.message.timetoken = m.timetoken;
+
                 if (ChatEngine.chats[m.channel]) {
                     ChatEngine.chats[m.channel].trigger(m.message.event, m.message);
                 }
