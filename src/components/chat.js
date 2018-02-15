@@ -310,8 +310,6 @@ class Chat extends Emitter {
             delete pluginResponse.chat;
 
             // publish the event and data over the configured channel
-
-            // ensure the event exists within the global space
             tracer.publish(pluginResponse);
 
         });

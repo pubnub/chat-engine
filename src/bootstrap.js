@@ -241,6 +241,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.pubnub.addListener({
             message: (m) => {
 
+                // assign the message timetoken as a property of the payload
                 m.message.timetoken = m.timetoken;
 
                 if (ChatEngine.chats[m.channel]) {

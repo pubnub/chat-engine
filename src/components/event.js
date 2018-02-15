@@ -2,7 +2,10 @@ const Emitter = require('../modules/root_emitter');
 
 /**
  * @class Event
- * Represents an event that may be emitted or subscribed to.
+ * Represents an {@link Chat} event.
+ * @fires $"."emitted
+ * @extends Emitter
+ * @extends RootEmitter
  */
 class Event extends Emitter {
 
@@ -11,28 +14,37 @@ class Event extends Emitter {
         super();
 
         /**
-         Events are always a property of a {@link Chat}. Responsible for
-         listening to specific events and firing events when they occur.
-         @readonly
-         @type String
-         @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+         * @private
+         */
+        this.chatEngine = chatEngine;
+
+        /**
+         * The {@link Chat#channel} that this event is registered to.
+         * @type String
+         * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+         * @readonly
          */
         this.channel = chat.channel;
 
-        this.chatEngine = chatEngine;
-
+        /**
+         * Events are always a property of a {@link Chat}. Responsible for
+         * listening to specific events and firing events when they occur.
+         * @readonly
+         * @type {Chat}
+         */
         this.chat = chat;
 
+        /**
+         * The string representation of the event. This is supplied as the first parameter to {@link Chat#on}
+         * @type {String}
+         */
         this.event = event;
 
-        this.name = 'Event';
-
         /**
-         Forwards events to the Chat that registered the event {@link Chat}
-
-         @private
-         @param {Object} data The event payload object
+         * A name that identifies this class
+         * @type {String}
          */
+        this.name = 'Event';
 
         return this;
 
@@ -61,8 +73,8 @@ class Event extends Emitter {
 
                 /**
                  * Message successfully published
-                 * @event Chat#$"."publish"."success
-                 * @param {Object} data The message object
+                 * @event Event#$"."emitted"
+                 * @param {Object} data The message payload
                  */
                 this._emit('$.emitted', m);
 
@@ -82,3 +94,4 @@ class Event extends Emitter {
 }
 
 module.exports = Event;
+
