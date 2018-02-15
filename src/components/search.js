@@ -153,6 +153,8 @@ class Search extends Emitter {
 
             if (this.needleCount < this.config.limit) {
 
+                message.entry.timetoken = message.timetoken;
+
                 this.trigger(message.entry.event, message.entry, (reject) => {
 
                     if (!reject) {

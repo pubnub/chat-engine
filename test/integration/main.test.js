@@ -329,6 +329,7 @@ describe('chat', () => {
 
         chat3.once('something', (payload) => {
 
+            assert(payload.timetoken);
             assert.isObject(payload);
             done();
 
@@ -387,6 +388,7 @@ describe('history', () => {
                 limit: 50
             }).on('tester', (a) => {
 
+                assert(a.timetoken);
                 assert.equal(a.event, 'tester');
 
                 count += 1;
@@ -415,6 +417,7 @@ describe('history', () => {
                 limit: 200
             }).on('tester', (a) => {
 
+                assert(a.timetoken);
                 assert.equal(a.event, 'tester');
                 count += 1;
 
@@ -464,7 +467,7 @@ describe('remote chat list', () => {
         this.timeout(60000);
 
         // first instance looking or new chats
-        ChatEngineSync.me.on('$.session.chat.join', (payload) => {
+        ChatEngineSync.me.session.on('$.chat.join', (payload) => {
 
             if (payload.chat.channel.indexOf(newChannel) > -1) {
                 done();
@@ -484,9 +487,9 @@ describe('remote chat list', () => {
 
         this.timeout(60000);
 
-        ChatEngineSync.me.once('$.session.group.restored', (payload) => {
+        ChatEngineSync.me.session.once('$.group.restored', (payload) => {
 
-            assert.isObject(ChatEngineSync.me.session[payload.group]);
+            assert.isObject(ChatEngineSync.me.session.chats[payload.group]);
             done();
 
         });
@@ -500,7 +503,7 @@ describe('remote chat list', () => {
         let newChannel2 = 'sync-chat2' + new Date().getTime();
         let syncChat;
 
-        ChatEngineSync.me.on('$.session.chat.leave', (payload) => {
+        ChatEngineSync.me.session.on('$.chat.leave', (payload) => {
 
             if (payload.chat.channel.indexOf(newChannel2) > -1) {
                 done();
