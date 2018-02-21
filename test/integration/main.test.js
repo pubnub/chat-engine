@@ -383,7 +383,7 @@ describe('history', () => {
 
         chatHistory.on('$.connected', () => {
 
-            chatHistory.search({
+            let search = chatHistory.search({
                 event: 'tester',
                 limit: 50
             }).on('tester', (a) => {
@@ -394,6 +394,7 @@ describe('history', () => {
                 count += 1;
 
             }).on('$.search.finish', () => {
+                assert.equal(search.hasMore, false, 'shouldn\'t have any more data');
                 assert.equal(count, 50, 'correct # of results');
                 done();
             });
@@ -412,9 +413,10 @@ describe('history', () => {
 
         chatHistory2.on('$.connected', () => {
 
-            chatHistory2.search({
+            let search = chatHistory2.search({
                 event: 'tester',
-                limit: 200
+                limit: 200,
+                pages: 11
             }).on('tester', (a) => {
 
                 assert(a.timetoken);
@@ -422,6 +424,7 @@ describe('history', () => {
                 count += 1;
 
             }).on('$.search.finish', () => {
+                assert.equal(search.hasMore, false, 'shouldn\'t have any more data');
                 assert.equal(count, 200, 'correct # of results');
                 done();
             });
@@ -439,7 +442,8 @@ describe('history', () => {
         chatHistory.on('$.connected', () => {
 
             chatHistory.search({
-                limit: 10
+                limit: 10,
+                pages: 12
             }).on('tester', (a) => {
 
                 assert.equal(a.event, 'tester');
@@ -452,6 +456,86 @@ describe('history', () => {
 
     });
 
+    it('should emit messages in descending order using timetokens', function emittedDescendingOrder(done) {
+
+        let timetokens = [];
+
+        this.timeout(60000);
+
+        let chatHistory = new ChatEngineHistory.Chat('chat-history');
+
+        chatHistory.on('$.connected', () => {
+            let search = chatHistory.search({
+                event: 'tester',
+                limit: 10,
+                pages: 13
+            }).on('tester', (a) => {
+                timetokens.push(a.timetoken);
+            }).on('$.search.finish', () => {
+                assert.equal(search.hasMore, false, 'shouldn\'t have any more data');
+                assert((timetokens.shift() > timetokens.pop()), 'descending order expected');
+                done();
+            });
+        });
+    });
+
+    it('should fetch messages between dates and ignore limit', function getBetweenDatesIgnoreLimit(done) {
+
+        let messages = [];
+        let timetokens = [];
+
+        this.timeout(60000);
+
+        let chatHistory = new ChatEngineHistory.Chat('chat-history');
+
+        chatHistory.on('$.connected', () => {
+            chatHistory.search({
+                event: 'tester',
+                limit: 100
+            }).on('tester', (a) => {
+                timetokens.unshift(a.timetoken);
+            }).on('$.search.finish', () => {
+                const start = timetokens[10];
+                const end = timetokens[timetokens.length - 10];
+                // -1 because start/end search exclude message at 'end' date.
+                const expectedMessagesCount = timetokens.indexOf(end) - timetokens.indexOf(start) - 1;
+                let search = chatHistory.search({ event: 'tester', start, end, limit: 10, pages: 14 })
+                    .on('tester', (a) => {
+                        messages.unshift(a.timetoken);
+                    }).on('$.search.finish', () => {
+                        assert.equal(search.hasMore, false, 'shouldn\'t have any more data');
+                        assert.equal(messages.length - 1, expectedMessagesCount, 'correct # of results');
+                        done();
+                    });
+            });
+        });
+    });
+
+    it('should fetch messages between dates with respect to page', function getBetweenDatesRespectPages(done) {
+
+        let timetokens = [];
+
+        this.timeout(60000);
+
+        let chatHistory = new ChatEngineHistory.Chat('chat-history');
+
+        chatHistory.on('$.connected', () => {
+            chatHistory.search({
+                event: 'tester',
+                limit: 100
+            }).on('tester', (a) => {
+                timetokens.unshift(a.timetoken);
+            }).on('$.search.finish', () => {
+                const start = timetokens[10];
+                const end = timetokens[timetokens.length - 10];
+                let search3 = chatHistory.search({ event: 'tester', start, end, count: 10, pages: 1 })
+                    .on('$.search.pause', () => {
+                        assert.equal(search3.hasMore, true, 'potentially should be more data 2');
+                        done();
+                    });
+            });
+        });
+    });
 });
 
 describe('remote chat list', () => {
