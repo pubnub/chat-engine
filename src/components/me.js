@@ -22,6 +22,9 @@ class Me extends User {
         this.chatEngine = chatEngine;
 
         this.session = false;
+
+        this.name = 'Me';
+
         if (this.chatEngine.ceConfig.enableSync) {
             this.session = new Session(chatEngine);
         }
