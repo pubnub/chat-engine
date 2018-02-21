@@ -277,6 +277,21 @@ describe('chat', () => {
     beforeEach(reset);
     beforeEach(createChatEngine);
 
+    it('should get timetoken from publish callback', function getTimetoken(done) {
+
+        this.timeout(60000);
+
+        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime());
+
+        let event = chat.emit('test');
+
+        event.on('$.emitted', (a) => {
+            assert(a.timetoken, 'Timetoken exposed on emit');
+            done();
+        });
+
+    });
+
     it('should get me as join event', function getMe(done) {
 
         this.timeout(60000);

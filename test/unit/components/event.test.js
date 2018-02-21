@@ -32,7 +32,8 @@ describe('#event', () => {
     });
 
     it('should emit a message', (done) => {
-        chat.on('$.publish.success', () => {
+
+        event.on('$.emitted', () => {
             done();
         });
 
@@ -43,12 +44,4 @@ describe('#event', () => {
 
     });
 
-    it('should receive a message', (done) => {
-        chat.on('event_test', (payload) => {
-            assert(payload.message === 'hello', 'got the expected value');
-            done();
-        });
-
-        event.onMessage({ channel: chat.channel, message: { event: 'event_test', message: 'hello' } });
-    });
 });

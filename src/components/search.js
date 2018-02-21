@@ -121,6 +121,7 @@ class Search extends Emitter {
                 middleware: {
                     on: {
                         '*': (payload, next) => {
+
                             let matches = payload && payload.event && payload.event === event;
                             next(!matches, payload);
                         }
@@ -134,6 +135,7 @@ class Search extends Emitter {
                 middleware: {
                     on: {
                         '*': (payload, next) => {
+
                             let matches = payload && payload.sender && payload.sender.uuid === user.uuid;
                             next(!matches, payload);
                         }
