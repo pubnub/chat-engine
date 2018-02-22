@@ -3,8 +3,9 @@
   "name": "chat-engine",
   "version": "0.8.4",
   "description": "ChatEngine",
-  "main": "src/index.js",
+  "main": "dist/chat-engine.js",
   "scripts": {
+    "build": "gulp",
     "deploy": "gulp; npm publish;",
     "docs": "jsdoc src/index.js -c jsdoc.json"
   },
@@ -23,6 +24,8 @@
   },
   "homepage": "https://github.com/pubnub/chat-engine#readme",
   "devDependencies": {
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
     "body-parser": "^1.17.2",
     "chai": "^3.5.0",
     "chat-engine-typing-indicator": "0.0.x",
