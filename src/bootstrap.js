@@ -239,6 +239,16 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
          @param {Object} statusEvent The response status
          */
         ChatEngine.pubnub.addListener({
+            message: (m) => {
+
+                // assign the message timetoken as a property of the payload
+                m.message.timetoken = m.timetoken;
+
+                if (ChatEngine.chats[m.channel]) {
+                    ChatEngine.chats[m.channel].trigger(m.message.event, m.message);
+                }
+
+            },
             presence: (payload) => {
 
                 if (ChatEngine.chats[payload.channel]) {
@@ -373,7 +383,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         ChatEngine.global.once('$.connected', () => {
 
-
             // build the current user
             ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
 
@@ -386,7 +395,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             * });
             */
             ChatEngine.me.onConstructed();
-            ChatEngine.me.subscribeToSession();
+
+            if (ChatEngine.ceConfig.enableSync) {
+                ChatEngine.me.session.subscribe();
+                ChatEngine.me.session.restore();
+            }
 
             ChatEngine.me.update(state);
 
@@ -409,7 +422,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.subscribeToPubNub();
 
             ChatEngine.global.getUserUpdates();
-            ChatEngine.me.restoreSession();
 
         });
 
