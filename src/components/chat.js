@@ -59,6 +59,10 @@ class Chat extends Emitter {
          */
         this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
 
+        if (this.channel.length > 92) {
+            this.chatEngine.throwError(this, 'trigger', 'create', new Error('That channel name is too damn big! ' + this.channel.length + ' ' + this.channel));
+        }
+
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
          Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
