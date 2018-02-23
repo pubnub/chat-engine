@@ -1,5 +1,5 @@
 const Emitter = require('../modules/emitter');
-
+let numberOfStateRequests = 0;
 /**
 This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
 If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
@@ -124,6 +124,9 @@ class User extends Emitter {
         if (!this._stateFetched && !this._stateInProgress) {
 
             this._stateInProgress = true;
+
+            numberOfStateRequests++;
+            console.log('MAKING STATE REQUEST', numberOfStateRequests, this.uuid);
 
             this.chatEngine.pubnub.getState({
                 uuid: this.uuid,
