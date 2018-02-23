@@ -41,8 +41,6 @@ class User extends Emitter {
 
         this._stateFetched = false;
 
-        this._stateInProgress = false;
-
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -119,13 +117,12 @@ class User extends Emitter {
     Get stored user state from remote server.
     @private
     */
-    _getState(callback) {
+    _getState() {
 
-        if (!this._stateFetched && !this._stateInProgress) {
-
-            this._stateInProgress = true;
+        if (!this._stateFetched) {
 
             numberOfStateRequests++;
+            this._stateFetched = true;
             console.log('MAKING STATE REQUEST', numberOfStateRequests, this.uuid);
 
             this.chatEngine.pubnub.getState({
@@ -140,7 +137,8 @@ class User extends Emitter {
 
                         this.assign(response.data);
                         this._stateFetched = true;
-                        callback(this.state);
+
+                        this._emit('$.system.state', this.state);
 
                     } else {
 
@@ -150,7 +148,8 @@ class User extends Emitter {
 
                             this.assign(res.data);
                             this._stateFetched = true;
-                            callback(this.state);
+
+                            this._emit('$.system.state', this.state);
 
                         }).catch((err) => {
                             this.chatEngine.throwError(this, 'trigger', 'getState', err);
@@ -165,7 +164,7 @@ class User extends Emitter {
             });
 
         } else {
-            callback(this.state);
+            this._emit('$.system.state', this.state);
         }
 
     }

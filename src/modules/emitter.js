@@ -195,9 +195,10 @@ class Emitter extends RootEmitter {
                 // the user doesn't exist, create it
                 payload.sender = new this.chatEngine.User(payload.sender);
 
-                payload.sender._getState(() => {
+                payload.sender.once('$.system.state', () => {
                     complete();
                 });
+                payload.sender._getState();
 
             } else {
                 // there's no "sender" in this object, move on
