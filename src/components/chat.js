@@ -581,8 +581,8 @@ class Chat extends Emitter {
     }
 
     /**
-     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
-     which will emit all old events unless ```config.event``` is supplied.
+     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link Search}. Will
+     which will emit all old events unless ```config.event``` is supplied. Will automatically call {@link Chat#connect} if chat is not connected when method is called.
      @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
      @param {Event} [config.event] The {@link Event} to search for.
      @param {User} [config.sender] The {@link User} who sent the message.

@@ -226,6 +226,7 @@ class Search extends Emitter {
             this.chat.on('$.connected', () => {
                 this.start();
             });
+            this.chat.connect();
         }
 
     }
