@@ -215,8 +215,20 @@ class Search extends Emitter {
          * Search has started.
          * @event Search#$"."search"."start
          */
-        this._emit('$.search.start');
-        this.find();
+        this.start = () => {
+            this._emit('$.search.start');
+            this.find();
+        };
+
+        if (this.chat.hasConnected) {
+            this.start();
+        } else {
+            this.chat.on('$.connected', () => {
+                this.start();
+            });
+            this.chat.connect();
+        }
+
     }
 }
 

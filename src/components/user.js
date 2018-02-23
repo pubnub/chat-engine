@@ -1,5 +1,4 @@
 const Emitter = require('../modules/emitter');
-
 /**
 This is our User class which represents a connected client. User's are automatically created and managed by {@link Chat}s, but you can also instantiate them yourself.
 If a User has been created but has never been authenticated, you will recieve 403s when connecting to their feed or direct Chats.
@@ -40,8 +39,6 @@ class User extends Emitter {
         this.state = {};
 
         this._stateFetched = false;
-
-        this._stateInProgress = false;
 
         /**
          * Feed is a Chat that only streams things a User does, like
@@ -119,11 +116,13 @@ class User extends Emitter {
     Get stored user state from remote server.
     @private
     */
-    _getState(callback) {
+    _getState() {
 
-        if (!this._stateFetched && !this._stateInProgress) {
+        if (!this._stateFetched) {
 
-            this._stateInProgress = true;
+            this._stateFetched = true;
+
+            console.log('calling getState for', this.uuid, this.chatEngine.global.channel);
 
             this.chatEngine.pubnub.getState({
                 uuid: this.uuid,
@@ -137,7 +136,8 @@ class User extends Emitter {
 
                         this.assign(response.data);
                         this._stateFetched = true;
-                        callback(this.state);
+
+                        this._emit('$.system.state', this.state);
 
                     } else {
 
@@ -147,7 +147,8 @@ class User extends Emitter {
 
                             this.assign(res.data);
                             this._stateFetched = true;
-                            callback(this.state);
+
+                            this._emit('$.system.state', this.state);
 
                         }).catch((err) => {
                             this.chatEngine.throwError(this, 'trigger', 'getState', err);
@@ -156,13 +157,14 @@ class User extends Emitter {
                     }
 
                 } else {
+                    console.log(status, response)
                     this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting user state from the PubNub network.'));
                 }
 
             });
 
         } else {
-            callback(this.state);
+            this._emit('$.system.state', this.state);
         }
 
     }

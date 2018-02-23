@@ -59,6 +59,10 @@ class Chat extends Emitter {
          */
         this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
 
+        if (this.channel.length > 92) {
+            this.chatEngine.throwError(this, 'trigger', 'create', new Error('That channel name is too damn big! ' + this.channel.length + ' ' + this.channel));
+        }
+
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
          Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
@@ -581,8 +585,8 @@ class Chat extends Emitter {
     }
 
     /**
-     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link History}. Will
-     which will emit all old events unless ```config.event``` is supplied.
+     Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based {@link Search}. Will
+     which will emit all old events unless ```config.event``` is supplied. Will automatically call {@link Chat#connect} if chat is not connected when method is called.
      @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
      @param {Event} [config.event] The {@link Event} to search for.
      @param {User} [config.sender] The {@link User} who sent the message.
@@ -603,13 +607,7 @@ class Chat extends Emitter {
     });
      */
     search(config) {
-
-        if (this.hasConnected) {
-            return new Search(this.chatEngine, this, config);
-        } else {
-            this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'));
-        }
-
+        return new Search(this.chatEngine, this, config);
     }
 
     /**

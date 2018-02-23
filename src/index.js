@@ -40,6 +40,8 @@ const create = (pnConfig, ceConfig = {}) => {
     pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 30;
     pnConfig.presenceTimeout = pnConfig.presenceTimeout || 60;
 
+    pnConfig.ssl = true;
+
     pnConfig.keepAlive = true;
     pnConfig.keepAliveSettings = {
         keepAlive: true,

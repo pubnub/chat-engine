@@ -195,9 +195,14 @@ class Emitter extends RootEmitter {
                 // the user doesn't exist, create it
                 payload.sender = new this.chatEngine.User(payload.sender);
 
-                payload.sender._getState(() => {
+                // we use event emitter here because it's possible that this gets called
+                // multiple times in the same tick. Rather than register multiple callbacks
+                // _getState() is executed only once and all event listeners are notified
+                // when the state has been found
+                payload.sender.once('$.system.state', () => {
                     complete();
                 });
+                payload.sender._getState();
 
             } else {
                 // there's no "sender" in this object, move on
