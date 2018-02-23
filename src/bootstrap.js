@@ -1,5 +1,5 @@
 const axios = require('axios');
-const PubNub = require('../pubnub');
+const PubNub = require('pubnub');
 const pack = require('../package.json');
 
 const RootEmitter = require('./modules/root_emitter');
