@@ -44,8 +44,7 @@ function createChatEngine(done) {
 
     ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey,
-        logVerbosity: true
+        subscribeKey: subkey
     }, {
         globalChannel,
         throwErrors: true
@@ -63,8 +62,7 @@ function createChatEngineSync(done) {
 
     ChatEngineSync = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey,
-        logVerbosity: true
+        subscribeKey: subkey
     }, {
         globalChannel,
         enableSync: true,
@@ -85,8 +83,7 @@ function createChatEngineClone(done) {
 
     ChatEngineClone = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey,
-        logVerbosity: true
+        subscribeKey: subkey
     }, {
         globalChannel,
         enableSync: true,
@@ -105,8 +102,7 @@ function createChatEngineYou(done) {
 
     ChatEngineYou = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey,
-        logVerbosity: true
+        subscribeKey: subkey
     }, {
         globalChannel,
         throwErrors: true
@@ -124,8 +120,7 @@ function createChatEngineHistory(done) {
 
     ChatEngineHistory = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey,
-        logVerbosity: true
+        subscribeKey: subkey
     }, {
         globalChannel: 'global',
         throwErrors: true
@@ -143,8 +138,7 @@ function createChatEngineConnect(done) {
 
     ChatEngineConnect = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey,
-        logVerbosity: true
+        subscribeKey: subkey
     }, {
         globalChannel,
         throwErrors: true
