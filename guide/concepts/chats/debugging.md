@@ -8,10 +8,10 @@ payload. The event log tells a story about what's happening inside. Events are l
 as they are triggered locally.
 
 You can turn on debug mode by supplying ```debug: true``` within the second
-configuration object in {@link ChatEngine#connect}.
+configuration object in {@link ChatEngine#create}.
 
 ```js
-ChatEngine = require('../../src/index.js').create({
+ChatEngine = ChatEngineCore.create({
     //...
 }, {
     debug: true
@@ -26,8 +26,16 @@ debug: newListener $.ready
 debug: $.created.chat { chat: {} }
 ```
 
+This is effectively the same as writing:
+
+```js
+ChatEngine.onAny((event, payload) => {
+   console.log(event, payload);
+});
+```
+
 Beware that this is very verbose and should not be enabled in production as it
-will slow your application considerably.
+will have negative performance implications.
 
 ## Profiling (Browser Only)
 
@@ -41,14 +49,28 @@ You can supply this parameter in the second configuration
 within {@link ChatEngine#create}.
 
 ```js
-ChatEngine = require('../../src/index.js').create({
+ChatEngine = ChatEngineCore.create({
     //...
 }, {
-    profiling: true
+    profile: true
 });
 ```
 
 ## Increase PubNub Verbosity
+
+PubNub includes it's own verbose logging feature. This logs all network requests
+made by ChatEngine to the PubNub network. You can enable it by supplying ```logVerbosity: true```
+to the first configuration object in {@link ChatEngine#create}.
+
+Check out [the PubNub JS Docs](https://www.pubnub.com/docs/web-javascript/api-reference-configuration#init-args-1) for more on ```logVerbosity```.
+
+```js
+ChatEngine = ChatEngineCore.create({
+    logVerbosity: true
+}, {
+    //...
+});
+```
 
 ```sh
 <<<<<
@@ -79,7 +101,14 @@ ChatEngine = require('../../src/index.js').create({
   auth: 'ian-v6-11-0-11519675938157' }
   ```
 
-- debug: true
-- logVerbosity: true
-- profiling
-- console.log from pubnub functions
+## PubNub Functions Logging
+
+If you suspect server side trouble, you can view your PubNub Functions
+console within the [PubNub Portal Admin](https://admin.pubnub.com).
+
+Navigate to your ChatEngine PubNub Functions and find the ChatEngine
+Event Handlers. The console window will show you any errors or problems
+occurring within the event handlers.
+
+The event handlers will only log 250 console messages before disabling. Restart
+your event handler to refresh this limit.

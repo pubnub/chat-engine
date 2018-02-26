@@ -11,7 +11,7 @@ You'll notice thrown errors because they usually break Javascript execution and 
 You can also subscribe to errors via the ```$.error``` event. If you'd like to subscribe to all ChatEngine errors, try the following:
 
 ```js
-ChatEngine.onAny('$.error.*', (payload) {
+ChatEngine.on('$.error.*', (payload) => {
    console.log(payload);
 });
 ```
