@@ -83,22 +83,24 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    let countObject = {};
-
     if (ceConfig.debug) {
 
         ChatEngine.onAny((event, payload) => {
-
             console.info('debug:', event, payload);
-
-            countObject['event: ' + event] = countObject[event] || 0;
-            countObject['event: ' + event] += 1;
-
         });
 
     }
 
-    if (ceConfig.profiling) {
+    if (ceConfig.profile) {
+
+        alert('it son')
+
+        let countObject = {};
+
+        ChatEngine.onAny((event, payload) => {
+            countObject['event: ' + event] = countObject[event] || 0;
+            countObject['event: ' + event] += 1;
+        });
 
         setInterval(() => {
 
