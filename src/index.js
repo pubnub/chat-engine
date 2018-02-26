@@ -37,15 +37,6 @@ const create = (pnConfig, ceConfig = {}) => {
 
     ceConfig.endpoint = ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/chat-engine-server';
 
-    pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 30;
-    pnConfig.presenceTimeout = pnConfig.presenceTimeout || 60;
-
-    pnConfig.keepAlive = true;
-    pnConfig.keepAliveSettings = {
-        keepAlive: true,
-        timeout: 5 * 1000 * 60
-    };
-
     // return an instance of ChatEngine
     return init(ceConfig, pnConfig);
 
