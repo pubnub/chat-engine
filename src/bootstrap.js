@@ -93,8 +93,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     if (ceConfig.profile) {
 
-        alert('it son')
-
         let countObject = {};
 
         ChatEngine.onAny((event, payload) => {
