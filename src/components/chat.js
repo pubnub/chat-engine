@@ -680,7 +680,7 @@ class Chat extends Emitter {
 
     /**
      * Establish authentication with the server, then subscribe with PubNub.
-     * @return {[type]} [description]
+     * @fires Chat#$"."ready
      */
     connect() {
 

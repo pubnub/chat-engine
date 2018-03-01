@@ -19,45 +19,47 @@ let ChatEngine = ChatEngineCore.create({
     publishKey: process.env.PUB_KEY_0,
     subscribeKey: process.env.SUB_KEY_0
 }, {
-    endpoint: 'http://localhost:3000/insecure',
-    globalChannel,
-    throwErrors: false
+    throwErrors: true,
+    debug: false
 });
 
 
 ChatEngine.on('$.ready', () => {
     myChat = new ChatEngine.Chat('mychat');
+
+    let others = [];
+
+    for (let u = 1; u <= numberOfUsers; u += 1) {
+        let ChatEngineYou = ChatEngineCore.create({
+            publishKey: process.env.PUB_KEY_0,
+            subscribeKey: process.env.SUB_KEY_0
+        }, {
+            throwErrors: true,
+            debug: false
+        });
+
+        others.push(ChatEngineYou);
+        console.log('created:' + u);
+    }
+
+    others.forEach((x, i) => {
+
+        x.on('$.ready', (data) => {
+            users.push(data);
+
+            data.me.direct.on('$.invite', (payload) => {
+                let chat = new ChatEngine.Chat(payload.data.channel);
+                chats.push(chat);
+                console.log('accepted: ' + (i + 1));
+            });
+
+            myChat.invite(data.me);
+        });
+
+        x.connect(`'user-'${i + 1}`, { works: true }, `user-${i + 1}-authtoken`);
+    });
+
+
 });
 
 ChatEngine.connect('ian', { works: true }, 'ian-authtoken');
-
-let others = [];
-
-for (let u = 1; u <= numberOfUsers; u += 1) {
-    let ChatEngineYou = ChatEngineCore.create({
-        publishKey: process.env.PUB_KEY_0,
-        subscribeKey: process.env.SUB_KEY_0
-    }, {
-        endpoint: 'http://localhost:3000/insecure',
-        globalChannel
-    });
-
-    others.push(ChatEngineYou);
-    console.log('created:' + u);
-}
-
-others.forEach((x, i) => {
-    x.on('$.ready', (data) => {
-        users.push(data);
-
-        data.me.direct.on('$.invite', (payload) => {
-            let chat = new ChatEngine.Chat(payload.data.channel);
-            chats.push(chat);
-            console.log('accepted: ' + (i + 1));
-        });
-
-        myChat.invite(data.me);
-    });
-
-    x.connect(`'user-'${i + 1}`, { works: true }, `user-${i + 1}-authtoken`);
-});

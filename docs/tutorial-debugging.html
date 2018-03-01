@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Build a Plugin - PubNub ChatEngine</title>
+    <title>Debugging - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,7 +29,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Build a Plugin</h1>
+    <h1 class="page-title">Debugging</h1>
     
 
     <section>
@@ -37,110 +37,82 @@
 <header>
     
 
-    <!-- <h2>Build a Plugin</h2> -->
+    <!-- <h2>Debugging</h2> -->
 </header>
 
 <article>
-    <h1>Plugin.js</h1><p>Check out <a href="module-chat-engine-markdown.html">module:chat-engine-markdown</a> and <a href="module-chat-engine-typing-indicator.html">module:chat-engine-typing-indicator</a> for some examples of plugins.</p>
-<h2>What is a pugin?</h2><p>A plugin is a NodeJS module that exports a mixin like object that augments ChatEngine objects.</p>
-<h1>Plugin Anatomy</h1><p>The plugin entry file must be a file called <code>plugin.js</code> in the root directory.
-From this file you can require any other file as normal, but the entry must be
-plugin.js</p>
-<p>Every plugin must return an object containing the property <code>namespace</code> and <code>middleware</code>
-or <code>extends</code>.</p>
-<p>You can also ChatEngine objects and add new methods to them. For example,
-this plugin adds a method called <code>newMethod()</code> to the <a href="Chat.html">Chat</a> class.</p>
-<pre class="prettyprint source lang-js"><code>// newmethod/plugin.js
-module.exports = {
-    return {
-        extends: {
-            Chat: {
-                construct: (options) => {
-                    // this is called when the pugin is attached to the Chat
-                    // the Chat object is available through this.parent
-                    console.log('I am extending', this.parent, 'with options', options);
-                },
-                newMethod: () => {
-                    // this is a new method that gets attached to Chat as Chat.newMethod()
-                    console.log('New Method Fired - this Chat object is available as this.parent');
-                }
-            }
-        }
-    }
-
-}</code></pre><p>Then you can attach the plugin to a <a href="Chat.html">Chat</a> like this:</p>
-<pre class="prettyprint source lang-js"><code>// include the plugin via require
-newMethodPlugin = require('newmethod/plguin.js');
-
-// create a chat for the plugin to attach to
-chat = new ChatEngine.Chat('my-plugin-chat');
-
-// attach the plugin to the chat
-// newMethodPlugin.construct() is called and console log is fired
-chat.plugin(newMethodPlugin({
-    myparam: true
-}));
-
-// Console: I am extending ChatEngine.Chat with options {myParam: true}
-
-chat.newMethod();
-
-// Console: 'New Method Fired - this Chat object is available as this.parent
-</code></pre><p>When the plugin is installed, every instance of <code>ChatEngine.Chat</code> will have a new
-method called <code>newMethod()</code>. You can call the method like <code>someChat.newMethod()</code>.</p>
-<h1>Middleware</h1><p>Middleware allows you to transform payloads as they travel through the system.
-They are executed in order they are assigned.</p>
-<p>The only valid properties of the <code>middleware</code> object are <code>send</code> and <code>broadcast</code>.</p>
-<ul>
-<li><code>send</code> is executed before the payload is sent over the
-network to the rest of the connected clients.</li>
-<li><code>broadcast</code> is executed when the client receives a payload from another
-client.</li>
-</ul>
-<pre class="prettyprint source lang-js"><code>// timer/plugin.js
-module.exports = (config) => {
-
-    return {
-        middleware: {
-            send:
-                message: (payload, next) => {
-                    payload.sentTime = new Date();
-                    next(err, payload);
-                }
-            },
-            broadcast:
-                message: (payload, next) -> {
-                    payload.receiveTime = new Date();
-                    next(err, payload);
-                }
-            }
-        }
-    };
-
-}</code></pre><p>The sub properties under <code>send</code> and <code>broadcast</code> are the events
-that will trigger the transformation.</p>
-<p>For  example, the plugin above will be executed when a <code>message</code>
-event is sent from the client.</p>
-<pre class="prettyprint source lang-js"><code>// include the plugin via require
-timerPlugin = require('timer/plugin.js');
-
-chat.plugin(timerPlugin());
-
-
-// send a message
-someChat.send('message', {text: &quot;This triggers the send method before it's published over the wire.});
-
-// timerPlugin.middleware.send.message() is executed
-// payload.sentTime is added to the payload
-
-// when message is received
-// timerPlugin.middleware.broadcast.message() is executed
-someChat.on('message', (payload) => {
-
-    // payload has been modified by the broadcast() method before this was called
-    // payload.receiveTime has been added by the plugin
-    console.log(payload.receiveTime);
-
+    <p>Sometimes it can be difficult to understand exactly what's happening in ChatEngine. ChatEngine
+includes some handy utilities to make debugging and profiling easier.</p>
+<h2>Debug Mode</h2><p>This mode will output <strong>every event</strong> happening within ChatEngine system and it's
+payload. The event log tells a story about what's happening inside. Events are logged
+as they are triggered locally.</p>
+<p>You can turn on debug mode by supplying <code>debug: true</code> within the second
+configuration object in ChatEngine#create.</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine = ChatEngineCore.create({
+    //...
+}, {
+    debug: true
+});</code></pre><p>This will output every event that occurs within ChatEngine. Note that not
+every event is a network event.</p>
+<p><img src="/debugging-debug.png" alt=""></p>
+<pre class="prettyprint source lang-sh"><code>debug: newListener $.ready
+debug: $.created.chat { chat: {} }</code></pre><p>This is effectively the same as writing:</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine.onAny((event, payload) => {
+   console.log(event, payload);
+});</code></pre><p>Beware that this is very verbose and should not be enabled in production as it
+will have negative performance implications.</p>
+<h2>Increase PubNub Verbosity</h2><p>PubNub includes it's own verbose logging feature. This logs all network requests
+made by ChatEngine to the PubNub network. You can enable it by supplying <code>logVerbosity: true</code>
+to the first configuration object in ChatEngine#create.</p>
+<p>Check out <a href="https://www.pubnub.com/docs/web-javascript/api-reference-configuration#init-args-1">the PubNub JS Docs</a> for more on <code>logVerbosity</code>.</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine = ChatEngineCore.create({
+    logVerbosity: true
+}, {
+    //...
+});</code></pre><p><img src="/debugging-verbosity.png" alt=""></p>
+<pre class="prettyprint source lang-sh"><code>&lt;&lt;&lt;&lt;&lt;
+[2018-02-26T20:12:20.103Z]
+ https://ps12.pndsn.com/v2/subscribe/demo/%2C/0
+ { heartbeat: 60,
+  'channel-group': 'test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#rooms,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#system,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#custom,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#rooms-pnpres,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#system-pnpres,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#custom-pnpres',
+  uuid: 'ian-v6-11-0-11519675938157',
+  pnsdk: 'PubNub-JS-Nodejs/4.20.1',
+  auth: 'ian-v6-11-0-11519675938157' }
+-----
+&lt;&lt;&lt;&lt;&lt;
+[2018-02-26T20:12:20.104Z]
+ https://ps12.pndsn.com/v2/presence/sub-key/demo/channel/%2C/heartbeat
+ { 'channel-group': 'test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#rooms,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#system,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#custom',
+  state: '{}',
+  heartbeat: 60,
+  uuid: 'ian-v6-11-0-11519675938157',
+  pnsdk: 'PubNub-JS-Nodejs/4.20.1',
+  auth: 'ian-v6-11-0-11519675938157' }
+-----
+&lt;&lt;&lt;&lt;&lt;
+[2018-02-26T20:12:20.105Z]
+ https://ps12.pndsn.com/v2/presence/sub-key/demo/channel/test-v6-11-0-11519675938157
+ { state: 1,
+  uuid: 'ian-v6-11-0-11519675938157',
+  pnsdk: 'PubNub-JS-Nodejs/4.20.1',
+  auth: 'ian-v6-11-0-11519675938157' }</code></pre><h2>PubNub Functions Logging</h2><p>If you suspect server side trouble, you can view your PubNub Functions
+console within the <a href="https://admin.pubnub.com">PubNub Portal Admin</a>.</p>
+<p>Navigate to your ChatEngine PubNub Functions and find the ChatEngine
+Event Handlers. The console window will show you any errors or problems
+occurring within the event handlers.</p>
+<p>The event handlers will only log 250 console messages before disabling. Restart
+your event handler to refresh this limit.</p>
+<h2>Profiling (Browser Only)</h2><p><img src="/debugging-profile.png" alt=""></p>
+<p>Another handy feature is the ability to &quot;profile&quot; your app. This counts
+the number of times each event is triggered within ChatEngine and outputs
+it as a table to the console.</p>
+<p>This is helpful for finding memory leaks and chatty events.</p>
+<p>You can supply this parameter in the second configuration
+within ChatEngine#create.</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine = ChatEngineCore.create({
+    //...
+}, {
+    profile: true
 });</code></pre>
 </article>
 

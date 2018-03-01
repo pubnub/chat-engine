@@ -21,6 +21,9 @@ ChatEngine = ChatEngineCore.create({
 This will output every event that occurs within ChatEngine. Note that not
 every event is a network event.
 
+
+![](/debugging-debug.png)
+
 ```sh
 debug: newListener $.ready
 debug: $.created.chat { chat: {} }
@@ -36,25 +39,6 @@ ChatEngine.onAny((event, payload) => {
 
 Beware that this is very verbose and should not be enabled in production as it
 will have negative performance implications.
-
-## Profiling (Browser Only)
-
-Another handy feature is the ability to "profile" your app. This counts
-the number of times each event is triggered within ChatEngine and outputs
-it as a table to the console.
-
-This is helpful for finding memory leaks and chatty events.
-
-You can supply this parameter in the second configuration
-within {@link ChatEngine#create}.
-
-```js
-ChatEngine = ChatEngineCore.create({
-    //...
-}, {
-    profile: true
-});
-```
 
 ## Increase PubNub Verbosity
 
@@ -72,10 +56,12 @@ ChatEngine = ChatEngineCore.create({
 });
 ```
 
+![](/debugging-verbosity.png)
+
 ```sh
 <<<<<
 [2018-02-26T20:12:20.103Z]
- https://ps12.pndsn.com/v2/subscribe/sub-c-696d9116-c668-11e7-afd4-56ea5891403c/%2C/0
+ https://ps12.pndsn.com/v2/subscribe/demo/%2C/0
  { heartbeat: 60,
   'channel-group': 'test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#rooms,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#system,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#custom,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#rooms-pnpres,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#system-pnpres,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#custom-pnpres',
   uuid: 'ian-v6-11-0-11519675938157',
@@ -84,7 +70,7 @@ ChatEngine = ChatEngineCore.create({
 -----
 <<<<<
 [2018-02-26T20:12:20.104Z]
- https://ps12.pndsn.com/v2/presence/sub-key/sub-c-696d9116-c668-11e7-afd4-56ea5891403c/channel/%2C/heartbeat
+ https://ps12.pndsn.com/v2/presence/sub-key/demo/channel/%2C/heartbeat
  { 'channel-group': 'test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#rooms,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#system,test-v6-11-0-11519675938157#ian-v6-11-0-11519675938157#custom',
   state: '{}',
   heartbeat: 60,
@@ -94,7 +80,7 @@ ChatEngine = ChatEngineCore.create({
 -----
 <<<<<
 [2018-02-26T20:12:20.105Z]
- https://ps12.pndsn.com/v2/presence/sub-key/sub-c-696d9116-c668-11e7-afd4-56ea5891403c/channel/test-v6-11-0-11519675938157
+ https://ps12.pndsn.com/v2/presence/sub-key/demo/channel/test-v6-11-0-11519675938157
  { state: 1,
   uuid: 'ian-v6-11-0-11519675938157',
   pnsdk: 'PubNub-JS-Nodejs/4.20.1',
@@ -112,3 +98,24 @@ occurring within the event handlers.
 
 The event handlers will only log 250 console messages before disabling. Restart
 your event handler to refresh this limit.
+
+## Profiling (Browser Only)
+
+![](/debugging-profile.png)
+
+Another handy feature is the ability to "profile" your app. This counts
+the number of times each event is triggered within ChatEngine and outputs
+it as a table to the console.
+
+This is helpful for finding memory leaks and chatty events.
+
+You can supply this parameter in the second configuration
+within {@link ChatEngine#create}.
+
+```js
+ChatEngine = ChatEngineCore.create({
+    //...
+}, {
+    profile: true
+});
+```
