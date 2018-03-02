@@ -324,27 +324,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                 let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
 
-                if (statusEvent.affectedChannels) {
-                    statusEvent.affectedChannels.forEach((channel) => {
+                ChatEngine._emit(eventName, statusEvent);
 
-                        let chat = ChatEngine.chats[channel];
-
-                        if (chat) {
-                            // connected category tells us the chat is ready
-                            if (statusEvent.category === 'PNConnectedCategory') {
-                                chat.connectionReady();
-                            }
-
-                            // trigger the network events
-                            chat.trigger(eventName, statusEvent);
-
-                        } else {
-                            ChatEngine._emit(eventName, statusEvent);
-                        }
-                    });
-                } else {
-                    ChatEngine._emit(eventName, statusEvent);
-                }
             }
         });
 
