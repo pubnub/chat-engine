@@ -324,20 +324,6 @@ class Chat extends Emitter {
         if (userAlreadyHere) {
 
             /**
-             * Fired when a {@link User} has joined the room.
-             *
-             * @event Chat#$"."online"."join
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
-             * @example
-             * chat.on('$.join', (data) => {
-             *     console.log('User has joined the room!', data.user);
-             * });
-             */
-            this.trigger('$.online.join', { user: this.users[uuid] });
-
-        } else {
-            /**
              * Broadcast that a {@link User} has come online. This is when
              * the framework firsts learn of a user. This can be triggered
              * by, ```$.join```, or other network events that
@@ -351,9 +337,24 @@ class Chat extends Emitter {
                       *     console.log('User has come online:', data.user);
                       * });
              */
-            this.trigger('$.online.here', {
-                user: this.users[uuid]
-            });
+
+            this.trigger('$.online.here', { user: this.users[uuid] });
+
+        } else {
+
+            /**
+             * Fired when a {@link User} has joined the room.
+             *
+             * @event Chat#$"."online"."join
+             * @param {Object} data The payload returned by the event
+             * @param {User} data.user The {@link User} that came online
+             * @example
+             * chat.on('$.join', (data) => {
+             *     console.log('User has joined the room!', data.user);
+             * });
+             */
+
+            this.trigger('$.online.join', { user: this.users[uuid] });
 
         }
 

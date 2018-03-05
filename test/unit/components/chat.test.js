@@ -57,7 +57,7 @@ describe('#chat', () => {
 
     it('user join to chat', (done) => {
 
-        chatInstance.on('$.online.here', () => {
+        chatInstance.on('$.online.join', () => {
             done();
         });
 
