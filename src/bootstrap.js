@@ -555,7 +555,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link Chat}
      */
-    ChatEngine.Chat = function (...args) {
+    ChatEngine.Chat = function createChat(...args) {
 
         let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
@@ -587,7 +587,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link User}
      */
-    ChatEngine.User = function (...args) {
+    ChatEngine.User = function createUser(...args) {
 
         if (ChatEngine.me.uuid === args[0]) {
             return ChatEngine.me;
