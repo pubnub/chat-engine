@@ -37,8 +37,7 @@ ChatEngine.onAny((event, payload) => {
 });
 ```
 
-Beware that this is very verbose and should not be enabled in production as it
-will have negative performance implications.
+**This should not be enabled in production**. It is very verbose and will have negative performance implications.
 
 ## Increase PubNub Verbosity
 
