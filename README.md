@@ -15,7 +15,7 @@ Check out [the getting started guide](https://github.com/pubnub/chat-engine-tuto
 
 #   Docs
 
-You can find the full docs on [the full documentation website](https://chat-engine-docs.surge.sh/docs/).
+You can find the full docs on [the full documentation website](https://www.pubnub.com/docs/chat-engine/getting-started).
 
 # Examples
 
