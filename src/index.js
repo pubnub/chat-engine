@@ -1,4 +1,3 @@
-require('babel-polyfill');
 const init = require('./bootstrap');
 
 /**
