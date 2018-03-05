@@ -21,7 +21,10 @@
     ],
     "templates": {
         "default": {
-            "includeDate": false
+            "includeDate": false,
+            "staticFiles": {
+                "include": ["./guide/static"]
+            }
         }
     }
 }

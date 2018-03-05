@@ -58,6 +58,9 @@
              "templating": {
                  "title": "Templating"
              },
+             "debugging": {
+                 "title": "Debugging"
+             },
              "errors": {
                  "title": "Errors"
              },

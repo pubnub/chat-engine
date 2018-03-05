@@ -227,17 +227,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     };
 
     /**
-     * @private
      * Listen to PubNub events and forward them into ChatEngine system.
+     * @private
      */
     ChatEngine.listenToPubNub = () => {
 
-        /**
-         Fires when PubNub network connection changes.
-
-         @private
-         @param {Object} statusEvent The response status
-         */
         ChatEngine.pubnub.addListener({
             message: (m) => {
 
@@ -332,8 +326,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     };
 
     /**
-     * @private
      * Subscribe to PubNub and begin receiving events.
+     * @private
      */
     ChatEngine.subscribeToPubNub = () => {
 
