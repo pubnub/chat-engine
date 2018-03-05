@@ -40,12 +40,6 @@ const create = (pnConfig, ceConfig = {}) => {
     pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 30;
     pnConfig.presenceTimeout = pnConfig.presenceTimeout || 60;
 
-    pnConfig.keepAlive = true;
-    pnConfig.keepAliveSettings = {
-        keepAlive: true,
-        timeout: 5 * 1000 * 60
-    };
-
     // return an instance of ChatEngine
     return init(ceConfig, pnConfig);
 
