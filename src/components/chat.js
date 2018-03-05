@@ -10,7 +10,7 @@ const Search = require('../components/search');
  @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
- @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link ChatEngine.session} object.
+ @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
  @class Chat
  @extends Emitter
  @extends RootEmitter
@@ -249,7 +249,6 @@ class Chat extends Emitter {
             this.userUpdate(presenceEvent.uuid, presenceEvent.state);
         }
 
-
     }
 
     /**
@@ -298,6 +297,8 @@ class Chat extends Emitter {
             chatengineSDK: this.chatEngine.package.version
         };
 
+        let tracer = new Event(this.chatEngine, this, event);
+
         // run the plugin queue to modify the event
         this.runPluginQueue('emit', event, (next) => {
             next(null, payload);
@@ -309,13 +310,11 @@ class Chat extends Emitter {
             delete pluginResponse.chat;
 
             // publish the event and data over the configured channel
-
-            // ensure the event exists within the global space
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
-
-            this.events[event].publish(pluginResponse);
+            tracer.publish(pluginResponse);
 
         });
+
+        return tracer;
 
     }
 
@@ -334,8 +333,15 @@ class Chat extends Emitter {
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
         this.chatEngine.users[uuid].assign(state);
 
+        // check if the user already exists within the chatroom
+        // so we know if we need to notify or not
+        let userAlreadyHere = this.users[uuid];
+
+        // assign the user to the chatroom
+        this.users[uuid] = this.chatEngine.users[uuid];
+
         // trigger the join event over this chatroom
-        if (!this.users[uuid]) {
+        if (!userAlreadyHere) {
 
             /**
              * Broadcast that a {@link User} has come online. This is when
@@ -357,9 +363,6 @@ class Chat extends Emitter {
             });
 
         }
-
-        // store this user in the chatroom
-        this.users[uuid] = this.chatEngine.users[uuid];
 
         // return the instance of this user
         return this.chatEngine.users[uuid];
@@ -433,7 +436,7 @@ class Chat extends Emitter {
     }
 
     /**
-     * Fired upon successful connection to the network through any means..
+     * Fired upon successful connection to the network.
      * @private
      */
     onConnected() {
@@ -448,6 +451,14 @@ class Chat extends Emitter {
     onDisconnected() {
         this.connected = false;
         this.trigger('$.disconnected');
+    }
+    /**
+     * Fires upon manually invoked leaving.
+     * @private
+     */
+    onLeave() {
+        this.trigger('$.left');
+        this.onDisconnected();
     }
 
     /**
@@ -469,10 +480,15 @@ class Chat extends Emitter {
             .then(() => {
 
                 // trigger the disconnect events and update state
-                this.onDisconnected();
+                this.onLeave();
+
+                // tell the chat we've left
+                this.emit('$.system.leave', { subject: this.objectify() });
 
                 // tell session we've left
-                this.chatEngine.me.sessionLeave(this);
+                if (this.chatEngine.me.session) {
+                    this.chatEngine.me.session.leave(this);
+                }
 
             })
             .catch((error) => {
@@ -488,8 +504,11 @@ class Chat extends Emitter {
      */
     userLeave(uuid) {
 
+        let user = this.users[uuid];
+        delete this.users[uuid];
+
         // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
+        if (user) {
 
             // if a user leaves, trigger the event
 
@@ -504,9 +523,7 @@ class Chat extends Emitter {
                       *     console.log('User left the room manually:', data.user);
                       * });
              */
-            this.trigger('$.offline.leave', {
-                user: this.users[uuid]
-            });
+            this.trigger('$.offline.leave', { user });
 
             // remove the user from the local list of users
             delete this.users[uuid];
@@ -514,13 +531,8 @@ class Chat extends Emitter {
             // we don't remove the user from the global list,
             // because they may be online in other channels
 
-        } else {
-
-            // that user isn't in the user list
-            // we never knew about this user or they already left
-
-            // console.log('user already left');
         }
+
     }
 
     /**
@@ -531,8 +543,11 @@ class Chat extends Emitter {
      */
     userDisconnect(uuid) {
 
+        let user = this.users[uuid];
+        delete this.users[uuid];
+
         // make sure this event is real, user may have already left
-        if (this.users[uuid]) {
+        if (user) {
 
             /**
              * Fired specifically when a {@link User} looses network connection
@@ -543,11 +558,11 @@ class Chat extends Emitter {
              * @param {Object} data.user The {@link User} that disconnected
              * @example
              * chat.on('$.offline.disconnect', (data) => {
-                      *     console.log('User disconnected from the network:', data.user);
-                      * });
+             *     console.log('User disconnected from the network:', data.user);
+             * });
              */
+            this.trigger('$.offline.disconnect', { user });
 
-            this.trigger('$.offline.disconnect', { user: this.users[uuid] });
         }
 
     }
@@ -571,7 +586,7 @@ class Chat extends Emitter {
      @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
      @param {Event} [config.event] The {@link Event} to search for.
      @param {User} [config.sender] The {@link User} who sent the message.
-     @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history.
+     @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history. Limit will be ignored in case if both 'start' and 'end' timetokens has been passed in search configuration.
      @param {Number} [config.start=0] The timetoken to begin searching between.
      @param {Number} [config.end=0] The timetoken to end searching between.
      @param {Boolean} [config.reverse=false] Search oldest messages first.
@@ -616,7 +631,9 @@ class Chat extends Emitter {
          */
         this.onConnected();
 
-        this.chatEngine.me.sessionJoin(this);
+        if (this.chatEngine.me.session) {
+            this.chatEngine.me.session.join(this);
+        }
 
         // add self to list of users
         this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
@@ -637,6 +654,10 @@ class Chat extends Emitter {
             }, 5000);
 
         }
+
+        this.on('$.system.leave', (payload) => {
+            this.userLeave(payload.sender.uuid);
+        });
 
     }
 

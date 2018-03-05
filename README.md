@@ -107,7 +107,24 @@ Run ```gulp``` to compile, but you should probably run ```gulp watch``` to get c
 
 ## Running Tests
 
-Run ```gulp test```.
+You will need to assign environment variables ```PUB_KEY_0``` and ```SUB_KEY_0``` to your own PubNub keys. Add these variables into your ```.bashrc``` or ```.zshrc```.
+
+```sh
+# pubnub chatengine keys
+export PUB_KEY_0="YOUR PUBNUB PUBLISH KEY"
+export SUB_KEY_0="YOUR PUBNUB SUBSCRIBE KEY"
+```
+
+Then, in the root folder run:
+
+```
+gulp test
+```
+
+## PubNub Functions and Account Setup
+
+You can find the scripts for the [PubNub Automagic Setup](https://www.pubnub.com/docs/chat-engine/getting-started) here:
+[https://github.com/pubnub/chat-engine-setup](https://github.com/pubnub/chat-engine-setup).
 
 ## Releasing a patch (chat engine and plugins)
 

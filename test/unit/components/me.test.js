@@ -19,6 +19,7 @@ describe('#me', () => {
         chatEngineInstance.connect();
 
         me = new Me(chatEngineInstance, 'user1');
+        me.session.subscribe();
     });
 
     it('chat created', (done) => {
@@ -28,9 +29,9 @@ describe('#me', () => {
 
     it('chat sync created', (done) => {
 
-        me.subscribeToSession();
+        me.session.subscribe();
 
-        assert.isObject(me.sync);
+        assert.isObject(me.session.chats);
 
         done();
     });
@@ -42,7 +43,7 @@ describe('#me', () => {
             done();
         });
 
-        me.sync.trigger('$.session.chat.join', { chat: { group: 'default', channel: 'test' } });
+        me.session.sync.trigger('$.session.chat.join', { chat: { group: 'default', channel: 'test' } });
 
     });
 
@@ -53,7 +54,7 @@ describe('#me', () => {
             done();
         });
 
-        me.sync.trigger('$.session.chat.leave', { chat: { group: 'default', channel: 'test' } });
+        me.session.sync.trigger('$.session.chat.leave', { chat: { group: 'default', channel: 'test' } });
 
     });
 });

@@ -1,49 +1,52 @@
+const Emitter = require('../modules/root_emitter');
+
 /**
  * @class Event
- * Represents an event that may be emitted or subscribed to.
+ * Represents an {@link Chat} event.
+ * @fires $"."emitted
+ * @extends Emitter
+ * @extends RootEmitter
  */
-class Event {
+class Event extends Emitter {
 
     constructor(chatEngine, chat, event) {
 
+        super();
+
         /**
-         Events are always a property of a {@link Chat}. Responsible for
-         listening to specific events and firing events when they occur.
-         @readonly
-         @type String
-         @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+         * @private
+         */
+        this.chatEngine = chatEngine;
+
+        /**
+         * The {@link Chat#channel} that this event is registered to.
+         * @type String
+         * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
+         * @readonly
          */
         this.channel = chat.channel;
 
-        this.chatEngine = chatEngine;
-
+        /**
+         * Events are always a property of a {@link Chat}. Responsible for
+         * listening to specific events and firing events when they occur.
+         * @readonly
+         * @type {Chat}
+         */
         this.chat = chat;
 
+        /**
+         * The string representation of the event. This is supplied as the first parameter to {@link Chat#on}
+         * @type {String}
+         */
         this.event = event;
 
+        /**
+         * A name that identifies this class
+         * @type {String}
+         */
         this.name = 'Event';
 
-        /**
-         Forwards events to the Chat that registered the event {@link Chat}
-
-         @private
-         @param {Object} data The event payload object
-         */
-
-        // call onMessage when PubNub receives an event
-        this.chatEngine.pubnub.addListener({
-            message: this.onMessage.bind(this)
-        });
-
         return this;
-
-    }
-
-    onMessage(m) {
-
-        if (this.channel === m.channel && m.message.event === this.event) {
-            this.chat.trigger(m.message.event, m.message);
-        }
 
     }
 
@@ -60,23 +63,28 @@ class Event {
         this.chatEngine.pubnub.publish({
             message: m,
             channel: this.channel
-        }, (status) => {
+        }, (status, response) => {
 
             if (status.statusCode === 200) {
 
+                if (response) {
+                    m.timetoken = response.timetoken;
+                }
+
                 /**
                  * Message successfully published
-                 * @event Chat#$"."publish"."success
-                 * @param {Object} data The message object
+                 * @event Event#$"."emitted"
+                 * @param {Object} data The message payload
                  */
-                this.chat.trigger('$.publish.success', m);
+                this._emit('$.emitted', m);
+
             } else {
 
                 /**
                  * There was a problem publishing over the PubNub network.
                  * @event Chat#$"."error"."publish
                  */
-                this.chatEngine.throwError(this.chat, 'trigger', 'publish', new Error('There was a problem publishing over the PubNub network.'), status);
+                this.chatEngine.throwError(this, '_emit', 'emitter', new Error('There was a problem publishing over the PubNub network.'), status);
             }
 
         });
@@ -86,3 +94,4 @@ class Event {
 }
 
 module.exports = Event;
+

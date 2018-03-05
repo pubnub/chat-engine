@@ -32,13 +32,26 @@ const create = (pnConfig, ceConfig = {}) => {
         ceConfig.throwErrors = true;
     }
 
+    if (typeof ceConfig.enableSync === 'undefined') {
+        ceConfig.enableSync = false;
+    }
+
+    ceConfig.endpoint = ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/chat-engine-server';
+
+    pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 30;
+    pnConfig.presenceTimeout = pnConfig.presenceTimeout || 60;
+
     // return an instance of ChatEngine
     return init(ceConfig, pnConfig);
 
 };
 
 // export the ChatEngine api
-module.exports = {
-    plugin: {}, // leave a spot for plugins to exist
-    create
+const ChatEngineCore = {
+    plugin: {},
+    create: create
 };
+
+module.exports = ChatEngineCore;
+
+module.exports.ChatEngineCore = ChatEngineCore;

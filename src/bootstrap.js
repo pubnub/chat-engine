@@ -21,22 +21,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ceConfig = ceConfig;
     ChatEngine.pnConfig = pnConfig;
 
-    ChatEngine.pnConfig.heartbeatInterval = ChatEngine.pnConfig.heartbeatInterval || 30;
-    ChatEngine.pnConfig.presenceTimeout = ChatEngine.pnConfig.presenceTimeout || 60;
-
-    ChatEngine.pnConfig.keepAlive = true;
-    ChatEngine.pnConfig.keepAliveSettings = {
-        keepAlive: true,
-        timeout: 5 * 1000 * 60
-    };
-
-    ChatEngine.ceConfig.endpoint = ChatEngine.ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + ChatEngine.pnConfig.subscribeKey + '/chat-engine-server';
-    ChatEngine.ceConfig.globalChannel = ChatEngine.ceConfig.globalChannel || 'chat-engine-global';
-
-    if (typeof ChatEngine.ceConfig.enableSync === 'undefined') {
-        ChatEngine.ceConfig.enableSync = false;
-    }
-
     /**
      * A map of all known {@link User}s in this instance of ChatEngine.
      * @type {Object}
@@ -255,6 +239,16 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
          @param {Object} statusEvent The response status
          */
         ChatEngine.pubnub.addListener({
+            message: (m) => {
+
+                // assign the message timetoken as a property of the payload
+                m.message.timetoken = m.timetoken;
+
+                if (ChatEngine.chats[m.channel]) {
+                    ChatEngine.chats[m.channel].trigger(m.message.event, m.message);
+                }
+
+            },
             presence: (payload) => {
 
                 if (ChatEngine.chats[payload.channel]) {
@@ -389,7 +383,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         ChatEngine.global.once('$.connected', () => {
 
-
             // build the current user
             ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
 
@@ -402,7 +395,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             * });
             */
             ChatEngine.me.onConstructed();
-            ChatEngine.me.subscribeToSession();
+
+            if (ChatEngine.ceConfig.enableSync) {
+                ChatEngine.me.session.subscribe();
+                ChatEngine.me.session.restore();
+            }
 
             ChatEngine.me.update(state);
 
@@ -425,7 +422,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.subscribeToPubNub();
 
             ChatEngine.global.getUserUpdates();
-            ChatEngine.me.restoreSession();
 
         });
 
