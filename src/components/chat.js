@@ -1,4 +1,4 @@
-const async = require('async');
+const waterfall = require('async/waterfall');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
 const Search = require('../components/search');
@@ -712,7 +712,7 @@ class Chat extends Emitter {
      */
     handshake(callback) {
 
-        async.waterfall([
+        waterfall([
             (next) => {
                 if (!this.chatEngine.pubnub) {
                     next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');

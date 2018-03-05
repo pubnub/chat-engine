@@ -190,7 +190,7 @@ class Emitter extends RootEmitter {
             }
 
             // if we should try to restore the sender property
-            if (payload.sender) {
+            if (payload.sender && typeof payload.sender === 'string') {
 
                 // the user doesn't exist, create it
                 payload.sender = new this.chatEngine.User(payload.sender);
