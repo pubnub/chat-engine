@@ -6,6 +6,7 @@ The real time server component is provided by PubNub. ChatEngine is designed to 
 
 # Getting Started
 
+[![](https://data.jsdelivr.com/v1/package/npm/chat-engine/badge)](https://www.jsdelivr.com/package/npm/chat-engine)
 [![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
@@ -14,7 +15,7 @@ Check out [the getting started guide](https://github.com/pubnub/chat-engine-tuto
 
 #   Docs
 
-You can find the full docs on [the full documentation website](https://chat-engine-docs.surge.sh/docs/).
+You can find the full docs on [the full documentation website](https://www.pubnub.com/docs/chat-engine/getting-started).
 
 # Examples
 

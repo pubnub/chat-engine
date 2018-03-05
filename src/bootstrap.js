@@ -6,7 +6,7 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
-const async = require('async');
+const series = require('async/series');
 
 /**
 @class ChatEngine
@@ -83,22 +83,22 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
-    let countObject = {};
-
     if (ceConfig.debug) {
 
         ChatEngine.onAny((event, payload) => {
-
             console.info('debug:', event, payload);
-
-            countObject['event: ' + event] = countObject[event] || 0;
-            countObject['event: ' + event] += 1;
-
         });
 
     }
 
-    if (ceConfig.profiling) {
+    if (ceConfig.profile) {
+
+        let countObject = {};
+
+        ChatEngine.onAny((event, payload) => {
+            countObject['event: ' + event] = countObject[event] || 0;
+            countObject['event: ' + event] += 1;
+        });
 
         setInterval(() => {
 
@@ -199,7 +199,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.handshake = (complete) => {
 
-        async.series([
+        series([
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
@@ -324,27 +324,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
                 let eventName = ['$', 'network', categories[statusEvent.category] || 'other'].join('.');
 
-                if (statusEvent.affectedChannels) {
-                    statusEvent.affectedChannels.forEach((channel) => {
+                ChatEngine._emit(eventName, statusEvent);
 
-                        let chat = ChatEngine.chats[channel];
-
-                        if (chat) {
-                            // connected category tells us the chat is ready
-                            if (statusEvent.category === 'PNConnectedCategory') {
-                                chat.connectionReady();
-                            }
-
-                            // trigger the network events
-                            chat.trigger(eventName, statusEvent);
-
-                        } else {
-                            ChatEngine._emit(eventName, statusEvent);
-                        }
-                    });
-                } else {
-                    ChatEngine._emit(eventName, statusEvent);
-                }
             }
         });
 
@@ -574,7 +555,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link Chat}
      */
-    ChatEngine.Chat = function (...args) {
+    ChatEngine.Chat = function createChat(...args) {
 
         let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
@@ -606,7 +587,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      * @see {@link User}
      */
-    ChatEngine.User = function (...args) {
+    ChatEngine.User = function createUser(...args) {
 
         if (ChatEngine.me.uuid === args[0]) {
             return ChatEngine.me;

@@ -11,6 +11,7 @@ Global object used to create an instance of {@link ChatEngine}.
 @param [ceConfig.throwErrors=true] {Boolean} Throws errors in JS console.
 @param [ceConfig.endpoint='https://pubsub.pubnub.com/v1/blocks/sub-key/YOUR_SUB_KEY/chat-engine-server'] {String} The root URL of the server used to manage permissions for private channels. Set by default to match the PubNub functions deployed to your account. See {@tutorial privacy} for more.
 @param [ceConfig.debug] {Boolean} Logs all ChatEngine events to the console.
+@param [ceConfig.profile] {Boolean} Sums event counts and outputs a table to the console every few seconds.
 @return {ChatEngine} Returns an instance of {@link ChatEngine}
 @example
 ChatEngine = ChatEngineCore.create({

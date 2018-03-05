@@ -27,6 +27,10 @@ class User extends Emitter {
          @type String
          */
 
+        if (typeof uuid !== 'string') {
+            this.chatEngine.throwError(this, 'trigger', 'construct', new Error('UUID must be of type string'));
+        }
+
         this.uuid = uuid;
 
         /**
