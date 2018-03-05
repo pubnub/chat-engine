@@ -211,27 +211,7 @@ class Chat extends Emitter {
 
         // someone joins channel
         if (presenceEvent.action === 'join') {
-
-            let user = this.createUser(presenceEvent.uuid, presenceEvent.state);
-
-            /**
-             * Fired when a {@link User} has joined the room.
-             *
-             * @event Chat#$"."online"."join
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
-             * @example
-             * chat.on('$.join', (data) => {
-             *     console.log('User has joined the room!', data.user);
-             * });
-             */
-
-            // It's possible for PubNub to send us both a join and have the user appear in here_now
-            // Avoid firing duplicate $.online events.
-            if (!this.users[user.uuid]) {
-                this.trigger('$.online.join', { user });
-            }
-
+            this.userJoin(presenceEvent.uuid, presenceEvent.state);
         }
 
         // someone leaves channel
@@ -326,7 +306,7 @@ class Chat extends Emitter {
      @param {Object} state The user initial state
      @param {Boolean} trigger Force a trigger that this user is online
      */
-    createUser(uuid, state) {
+    userJoin(uuid, state) {
 
         // Ensure that this user exists in the global list
         // so we can reference it from here out
@@ -341,8 +321,22 @@ class Chat extends Emitter {
         this.users[uuid] = this.chatEngine.users[uuid];
 
         // trigger the join event over this chatroom
-        if (!userAlreadyHere) {
+        if (userAlreadyHere) {
 
+            /**
+             * Fired when a {@link User} has joined the room.
+             *
+             * @event Chat#$"."online"."join
+             * @param {Object} data The payload returned by the event
+             * @param {User} data.user The {@link User} that came online
+             * @example
+             * chat.on('$.join', (data) => {
+             *     console.log('User has joined the room!', data.user);
+             * });
+             */
+            this.trigger('$.online.join', { user: this.users[uuid] });
+
+        } else {
             /**
              * Broadcast that a {@link User} has come online. This is when
              * the framework firsts learn of a user. This can be triggered
@@ -357,9 +351,8 @@ class Chat extends Emitter {
                       *     console.log('User has come online:', data.user);
                       * });
              */
-
             this.trigger('$.online.here', {
-                user: this.chatEngine.users[uuid]
+                user: this.users[uuid]
             });
 
         }
@@ -383,7 +376,7 @@ class Chat extends Emitter {
         // if we don't know about this user
         if (!this.users[uuid]) {
             // do the whole join thing
-            this.createUser(uuid, state);
+            this.userJoin(uuid, state);
         }
 
         // update this user's state in this chatroom
@@ -504,7 +497,12 @@ class Chat extends Emitter {
      */
     userLeave(uuid) {
 
+        // store a temporary reference to send with our event
         let user = this.users[uuid];
+
+        // remove the user from the local list of users
+        // we don't remove the user from the global list,
+        // because they may be online in other channels
         delete this.users[uuid];
 
         // make sure this event is real, user may have already left
@@ -524,12 +522,6 @@ class Chat extends Emitter {
                       * });
              */
             this.trigger('$.offline.leave', { user });
-
-            // remove the user from the local list of users
-            delete this.users[uuid];
-
-            // we don't remove the user from the global list,
-            // because they may be online in other channels
 
         }
 
