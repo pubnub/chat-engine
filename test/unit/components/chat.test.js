@@ -57,12 +57,22 @@ describe('#chat', () => {
 
     it('user join to chat', (done) => {
 
+        chatInstance.on('$.online.join', () => {
+            done();
+        });
+
+        chatInstance.userJoin('user2', { state: 'active' });
+
+    });
+
+    it('user join to chat already here', (done) => {
+
         chatInstance.on('$.online.here', () => {
             done();
         });
 
-        chatInstance.createUser('user2', { state: 'active' });
-
+        chatInstance.userJoin('user2', { state: 'active' });
+        chatInstance.userJoin('user2', { state: 'active' });
 
     });
 

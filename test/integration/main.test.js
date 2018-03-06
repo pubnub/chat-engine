@@ -300,7 +300,7 @@ describe('chat', () => {
 
         let chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
-        chat.on('$.online.*', (p) => {
+        chat.on('$.online.join', (p) => {
 
             if (p.user.uuid === ChatEngine.me.uuid) {
                 done();
@@ -703,10 +703,10 @@ describe('memory', () => {
 
         };
 
-        a.on('$.online.*', () => {
+        a.on('$.online.join', () => {
             checkDone();
         });
-        b.on('$.online.*', () => {
+        b.on('$.online.join', () => {
             checkDone();
         });
 
