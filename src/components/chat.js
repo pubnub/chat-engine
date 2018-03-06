@@ -504,7 +504,12 @@ class Chat extends Emitter {
      */
     userLeave(uuid) {
 
+        // store a temporary reference to send with our event
         let user = this.users[uuid];
+
+        // remove the user from the local list of users
+        // we don't remove the user from the global list,
+        // because they may be online in other channels
         delete this.users[uuid];
 
         // make sure this event is real, user may have already left
@@ -524,12 +529,6 @@ class Chat extends Emitter {
                       * });
              */
             this.trigger('$.offline.leave', { user });
-
-            // remove the user from the local list of users
-            delete this.users[uuid];
-
-            // we don't remove the user from the global list,
-            // because they may be online in other channels
 
         }
 
