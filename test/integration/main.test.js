@@ -44,12 +44,10 @@ function createChatEngine(done) {
 
     ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey,
-        logVerbosity: true
+        subscribeKey: subkey
     }, {
         globalChannel,
-        throwErrors: true,
-        debug: true
+        throwErrors: true
     });
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
