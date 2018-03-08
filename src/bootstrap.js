@@ -201,6 +201,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         series([
             (next) => {
+                ChatEngine.request('post', 'login').then(() => {
+                    next(null);
+                }).catch(next);
+            },
+            (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
                 }).catch(next);
