@@ -1,97 +1,439 @@
---- 
-changelog: 
-  - 
-    changes: 
-      - 
-        text: "New Search (History) Class: chat.search({event: 'message'}).on('messsage', () => {})."
-        type: feature
-      - 
-        text: "New Search (History) Class: Search returns event emitter for superior code quality."
-        type: feature
-      - 
-        text: "New Search (History) Class: Search now pages to iterate over complete history."
-        type: improvement
-      - 
-        text: "New Search (History) Class: Ability to search between dates."
-        type: improvement
-      - 
-        text: "New Search (History) Class: Events for $.search.start and $.page.request."
-        type: feature
-      - 
-        text: "Functions auto setup in setup.js."
-        type: improvement
-      - 
-        text: "Unit testing coverage."
-        type: improvement
-      - 
-        text: "Ability to subscribe to events indicating a class was created locally."
-        type: improvement
-      - 
-        text: "Source of ChatEngine events available as second param in callback: ChatEngine.on('$.created.chat', (payload, chat) => {})"
-        type: improvement
-      - 
-        text: "Full es6 class syntax."
-        type: improvement
-      - 
-        text: "protoPlugin() -> ChatEngine#proto."
-        type: improvement
-    date: Nov 6, 17
-    version: v0.7.0
-  - 
-    changes: 
-      - 
-        text: "Stop rendering date on footer to avoid large diffs."
-        type: improvement
-      - 
-        text: "Document $.created methodS."
-        type: improvement
-      - 
-        text: "Revert docs compiled for better diff."
-        type: improvement
-      - 
-        text: "Revert dist dir."
-        type: improvement
-      - 
-        text: "Add guids to docs gulp task, replace code references to classes with docs links."
-        type: improvement
-      - 
-        text: "Render me."
-        type: improvement
-      - 
-        text: "More editing to me page."
-        type: improvement
-      - 
-        text: "Finish users tutorial updates."
-        type: improvement
-      - 
-        text: "Get to online-loist."
-        type: feature
-      - 
-        text: "First edit of concepts."
-        type: improvement
-      - 
-        text: "Better event output in guides."
-        type: improvement
-      - 
-        text: "Edits to $.created docs."
-        type: improvement
-      - 
-        text: "Add notes about 0.6.x into readme top."
-        type: improvement
-      - 
-        text: "Make linters happy."
-        type: improvement
-      - 
-        text: "Fix uploadcare example dustin pointed out."
-        type: bug
-      - 
-        text: "Remove dates from footers."
-        type: improvement
-    date: Oct 28, 17
-    version: v0.6.1
+name: chat-engine
+version: 0.9.5
+schema: 1
+scm: github.com/pubnub/chat-engine
+files:
+  - dist/chat-engine.js
+  - dist/chat-engine.min.js
+changelog:
+  - version: v0.9.5
+    date: 2018-02-27
+    changes:
+      - type: improvement
+        text: identify Me.name = "me"
+      - type: feature
+        text: add declaration files
+      - type: bug
+        text: fix events search
+      - type: improvement
+        text: chat 185 - expose timetoken on emit
+      - type: improvement
+        text: chat 185 - expose timetoken on "on"
+      - type: improvement
+        text: move session logic into own file
+      - type: improvement
+        text: update users in memory before events are fired, implement .leave()
+      - type: improvement
+        text: move config out of bootstrap
+      - type: improvement
+        text: remove setup directories from repository
+      - type: improvement
+        text: connection management, test refactor
+      - type: improvement
+        text: stop establishing new connections for every request in nodeJS
+      - type: improvement
+        text: synchronize states between clients as an option
+      - type: improvement
+        text: set auth key as unique token by default (#226)
+      - type: bug
+        text: - to =
+      - type: improvement
+        text: throw and error if you have never connected to the chat before calling $.history
+      - type: improvement
+        text: refactor tests (#272)
+      - type: feature
+        text: add ability to profile memory
+      - type: improvement
+        text: build robot (#268)
+      - type: feature
+        text: support plugins within search
+      - type: improvement
+        text: update eventemitter2 v2 -> v4
+      - type: improvement
+        text: added codacy badges
+      - type: improvement
+        text: chat 111 segment proxy
+      - type: improvement
+        text: document class constructors (#229)
+      - type: improvement
+        text: add logo to readme and update resources, remove changelog
+      - type: improvement
+        text: create .pubnub.yml
+      - type: improvement
+        text: change Chat Engine with ChatEngine
+      - type: improvement
+        text: remove additional add vault key
+      - type: improvement
+        text: remove console logs and comments
+      - type: improvement
+        text: hardcode the secret key during setup
+      - type: improvement
+        text: add source clr
+      - type: improvement
+        text: commit linted file back
+      - type: improvement
+        text: restore webpack
+      - type: improvement
+        text: export more functions
+      - type: improvement
+        text: make sure to alert actual errors
+  - version: v0.8.4
+    date: 2017-11-08
+    changes:
+      - type: improvement
+        text: authentication
+      - type: improvement
+        text: update channel for presence
+      - type: bug
+        text: fix setup.js endpoint path
+      - type: feature
+        text: surge deploy
+      - type: feature
+        text: chat engine minify
+      - type: bug
+        text: fix callback
+      - type: bug
+        text: fixed up the unit tests for vault and auth.js changes
+      - type: improvement
+        text: cleanup
+      - type: improvement
+        text: soften logic
+  - version: v0.8.3
+    date: 2017-11-08
+    changes:
+      - type: improvement
+        text: don't use classes for facade pattern
+      - type: improvement
+        text: ecma6 the setup
+  - version: v.0.8.2
+    date: 2017-11-08
+    changes:
+      - type: improvement
+        text: was tarnished
+  - version: v0.8.1
+    date: 2017-11-08
+    changes:
+      - type: improvement
+        text: remove unused deps
+  - version: v0.8.0
+    date: 2017-11-08
+    changes:
+      - type: bug
+        text: fix auth endpoint
+      - type: improvement
+        text: auth that actually works
+      - type: improvement
+        text: update presence
+      - type: bug
+        text: fix up setup blocks
+      - type: bug
+        text: Fix getting state in history and user memory leak
+      - type: feature
+        text: add setup for existing and new accounts
+      - type: improvement
+        text: increase ttl to a week
+      - type: improvement
+        text: improve style code codacy/cleanup
+      - type: feature
+        text: add server.js functions endpoint deploy
+      - type: feature
+        text: add debug mode
+      - type: improvement
+        text: remove unused session var
+      - type: improvement
+        text: better user population to avoid duplication
+      - type: improvement
+        text: better error throw
+      - type: bug
+        text: find horrible bug for me join event
+      - type: bug
+        text: work on history loops
+      - type: improvement
+        text: remove axios as much as possible
+      - type: improvement
+        text: sync chats
+      - type: improvement
+        text: move waterfall
+      - type: improvement
+        text: better refactor for request
+      - type: feature
+        text: populate chat list
+      - type: improvement
+        text: update this.meta
+      - type: feature
+        text: notify new chats
+      - type: improvement
+        text: update readme
+      - type: feature
+        text: bring presence back
+      - type: feature
+        text: sign channel group request
+      - type: feature
+        text: add capability to manage states
+      - type: improvement
+        text: small endpoints
+      - type: feature
+        text: split user channel grants into smaller pieces, implement auth policy
+      - type: feature
+        text: channel group subscribe
+      - type: feature
+        text: get somewhere
+      - type: improvement
+        text: change order of grants so things connect better
+      - type: improvement
+        text: remove console log of errors
+      - type: improvement
+        text: apply oz pathc without reverting server.js
+      - type: improvement
+        text: update chatengine metadata
+      - type: improvement
+        text: add additional metadata to chat
+      - type: improvement
+        text: refactored grant and invite logic
+      - type: improvement
+        text: return a previously made chat if constructor is called more than once
+      - type: improvement
+        text: remove unncessary rounding
+      - type: improvement
+        text: add doctype declaration
+      - type: improvement
+        text: refactor selectors
+      - type: improvement
+        text: make ChatEngine one word again
+      - type: improvement
+        text: updated output channels
+      - type: feature
+        text: add server.js functions endpoint deploy
+      - type: bug
+        text: throw an exception when is sent a string payload
+      - type: improvement
+        text: added serverjs as function endpoint
+  - version: v0.7.0
+    date: 2017-10-27
+    changes:
+      - type: improvement
+        text: $.publish.success includes information about the message
+      - type: improvement
+        text: add profiling tests
+  - version: v0.6.1
+    date: 2017-10-18
+    changes:
+      - type: feature
+        text: support start and end dates for history
+      - type: feature
+        text: add search by plugins, events and users
+      - type: bug
+        text: fix reverse ordering
+      - type: bug
+        text: fix for multiple events on same channel
+      - type: improvement
+        text: make all event bindings chainable
+      - type: improvement
+        text: rename protoPlugin() -> proto()
+  - version: v0.6.0
+    date: 2017-10-11
+    changes:
+      - type: improvement
+        text: add istanbul to get coverage of unit tests
+      - type: improvement
+        text: add function setup
+      - type: feature
+        text: add history paging
+      - type: improvement
+        text: update readme
+  - version: v0.5.3
+    date: 2017-10-04
+    changes:
+      - type: improvement
+        text: use uuid in place of authKey if none specified
+      - type: improvement
+        text: add broadcasting unit tests for chat
+      - type: bug
+        text: fix error in which Me is not emitted as a $.online event
+      - type: bug
+        text: fix docs
+  - version: v0.5.2
+    date: 2017-09-28
+    changes:
+      - type: improvement
+        text: user has channels rather than channels having users
+      - type: improvement
+        text: sync chats in session
+      - type: bug
+        text: fixes for race condition creating local chat
+      - type: bug
+        text: fix notificaiton feature so that chatengine is not notified of of chats it creates
+      - type: bug
+        text: fix tests
+      - type: feature
+        text: new endpoint for /chats
+      - type: improvement
+        text: /chat/invite instaed of just /invite
+      - type: feature
+        text: split up endpoints
+      - type: feature
+        text: keep track and delete rooms on server
+      - type: bug
+        text: don't emit leave events for chats that don't exist in our memory
+      - type: bug
+        text: fix trying to leave chat you've already left
+      - type: feature
+        text: work on race condition for users created while system is booting
+      - type: bug
+        text: fix deleting chats
+      - type: feature
+        text: pattern for setting / getting state
+      - type: improvement
+        text: restore state with kv store when user is offline
+      - type: improvement
+        text: begin migration from channel based state
+      - type: improvement
+        text: all state in global
+      - type: improvement
+        text: further refactor map to single object
+      - type: improvement
+        text: migrate chat
+      - type: improvement
+        text: migrate user
+      - type: improvement
+        text: return Me if user is created with same UUID
+      - type: feature
+        text: add pubnub function code, and notes to readme about running functions, compiling, and setup
+  - version: v0.5.1
+    date: 2017-09-28
+    changes:
+      - type: bug
+        text: remove console log from plugin code
+      - type: bug
+        text: remove chat-engine spare console log
+  - version: v0.5.0
+    date: 2017-09-28
+    changes:
+      - type: improvement
+        text: whoops, patches get reset on minor version changes
+      - type: feature
+        text: create 'Me' after '$.ready' has been fired so events are not missed
+      - type: improvement
+        text: don't rely on this.constructor.name for plugins
+  - version: v0.4.2
+    date: 2017-08-24
+    changes:
+      - type: feature
+        text: add event ready
+  - version: v0.4.1
+    date: 2017-08-24
+    changes:
+      - type: improvement
+        text: move output directory to /dist
+  - version: v0.4.0
+    date: 2017-08-24
+    changes:
+      - type: improvement
+        text: move supporting /docs architecture to /_docs
+      - type: improvement
+        text: remove outdated markdown files, pam-test.js
+      - type: improvement
+        text: update readme
+  - version: v0.2.1
+    date: 2017-06-08
+    changes:
+      - type: improvement
+        text: migrate . -> $.
+      - type: improvement
+        text: chat-engine as default global channel
+      - type: improvement
+        text: point package at chat-engine
+      - type: improvement
+        text: update readme
+  - version: v0.2.0
+    date: 2017-06-08
+    changes:
+      - type: improvement
+        text: migrate to chat-engine name
+  - version: v0.1.14
+    date: 2017-06-08
+    changes:
+      - type: improvement
+        text: update package names
+  - version: v0.1.13
+    date: 2017-06-08
+    changes:
+      - type: feature
+        text: add event class to route evens over own channels
+  - version: v0.1.12
+    date: 2017-06-07
+    changes:
+      - type: feature
+        text: add smarter channel namespacing
+      - type: improvement
+        text: update readme
+      - type: improvement
+        text: update getting-started.md
+  - version: v0.1.11
+    date: 2017-06-02
+    changes:
+      - type: improvement
+        text: compile for web
+  - version: v0.1.10
+    date: 2017-06-02
+    changes:
+      - type: improvement
+        text: update for better presence
+  - version: v0.1.9
+    date: 2017-06-02
+    changes:
+      - type: bug
+        text: update for when state is not set on connect
+  - version: v0.1.8
+    date: 2017-06-02
+    changes:
+      - type: bug
+        text: fix for user leave
+  - version: v0.1.7
+    date: 2017-06-02
+    changes:
+      - type: improvement
+        text: compile for web
+  - version: v0.1.6
+    date: 2017-06-02
+    changes:
+      - type: improvement
+        text: remove mandatory global channel
+  - version: v0.1.5
+    date: 2017-05-31
+    changes:
+      - type: improvement
+        text: rename emiter to sender
+  - version: v0.1.4
+    date: 2017-05-31
+    changes:
+      - type: feature
+        text: build for web
+  - version: v0.1.3
+    date: 2017-05-31
+    changes:
+      - type: feature
+        text: expose emit method
+  - version: v0.1.2
+    date: 2017-05-31
+    changes:
+      - type: improvement
+        text: rename broadcast to trigger
+  - version: v0.1.1
+    date: 2017-05-31
+    changes:
+      - type: bug
+        text: fix erro handler
+      - type: improvement
+        text: update readme
+  - version: v0.1.0
+    date: 2017-05-31
+    changes:
+      - type: feature
+        text: first beta
 supported-platforms:
   -
-    version: Pubnub Javascript for Web
+    version: Pubnub ChatEngine for Web
     platforms:
       - Safari 10 and up
       - Mozilla Firefox 51 and up
@@ -99,7 +441,3 @@ supported-platforms:
       - Opera 41  and up
       - IE 9 and up
       - Microsoft Edge 38 and up
-name: chat-engine
-schema: 1
-scm: github.com/pubnub/chat-engine
-version: “0.7.0”
