@@ -72,9 +72,9 @@ method called ```newMethod()```. You can call the method like ```someChat.newMet
 Middleware allows you to transform payloads as they travel through the system.
 They are executed in order they are assigned.
 
-The only valid properties of the ```middleware``` object are ```send``` and ```broadcast```.
+The only valid properties of the ```middleware``` object are ```emit``` and ```broadcast```.
 
-* ```send``` is executed before the payload is sent over the
+* ```emit``` is executed before the payload is sent over the
 network to the rest of the connected clients.
 * ```broadcast``` is executed when the client receives a payload from another
 client.
@@ -85,7 +85,7 @@ module.exports = (config) => {
 
     return {
         middleware: {
-            send:
+            emit:
                 message: (payload, next) => {
                     payload.sentTime = new Date();
                     next(err, payload);
@@ -103,7 +103,7 @@ module.exports = (config) => {
 }
 ```
 
-The sub properties under ```send``` and ```broadcast``` are the events
+The sub properties under ```emit``` and ```broadcast``` are the events
 that will trigger the transformation.
 
 For  example, the plugin above will be executed when a ```message```
@@ -116,10 +116,10 @@ timerPlugin = require('timer/plugin.js');
 chat.plugin(timerPlugin());
 
 
-// send a message
-someChat.send('message', {text: "This triggers the send method before it's published over the wire."});
+// emit a message
+someChat.emit('message', {text: "This triggers the emit method before it's published over the wire."});
 
-// timerPlugin.middleware.send.message() is executed
+// timerPlugin.middleware.emit.message() is executed
 // payload.sentTime is added to the payload
 
 // when message is received
