@@ -3,8 +3,8 @@ const expect = require('chai').expect;
 
 let decache = require('decache');
 
-const pubkey = process.env.PUB_KEY_0;
-const subkey = process.env.SUB_KEY_0;
+const pubkey = 'pub-c-b007151d-9681-4651-ba7c-728e9758a2e8' || process.env.PUB_KEY_0;
+const subkey = 'sub-c-a8edd622-fd61-11e7-9db3-6a45f64fc571' || process.env.SUB_KEY_0;
 
 let ChatEngine;
 let ChatEngineYou;
@@ -55,6 +55,8 @@ function createChatEngine(done) {
     });
 
 }
+
+
 
 function createChatEngineSync(done) {
 
@@ -271,6 +273,100 @@ describe('connect', () => {
     });
 
 });
+
+
+describe('connect.fail', () => {
+    beforeEach(reset);
+    it('should fail to connect with #CHAT#PUBLIC globalChannel name', function createBadPublicChatEngine(done) {
+        globalChannel = globalChannel + '#CHAT#PUBLIC';
+        this.timeout(60000);
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with #CHAT#PRIVATE globalChannel name', function createBadPrivateChatEngine(done) {
+        globalChannel = globalChannel + '#CHAT#PRIVATE';
+        this.timeout(60000);
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with #USER# MYUUID #READ globalChannel name', function createBadUserReadChatEngine(done) {
+        globalChannel = globalChannel + '#USER#PUBLIC' + username + '#READ';
+        this.timeout(60000);
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false,
+            debug: true
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with #USER# MYUUID #WRITE globalChannel name', function createBadUserReadChatEngine(done) {
+        globalChannel = globalChannel + '#USER#PUBLIC' + username + '#WRITE';
+        this.timeout(60000);
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+})
 
 describe('chat', () => {
 
