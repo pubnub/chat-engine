@@ -16,9 +16,9 @@ changelog:
       - type: bug
         text: fix events search
       - type: improvement
-        text: chat 185 - expose timetoken on emit
+        text: expose timetoken on emit
       - type: improvement
-        text: chat 185 - expose timetoken on "on"
+        text: expose timetoken on "on"
       - type: improvement
         text: move session logic into own file
       - type: improvement
@@ -34,17 +34,17 @@ changelog:
       - type: improvement
         text: synchronize states between clients as an option
       - type: improvement
-        text: set auth key as unique token by default (#226)
+        text: set auth key as unique token by default
       - type: bug
         text: - to =
       - type: improvement
         text: throw and error if you have never connected to the chat before calling $.history
       - type: improvement
-        text: refactor tests (#272)
+        text: refactor tests
       - type: feature
         text: add ability to profile memory
       - type: improvement
-        text: build robot (#268)
+        text: build robot
       - type: feature
         text: support plugins within search
       - type: improvement
@@ -52,9 +52,9 @@ changelog:
       - type: improvement
         text: added codacy badges
       - type: improvement
-        text: chat 111 segment proxy
+        text: segment proxy
       - type: improvement
-        text: document class constructors (#229)
+        text: document class constructors
       - type: improvement
         text: add logo to readme and update resources, remove changelog
       - type: improvement
