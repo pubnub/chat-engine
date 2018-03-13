@@ -117,7 +117,7 @@ chat.plugin(timerPlugin());
 
 
 // send a message
-someChat.send('message', {text: "This triggers the send method before it's published over the wire.});
+someChat.send('message', {text: "This triggers the send method before it's published over the wire."});
 
 // timerPlugin.middleware.send.message() is executed
 // payload.sentTime is added to the payload
