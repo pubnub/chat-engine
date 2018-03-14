@@ -72,11 +72,11 @@ method called ```newMethod()```. You can call the method like ```someChat.newMet
 Middleware allows you to transform payloads as they travel through the system.
 They are executed in order they are assigned.
 
-The only valid properties of the ```middleware``` object are ```emit``` and ```broadcast```.
+The only valid properties of the ```middleware``` object are ```emit``` and ```on```.
 
 * ```emit``` is executed before the payload is sent over the
 network to the rest of the connected clients.
-* ```broadcast``` is executed when the client receives a payload from another
+* ```on``` is executed when the client receives a payload from another
 client.
 
 ```js
@@ -91,7 +91,7 @@ module.exports = (config) => {
                     next(err, payload);
                 }
             },
-            broadcast:
+            on:
                 message: (payload, next) -> {
                     payload.receiveTime = new Date();
                     next(err, payload);
@@ -103,7 +103,7 @@ module.exports = (config) => {
 }
 ```
 
-The sub properties under ```emit``` and ```broadcast``` are the events
+The sub properties under ```emit``` and ```on``` are the events
 that will trigger the transformation.
 
 For  example, the plugin above will be executed when a ```message```
@@ -123,10 +123,10 @@ someChat.emit('message', {text: "This triggers the emit method before it's publi
 // payload.sentTime is added to the payload
 
 // when message is received
-// timerPlugin.middleware.broadcast.message() is executed
+// timerPlugin.middleware.on.message() is executed
 someChat.on('message', (payload) => {
 
-    // payload has been modified by the broadcast() method before this was called
+    // payload has been modified by the on() method before this was called
     // payload.receiveTime has been added by the plugin
     console.log(payload.receiveTime);
 
