@@ -28,6 +28,8 @@ const create = (pnConfig, ceConfig = {}) => {
         ceConfig.globalChannel = 'chat-engine';
     }
 
+    ceConfig.globalChannel = ['ce', ceConfig.globalChannel].join('#');
+
     if (typeof ceConfig.throwErrors === 'undefined') {
         ceConfig.throwErrors = true;
     }
