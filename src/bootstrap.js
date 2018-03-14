@@ -149,7 +149,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             return axios[method](ceConfig.endpoint, body, { params });
         }
 
-
     };
 
     /**
@@ -224,9 +223,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 ChatEngine.request('post', 'group').then(complete).catch(next);
             }
         ], (error) => {
+
             if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the PubNub Functions (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
             }
+
         });
 
     };

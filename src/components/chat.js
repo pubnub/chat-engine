@@ -739,7 +739,8 @@ class Chat extends Emitter {
 
             }
         ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            let errText = error && error.response && error.response.data && error.response.data && error.response.data.text;
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error(`Something went wrong while making a request to PubNub Functions: ${errText}`), { error });
         });
 
     }
