@@ -22,7 +22,7 @@ This is helpful for sending messages directly to users, to ping them, or challen
 
 ```js
 // me
-me.direct.on('game-invite', (payload) -> {
+me.direct.on('game-invite', (payload) => {
      console.log(payload.sender.uuid, 'sent your a game invite on the map', payload.data.map);
 });
 
