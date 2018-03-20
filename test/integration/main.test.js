@@ -3,8 +3,8 @@ const expect = require('chai').expect;
 
 let decache = require('decache');
 
-const pubkey = process.env.PUB_KEY_0;
-const subkey = process.env.SUB_KEY_0;
+const pubkey = 'pub-c-b007151d-9681-4651-ba7c-728e9758a2e8' || process.env.PUB_KEY_0;
+const subkey = 'sub-c-a8edd622-fd61-11e7-9db3-6a45f64fc571' || process.env.SUB_KEY_0;
 
 let ChatEngine;
 let ChatEngineYou;
@@ -553,7 +553,7 @@ describe('chat', () => {
             chat3.emit('something', {
                 text: 'hello world'
             });
-        }, 5000);
+        }, 1000);
 
 
     });
@@ -777,7 +777,7 @@ describe('remote chat list', () => {
             let newChatToNotify = new ChatEngineClone.Chat(newChannel);
             // we dont need this, just gets linter to pass
             newChatToNotify.objectify();
-        }, 3000);
+        }, 1000);
 
     });
 
@@ -813,7 +813,7 @@ describe('remote chat list', () => {
 
         setTimeout(() => {
             syncChat.leave();
-        }, 5000);
+        }, 1000);
 
     });
 
@@ -856,7 +856,7 @@ describe('invite', () => {
                 // me is the current context
                 yourChat.invite(ChatEngine.me);
 
-            }, 5000);
+            }, 1000);
 
         });
 
@@ -979,7 +979,7 @@ describe('connection management', () => {
 
                 ChatEngineConnect.disconnect();
 
-            }, 5000);
+            }, 1000);
 
         });
 
@@ -997,7 +997,7 @@ describe('connection management', () => {
 
         setTimeout(() => {
             ChatEngineConnect.reauthorize(authKey);
-        }, 5000);
+        }, 1000);
 
     });
 
