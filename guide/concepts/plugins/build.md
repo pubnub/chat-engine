@@ -92,7 +92,7 @@ module.exports = (config) => {
                 }
             },
             on:
-                message: (payload, next) -> {
+                message: (payload, next) => {
                     payload.receiveTime = new Date();
                     next(err, payload);
                 }
