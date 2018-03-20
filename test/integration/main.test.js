@@ -813,7 +813,7 @@ describe('remote chat list', () => {
 
         setTimeout(() => {
             syncChat.leave();
-        }, 1000);
+        }, 2000);
 
     });
 
