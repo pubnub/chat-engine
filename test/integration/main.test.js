@@ -6,6 +6,8 @@ let decache = require('decache');
 const pubkey = process.env.PUB_KEY_0;
 const subkey = process.env.SUB_KEY_0;
 
+
+
 let ChatEngine;
 let ChatEngineYou;
 let ChatEngineClone;
@@ -595,6 +597,17 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
+        for (let i = 0; i < 200; i++) {
+
+             chatHistory.emit('tester', {
+                 text: 'hello world ' + i
+             });
+             chatHistory.emit('not-tester', {
+                 text: 'hello world ' + i
+             });
+
+         }
+
         chatHistory.on('$.connected', () => {
 
             let search = chatHistory.search({
@@ -777,7 +790,7 @@ describe('remote chat list', () => {
             let newChatToNotify = new ChatEngineClone.Chat(newChannel);
             // we dont need this, just gets linter to pass
             newChatToNotify.objectify();
-        }, 1000);
+        }, 2000);
 
     });
 
