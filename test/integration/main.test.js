@@ -790,7 +790,7 @@ describe('remote chat list', () => {
             let newChatToNotify = new ChatEngineClone.Chat(newChannel);
             // we dont need this, just gets linter to pass
             newChatToNotify.objectify();
-        }, 2000);
+        }, 5000);
 
     });
 
@@ -826,7 +826,7 @@ describe('remote chat list', () => {
 
         setTimeout(() => {
             syncChat.leave();
-        }, 2000);
+        }, 5000);
 
     });
 
@@ -869,7 +869,7 @@ describe('invite', () => {
                 // me is the current context
                 yourChat.invite(ChatEngine.me);
 
-            }, 1000);
+            }, 5000);
 
         });
 
@@ -992,7 +992,7 @@ describe('connection management', () => {
 
                 ChatEngineConnect.disconnect();
 
-            }, 1000);
+            }, 5000);
 
         });
 
@@ -1010,7 +1010,7 @@ describe('connection management', () => {
 
         setTimeout(() => {
             ChatEngineConnect.reauthorize(authKey);
-        }, 1000);
+        }, 5000);
 
     });
 
