@@ -156,9 +156,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Parse a channel name into chat object parts
      * @private
      */
+     // TODO: DIS BISH GOTTA GO
     ChatEngine.parseChannel = (channel) => {
 
-        let info = channel.split('#');
+        let info = channel.split('_');
 
         return {
             global: info[0],
@@ -185,7 +186,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         }
 
         if (channel.indexOf(ChatEngine.ceConfig.globalChannel) === -1) {
-            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+            // TODO: DIS BISH GOTTA GO
+            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('_');
         }
 
         return channel;
@@ -331,10 +333,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.subscribeToPubNub = () => {
 
+        // TODO: DIS BISH GOTTA GO
         let chanGroups = [
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+            ceConfig.globalChannel + '_' + ChatEngine.me.uuid + '_rooms',
+            ceConfig.globalChannel + '_' + ChatEngine.me.uuid + '_system',
+            ceConfig.globalChannel + '_' + ChatEngine.me.uuid + '_custom'
         ];
 
         ChatEngine.pubnub.subscribe({

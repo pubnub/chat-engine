@@ -211,7 +211,7 @@ describe('connect', () => {
 
         ChatEngine.on('$.created.chat', (data, source) => {
 
-            let lookingFor = globalChannel + '#chat#public.#' + newChat;
+            let lookingFor = globalChannel + '_chat_public._' + newChat;
 
             if (source.channel === lookingFor) {
                 done();
@@ -276,8 +276,8 @@ describe('connect', () => {
 describe('connect.fail', () => {
     beforeEach(reset);
 
-    it('should fail to connect with #chat#public globalChannel name', (done) => {
-        globalChannel += '#chat#public';
+    it('should fail to connect with _chat_public globalChannel name', (done) => {
+        globalChannel += '_chat_public';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -298,8 +298,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "#chat#private" globalChannel name', (done) => {
-        globalChannel += '#chat#private';
+    it('should fail to connect with "_chat_private" globalChannel name', (done) => {
+        globalChannel += '_chat_private';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -319,8 +319,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "#user# MYUUID #read" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#user#' + username + '#read';
+    it('should fail to connect with "_user_ MYUUID _read" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_user_' + username + '_read';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -340,8 +340,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "#user# MYUUID #write" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#user#' + username + '#write';
+    it('should fail to connect with "_user_ MYUUID _write" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_user_' + username + '_write';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -361,8 +361,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "# MYUUID #rooms" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#' + username + '#rooms';
+    it('should fail to connect with "_ MYUUID _rooms" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_rooms';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -382,8 +382,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "# MYUUID #rooms-pnpres" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#' + username + '#rooms-pnpres';
+    it('should fail to connect with "_ MYUUID _rooms-pnpres" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_rooms-pnpres';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -403,8 +403,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "# MYUUID #system" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#' + username + '#system';
+    it('should fail to connect with "_ MYUUID _system" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_system';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -424,8 +424,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "# MYUUID #system-pnpres" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#' + username + '#system-pnpres';
+    it('should fail to connect with "_ MYUUID _system-pnpres" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_system-pnpres';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -445,8 +445,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "# MYUUID #custom" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#' + username + '#custom';
+    it('should fail to connect with "_ MYUUID _custom" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_custom';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -466,8 +466,8 @@ describe('connect.fail', () => {
 
     });
 
-    it('should fail to connect with "# MYUUID #custom-pnpres" globalChannel name', (done) => {
-        globalChannel = globalChannel + '#' + username + '#custom-pnpres';
+    it('should fail to connect with "_ MYUUID _custom-pnpres" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_custom-pnpres';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -849,9 +849,7 @@ describe('invite', () => {
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
             myChat = new ChatEngine.Chat(payload.data.channel);
-
             myChat.on('$.connected', () => {
-
                 myChat.emit('message', {
                     text: 'sup?'
                 });
@@ -868,8 +866,7 @@ describe('invite', () => {
 
                 // me is the current context
                 yourChat.invite(ChatEngine.me);
-
-            }, 5000);
+            }, 2000);
 
         });
 
