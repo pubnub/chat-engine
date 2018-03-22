@@ -1,28 +1,20 @@
 const url = require('url');
-const utilCE = require('chat-engine');
-
-var Airtable = require('airtable');
-Airtable.configure({
-    endpointUrl: 'https://api.airtable.com',
-    apiKey: 'keyex35KbDCt4gCBL'
-});
-var base = Airtable.base('appVUAxdbBKI6vLje');
 
 var globalLog = require('global-request-logger');
 globalLog.initialize();
 
 globalLog.on('success', function(request, response) {
+
+  let o = {request};
   // console.log('SUCCESS');
   //
-  request.body = request.body && JSON.parse(request.body);
-  request.query = url.parse(request.path, true).query;
-  // mutate.params = querystring.parse(mutate.query);
-  //
-  console.log(request)
+  o.body = request.body && JSON.parse(request.body);
+  o.query = url.parse(request.path, true).query;
+  o.channel = o.query.channel || o.body.channel || false;
 
-  let channel = request.query.channel || request.body.channel;
+  o.path = o.request.path.replace('/', '').split('/');
 
-  utilCE.parseChannel(channel);
+  console.log(o.path[1]);
   // console.log(request.query);
   // console.log(request.body)
   // console.log(request.query.route)
