@@ -1,4 +1,5 @@
 const url = require('url');
+const utilCE = require('chat-engine');
 
 var Airtable = require('airtable');
 Airtable.configure({
@@ -18,6 +19,10 @@ globalLog.on('success', function(request, response) {
   // mutate.params = querystring.parse(mutate.query);
   //
   console.log(request)
+
+  let channel = request.query.channel || request.body.channel;
+
+  utilCE.parseChannel(channel);
   // console.log(request.query);
   // console.log(request.body)
   // console.log(request.query.route)
