@@ -87,6 +87,10 @@ module.exports = {
 
           o.service = o.path[1];
 
+          o.response = response.body;
+
+          o.test = self.globalTestNameMap[o.global];
+
           if(o.path[0] == 'publish') {
             o.service = 'publish';
             o.global = o.path[4].split('%23')[0];
@@ -114,7 +118,7 @@ module.exports = {
           }
 
           if(o.service == 'presence') {
-            // console.log(o)
+            console.log(o)
 
             if(o.query.state) o.segment ='state';
             if(o.query.heartbeat) o.segment ='heartbeat';
@@ -127,9 +131,6 @@ module.exports = {
             if(o.query.heartbeat) o.segment = 'heartbeat';
           }
 
-          o.response = response.body;
-
-          o.test = self.globalTestNameMap[o.global];
 
           self.report[self.globalTestNameMap[o.global]] = self.report[self.globalTestNameMap[o.global]] || {};
           self.report[self.globalTestNameMap[o.global]][o.service] = self.report[self.globalTestNameMap[o.global]][o.service] || 0;
