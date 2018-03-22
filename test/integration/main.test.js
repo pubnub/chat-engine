@@ -10,11 +10,36 @@ globalLog.on('success', function(request, response) {
   //
   o.body = request.body && JSON.parse(request.body);
   o.query = url.parse(request.path, true).query;
-  o.channel = o.query.channel || o.body.channel || false;
+
+  let channel = o.query.channel || o.body.channel;
+
+  if(channel) {
+    o.channel = channel.split('#');
+  }
+
+  o.global = o.query.global || o.body.global || o.channel && o.channel[0];
+
   o.path = o.request.path.replace('/', '').split('/');
 
   o.service = o.path[1];
-  console.log(o);
+
+  if(!o.global) {
+
+    let channelGroups = o.query['channel-group'] && o.query['channel-group'].split(',');
+
+    if(channelGroups) {
+        o.global = channelGroups[0].split('#')[0];
+    }
+
+  }
+
+  if(!o.global) {
+    // console.log('! NO GLBOAL')
+    // console.log(o)
+    // console.log(o.service);
+    console.log('---->', o.path[5].split('?')[0])
+  }
+
   // console.log(request.query);
   // console.log(request.body)
   // console.log(request.query.route)
