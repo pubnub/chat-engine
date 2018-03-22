@@ -6,9 +6,9 @@ globalLog.initialize();
 globalLog.on('success', function(request, response) {
   // console.log('SUCCESS');
   //
-  let mutate = url.parse(request.path, true);
+  request.query = url.parse(request.path, true).query;
   // mutate.params = querystring.parse(mutate.query);
-  console.log(mutate);
+  console.log(request);
   // console.log(JSON.stringify(request.body, null, 2), JSON.stringify(, null, 2));
   // console.log(request.)
 
