@@ -1,3 +1,29 @@
+const url = require('url');
+
+var globalLog = require('global-request-logger');
+globalLog.initialize();
+
+globalLog.on('success', function(request, response) {
+  // console.log('SUCCESS');
+  //
+  let mutate = url.parse(request.path, true);
+  // mutate.params = querystring.parse(mutate.query);
+  console.log(mutate);
+  // console.log(JSON.stringify(request.body, null, 2), JSON.stringify(, null, 2));
+  // console.log(request.)
+
+  // console.log('Response', response);
+});
+
+globalLog.on('error', function(request, response) {
+
+  // console.log('ERROR');
+  // console.log('Request', request);
+  // console.log('Response', response);
+
+});
+
+
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 
