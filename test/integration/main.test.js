@@ -1,4 +1,36 @@
+const chalk = require('chalk');
+
+function hashCode(str) { // java String#hashCode
+    var hash = 0;
+    if(str) {
+
+        for (var i = 0; i < str.length; i++) {
+           hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        return hash;
+
+    } else {
+        return 'FFFFFF';
+    }
+}
+
+function intToRGB(i){
+    var c = (i & 0x00FFFFFF)
+        .toString(16)
+        .toUpperCase();
+
+    return "00000".substring(0, 6 - c.length) + c;
+}
+
+let colorHashOutput = (i) => {
+    return chalk.hex('#' +intToRGB(hashCode(i)))(i);
+}
+
 const url = require('url');
+let globalTestNameMap = {};
+
+let report = {};
 
 var globalLog = require('global-request-logger');
 globalLog.initialize();
@@ -28,6 +60,7 @@ globalLog.on('success', function(request, response) {
     let channelGroups = o.query['channel-group'] && o.query['channel-group'].split(',');
 
     if(channelGroups) {
+        o.channelGroups = channelGroups;
         o.global = channelGroups[0].split('#')[0];
     }
 
@@ -36,9 +69,30 @@ globalLog.on('success', function(request, response) {
   if(!o.global) {
     // console.log('! NO GLBOAL')
     // console.log(o)
-    // console.log(o.service);
-    console.log('---->', o.path[5].split('?')[0])
+    o.global = o.path[5].split('?')[0];
   }
+
+  if(o.service === 'blocks') {
+    o.segment = o.query.route;
+  }
+
+  if(o.service == 'presence') {
+    // console.log(o)
+
+    if(o.query.state) o.segment ='state';
+    if(o.query.heartbeat) o.segment ='heartbeat';
+    // console.log(o.channelGroups)
+  }
+
+  if(!o.global) {
+    console.log('!!! A REQUEST WITH AN UNIDENTIFIED GLOBAL')
+  }
+
+  report[globalTestNameMap[o.global]] = report[globalTestNameMap[o.global]] || {};
+  report[globalTestNameMap[o.global]][o.service] = report[globalTestNameMap[o.global]][o.service] || 0;
+  report[globalTestNameMap[o.global]][o.service]++;
+
+  console.log(colorHashOutput(globalTestNameMap[o.global]) || 'no test', colorHashOutput(o.service) || 'not sure', o.segment && colorHashOutput(o.segment));
 
   // console.log(request.query);
   // console.log(request.body)
@@ -83,11 +137,15 @@ let version = process.version.replace(/\./g, '-');
 
 function reset(done) {
 
+    console.log(report)
+
     this.timeout(60000);
 
     globalChannel = ['test', version, iterations].join('-') + new Date().getTime();
     username = ['ian', version, iterations].join('-') + new Date().getTime();
     yousername = ['stephen', version, iterations].join('-') + new Date().getTime();
+
+    globalTestNameMap[globalChannel] = this.currentTest.title;
 
     iterations++;
 
@@ -112,6 +170,9 @@ function createChatEngine(done) {
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
+    });
+    ChatEngine.onAny((a) => {
+        console.log(colorHashOutput(a))
     });
 
 }
