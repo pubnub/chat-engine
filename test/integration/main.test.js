@@ -11,10 +11,10 @@ globalLog.on('success', function(request, response) {
   o.body = request.body && JSON.parse(request.body);
   o.query = url.parse(request.path, true).query;
   o.channel = o.query.channel || o.body.channel || false;
-
   o.path = o.request.path.replace('/', '').split('/');
 
-  console.log(o.path[1]);
+  o.service = o.path[1];
+  console.log(o);
   // console.log(request.query);
   // console.log(request.body)
   // console.log(request.query.route)
