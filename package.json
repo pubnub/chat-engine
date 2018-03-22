@@ -59,6 +59,7 @@
     "webpack-stream": "^4.0.0"
   },
   "dependencies": {
+    "airtable": "^0.5.2",
     "async": "^2.1.2",
     "axios": "^0.16.2",
     "eventemitter2": "^2.2.1",

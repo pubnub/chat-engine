@@ -1,14 +1,26 @@
 const url = require('url');
 
+var Airtable = require('airtable');
+Airtable.configure({
+    endpointUrl: 'https://api.airtable.com',
+    apiKey: 'keyex35KbDCt4gCBL'
+});
+var base = Airtable.base('appVUAxdbBKI6vLje');
+
 var globalLog = require('global-request-logger');
 globalLog.initialize();
 
 globalLog.on('success', function(request, response) {
   // console.log('SUCCESS');
   //
+  request.body = request.body && JSON.parse(request.body);
   request.query = url.parse(request.path, true).query;
   // mutate.params = querystring.parse(mutate.query);
-  console.log(request);
+  //
+  console.log(request)
+  // console.log(request.query);
+  // console.log(request.body)
+  // console.log(request.query.route)
   // console.log(JSON.stringify(request.body, null, 2), JSON.stringify(, null, 2));
   // console.log(request.)
 
