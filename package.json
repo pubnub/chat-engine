@@ -64,6 +64,7 @@
     "axios": "^0.16.2",
     "eventemitter2": "^2.2.1",
     "global-request-logger": "^0.1.1",
-    "pubnub": "^4.20.1"
+    "pubnub": "^4.20.1",
+    "winston-loggly-bulk": "^2.0.2"
   }
 }

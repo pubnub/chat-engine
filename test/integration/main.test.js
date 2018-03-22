@@ -1,116 +1,4 @@
-const chalk = require('chalk');
-
-function hashCode(str) { // java String#hashCode
-    var hash = 0;
-    if(str) {
-
-        for (var i = 0; i < str.length; i++) {
-           hash = str.charCodeAt(i) + ((hash << 5) - hash);
-        }
-
-        return hash;
-
-    } else {
-        return 'FFFFFF';
-    }
-}
-
-function intToRGB(i){
-    var c = (i & 0x00FFFFFF)
-        .toString(16)
-        .toUpperCase();
-
-    return "00000".substring(0, 6 - c.length) + c;
-}
-
-let colorHashOutput = (i) => {
-    return chalk.hex('#' +intToRGB(hashCode(i)))(i);
-}
-
-const url = require('url');
-let globalTestNameMap = {};
-
-let report = {};
-
-var globalLog = require('global-request-logger');
-globalLog.initialize();
-
-globalLog.on('success', function(request, response) {
-
-  let o = {request};
-  // console.log('SUCCESS');
-  //
-  o.body = request.body && JSON.parse(request.body);
-  o.query = url.parse(request.path, true).query;
-
-  let channel = o.query.channel || o.body.channel;
-
-  if(channel) {
-    o.channel = channel.split('#');
-  }
-
-  o.global = o.query.global || o.body.global || o.channel && o.channel[0];
-
-  o.path = o.request.path.replace('/', '').split('/');
-
-  o.service = o.path[1];
-
-  if(!o.global) {
-
-    let channelGroups = o.query['channel-group'] && o.query['channel-group'].split(',');
-
-    if(channelGroups) {
-        o.channelGroups = channelGroups;
-        o.global = channelGroups[0].split('#')[0];
-    }
-
-  }
-
-  if(!o.global) {
-    // console.log('! NO GLBOAL')
-    // console.log(o)
-    o.global = o.path[5].split('?')[0];
-  }
-
-  if(o.service === 'blocks') {
-    o.segment = o.query.route;
-  }
-
-  if(o.service == 'presence') {
-    // console.log(o)
-
-    if(o.query.state) o.segment ='state';
-    if(o.query.heartbeat) o.segment ='heartbeat';
-    // console.log(o.channelGroups)
-  }
-
-  if(!o.global) {
-    console.log('!!! A REQUEST WITH AN UNIDENTIFIED GLOBAL')
-  }
-
-  report[globalTestNameMap[o.global]] = report[globalTestNameMap[o.global]] || {};
-  report[globalTestNameMap[o.global]][o.service] = report[globalTestNameMap[o.global]][o.service] || 0;
-  report[globalTestNameMap[o.global]][o.service]++;
-
-  console.log(colorHashOutput(globalTestNameMap[o.global]) || 'no test', colorHashOutput(o.service) || 'not sure', o.segment && colorHashOutput(o.segment));
-
-  // console.log(request.query);
-  // console.log(request.body)
-  // console.log(request.query.route)
-  // console.log(JSON.stringify(request.body, null, 2), JSON.stringify(, null, 2));
-  // console.log(request.)
-
-  // console.log('Response', response);
-});
-
-globalLog.on('error', function(request, response) {
-
-  // console.log('ERROR');
-  // console.log('Request', request);
-  // console.log('Response', response);
-
-});
-
+const deepThought = require('../deep-thought').init();
 
 const assert = require('chai').assert;
 const expect = require('chai').expect;
@@ -137,15 +25,11 @@ let version = process.version.replace(/\./g, '-');
 
 function reset(done) {
 
-    console.log(report)
-
     this.timeout(60000);
 
     globalChannel = ['test', version, iterations].join('-') + new Date().getTime();
     username = ['ian', version, iterations].join('-') + new Date().getTime();
     yousername = ['stephen', version, iterations].join('-') + new Date().getTime();
-
-    globalTestNameMap[globalChannel] = this.currentTest.title;
 
     iterations++;
 
@@ -160,6 +44,7 @@ function createChatEngine(done) {
 
     this.timeout(60000);
 
+    deepThought.identifyGlobal(globalChannel,this.currentTest.title);
     ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
@@ -171,9 +56,6 @@ function createChatEngine(done) {
     ChatEngine.on('$.ready', () => {
         done();
     });
-    ChatEngine.onAny((a) => {
-        console.log(colorHashOutput(a))
-    });
 
 }
 
@@ -181,6 +63,7 @@ function createChatEngineSync(done) {
 
     this.timeout(60000);
 
+    deepThought.identifyGlobal(globalChannel,this.currentTest.title);
     ChatEngineSync = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
@@ -202,6 +85,7 @@ function createChatEngineClone(done) {
 
     this.timeout(60000);
 
+    deepThought.identifyGlobal(globalChannel,this.currentTest.title);
     ChatEngineClone = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
@@ -221,6 +105,7 @@ function createChatEngineYou(done) {
 
     this.timeout(60000);
 
+    deepThought.identifyGlobal(globalChannel,this.currentTest.title);
     ChatEngineYou = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
@@ -239,6 +124,7 @@ function createChatEngineHistory(done) {
 
     this.timeout(60000);
 
+    deepThought.identifyGlobal('global',this.currentTest.title);
     ChatEngineHistory = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
@@ -257,6 +143,7 @@ function createChatEngineConnect(done) {
 
     this.timeout(60000);
 
+    deepThought.identifyGlobal(globalChannel,this.currentTest.title);
     ChatEngineConnect = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey

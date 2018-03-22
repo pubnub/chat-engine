@@ -1,15 +1,7 @@
 const ChatEngineCore = require('../../src/index.js');
+const deepThought = require('../deep-thought').init();
 
-let globalChannel = 'global';
-
-let ChatEngine = ChatEngineCore.create({
-    publishKey: process.env.PUB_KEY_0,
-    subscribeKey: process.env.SUB_KEY_0,
-}, {
-    endpoint: 'http://localhost:3000/insecure',
-    globalChannel,
-    throwErrors: false
-});
+let globalChannel = 'global' + new Date().getTime();
 
 const raw = process.argv.slice(2);
 
@@ -22,6 +14,15 @@ for (let x = 0; x < raw.length; x += 2) {
 let numberOfChats = params.chats;
 let numberOfMessages = params.messages;
 let chats = [];
+
+deepThought.identifyGlobal(globalChannel, 'profiling-1-chats=' + numberOfChats + '&messages='+ numberOfMessages);
+
+let ChatEngine = ChatEngineCore.create({
+    publishKey: process.env.PUB_KEY_0,
+    subscribeKey: process.env.SUB_KEY_0,
+}, {
+    globalChannel
+});
 
 function connectChat(chat) {
     chat.on('$.connected', () => {
@@ -44,6 +45,7 @@ function connectChat(chat) {
 }
 
 ChatEngine.on('$.ready', () => {
+
     for (let c = 1; c <= numberOfChats; c += 1) {
         let chat = new ChatEngine.Chat(`chat-${c}`);
 
