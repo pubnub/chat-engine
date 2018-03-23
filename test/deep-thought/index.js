@@ -118,7 +118,7 @@ module.exports = {
           }
 
           if(o.service == 'presence') {
-            console.log(o)
+            // console.log(o)
 
             if(o.query.state) o.segment ='state';
             if(o.query.heartbeat) o.segment ='heartbeat';

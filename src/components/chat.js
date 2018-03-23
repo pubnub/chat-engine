@@ -161,6 +161,8 @@ class Chat extends Emitter {
      */
     invite(user) {
 
+        console.log('user invite called')
+
         this.chatEngine.request('post', 'invite', {
             to: user.uuid,
             chat: this.objectify()
@@ -168,6 +170,8 @@ class Chat extends Emitter {
             .then(() => {
 
                 let send = () => {
+
+                    console.log('emitting invite')
 
                     /**
                      * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
