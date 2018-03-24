@@ -108,8 +108,6 @@ module.exports = {
           }
 
           if(!o.global) {
-            // console.log('! NO GLBOAL')
-            // console.log(o)
             o.global = o.path[5].split('?')[0];
           }
 
@@ -140,6 +138,8 @@ module.exports = {
             winston.log ('info', o);
             console.log(o.global, colorHashOutput(self.globalTestNameMap[o.global]) || 'no test', colorHashOutput(o.service) || 'not sure', o.segment && colorHashOutput(o.segment));
           }
+
+          // console.log(o)
 
           // console.log(request.query);
           // console.log(request.body)

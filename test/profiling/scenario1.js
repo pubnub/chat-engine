@@ -51,8 +51,6 @@ ChatEngine.on('$.ready', () => {
 
         console.log(`creating chat-${c}`);
 
-        connectChat(chat);
-
         chats.push(chat);
     }
 });

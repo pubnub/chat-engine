@@ -58,9 +58,6 @@ ChatEngine.on('$.ready', () => {
             x.onAny((a) => {
                 console.log(a)
             });
-            x.on('$.network.down.*', (a, b) => {
-                console.log(a, b)
-            })
 
             data.me.on('$.invite', (payload) => {
 
@@ -73,15 +70,11 @@ ChatEngine.on('$.ready', () => {
 
             console.log('invit ing the new user')
 
-            setTimeout(() => {
-
-                myChat.invite(data.me);
-
-            }, i * 100);
+            myChat.invite(data.me);
 
         });
 
-        x.connect(`'user-'${i + 1}`, { works: true }, `user-${i + 1}-authtoken`);
+        x.connect(`user-${i + 1}`, { works: true }, `user-${i + 1}-authtoken`);
     });
 
 
