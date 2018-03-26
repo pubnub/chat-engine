@@ -36,7 +36,7 @@ ChatEngine.on('$.ready', () => {
     let others = [];
 
     for (let u = 1; u <= numberOfUsers; u += 1) {
-        let ChatEngineYou = ChatEngineCore.create({
+        let x = ChatEngineCore.create({
             publishKey: process.env.PUB_KEY_0,
             subscribeKey: process.env.SUB_KEY_0
         }, {
@@ -45,27 +45,22 @@ ChatEngine.on('$.ready', () => {
             debug: false
         });
 
-        others.push(ChatEngineYou);
-        console.log('created:' + u);
-    }
-
-    others.forEach((x, i) => {
 
         x.on('$.ready', (data) => {
 
             users.push(data);
 
-            x.onAny((a) => {
-                console.log(a)
-            });
+            // x.onAny((a) => {
+            //     console.log(a)
+            // });
 
-            data.me.on('$.invite', (payload) => {
+            data.me.direct.on('$.invite', (payload) => {
 
-                console.log('invite')
+                console.log('!!!!! invite')
 
-                let chat = new ChatEngineYou.Chat(payload.data.channel);
+                let chat = new x.Chat(payload.data.channel);
                 chats.push(chat);
-                console.log('accepted: ' + (i + 1));
+                console.log('accepted: ' + (u + 1));
             });
 
             console.log('invit ing the new user')
@@ -74,8 +69,8 @@ ChatEngine.on('$.ready', () => {
 
         });
 
-        x.connect(`user-${i + 1}`, { works: true }, `user-${i + 1}-authtoken`);
-    });
+        x.connect(`user-${u + 1}`, { works: true }, `user-${u + 1}-authtoken`);
+    }
 
 
 });

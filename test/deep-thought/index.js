@@ -108,7 +108,7 @@ module.exports = {
           }
 
           if(!o.global) {
-            o.global = o.path[5].split('?')[0];
+            o.global = o.path && o.path[5] && o.path[5].split('?')[0];
           }
 
           if(o.service === 'blocks') {
