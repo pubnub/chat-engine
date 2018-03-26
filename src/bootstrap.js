@@ -111,6 +111,24 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     }
 
+    /**
+     * check globalChannel length is not greater than certain values;
+     * there is a hard limit channel.length cannot be greater than 92 chars
+     * See: https://support.pubnub.com/support/solutions/articles/14000043769-what-are-valid-channel-names
+     * @private
+     */
+    ChatEngine.validateChannel = (channel) => {
+        const len = channel.length;
+        if (len > 70) {
+            ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('The provided globalChannel name is >= 65 characters. Please shorten: ' + channel));
+        } elif (len > 50) {
+            console.debug('WARNING: the current "globalChannel" length is within 20 chars of the hard limit. Shorten, otherwise no custom-chat longer than 20 chars.');
+        }
+    }
+
+    // validate globalChannel length
+    ChatEngine.validateChannel(ChatEngine.global);
+
     ChatEngine.protoPlugins = {};
 
     /**
