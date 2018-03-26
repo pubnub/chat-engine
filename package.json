@@ -61,6 +61,7 @@
   "dependencies": {
     "async": "^2.1.2",
     "axios": "^0.16.2",
+    "babel-polyfill": "^6.26.0",
     "eventemitter2": "^2.2.1",
     "pubnub": "^4.20.1"
   }

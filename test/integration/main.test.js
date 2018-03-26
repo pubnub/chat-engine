@@ -1,3 +1,4 @@
+const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 
@@ -31,9 +32,6 @@ function reset(done) {
 
     iterations++;
 
-    decache('pubnub');
-    decache('../../src/index.js');
-
     done();
 
 }
@@ -42,7 +40,7 @@ function createChatEngine(done) {
 
     this.timeout(60000);
 
-    ChatEngine = require('../../src/index.js').create({
+    ChatEngine = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -60,7 +58,7 @@ function createChatEngineSync(done) {
 
     this.timeout(60000);
 
-    ChatEngineSync = require('../../src/index.js').create({
+    ChatEngineSync = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -81,7 +79,7 @@ function createChatEngineClone(done) {
 
     this.timeout(60000);
 
-    ChatEngineClone = require('../../src/index.js').create({
+    ChatEngineClone = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -100,7 +98,7 @@ function createChatEngineYou(done) {
 
     this.timeout(60000);
 
-    ChatEngineYou = require('../../src/index.js').create({
+    ChatEngineYou = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -118,7 +116,7 @@ function createChatEngineHistory(done) {
 
     this.timeout(60000);
 
-    ChatEngineHistory = require('../../src/index.js').create({
+    ChatEngineHistory = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -136,7 +134,7 @@ function createChatEngineConnect(done) {
 
     this.timeout(60000);
 
-    ChatEngineConnect = require('../../src/index.js').create({
+    ChatEngineConnect = ChatEngineCore.create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -726,7 +724,7 @@ describe('connection management', () => {
 
         ChatEngineConnect.once('$.disconnected', () => {
 
-            ChatEngineConnect = require('../../src/index.js').create({
+            ChatEngineConnect = ChatEngineCore.create({
                 publishKey: pubkey,
                 subscribeKey: subkey
             }, {
