@@ -272,6 +272,34 @@ describe('connect', () => {
 
 });
 
+describe('connect.fail()', () => {
+
+    beforeEach(reset);
+    beforeEach(createChatEngine);
+
+    it('should fail to connect with channel name greater than 90 chars', (done) => {
+        globalChannel = globalChannel + '12345678901234567890123456789012345678901234567890123456789012345678901234567890';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+});
+
+
 describe('chat', () => {
 
     beforeEach(reset);
