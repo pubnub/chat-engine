@@ -1,7 +1,6 @@
 let StatsPlugin = require('stats-webpack-plugin');
 
 let config = {
-    entry: ['babel-polyfill', './src/index.js'],
     module: {
         loaders: [
             { test: /\.json/, loader: 'json-loader' },

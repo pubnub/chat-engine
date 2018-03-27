@@ -1,4 +1,3 @@
-const ChatEngineCore = require('../../src/index.js');
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 
@@ -32,6 +31,9 @@ function reset(done) {
 
     iterations++;
 
+    decache('pubnub');
+    decache('../../src/index.js');
+
     done();
 
 }
@@ -40,7 +42,7 @@ function createChatEngine(done) {
 
     this.timeout(60000);
 
-    ChatEngine = ChatEngineCore.create({
+    ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -58,7 +60,7 @@ function createChatEngineSync(done) {
 
     this.timeout(60000);
 
-    ChatEngineSync = ChatEngineCore.create({
+    ChatEngineSync = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -79,7 +81,7 @@ function createChatEngineClone(done) {
 
     this.timeout(60000);
 
-    ChatEngineClone = ChatEngineCore.create({
+    ChatEngineClone = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -98,7 +100,7 @@ function createChatEngineYou(done) {
 
     this.timeout(60000);
 
-    ChatEngineYou = ChatEngineCore.create({
+    ChatEngineYou = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -116,7 +118,7 @@ function createChatEngineHistory(done) {
 
     this.timeout(60000);
 
-    ChatEngineHistory = ChatEngineCore.create({
+    ChatEngineHistory = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -134,7 +136,7 @@ function createChatEngineConnect(done) {
 
     this.timeout(60000);
 
-    ChatEngineConnect = ChatEngineCore.create({
+    ChatEngineConnect = require('../../src/index.js').create({
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
@@ -724,7 +726,7 @@ describe('connection management', () => {
 
         ChatEngineConnect.once('$.disconnected', () => {
 
-            ChatEngineConnect = ChatEngineCore.create({
+            ChatEngineConnect = require('../../src/index.js').create({
                 publishKey: pubkey,
                 subscribeKey: subkey
             }, {
