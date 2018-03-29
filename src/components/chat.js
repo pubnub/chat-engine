@@ -161,6 +161,8 @@ class Chat extends Emitter {
      */
     invite(user) {
 
+        console.log('user invite called')
+
         this.chatEngine.request('post', 'invite', {
             to: user.uuid,
             chat: this.objectify()
@@ -168,6 +170,8 @@ class Chat extends Emitter {
             .then(() => {
 
                 let send = () => {
+
+                    console.log('emitting invite')
 
                     /**
                      * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
@@ -711,12 +715,10 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                if(this.group === 'custom' && this.chatEngine.enableMeta) {
+                if(this.group === 'custom' && this.chatEngine.ceConfig.enableMeta) {
 
                     this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
                         .then((response) => {
-
-                            console.log('response', response)
 
                             // asign metadata locally
                             if (response.data.found) {
