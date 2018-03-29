@@ -125,7 +125,7 @@ function createChatEngineHistory(done) {
         globalChannel: 'global',
         throwErrors: true
     });
-    ChatEngineHistory.connect(yousername, { works: true }, yousername);
+    ChatEngineHistory.connect('predictable-user', { works: true }, yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
@@ -429,6 +429,34 @@ describe('history', () => {
                 done();
             });
 
+        });
+
+    });
+
+    it('should get last message', function getLast(done) {
+
+        let count = 0;
+
+        this.timeout(60000);
+
+        let his = new ChatEngineHistory.Chat('chat-history');
+
+        ChatEngineHistory.pubnub.history({
+            channel: his.channel + '-pnpres',
+            reverse: false,
+            count: 10
+        }, (status, response) => {
+
+            response.messages.forEach((a) => {
+
+                console.log(a.entry.action, a.entry.uuid, ChatEngineHistory.me.uuid)
+
+                if(a.entry.action !== 'join' && a.entry.uuid == ChatEngineHistory.me.uuid) {
+                    console.log('found me!')
+                }
+
+            })
+            // console.log(status, response.messages);
         });
 
     });
