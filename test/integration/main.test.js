@@ -452,12 +452,13 @@ describe('history', () => {
                 console.log(a.entry.action, a.entry.uuid, ChatEngineHistory.me.uuid)
 
                 if(a.entry.action !== 'join' && a.entry.uuid == ChatEngineHistory.me.uuid) {
-                    console.log('found me!')
+                    console.log('found me!', a.timetoken);
+                    ChatEngineHistory.search({
+
+                    })
                 }
 
-            })
-            // console.log(status, response.messages);
-        });
+            });
 
     });
 
