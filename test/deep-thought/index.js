@@ -78,6 +78,9 @@ module.exports = {
           let channel = o.query.channel || o.body.channel;
 
           if(channel) {
+            if(typeof channel == 'object') {
+              channel = channel[0];
+            }
             o.channel = channel.split('#');
           }
 
@@ -129,25 +132,15 @@ module.exports = {
             if(o.query.heartbeat) o.segment = 'heartbeat';
           }
 
-
           self.report[self.globalTestNameMap[o.global]] = self.report[self.globalTestNameMap[o.global]] || {};
           self.report[self.globalTestNameMap[o.global]][o.service] = self.report[self.globalTestNameMap[o.global]][o.service] || 0;
           self.report[self.globalTestNameMap[o.global]][o.service]++;
 
-          if(o.request.host && o.request.host.indexOf('loggly') === -1) {
+          if(o.request.hostname || o.request.host && o.request.host.indexOf('loggly') === -1) {
             winston.log ('info', o);
-            console.log(o.global, colorHashOutput(self.globalTestNameMap[o.global]) || 'no test', colorHashOutput(o.service) || 'not sure', o.segment && colorHashOutput(o.segment));
+            console.log(o.global, colorHashOutput(self.globalTestNameMap[o.global]) || 'no test', colorHashOutput(o.service) || 'not sure', o.segment && colorHashOutput(o.segment), channel || '');
           }
 
-          // console.log(o)
-
-          // console.log(request.query);
-          // console.log(request.body)
-          // console.log(request.query.route)
-          // console.log(JSON.stringify(request.body, null, 2), JSON.stringify(, null, 2));
-          // console.log(request.)
-
-          // console.log('Response', response);
         });
 
         globalLog.on('error', function(request, response) {

@@ -18,6 +18,7 @@ let chats = [];
 
 deepThought.identifyGlobal(globalChannel, 'profiling-2-users=' + numberOfUsers);
 
+console.log('creating instance of uuid ian');
 
 let ChatEngine = ChatEngineCore.create({
     publishKey: process.env.PUB_KEY_0,
@@ -28,50 +29,58 @@ let ChatEngine = ChatEngineCore.create({
     debug: false
 });
 
-
 ChatEngine.on('$.ready', () => {
+
+    console.log('ian ready');
+    console.log('ian making new chat "mychat"');
 
     myChat = new ChatEngine.Chat('mychat');
 
     let others = [];
 
-    for (let u = 1; u <= numberOfUsers; u += 1) {
-        let x = ChatEngineCore.create({
-            publishKey: process.env.PUB_KEY_0,
-            subscribeKey: process.env.SUB_KEY_0
-        }, {
-            globalChannel,
-            throwErrors: true,
-            debug: false
-        });
+    myChat.on('$.connected', () => {
 
+        console.log('looping through other users')
 
-        x.on('$.ready', (data) => {
+        for (let u = 1; u <= numberOfUsers; u += 1) {
 
-            users.push(data);
+            console.log('creating user', u)
 
-            // x.onAny((a) => {
-            //     console.log(a)
-            // });
-
-            data.me.direct.on('$.invite', (payload) => {
-
-                console.log('!!!!! invite')
-
-                let chat = new x.Chat(payload.data.channel);
-                chats.push(chat);
-                console.log('accepted: ' + (u + 1));
+            let x = ChatEngineCore.create({
+                publishKey: process.env.PUB_KEY_0,
+                subscribeKey: process.env.SUB_KEY_0
+            }, {
+                globalChannel,
+                throwErrors: true,
+                debug: false
             });
 
-            console.log('invit ing the new user')
+            x.on('$.ready', (data) => {
 
-            myChat.invite(data.me);
+                console.log('user', u, 'ready')
 
-        });
+                users.push(data);
 
-        x.connect(`user-${u + 1}`, { works: true }, `user-${u + 1}-authtoken`);
-    }
+                data.me.direct.on('$.invite', (payload) => {
 
+                    console.log('user', u, 'got invite')
+                    console.log('user', u, 'creating chat')
+
+                    let chat = new x.Chat(payload.data.channel);
+                    chats.push(chat);
+
+                });
+
+                console.log('inviting user', u, 'to "mychat"')
+
+                myChat.invite(data.me);
+
+            });
+
+            x.connect(`user-${u + 1}`, { works: true }, `user-${u + 1}-authtoken`);
+        }
+
+    });
 
 });
 
