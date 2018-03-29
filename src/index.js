@@ -36,6 +36,10 @@ const create = (pnConfig, ceConfig = {}) => {
         ceConfig.enableSync = false;
     }
 
+    if (typeof ceConfig.enableMeta === 'undefined') {
+        ceConfig.enableMeta = false;
+    }
+
     ceConfig.endpoint = ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/chat-engine-server';
 
     pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 30;

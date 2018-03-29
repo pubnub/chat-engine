@@ -672,30 +672,8 @@ class Chat extends Emitter {
     }
 
     /**
-     * Establish authentication with the server, then subscribe with PubNub.
-     * @fires Chat#$"."ready
-     */
-    connect() {
-
-        // establish good will with the server
-        this.handshake((response) => {
-
-            // asign metadata locally
-            if (response.data.found) {
-                this.meta = response.data.chat.meta;
-            } else {
-                this.update(this.meta);
-            }
-
-            // now that we've got connection, do everything else via connectionReady
-            this.connectionReady();
-
-        });
-
-    }
-
-    /**
      * Connect to PubNub servers to initialize the chat.
+     * @fires Chat#$"."ready
      * @example
      * // create a new chatroom, but don't connect to it automatically
      * let chat = new Chat('some-chat', false)
@@ -703,7 +681,7 @@ class Chat extends Emitter {
      * // connect to the chat when we feel like it
      * chat.connect();
      */
-    handshake(callback) {
+    connect(callback) {
 
         waterfall([
             (next) => {
@@ -733,13 +711,41 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then(callback)
-                    .catch(next);
+                if(this.group === 'custom' && this.chatEngine.enableMeta) {
+
+                    this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+                        .then((response) => {
+
+                            console.log('response', response)
+
+                            // asign metadata locally
+                            if (response.data.found) {
+                                this.meta = response.data.chat.meta;
+                            } else {
+                                this.update(this.meta);
+                            }
+
+                            next();
+
+                        })
+                        .catch(next);
+
+                } else {
+                    next();
+                }
 
             }
         ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+
+            // now that we've got connection, do everything else via connectionReady
+            this.connectionReady();
+
+            if(error) {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            } else {
+
+            }
+
         });
 
     }
