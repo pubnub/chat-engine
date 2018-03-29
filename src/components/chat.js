@@ -422,7 +422,7 @@ class Chat extends Emitter {
     wake() {
 
         if (this.asleep) {
-            this.handshake(() => {
+            this.connect(() => {
                 this.onConnected();
             });
         }
