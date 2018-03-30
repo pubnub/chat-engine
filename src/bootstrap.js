@@ -354,7 +354,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         // create a new chat to use as global chat
         // we don't do auth on this one because it's assumed to be done with the /auth request below
-        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'custom');
+        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
 
         ChatEngine.global.once('$.connected', () => {
 
