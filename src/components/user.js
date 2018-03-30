@@ -125,44 +125,19 @@ class User extends Emitter {
     */
     _getState(callback) {
 
-        if (!this._stateFetched && !this._stateInProgress) {
+        if (!this._stateFetched) {
 
-            this._stateInProgress = true;
+            this.chatEngine.request('get', 'user_state', {
+                user: this.uuid
+            }).then((res) => {
 
-            this.chatEngine.pubnub.getState({
-                uuid: this.uuid,
-                channels: [this.chatEngine.global.channel]
-            }, (status, response) => {
+                this.assign(res.data);
+                this._stateFetched = true;
 
-                if (status.statusCode === 200) {
+                callback(this.state);
 
-                    let pnState = response.channels[this.chatEngine.global.channel];
-                    if (Object.keys(pnState).length) {
-
-                        this.assign(response.data);
-                        this._stateFetched = true;
-                        callback(this.state);
-
-                    } else {
-
-                        this.chatEngine.request('get', 'user_state', {
-                            user: this.uuid
-                        }).then((res) => {
-
-                            this.assign(res.data);
-                            this._stateFetched = true;
-                            callback(this.state);
-
-                        }).catch((err) => {
-                            this.chatEngine.throwError(this, 'trigger', 'getState', err);
-                        });
-
-                    }
-
-                } else {
-                    this.chatEngine.throwError(this, 'trigger', 'getState', new Error('There was a problem getting user state from the PubNub network.'));
-                }
-
+            }).catch((err) => {
+                this.chatEngine.throwError(this, 'trigger', 'getState', err);
             });
 
         } else {
