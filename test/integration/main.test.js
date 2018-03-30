@@ -672,7 +672,7 @@ describe('memory', () => {
 
     it('should keep track of user list', function shouldKeepTrack(done) {
 
-        this.timeout(60000);
+        this.timeout(240000);
 
         let a = new ChatEngine.Chat('new-chat');
         let b = new ChatEngineYou.Chat('new-chat');
