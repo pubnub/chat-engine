@@ -711,7 +711,7 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                if(this.group === 'custom' && this.chatEngine.ceConfig.enableMeta) {
+                if (this.group === 'custom' && this.chatEngine.ceConfig.enableMeta) {
 
                     this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
                         .then((response) => {
@@ -738,10 +738,10 @@ class Chat extends Emitter {
             // now that we've got connection, do everything else via connectionReady
             this.connectionReady();
 
-            if(error) {
+            if (error) {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
             } else {
-
+                callback();
             }
 
         });

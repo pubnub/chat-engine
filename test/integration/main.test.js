@@ -566,7 +566,7 @@ describe('meta', () => {
 
         this.timeout(60000);
 
-        let meta = {works: true};
+        let meta = { works: true };
 
         let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), false, true, meta);
 
