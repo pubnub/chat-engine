@@ -422,7 +422,7 @@ class Chat extends Emitter {
     wake() {
 
         if (this.asleep) {
-            this.connect(() => {
+            this.handshake(() => {
                 this.onConnected();
             });
         }
@@ -672,8 +672,23 @@ class Chat extends Emitter {
     }
 
     /**
-     * Connect to PubNub servers to initialize the chat.
+     * Establish authentication with the server, then subscribe with PubNub.
      * @fires Chat#$"."ready
+     */
+    connect() {
+
+        // establish good will with the server
+        this.handshake(() => {
+
+            // now that we've got connection, do everything else via connectionReady
+            this.connectionReady();
+
+        });
+
+    }
+
+    /**
+     * Connect to PubNub servers to initialize the chat.
      * @example
      * // create a new chatroom, but don't connect to it automatically
      * let chat = new Chat('some-chat', false)
@@ -681,7 +696,7 @@ class Chat extends Emitter {
      * // connect to the chat when we feel like it
      * chat.connect();
      */
-    connect(callback) {
+    handshake(callback) {
 
         waterfall([
             (next) => {
@@ -711,7 +726,8 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                if (this.group === 'custom' && this.chatEngine.ceConfig.enableMeta) {
+
+                if(this.chatEngine.ceConfig.enableMeta) {
 
                     this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
                         .then((response) => {
@@ -723,27 +739,18 @@ class Chat extends Emitter {
                                 this.update(this.meta);
                             }
 
-                            next();
+                            callback();
 
                         })
                         .catch(next);
 
                 } else {
-                    next();
+                    callback();
                 }
 
             }
         ], (error) => {
-
-            // now that we've got connection, do everything else via connectionReady
-            this.connectionReady();
-
-            if (error) {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            } else {
-                callback();
-            }
-
+            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
         });
 
     }
