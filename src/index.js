@@ -8,6 +8,7 @@ Global object used to create an instance of {@link ChatEngine}.
 @param ceConfig {Object} A list of ChatEngine specific configuration options.
 @param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link ChatEngine.global}
 @param [ceConfig.enableSync] {Boolean} Synchronizes chats between instances with the same {@link Me#uuid}. See {@link Me#sync}.
+@param [ceConfig.enableMeta] {Boolean} Persists {@link Chat#meta} on the server. See {@link Chat#update}.
 @param [ceConfig.throwErrors=true] {Boolean} Throws errors in JS console.
 @param [ceConfig.endpoint='https://pubsub.pubnub.com/v1/blocks/sub-key/YOUR_SUB_KEY/chat-engine-server'] {String} The root URL of the server used to manage permissions for private channels. Set by default to match the PubNub functions deployed to your account. See {@tutorial privacy} for more.
 @param [ceConfig.debug] {Boolean} Logs all ChatEngine events to the console This should not be enabled in production.
@@ -36,10 +37,14 @@ const create = (pnConfig, ceConfig = {}) => {
         ceConfig.enableSync = false;
     }
 
+    if (typeof ceConfig.enableMeta === 'undefined') {
+        ceConfig.enableMeta = false;
+    }
+
     ceConfig.endpoint = ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/chat-engine-server';
 
-    pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 30;
-    pnConfig.presenceTimeout = pnConfig.presenceTimeout || 60;
+    pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 120;
+    pnConfig.presenceTimeout = pnConfig.presenceTimeout || 150;
 
     // return an instance of ChatEngine
     return init(ceConfig, pnConfig);

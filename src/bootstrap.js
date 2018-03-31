@@ -95,7 +95,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         let countObject = {};
 
-        ChatEngine.onAny((event, payload) => {
+        ChatEngine.onAny((event) => {
             countObject['event: ' + event] = countObject[event] || 0;
             countObject['event: ' + event] += 1;
         });
@@ -404,6 +404,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     /**
      * Disconnect from all {@link Chat}s and mark them as asleep.
+     * @method ChatEngine#disconnect
      * @example
      *
      * // create a new chat
@@ -437,6 +438,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     /**
      * Performs authentication with server and restores connection
      * to all sleeping chats.
+     * @method ChatEngine#reconnect
      * @example
      *
      * // create a new chat
@@ -479,6 +481,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Disconnects, changes authentication token, performs handshake with server
      * and reconnects with new auth key. Used for extending logged in sessions
      * for active users.
+     * @method ChatEngine#reauthorize
      * @example
      * // early
      * ChatEngine.connect(...);

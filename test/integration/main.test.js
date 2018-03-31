@@ -162,6 +162,25 @@ function createChatEngineConnect(done) {
 
 }
 
+function createChatEngineMeta(done) {
+
+    this.timeout(60000);
+
+    ChatEngine = require('../../src/index.js').create({
+        publishKey: pubkey,
+        subscribeKey: subkey
+    }, {
+        globalChannel,
+        throwErrors: true,
+        enableMeta: true
+    });
+    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.on('$.ready', () => {
+        done();
+    });
+
+}
+
 let examplePlugin = () => {
 
     class extension {
@@ -546,6 +565,28 @@ describe('history', () => {
     });
 });
 
+describe('meta', () => {
+
+    beforeEach(reset);
+    beforeEach(createChatEngineMeta);
+
+    it('should update meta', function getMeta(done) {
+
+        this.timeout(60000);
+
+        let meta = { works: true };
+
+        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), false, true, meta);
+
+        chat.on('$.connected', () => {
+            assert.equal(chat.meta, meta);
+            done();
+        });
+
+    });
+
+});
+
 describe('remote chat list', () => {
 
     beforeEach(reset);
@@ -680,7 +721,7 @@ describe('memory', () => {
 
     it('should keep track of user list', function shouldKeepTrack(done) {
 
-        this.timeout(60000);
+        this.timeout(240000);
 
         let a = new ChatEngine.Chat('new-chat');
         let b = new ChatEngineYou.Chat('new-chat');

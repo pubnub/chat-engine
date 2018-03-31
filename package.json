@@ -1,10 +1,11 @@
 {
   "author": "PubNub",
   "name": "chat-engine",
-  "version": "0.9.5",
+  "version": "0.9.7",
   "description": "ChatEngine",
-  "main": "src/index.js",
+  "main": "dist/chat-engine.js",
   "scripts": {
+    "build": "gulp",
     "deploy": "gulp; npm publish;",
     "docs": "jsdoc src/index.js -c jsdoc.json"
   },
@@ -23,6 +24,8 @@
   },
   "homepage": "https://github.com/pubnub/chat-engine#readme",
   "devDependencies": {
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
     "body-parser": "^1.17.2",
     "chai": "^3.5.0",
     "chalk": "^2.3.2",
@@ -59,13 +62,13 @@
     "webpack": "^3.6.0",
     "webpack-stream": "^4.0.0",
     "winston": "^2.4.1",
-    "winston-loggly-bulk": "^2.0.2"
+    "winston-loggly-bulk": "^2.0.2",
+    "global-request-logger": "^0.1.1"
   },
   "dependencies": {
-    "async": "^2.1.2",
-    "axios": "^0.16.2",
-    "eventemitter2": "^2.2.1",
-    "global-request-logger": "^0.1.1",
-    "pubnub": "4.20.1"
+    "async": "2.1.2",
+    "axios": "0.16.2",
+    "eventemitter2": "2.2.1",
+    "pubnub": "4.20.2"
   }
 }
