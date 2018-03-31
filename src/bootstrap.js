@@ -95,7 +95,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         let countObject = {};
 
-        ChatEngine.onAny((event, payload) => {
+        ChatEngine.onAny((event) => {
             countObject['event: ' + event] = countObject[event] || 0;
             countObject['event: ' + event] += 1;
         });
