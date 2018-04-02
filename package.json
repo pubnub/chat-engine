@@ -62,9 +62,9 @@
     "webpack-stream": "^4.0.0"
   },
   "dependencies": {
-    "async": "^2.1.2",
-    "axios": "^0.16.2",
-    "eventemitter2": "^2.2.1",
-    "pubnub": "^4.20.1"
+    "async": "2.1.2",
+    "axios": "0.16.2",
+    "eventemitter2": "2.2.1",
+    "pubnub": "4.20.2"
   }
 }

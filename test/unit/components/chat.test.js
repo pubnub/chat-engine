@@ -29,7 +29,8 @@ describe('#chat', () => {
     });
 
     it('connect chat', (done) => {
-        chatInstance.on('$.connected', () => {
+
+        chatInstance.once('$.connected', () => {
             done();
         });
 
@@ -57,7 +58,7 @@ describe('#chat', () => {
 
     it('user join to chat', (done) => {
 
-        chatInstance.on('$.online.join', () => {
+        chatInstance.once('$.online.join', () => {
             done();
         });
 

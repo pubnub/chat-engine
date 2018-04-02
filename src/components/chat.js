@@ -678,14 +678,7 @@ class Chat extends Emitter {
     connect() {
 
         // establish good will with the server
-        this.handshake((response) => {
-
-            // asign metadata locally
-            if (response.data.found) {
-                this.meta = response.data.chat.meta;
-            } else {
-                this.update(this.meta);
-            }
+        this.handshake(() => {
 
             // now that we've got connection, do everything else via connectionReady
             this.connectionReady();
@@ -733,9 +726,27 @@ class Chat extends Emitter {
             },
             (next) => {
 
-                this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
-                    .then(callback)
-                    .catch(next);
+
+                if (this.chatEngine.ceConfig.enableMeta) {
+
+                    this.chatEngine.request('get', 'chat', {}, { channel: this.channel })
+                        .then((response) => {
+
+                            // asign metadata locally
+                            if (response.data.found) {
+                                this.meta = response.data.chat.meta;
+                            } else {
+                                this.update(this.meta);
+                            }
+
+                            callback();
+
+                        })
+                        .catch(next);
+
+                } else {
+                    callback();
+                }
 
             }
         ], (error) => {
