@@ -452,32 +452,39 @@ describe('history', () => {
 
     });
 
-    it('should get last message', function getLast(done) {
+    it('should get last online time', function getLast(done) {
 
         let count = 0;
 
         this.timeout(60000);
 
-        let his = new ChatEngineHistory.Chat('chat-history');
-
         ChatEngineHistory.pubnub.history({
-            channel: his.channel + '-pnpres',
-            reverse: false,
-            count: 10
+            channel: ChatEngineHistory.me.feed.channel + '-pnpres',
+            reverse: true,
+            count: 100
         }, (status, response) => {
+
+            let tt = 0;
 
             response.messages.forEach((a) => {
 
-                console.log(a.entry.action, a.entry.uuid, ChatEngineHistory.me.uuid)
-
                 if(a.entry.action !== 'join' && a.entry.uuid == ChatEngineHistory.me.uuid) {
-                    console.log('found me!', a.timetoken);
-                    ChatEngineHistory.search({
-
-                    })
+                    tt = a.timetoken;
                 }
 
+                console.log(new Date(a.timetoken / 10000))
+
             });
+
+            console.log('found me!', new Date(tt / 10000));
+            ChatEngineHistory.global.search({
+                start: tt,
+                end: new Date().getTime() * 1000
+            }).onAny((event) => {
+                console.log('this was a missed message syncChat', event)
+            });
+
+        });
 
     });
 
