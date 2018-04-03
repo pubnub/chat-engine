@@ -37,6 +37,7 @@
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
     "express": "^4.15.3",
+    "global-request-logger": "^0.1.1",
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2",
     "gulp-eslint": "^4.0.0",
@@ -62,8 +63,7 @@
     "webpack": "^3.6.0",
     "webpack-stream": "^4.0.0",
     "winston": "^2.4.1",
-    "winston-loggly-bulk": "^2.0.2",
-    "global-request-logger": "^0.1.1"
+    "winston-loggly-bulk": "^2.0.2"
   },
   "dependencies": {
     "async": "2.1.2",
