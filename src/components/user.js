@@ -26,12 +26,7 @@ class User extends Emitter {
          @readonly
          @type String
          */
-
-        if (typeof uuid !== 'string') {
-            this.chatEngine.throwError(this, 'trigger', 'construct', new Error('UUID must be of type string'));
-        }
-
-        this.uuid = uuid;
+        this.uuid = uuid.toString();
 
         /**
          * Gets the user state. See {@link Me#update} for how to assign state values.
