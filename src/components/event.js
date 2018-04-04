@@ -60,9 +60,17 @@ class Event extends Emitter {
 
         m.event = this.event;
 
+        let storeInHistory = true;
+
+        // don't store in history if $.system event
+        if(!this.event.indexOf('$.system')) {
+            storeInHistory = false;
+        }
+
         this.chatEngine.pubnub.publish({
             message: m,
-            channel: this.channel
+            channel: this.channel,
+            storeInHistory
         }, (status, response) => {
 
             if (status.statusCode === 200) {
