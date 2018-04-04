@@ -63,7 +63,7 @@ class Event extends Emitter {
         let storeInHistory = true;
 
         // don't store in history if $.system event
-        if(!this.event.indexOf('$.system')) {
+        if (!this.event.indexOf('$.system')) {
             storeInHistory = false;
         }
 
