@@ -705,6 +705,54 @@ describe('invite', () => {
 
 });
 
+describe('state', () => {
+
+    beforeEach(reset);
+    beforeEach(createChatEngine);
+    beforeEach(createChatEngineYou);
+
+    it('should get previously set state', function shouldGetState(done) {
+
+        this.timeout(20000)
+
+        let doneCalled = false;
+
+        ChatEngine.on('$.online.*', (payload) => {
+
+            if(payload.user.uuid == ChatEngineYou.me.uuid && !doneCalled) {
+
+                assert.equal(payload.user.state.works, true);
+                doneCalled = true;
+                done();
+            }
+
+        });
+
+    });
+
+    it('should get state update', function shouldGetStateUpdate(done) {
+
+        this.timeout(20000)
+
+        let doneCalled = false;
+
+        ChatEngine.on('$.state', (payload) => {
+
+            if(payload.user.uuid == ChatEngineYou.me.uuid && !doneCalled) {
+
+                assert.equal(payload.user.state.newParam, true);
+                doneCalled = true;
+                done();
+            }
+
+        });
+
+        ChatEngineYou.me.update({newParam: true});
+
+    });
+
+});
+
 describe('memory', () => {
 
     beforeEach(reset);
