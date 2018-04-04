@@ -122,7 +122,7 @@ function createChatEngineHistory(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel: 'global',
+        globalChannel: 'g',
         throwErrors: true
     });
     ChatEngineHistory.connect(yousername, { works: true }, yousername);
@@ -407,6 +407,7 @@ describe('history', () => {
                 limit: 50
             }).on('tester', (a) => {
 
+                assert(a.sender.state.works)
                 assert(a.timetoken);
                 assert.equal(a.event, 'tester');
 

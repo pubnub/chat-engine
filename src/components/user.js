@@ -41,11 +41,9 @@ class User extends Emitter {
          * // State
          * let state = user.state;
          */
-        this.state = {};
+        this.state = state;
 
         this._stateSet = false;
-
-        this._stateInProgress = false;
 
         /**
          * Feed is a Chat that only streams things a User does, like
@@ -93,8 +91,10 @@ class User extends Emitter {
             chatEngine.users[uuid] = this;
         }
 
-        // update this user's state in it's created context
-        this.assign(state);
+        if(Object.keys(state).length) {
+            // update this user's state in it's created context
+            this.assign(state);
+        }
 
         return this;
 
@@ -135,7 +135,6 @@ class User extends Emitter {
             }).then((res) => {
 
                 this.assign(res.data);
-
                 callback(this.state);
 
             }).catch((err) => {
