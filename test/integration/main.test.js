@@ -407,7 +407,7 @@ describe('history', () => {
                 limit: 50
             }).on('tester', (a) => {
 
-                assert(a.sender.state.works)
+                assert(a.sender.state.works);
                 assert(a.timetoken);
                 assert.equal(a.event, 'tester');
 
@@ -714,13 +714,13 @@ describe('state', () => {
 
     it('should get previously set state', function shouldGetState(done) {
 
-        this.timeout(20000)
+        this.timeout(20000);
 
         let doneCalled = false;
 
         ChatEngine.on('$.online.*', (payload) => {
 
-            if(payload.user.uuid == ChatEngineYou.me.uuid && !doneCalled) {
+            if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
                 assert.equal(payload.user.state.works, true);
                 doneCalled = true;
@@ -733,13 +733,13 @@ describe('state', () => {
 
     it('should get state update', function shouldGetStateUpdate(done) {
 
-        this.timeout(20000)
+        this.timeout(20000);
 
         let doneCalled = false;
 
         ChatEngine.on('$.state', (payload) => {
 
-            if(payload.user.uuid == ChatEngineYou.me.uuid && !doneCalled) {
+            if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
                 assert.equal(payload.user.state.newParam, true);
                 doneCalled = true;
@@ -748,7 +748,7 @@ describe('state', () => {
 
         });
 
-        ChatEngineYou.me.update({newParam: true});
+        ChatEngineYou.me.update({ newParam: true });
 
     });
 
