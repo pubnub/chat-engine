@@ -129,9 +129,6 @@ function createChatEngineHistory(done) {
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
-    ChatEngineHistory.onAny((a) => {
-        console.log(a)
-    })
 
 }
 
@@ -589,7 +586,7 @@ describe('remote chat list', () => {
     beforeEach(createChatEngineClone);
     beforeEach(createChatEngineSync);
 
-    it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
+    it('should be notified of new chats', function getNotifiedOfNewChats(done) {
 
         let newChannel = 'sync-chat' + new Date().getTime();
 

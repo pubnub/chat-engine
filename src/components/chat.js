@@ -694,7 +694,7 @@ class Chat extends Emitter {
      * // connect to the chat when we feel like it
      * chat.connect();
      */
-    handshake(callback) {
+    handshake(complete) {
 
         waterfall([
             (next) => {
@@ -737,18 +737,23 @@ class Chat extends Emitter {
                                 this.update(this.meta);
                             }
 
-                            callback();
+                            next();
 
                         })
                         .catch(next);
 
                 } else {
-                    callback();
+                    next();
                 }
 
             }
         ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            if(error) {
+
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            }else {
+                complete();
+            }
         });
 
     }
