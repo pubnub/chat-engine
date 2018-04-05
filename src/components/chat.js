@@ -748,10 +748,10 @@ class Chat extends Emitter {
 
             }
         ], (error) => {
-            if(error) {
 
+            if (error) {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            }else {
+            } else {
                 complete();
             }
         });

@@ -216,7 +216,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 }).catch(next);
             },
             (next) => {
-                ChatEngine.request('post', 'group').then(() =>{
+                ChatEngine.request('post', 'group').then(() => {
                     next();
                 }).catch(next);
             }
@@ -400,7 +400,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 ChatEngine.listenToPubNub();
                 ChatEngine.subscribeToPubNub();
 
-                ChatEngine.global.getUserUpdates()
+                ChatEngine.global.getUserUpdates();
 
                 if (ChatEngine.ceConfig.enableSync) {
                     ChatEngine.me.session.restore();

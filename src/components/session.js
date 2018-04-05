@@ -102,8 +102,6 @@ class Session extends Emitter {
      */
     join(chat) {
 
-        console.log('join called for', chat.channel)
-
         // don't rebroadcast chats in session we've already heard about
         if (!this.chats[chat.group] || !this.chats[chat.group][chat.channel]) {
             this.sync.emit('$.session.notify.chat.join', { subject: chat.objectify() });
