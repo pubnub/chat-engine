@@ -741,7 +741,8 @@ describe('state', () => {
 
             if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
-                if(payload.user.state.newParam && payload.user.state.newParam  == true) {
+                if(payload.user.state.newParam && payload.user.state.newParam  == true && !doneCalled) {
+                    doneCalled = true;
                     done();
                 }
             }
