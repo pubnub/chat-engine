@@ -741,9 +741,9 @@ describe('state', () => {
 
             if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
-                assert.equal(payload.user.state.newParam, true);
-                doneCalled = true;
-                done();
+                if(payload.user.state.newParam && payload.user.state.newParam  == true) {
+                    done();
+                }
             }
 
         });
