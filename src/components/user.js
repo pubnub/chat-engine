@@ -130,6 +130,8 @@ class User extends Emitter {
 
         if (!this._stateSet) {
 
+            console.log('getting user_state for', this.uuid)
+
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid
             }).then((res) => {

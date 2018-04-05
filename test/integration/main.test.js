@@ -129,6 +129,9 @@ function createChatEngineHistory(done) {
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
+    ChatEngineHistory.onAny((a) => {
+        console.log(a)
+    })
 
 }
 
@@ -407,7 +410,7 @@ describe('history', () => {
                 limit: 50
             }).on('tester', (a) => {
 
-                assert(a.sender.state.works);
+                assert.equal(a.sender.state.works, true);
                 assert(a.timetoken);
                 assert.equal(a.event, 'tester');
 
