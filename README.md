@@ -17,6 +17,10 @@ Check out [the getting started guide](https://github.com/pubnub/chat-engine-tuto
 
 You can find the full docs on [the full documentation website](https://www.pubnub.com/docs/chat-engine/getting-started).
 
+# Browser Support
+
+ChatEngine is compiled with babel and supports [these browsers](https://browserli.st). It also supports [create-react-app](https://github.com/facebook/create-react-app).
+
 # Examples
 
 ## SDKs
