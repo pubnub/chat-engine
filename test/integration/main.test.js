@@ -302,7 +302,7 @@ describe('chat', () => {
 
         let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime());
 
-        let event = chat.emit('test');
+        let event = chat.emit('test', {something: true});
 
         event.on('$.emitted', (a) => {
             assert(a.timetoken, 'Timetoken exposed on emit');
