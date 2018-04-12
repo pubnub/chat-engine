@@ -19,7 +19,7 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 
 # Browser Support
 
-ChatEngine is compiled with babel and supports [these browsers](https://browserli.st). It also supports [create-react-app](https://github.com/facebook/create-react-app).
+ChatEngine is compiled with babel and supports [these browsers](http://browserl.ist/?q=defaults). It also supports [create-react-app](https://github.com/facebook/create-react-app).
 
 # Examples
 
