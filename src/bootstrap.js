@@ -6,7 +6,7 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
-const series = require('async/series');
+const waterfall = require('async/waterfall');
 
 /**
 @class ChatEngine
@@ -199,7 +199,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.handshake = (complete) => {
 
-        series([
+        waterfall([
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
@@ -216,12 +216,18 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 }).catch(next);
             },
             (next) => {
-                ChatEngine.request('post', 'group').then(complete).catch(next);
+                ChatEngine.request('post', 'group').then(() => {
+                    next();
+                }).catch(next);
             }
         ], (error) => {
+
             if (error) {
                 ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+            } else {
+                complete();
             }
+
         });
 
     };
@@ -373,30 +379,34 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             if (ChatEngine.ceConfig.enableSync) {
                 ChatEngine.me.session.subscribe();
-                ChatEngine.me.session.restore();
             }
 
-            ChatEngine.me.update(state);
+            ChatEngine.me.update(state, () => {
 
-            /**
-             *  Fired when ChatEngine is connected to the internet and ready to go!
-             * @event ChatEngine#$"."ready
-             * @example
-             * ChatEngine.on('$.ready', (data) => {
-             *     let me = data.me;
-             * })
-             */
+                /**
+                 *  Fired when ChatEngine is connected to the internet and ready to go!
+                 * @event ChatEngine#$"."ready
+                 * @example
+                 * ChatEngine.on('$.ready', (data) => {
+                 *     let me = data.me;
+                 * })
+                 */
+                ChatEngine._emit('$.ready', {
+                    me: ChatEngine.me
+                });
 
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
+                ChatEngine.ready = true;
+
+                ChatEngine.listenToPubNub();
+                ChatEngine.subscribeToPubNub();
+
+                ChatEngine.global.getUserUpdates();
+
+                if (ChatEngine.ceConfig.enableSync) {
+                    ChatEngine.me.session.restore();
+                }
+
             });
-
-            ChatEngine.ready = true;
-
-            ChatEngine.listenToPubNub();
-            ChatEngine.subscribeToPubNub();
-
-            ChatEngine.global.getUserUpdates();
 
         });
 

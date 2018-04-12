@@ -122,7 +122,7 @@ function createChatEngineHistory(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel: 'global',
+        globalChannel: 'g',
         throwErrors: true
     });
     ChatEngineHistory.connect(yousername, { works: true }, yousername);
@@ -407,6 +407,7 @@ describe('history', () => {
                 limit: 50
             }).on('tester', (a) => {
 
+                assert.equal(a.sender.state.works, true);
                 assert(a.timetoken);
                 assert.equal(a.event, 'tester');
 
@@ -585,7 +586,7 @@ describe('remote chat list', () => {
     beforeEach(createChatEngineClone);
     beforeEach(createChatEngineSync);
 
-    it('should be get notified of new chats', function getNotifiedOfNewChats(done) {
+    it('should be notified of new chats', function getNotifiedOfNewChats(done) {
 
         let newChannel = 'sync-chat' + new Date().getTime();
 
@@ -700,6 +701,55 @@ describe('invite', () => {
             }
 
         });
+
+    });
+
+});
+
+describe('state', () => {
+
+    beforeEach(reset);
+    beforeEach(createChatEngine);
+    beforeEach(createChatEngineYou);
+
+    it('should get previously set state', function shouldGetState(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        ChatEngine.on('$.online.*', (payload) => {
+
+            if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
+
+                assert.equal(payload.user.state.works, true);
+                doneCalled = true;
+                done();
+            }
+
+        });
+
+    });
+
+    it('should get state update', function shouldGetStateUpdate(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        ChatEngine.on('$.state', (payload) => {
+
+            if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
+
+                if (payload.user.state.newParam && payload.user.state.newParam === true && !doneCalled) {
+                    doneCalled = true;
+                    done();
+                }
+            }
+
+        });
+
+        ChatEngineYou.me.update({ newParam: true });
 
     });
 

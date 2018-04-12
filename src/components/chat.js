@@ -567,10 +567,8 @@ class Chat extends Emitter {
      @private
      @param {Object} state The new state {@link Me} will have within this {@link User}
      */
-    setState(state) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, () => {
-            // handle status, response
-        });
+    setState(state, callback) {
+        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, callback);
     }
 
     /**
@@ -696,7 +694,7 @@ class Chat extends Emitter {
      * // connect to the chat when we feel like it
      * chat.connect();
      */
-    handshake(callback) {
+    handshake(complete) {
 
         waterfall([
             (next) => {
@@ -739,18 +737,23 @@ class Chat extends Emitter {
                                 this.update(this.meta);
                             }
 
-                            callback();
+                            next();
 
                         })
                         .catch(next);
 
                 } else {
-                    callback();
+                    next();
                 }
 
             }
         ], (error) => {
-            this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+
+            if (error) {
+                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+            } else {
+                complete();
+            }
         });
 
     }

@@ -56,13 +56,13 @@ class Me extends User {
      * // update state
      * me.update({value: true});
      */
-    update(state) {
+    update(state, callback = () => {}) {
 
         // run the root update function
         super.update(state);
 
         // publish the update over the global channel
-        this.chatEngine.global.setState(state);
+        this.chatEngine.global.setState(state, callback);
 
     }
 
