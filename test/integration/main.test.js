@@ -31,6 +31,10 @@ function reset(done) {
     username = ['ian', version, iterations].join('-') + new Date().getTime();
     yousername = ['stephen', version, iterations].join('-') + new Date().getTime();
 
+    console.log(globalChannel);
+    console.log(username);
+    console.log(yousername);
+
     iterations++;
 
     decache('pubnub');
@@ -591,11 +595,25 @@ describe('history', () => {
 
     it('should get 50 messages', function get50(done) {
 
+        console.log(ChatEngineHistory.global);
+
         let count = 0;
 
         this.timeout(60000);
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
+
+        for (let i = 0; i < 200; i++) {
+
+            chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('not-tester', {
+                text: 'hello world ' + i
+            });
+
+        }
+
 
         chatHistory.on('$.connected', () => {
 
