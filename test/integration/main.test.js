@@ -30,11 +30,7 @@ function reset(done) {
     globalChannel = ['test', version, iterations].join('-') + new Date().getTime();
     username = ['ian', version, iterations].join('-') + new Date().getTime();
     yousername = ['stephen', version, iterations].join('-') + new Date().getTime();
-
-    console.log(globalChannel);
-    console.log(username);
-    console.log(yousername);
-
+    
     iterations++;
 
     decache('pubnub');
