@@ -6,8 +6,6 @@ let decache = require('decache');
 const pubkey = process.env.PUB_KEY_0;
 const subkey = process.env.SUB_KEY_0;
 
-
-
 let ChatEngine;
 let ChatEngineYou;
 let ChatEngineClone;
