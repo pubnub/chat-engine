@@ -110,8 +110,6 @@ class Chat extends Emitter {
 
         if (status.error) {
 
-            console.log(status)
-
             /**
              * There was a problem fetching the presence of this chat
              * @event Chat#$"."error"."presence
