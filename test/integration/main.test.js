@@ -76,7 +76,6 @@ function createChatEngineSync(done) {
 
 }
 
-
 function createChatEngineClone(done) {
 
     this.timeout(60000);
@@ -229,7 +228,7 @@ describe('connect', () => {
 
         ChatEngine.on('$.created.chat', (data, source) => {
 
-            let lookingFor = globalChannel + '#chat#public.#' + newChat;
+            let lookingFor = globalChannel + '_chat_public._' + newChat;
 
             if (source.channel === lookingFor) {
                 done();
@@ -289,6 +288,221 @@ describe('connect', () => {
 
     });
 
+});
+
+describe('connect.fail', () => {
+    beforeEach(reset);
+
+    it('should fail to connect with _chat_public globalChannel name', (done) => {
+        globalChannel += '_chat_public';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_chat_private" globalChannel name', (done) => {
+        globalChannel += '_chat_private';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_user_ MYUUID _read" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_user_' + username + '_read';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_user_ MYUUID _write" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_user_' + username + '_write';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_ MYUUID _rooms" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_rooms';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_ MYUUID _rooms-pnpres" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_rooms-pnpres';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_ MYUUID _system" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_system';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_ MYUUID _system-pnpres" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_system-pnpres';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_ MYUUID _custom" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_custom';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
+
+    it('should fail to connect with "_ MYUUID _custom-pnpres" globalChannel name', (done) => {
+        globalChannel = globalChannel + '_' + username + '_custom-pnpres';
+
+        ChatEngine = require('../../src/index.js').create({
+            publishKey: pubkey,
+            subscribeKey: subkey
+        }, {
+            globalChannel,
+            throwErrors: false
+        });
+
+        ChatEngine.connect(username, { works: true }, username);
+        ChatEngine.on('$.error.auth', (err) => {
+            assert.equal(err.error.response.status, 401);
+            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            assert.equal(err.error.response.data, expected);
+            done();
+        });
+
+    });
 });
 
 describe('chat', () => {
@@ -358,7 +572,7 @@ describe('chat', () => {
             chat3.emit('something', {
                 text: 'hello world'
             });
-        }, 5000);
+        }, 1000);
 
 
     });
@@ -605,7 +819,7 @@ describe('remote chat list', () => {
             let newChatToNotify = new ChatEngineClone.Chat(newChannel);
             // we dont need this, just gets linter to pass
             newChatToNotify.objectify();
-        }, 3000);
+        }, 5000);
 
     });
 
@@ -664,9 +878,7 @@ describe('invite', () => {
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
             myChat = new ChatEngine.Chat(payload.data.channel);
-
             myChat.on('$.connected', () => {
-
                 myChat.emit('message', {
                     text: 'sup?'
                 });
@@ -683,8 +895,7 @@ describe('invite', () => {
 
                 // me is the current context
                 yourChat.invite(ChatEngine.me);
-
-            }, 5000);
+            }, 2000);
 
         });
 
