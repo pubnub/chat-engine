@@ -43,7 +43,7 @@ ChatEngine.onAny((event, payload) => {
 
 PubNub includes it's own verbose logging feature. This logs all network requests
 made by ChatEngine to the PubNub network. You can enable it by supplying ```logVerbosity: true```
-to the first configuration object in {@link ChatEngine#create}.
+to the first configuration object in {@link ChatEngineCore#create}.
 
 Check out [the PubNub JS Docs](https://www.pubnub.com/docs/web-javascript/api-reference-configuration#init-args-1) for more on ```logVerbosity```.
 
