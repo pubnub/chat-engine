@@ -86,10 +86,8 @@ class User extends Emitter {
             chatEngine.users[uuid] = this;
         }
 
-        if (Object.keys(state).length) {
-            // update this user's state in it's created context
-            this.assign(state);
-        }
+        // update this user's state in it's created context
+        this.assign(state);
 
         return this;
 
@@ -101,8 +99,12 @@ class User extends Emitter {
      */
     update(state) {
 
-        let oldState = this.state || {};
-        this.state = Object.assign(oldState, state);
+        if (Object.keys(state).length) {
+
+            let oldState = this.state || {};
+            this.state = Object.assign(oldState, state);
+
+        }
 
         this._stateSet = true;
 
