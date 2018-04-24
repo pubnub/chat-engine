@@ -669,8 +669,8 @@ describe('remote chat list', () => {
                 let groupRestored = false;
 
                 ChatEngineSync.on('$.group.restored', () => {
-                    assert.isObject(ChatEngineSync.me.session.chats['system']);
-                    assert.equal(ChatEngineSync.me.session.chats['custom'], undefined);
+                    assert.isObject(ChatEngineSync.me.session.chats.system);
+                    assert.equal(ChatEngineSync.me.session.chats.custom, undefined);
                     groupRestored = true;
                 });
 
@@ -679,7 +679,7 @@ describe('remote chat list', () => {
                     if (groupRestored === true) {
                         done();
                     }
-                }, 5000)
+                }, 5000);
             }
 
         });
@@ -687,7 +687,7 @@ describe('remote chat list', () => {
         syncChat = new ChatEngineClone.Chat(newChannel3);
 
         setTimeout(() => {
-            ChatEngineSync.me.session.chats["custom"][`${globalChannel}#chat#public.#${newChannel3}`].leave();
+            ChatEngineSync.me.session.chats.custom[`${globalChannel}#chat#public.#${newChannel3}`].leave();
         }, 5000);
 
     });
