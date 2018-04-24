@@ -85,13 +85,13 @@ module.exports = (config) => {
 
     return {
         middleware: {
-            emit:
+            emit: {
                 message: (payload, next) => {
                     payload.sentTime = new Date();
                     next(err, payload);
                 }
             },
-            on:
+            on: {
                 message: (payload, next) => {
                     payload.receiveTime = new Date();
                     next(err, payload);
