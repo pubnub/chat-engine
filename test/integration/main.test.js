@@ -645,6 +645,53 @@ describe('remote chat list', () => {
 
     });
 
+    it('should leave $me.session.chats.custom and not return upon user reconnect', function syncLeaveChat(done) {
+
+        this.timeout(15000);
+
+        let newChannel3 = 'sync-chat3' + new Date().getTime();
+        let syncChat;
+
+        ChatEngineSync.me.session.on('$.chat.leave', (payload) => {
+            if (payload.chat.channel.indexOf(newChannel3) > -1) {
+                // Reconnect to CE with same user
+                ChatEngineSync = require('../../src/index.js').create({
+                    publishKey: pubkey,
+                    subscribeKey: subkey
+                }, {
+                    globalChannel,
+                    enableSync: true,
+                    throwErrors: true
+                });
+
+                ChatEngineSync.connect(username, { works: false }, username);
+
+                let groupRestored = false;
+
+                ChatEngineSync.on('$.group.restored', () => {
+                    assert.isObject(ChatEngineSync.me.session.chats['system']);
+                    assert.equal(ChatEngineSync.me.session.chats['custom'], undefined);
+                    groupRestored = true;
+                });
+
+                // Await the population of $me.session.chats from enableSync
+                setTimeout(() => {
+                    if (groupRestored === true) {
+                        done();
+                    }
+                }, 5000)
+            }
+
+        });
+
+        syncChat = new ChatEngineClone.Chat(newChannel3);
+
+        setTimeout(() => {
+            ChatEngineSync.me.session.chats["custom"][`${globalChannel}#chat#public.#${newChannel3}`].leave();
+        }, 5000);
+
+    });
+
 });
 
 describe('invite', () => {
