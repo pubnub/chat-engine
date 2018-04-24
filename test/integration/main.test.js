@@ -685,6 +685,7 @@ describe('remote chat list', () => {
         });
 
         syncChat = new ChatEngineClone.Chat(newChannel3);
+        syncChat.objectify();
 
         setTimeout(() => {
             ChatEngineSync.me.session.chats.custom[`${globalChannel}#chat#public.#${newChannel3}`].leave();
