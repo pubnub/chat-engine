@@ -24,18 +24,18 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 ### Javascript
 
 * [Chat](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/chat.html)
-* [Online List](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/online-list.html)
 * [Friends List](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/friends-list.html)
+* [Online List](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/online-list.html)
 
 ### jQuery
 
-* [jQuery Simple](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple)
 * [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink)
+* [jQuery Simple](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple)
 
 ### Angular
 
-* [Angular Simple](https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple)
 * [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron)
+* [Angular Simple](https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple)
 
 ### React
 
@@ -53,18 +53,18 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 
 Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink) and [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron) examples to see plugins in action.
 
-- [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator)
-- [Event Status and Read Receipts](https://github.com/pubnub/chat-engine-event-status)
-- [Mute Users](https://github.com/pubnub/chat-engine-muter)
-- [Random Usernames](https://github.com/pubnub/chat-engine-random-username)
 - [Desktop Notifications](https://github.com/pubnub/chat-engine-desktop-notifications)
-- [Online User Search](https://github.com/pubnub/chat-engine-online-user-search)
-- [Image Uploads](https://github.com/pubnub/chat-engine-uploadcare)
-- [Persistent Message History](https://github.com/pubnub/chat-engine-history)
-- [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
 - [Emoji Support](https://github.com/pubnub/chat-engine-emoji)
-- [Unread Messages](https://github.com/pubnub/chat-engine-unread-messages)
+- [Event Status and Read Receipts](https://github.com/pubnub/chat-engine-event-status)
 - [Gravatar Support](https://github.com/pubnub/chat-engine-gravatar)
+- [Image Uploads](https://github.com/pubnub/chat-engine-uploadcare)
+- [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
+- [Mute Users](https://github.com/pubnub/chat-engine-muter)
+- [Online User Search](https://github.com/pubnub/chat-engine-online-user-search)
+- [Persistent Message History](https://github.com/pubnub/chat-engine-history)
+- [Random Usernames](https://github.com/pubnub/chat-engine-random-username)
+- [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator)
+- [Unread Messages](https://github.com/pubnub/chat-engine-unread-messages)
 
 ## Other usage examples
 
