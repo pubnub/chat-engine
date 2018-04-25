@@ -20,8 +20,8 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 # Concepts
 
 * [Me](https://www.pubnub.com/docs/chat-engine/me) - It's you dummy. The user that represents the current application.
-* [Users and State](https://www.pubnub.com/docs/chat-engine/users-and-state) - The other users in the chat room.
-* [Chats](https://www.pubnub.com/docs/chat-engine/chats) - ChatEngine's bread and butter.
+* [Users and State](https://www.pubnub.com/docs/chat-engine/users-and-state) - Explains how to interact with other users using ChatEngine and get additional information about them.
+* [Chats](https://www.pubnub.com/docs/chat-engine/chats) - ChatEngine's bread and butter. These are isolated rooms that users can talk to each other in.
 * [Events](https://www.pubnub.com/docs/chat-engine/events) - Events are things that happen in a chat. Like ```message``` or ```image_upload``` for example.
 * [Event Payload](https://www.pubnub.com/docs/chat-engine/event-payload) - The data that comes with an event. Includes things like who sent the event and what chat it was sent to.
 * [Namespaces](https://www.pubnub.com/docs/chat-engine/namespaces) - ChatEngine has a lot of events, so we use name spacing to isolate them.
