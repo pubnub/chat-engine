@@ -82,37 +82,37 @@ Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-exampl
 
 ## [Image Uploads](https://github.com/pubnub/chat-engine-uploadcare)
 
-<img src="https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/output.gif" max-width="400px" />
+<img src="https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/output.gif" width="400" />
 
 Uses UploadCare service to uplaod images and render them in chats.
 
 ## [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
 
-<img src="https://github.com/pubnub/chat-engine-markdown/raw/master/example/output.gif" max-width="400px" />
+<img src="https://github.com/pubnub/chat-engine-markdown/raw/master/example/output.gif" width="400" />
 
 Render Markdown in HTML when receiving messages.
 
 ## [Mute Users](https://github.com/pubnub/chat-engine-muter)
 
-<img src="https://github.com/pubnub/chat-engine-muter/raw/master/example/output.gif" max-width="400px" />
+<img src="https://github.com/pubnub/chat-engine-muter/raw/master/example/output.gif" width="400" />
 
 Allows the current user to stop receiving events from other users.
 
 ## [Online User Search](https://github.com/pubnub/chat-engine-online-user-search)
 
-<img src="https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/output.gif" max-width="400px" />
+<img src="https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/output.gif" width="400" />
 
 A simple way to search through the list of users online in the chat.
 
 ## [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator)
 
-<img src="https://raw.github.com/pubnub/chat-engine-typing-indicator/master/example/output.gif" max-width="400px" />
+<img src="https://raw.github.com/pubnub/chat-engine-typing-indicator/master/example/output.gif" width="400" />
 
 Provides convenience methods that fire when a user starts or stops typing. [Example](https://github.com/pubnub/chat-engine-typing-indicator/tree/master/example)
 
 ### [Unread Messages](https://github.com/pubnub/chat-engine-unread-messages)
 
-<img src="https://github.com/pubnub/chat-engine-unread-messages/raw/master/example/output.gif" max-width="400px" />
+<img src="https://github.com/pubnub/chat-engine-unread-messages/raw/master/example/output.gif" width="400" />
 
 Allows you to mark a chat as being in the background and increments a counter as events are sent to it.
 
