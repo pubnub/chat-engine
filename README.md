@@ -119,7 +119,7 @@ Render Markdown in HTML when receiving messages. [Example](https://raw.github.co
 
 ## [Mute Users](https://github.com/pubnub/chat-engine-muter)
 
-<img src="images/muter.gif" width="600" />
+<img src="images/mute.gif" width="600" />
 
 Allows the current user to stop receiving events from other users. [Example](https://raw.github.com/pubnub/chat-engine-muter/master/example/).
 
