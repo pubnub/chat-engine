@@ -1,7 +1,7 @@
 {
   "author": "PubNub",
   "name": "chat-engine",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "ChatEngine",
   "main": "dist/chat-engine.js",
   "scripts": {

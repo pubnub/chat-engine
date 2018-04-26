@@ -8,10 +8,10 @@ payload. The event log tells a story about what's happening inside. Events are l
 as they are triggered locally.
 
 You can turn on debug mode by supplying ```debug: true``` within the second
-configuration object in {@link ChatEngine#create}.
+configuration object in {@link ChatEngineCore#create}.
 
 ```js
-ChatEngine = ChatEngineCore.create({
+let ChatEngine = ChatEngineCore.create({
     //...
 }, {
     debug: true
