@@ -102,25 +102,25 @@ Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-exampl
 
 <img src="https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/output.gif" width="600" />
 
-Uses UploadCare service to uplaod images and render them in chats.
+Uses UploadCare service to uplaod images and render them in chats. [Example](https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/).
 
 ## [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
 
 <img src="https://github.com/pubnub/chat-engine-markdown/raw/master/example/output.gif" width="600" />
 
-Render Markdown in HTML when receiving messages.
+Render Markdown in HTML when receiving messages. [Example](https://raw.github.com/pubnub/chat-engine-markdown/master/example/).
 
 ## [Mute Users](https://github.com/pubnub/chat-engine-muter)
 
 <img src="https://github.com/pubnub/chat-engine-muter/raw/master/example/output.gif" width="600" />
 
-Allows the current user to stop receiving events from other users.
+Allows the current user to stop receiving events from other users. [Example](https://raw.github.com/pubnub/chat-engine-muter/master/example/).
 
 ## [Online User Search](https://github.com/pubnub/chat-engine-online-user-search)
 
 <img src="https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/output.gif" width="600" />
 
-A simple way to search through the list of users online in the chat.
+A simple way to search through the list of users online in the chat. [Example](https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/).
 
 ## [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator)
 
@@ -132,7 +132,7 @@ Provides convenience methods that fire when a user starts or stops typing. [Exam
 
 <img src="https://github.com/pubnub/chat-engine-unread-messages/raw/master/example/output.gif" width="600" />
 
-Allows you to mark a chat as being in the background and increments a counter as events are sent to it.
+Allows you to mark a chat as being in the background and increments a counter as events are sent to it. [Example](https://raw.github.com/pubnub/chat-engine-online-unread-messages/master/example/).
 
 ## [Desktop Notifications](https://github.com/pubnub/chat-engine-desktop-notifications)
 
