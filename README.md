@@ -13,6 +13,12 @@ The real time server component is provided by PubNub. ChatEngine is designed to 
 
 Check out [the getting started guide](https://github.com/pubnub/chat-engine-tutorial).
 
+## Videos
+
+* [ChatEngine Intro](https://www.youtube.com/watch?v=o529w2ABH6s)
+* [5 Minute ChatEngine Tutorial](https://www.youtube.com/watch?v=sUUekUsfed4)
+* [Chat in 30 Lines of Code Webinar](https://www.youtube.com/watch?v=jnF9fLo7xfk)
+
 # Docs
 
 You can find the full docs on [the full documentation website](https://www.pubnub.com/docs/chat-engine/getting-started). Concepts are linked below for convenience.
@@ -44,13 +50,13 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 
 ## Javascript
 
-* [Chat](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/chat.html) - Really simple chat example. The "hello world" of ChatEngine.
+* [Chat](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/chat.html) - Really simple chat example. The "hello world" of ChatEngine
 * [Online List](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/online-list.html) - No chats, just renders who is online. See the Kitchen Sinks for how to combine this with private chats.
 
 ## React Native + Mobile
 
 * [React Native Example](https://github.com/pubnub/chat-engine-examples/tree/master/react-native) - Made with ```create-react-app```.
-* [React Native Components](https://github.com/pubnub/chat-engine-react-native) - Premade components for rendering Chats, Messages, Users, and more.
+* [React Native Components](https://github.com/pubnub/chat-engine-react-native) - Premade components for rendering Chats, Messages, Users, and more
 * [Integrating into an existing iOS App](https://www.pubnub.com/docs/chat-engine/samples/ios) - Guide on adding ChatEngine React native app into iOS
 * [Integrating into an existing Android App](https://www.pubnub.com/docs/chat-engine/samples/android) - Guide on adding ChatEngine React Native app in Android
 
@@ -60,19 +66,19 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 
 ## Vue
 
-* [Vue Guide](https://www.pubnub.com/blog/introducing-the-chatengine-plugin-for-vue/) - Guide on using ChatEngine and Vue together. Uses the following resources.
+* [Vue Guide](https://www.pubnub.com/blog/introducing-the-chatengine-plugin-for-vue/) - Guide on using ChatEngine and Vue together. Uses the following resources
 * [Vue Example](https://github.com/ajb413/chat-engine-vue) - Full featured ChatEngine vue example
 * [Vue Plugin](https://github.com/ajb413/vue-chat-engine) - ChatEngine plugin for vue
 
 ## Angular
 
-* [Angular Simple](https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple) - Angular "Hello World" app. Simple app that uses a custom Angular plugin to render when anything updates.
+* [Angular Simple](https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple) - Angular "Hello World" app. Simple app that uses a custom Angular plugin to render when anything updates
 * [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron) - The largest demo app out there, almost a complete Desktop Team Chat clone (Slack, Stride, Flowdock). Persistent URLS and renders into a real desktop app with Electron!
 
 ## jQuery
 
-* [jQuery Simple](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple) - jQuery ChatEngine "Hello World" app. Simple app where everyone chats together.
-* [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink) - Huge example that uses most ChatEngine features. Has an online list that spawns new chats when you click on usernames.
+* [jQuery Simple](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple) - jQuery ChatEngine "Hello World" app. Simple app where everyone chats together
+* [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink) - Huge example that uses most ChatEngine features. Has an online list that spawns new chats when you click on usernames
 
 ## 3rd Party Authentication
 
@@ -82,17 +88,14 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 
 * [NodeJS ChatBot](https://github.com/pubnub/chat-engine-examples/blob/master/nodejs/bot.js) - An example bot that responds to messages and emulates typing. Works with the jQuery Kitchen Sink example by default.
 
-## Other usage examples
+## Other Resources
 
-https://aws.amazon.com/blogs/machine-learning/build-smart-chat-apps-with-amazon-machine-learning-apis-and-the-pubnub-chatengine/
-https://www.pubnub.com/blog/pubnub-chatengine-is-faster-than-imessage/
-https://www.pubnub.com/blog/building-chat-the-current-landscape/
-https://www.pubnub.com/blog/building-a-dating-app-the-core-components/
-https://www.youtube.com/watch?v=o529w2ABH6s
-https://www.youtube.com/watch?v=sUUekUsfed4
-https://www.youtube.com/watch?v=jnF9fLo7xfk
-
-The integration tests in ```test/integration``` includes some usage examples.
+* [Build smart chat apps with Amazon machine learning APIs and the PubNub ChatEngine
+](https://aws.amazon.com/blogs/machine-learning/build-smart-chat-apps-with-amazon-machine-learning-apis-and-the-pubnub-chatengine/)
+* [ChatEngine vs iMessage Benchmark](https://www.pubnub.com/blog/pubnub-chatengine-is-faster-than-imessage/)
+* [Chat Landscape](https://www.pubnub.com/blog/building-chat-the-current-landscape/)
+* [Building a Dating App Overview](https://www.pubnub.com/blog/building-a-dating-app-the-core-components/)
+* The integration tests in ```test/integration``` includes some usage examples.
 
 # Plugins
 
