@@ -1,4 +1,4 @@
-![](logo.png)
+![](images/logo.png)
 
 PubNub ChatEngine is an object oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
 
@@ -107,37 +107,37 @@ Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-exampl
 
 ## [Image Uploads](https://github.com/pubnub/chat-engine-uploadcare)
 
-<img src="https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/output.gif" width="600" />
+<img src="images/upload.gif" width="600" />
 
 Uses UploadCare service to uplaod images and render them in chats. [Example](https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/).
 
 ## [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
 
-<img src="https://github.com/pubnub/chat-engine-markdown/raw/master/example/output.gif" width="600" />
+<img src="images/markdown.gif" width="600" />
 
 Render Markdown in HTML when receiving messages. [Example](https://raw.github.com/pubnub/chat-engine-markdown/master/example/).
 
 ## [Mute Users](https://github.com/pubnub/chat-engine-muter)
 
-<img src="https://github.com/pubnub/chat-engine-muter/raw/master/example/output.gif" width="600" />
+<img src="images/muter.gif" width="600" />
 
 Allows the current user to stop receiving events from other users. [Example](https://raw.github.com/pubnub/chat-engine-muter/master/example/).
 
 ## [Online User Search](https://github.com/pubnub/chat-engine-online-user-search)
 
-<img src="https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/output.gif" width="600" />
+<img src="images/online.gif" width="600" />
 
 A simple way to search through the list of users online in the chat. [Example](https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/).
 
 ## [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator)
 
-<img src="https://raw.github.com/pubnub/chat-engine-typing-indicator/master/example/output.gif" width="600" />
+<img src="images/typing.gif" width="600" />
 
 Provides convenience methods that fire when a user starts or stops typing. [Example](https://github.com/pubnub/chat-engine-typing-indicator/tree/master/example)
 
 ## [Unread Messages](https://github.com/pubnub/chat-engine-unread-messages)
 
-<img src="https://github.com/pubnub/chat-engine-unread-messages/raw/master/example/output.gif" width="600" />
+<img src="images/unread.gif" width="600" />
 
 Allows you to mark a chat as being in the background and increments a counter as events are sent to it. [Example](https://raw.github.com/pubnub/chat-engine-online-unread-messages/master/example/).
 
