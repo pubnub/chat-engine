@@ -1,7 +1,10 @@
+
 const waterfall = require('async/waterfall');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
 const Search = require('../components/search');
+
+const augmentChat = require('../plugins/augment/chat');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -28,6 +31,8 @@ class Chat extends Emitter {
         this.chatEngine = chatEngine;
 
         this.name = 'Chat';
+
+        this.plugin(augmentChat(this));
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.

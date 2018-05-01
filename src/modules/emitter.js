@@ -2,6 +2,7 @@ const waterfall = require('async/waterfall');
 const RootEmitter = require('./root_emitter');
 const Event = require('../components/event');
 
+const augmentSender = require('../plugins/augment/sender');
 /**
  An ChatEngine generic emitter that supports plugins and duplicates
  events on the root emitter.
@@ -29,6 +30,8 @@ class Emitter extends RootEmitter {
          @private
          */
         this._dataset = {};
+
+        this.plugin(augmentSender(chatEngine));
 
         /**
          Emit events locally.
@@ -162,52 +165,21 @@ class Emitter extends RootEmitter {
      */
     trigger(event, payload = {}, done = () => {}) {
 
-        let complete = () => {
+        // let plugins modify the event
+        this.runPluginQueue('on', event, (next) => {
+            next(null, payload);
+        }, (reject, pluginResponse) => {
 
-            // let plugins modify the event
-            this.runPluginQueue('on', event, (next) => {
-                next(null, payload);
-            }, (reject, pluginResponse) => {
-
-                if (reject) {
-                    done(reject);
-                } else {
-                    // emit this event to any listener
-                    this._emit(event, pluginResponse);
-                    done(null, event, pluginResponse);
-                }
-
-            });
-
-        };
-
-        // this can be made into plugin
-        if (typeof payload === 'object') {
-
-            // restore chat in payload
-            if (!payload.chat) {
-                payload.chat = this;
-            }
-
-            // if we should try to restore the sender property
-            if (payload.sender && typeof payload.sender === 'string') {
-
-                // the user doesn't exist, create it
-                payload.sender = new this.chatEngine.User(payload.sender);
-
-                payload.sender._getStoredState(() => {
-                    complete();
-                });
-
+            if (reject) {
+                done(reject);
             } else {
-                // there's no "sender" in this object, move on
-                complete();
+                // emit this event to any listener
+                this._emit(event, pluginResponse);
+                done(null, event, pluginResponse);
             }
 
-        } else {
-            // payload is not an object, we want nothing to do with it.
-            complete();
-        }
+        });
+
     }
 
     /**

@@ -1,5 +1,8 @@
 const Emitter = require('../modules/emitter');
 const eachSeries = require('async/eachSeries');
+
+const eventFilter = require('../plugins/filter/event');
+const senderFilter = require('../plugins/filter/sender');
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
@@ -14,7 +17,7 @@ class Search extends Emitter {
 
     constructor(chatEngine, chat, config = {}) {
 
-        super();
+        super(chatEngine);
 
         this.chatEngine = chatEngine;
 
@@ -110,34 +113,6 @@ class Search extends Emitter {
             });
         };
 
-        let eventFilter = (event) => {
-            return {
-                middleware: {
-                    on: {
-                        '*': (payload, next) => {
-
-                            let matches = payload && payload.event && payload.event === event;
-                            next(!matches, payload);
-                        }
-                    }
-                }
-            };
-        };
-
-        let senderFilter = (user) => {
-            return {
-                middleware: {
-                    on: {
-                        '*': (payload, next) => {
-
-                            let matches = payload && payload.sender && payload.sender.uuid === user.uuid;
-                            next(!matches, payload);
-                        }
-                    }
-                }
-            };
-        };
-
         /**
          * @private
          */
@@ -204,11 +179,11 @@ class Search extends Emitter {
         };
 
         if (this.config.event) {
-            this.plugin(eventFilter(this.config.event));
+            this.plugins.shift(eventFilter(this.config.event));
         }
 
         if (this.config.sender) {
-            this.plugin(senderFilter(this.config.sender));
+            this.plugins.shift(senderFilter(this.config.sender));
         }
 
         /**
