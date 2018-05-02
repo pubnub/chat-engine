@@ -28,7 +28,7 @@
     "babel-preset-env": "^1.6.1",
     "body-parser": "^1.17.2",
     "chai": "^3.5.0",
-    "chalk": "^2.3.2",
+    "chalk": "^2.4.1",
     "chat-engine-typing-indicator": "0.0.x",
     "decache": "^4.3.0",
     "docdash": "^0.4.0",
@@ -62,7 +62,7 @@
     "uglifyjs-webpack-plugin": "^1.0.1",
     "webpack": "^3.6.0",
     "webpack-stream": "^4.0.0",
-    "winston": "^2.4.1",
+    "winston": "^2.4.2",
     "winston-loggly-bulk": "^2.0.2"
   },
   "dependencies": {
