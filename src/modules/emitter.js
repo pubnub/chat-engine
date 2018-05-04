@@ -173,6 +173,7 @@ class Emitter extends RootEmitter {
             if (reject) {
                 done(reject);
             } else {
+
                 // emit this event to any listener
                 this._emit(event, pluginResponse);
                 done(null, event, pluginResponse);

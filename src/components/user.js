@@ -123,8 +123,6 @@ class User extends Emitter {
     */
     _getStoredState(callback) {
 
-        console.log('getting stored state');
-
         if (!this._stateSet) {
 
             this.chatEngine.request('get', 'user_state', {

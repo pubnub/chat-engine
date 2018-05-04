@@ -127,6 +127,7 @@ class Search extends Emitter {
                     if (!reject) {
                         this.needleCount += 1;
                     }
+
                     cb();
 
                 });
@@ -138,10 +139,12 @@ class Search extends Emitter {
         };
 
         this.next = () => {
-            if (this.hasMore) {
-                this.maxPage = this.maxPage + this.config.pages;
 
+            if (this.hasMore) {
+
+                this.maxPage = this.maxPage + this.config.pages;
                 this.find();
+
             } else {
                 this._emit('$.search.finish');
             }
@@ -155,13 +158,14 @@ class Search extends Emitter {
                 response.messages.reverse();
 
                 eachSeries(response.messages, this.triggerHistory, () => {
+
                     if (this.hasMore && this.numPage === this.maxPage) {
                         this._emit('$.search.pause');
                     } else if (this.hasMore && (this.needleCount < this.config.limit || this.messagesBetweenTimetokens)) {
-
                         this.numPage += 1;
                         this.find();
                     } else {
+
                         if (this.needleCount >= this.config.limit && !this.messagesBetweenTimetokens) {
                             this.hasMore = false;
                         }
@@ -171,7 +175,9 @@ class Search extends Emitter {
                          * @event Search#$"."search"."finish
                          */
                         this._emit('$.search.finish');
+
                     }
+
                 });
             });
 
@@ -179,11 +185,11 @@ class Search extends Emitter {
         };
 
         if (this.config.event) {
-            this.plugins.shift(eventFilter(this.config.event));
+            this.plugins.unshift(eventFilter(this.config.event));
         }
 
         if (this.config.sender) {
-            this.plugins.shift(senderFilter(this.config.sender));
+            this.plugins.unshift(senderFilter(this.config.sender));
         }
 
         /**
