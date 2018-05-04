@@ -469,8 +469,7 @@ describe('history', () => {
 
             chatHistory.search({
                 limit: 10
-            })
-            .on('tester', (a) => {
+            }).on('tester', (a) => {
 
                 assert.equal(a.event, 'tester');
 
