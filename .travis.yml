@@ -10,8 +10,6 @@ script:
 after_success:
 - npm install codecov codacy-coverage
 - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
-addons:
-  srcclr: true
 env:
   global:
   - secure: EnoZZV2GtmoDd5X/+tb6FUuXhLgRwqbGmNWcknDEE/Yw4X6Z5XADv3gTSgy25uwD/y0eEUS0lRxINVmMpmx9Jdise11BY18Y0XX/my4rknU1FnrBDwD99h6yMme+MCynf5CI9IuJMEtZ/J1NkGQMxFEl0HG8aw7zZg9sfNxXZPkXVpJip3i6Y26HBTyTSbsiFzWuDY8j21txiIYzSkjfiFxPUMkEWgD+Br08PWFKyEB7+jqywLhLx5gSgri7HuGCwqWEYkRytJLySRWIIKVhB5TH8tgem/gEywdCMoP1gHVTL6+1tZHuXwQrxF27FC/1ipoEOJOPN11Fwm89M23dyaD+lrzB7IMLg/pbeEQIa/0GLK7q0543INhpVQfJlPh+5gINomJ3VAPg84PUVGpFEAwCioLXtb/+Me463FECewixkZ/OrXgBag1mHndZE8OdC2Vt8VTbtY9xLM9iZwZj72bF6p8z3L8lYqqNb1+bP3/Eve+dQeOdA00K7oglRKry7xJq5iWmjV/Ow7KH02QV+Hn4M5pv0GVyQw9mKWxEJyOZWY4fdkYOTdUhWaj3Lo3LoC07nELwF15qqCNrASiFBGr2OEZsXcR0vpEqGIzTeY5of52sZLR3ddlbPAWDWHmpmMofKkuF1BbpyjVznJNxB36XCN+PeXRQhwo1u2QLqZo=
