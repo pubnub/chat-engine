@@ -4,7 +4,7 @@ const init = require('./bootstrap');
 Global object used to create an instance of {@link ChatEngine}.
 
 @alias ChatEngineCore
-@param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/java-se-java/api-reference-configuration).
+@param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/web-javascript/api-reference-configuration).
 @param ceConfig {Object} A list of ChatEngine specific configuration options.
 @param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link ChatEngine.global}
 @param [ceConfig.enableSync] {Boolean} Synchronizes chats between instances with the same {@link Me#uuid}. See {@link Me#sync}.
