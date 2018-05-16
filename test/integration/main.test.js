@@ -400,6 +400,13 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
+        // let i = 0;
+        // while(i < 200) {
+        //     chatHistory.emit('tester', {works: true, count: i});
+        //     chatHistory.emit('not-tester', {works: false, count: i});
+        //     i++;
+        // }
+
         chatHistory.on('$.connected', () => {
 
             let search = chatHistory.search({
@@ -435,8 +442,7 @@ describe('history', () => {
 
             let search = chatHistory2.search({
                 event: 'tester',
-                limit: 200,
-                pages: 11
+                limit: 200
             }).on('tester', (a) => {
 
                 assert(a.timetoken);
@@ -462,8 +468,7 @@ describe('history', () => {
         chatHistory.on('$.connected', () => {
 
             chatHistory.search({
-                limit: 10,
-                pages: 12
+                limit: 10
             }).on('tester', (a) => {
 
                 assert.equal(a.event, 'tester');
@@ -487,8 +492,7 @@ describe('history', () => {
         chatHistory.on('$.connected', () => {
             let search = chatHistory.search({
                 event: 'tester',
-                limit: 10,
-                pages: 13
+                limit: 10
             }).on('tester', (a) => {
                 timetokens.push(a.timetoken);
             }).on('$.search.finish', () => {
