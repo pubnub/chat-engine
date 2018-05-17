@@ -220,7 +220,7 @@ describe('connect', () => {
 
     });
 
-    it('should notify chatengine on created', function join(done) {
+    it('should notify chatengine on created chat', function join(done) {
 
         this.timeout(60000);
 
@@ -246,6 +246,19 @@ describe('connect', () => {
             }, 1000);
 
         });
+
+    });
+
+    it('should notify chatengine on created user', function newUserCreated(done) {
+
+        this.timeout(60000);
+
+        ChatEngine.on('$.created.user', (data, user) => {
+            assert.isObject(user);
+            done();
+        });
+
+        new ChatEngine.User('some-new-user');
 
     });
 
