@@ -651,7 +651,7 @@ describe('remote chat list', () => {
 
 });
 
-describe('invite', () => {
+describe('private channels work', () => {
 
     beforeEach(reset);
     beforeEach(createChatEngine);
@@ -723,6 +723,29 @@ describe('invite', () => {
                 payload.user.direct.connect();
                 payload.user.direct.once('$.connected', () => {
                     payload.user.direct.emit('anything', {test: true});
+                });
+
+            }
+
+        });
+
+    });
+
+    it('feed chat works', function shouldDirect(done) {
+
+        this.timeout(60000);
+
+        setInterval(() => {
+            ChatEngine.me.feed.emit('anything', {test: true});
+        });
+
+        ChatEngineYou.global.on('$.online.*', (payload) => {
+
+            if(payload.user.uuid == username) {
+
+                payload.user.feed.connect();
+                payload.user.feed.once('anything', () => {
+                    done();
                 });
 
             }
