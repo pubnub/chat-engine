@@ -258,7 +258,8 @@ describe('connect', () => {
             done();
         });
 
-        new ChatEngine.User('some-new-user');
+        let newUser = new ChatEngine.User('some-new-user');
+        newUser.objectify();
 
     });
 
@@ -620,7 +621,6 @@ describe('remote chat list', () => {
 
         setTimeout(() => {
             let newChatToNotify = new ChatEngineClone.Chat(newChannel);
-            // we dont need this, just gets linter to pass
             newChatToNotify.objectify();
         }, 3000);
 
