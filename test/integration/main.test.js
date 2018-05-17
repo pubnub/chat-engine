@@ -737,7 +737,7 @@ describe('private channels work', () => {
 
         setInterval(() => {
             ChatEngine.me.feed.emit('anything', {test: true});
-        });
+        }, 1000);
 
         ChatEngineYou.global.on('$.online.*', (payload) => {
 
