@@ -708,6 +708,29 @@ describe('invite', () => {
 
     });
 
+    it('direct chat works', function shouldDirect(done) {
+
+        this.timeout(60000);
+
+        ChatEngine.me.direct.on('anything', (payload) => {
+            done();
+        });
+
+        ChatEngineYou.global.on('$.online.*', (payload) => {
+
+            if(payload.user.uuid == username) {
+
+                payload.user.direct.connect();
+                payload.user.direct.once('$.connected', () => {
+                    payload.user.direct.emit('anything', {test: true});
+                });
+
+            }
+
+        });
+
+    });
+
 });
 
 describe('state', () => {
