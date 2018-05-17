@@ -712,17 +712,17 @@ describe('private channels work', () => {
 
         this.timeout(60000);
 
-        ChatEngine.me.direct.on('anything', (payload) => {
+        ChatEngine.me.direct.on('anything', () => {
             done();
         });
 
         ChatEngineYou.global.on('$.online.*', (payload) => {
 
-            if(payload.user.uuid == username) {
+            if (payload.user.uuid === username) {
 
                 payload.user.direct.connect();
                 payload.user.direct.once('$.connected', () => {
-                    payload.user.direct.emit('anything', {test: true});
+                    payload.user.direct.emit('anything', { test: true });
                 });
 
             }
@@ -736,12 +736,12 @@ describe('private channels work', () => {
         this.timeout(60000);
 
         setInterval(() => {
-            ChatEngine.me.feed.emit('anything', {test: true});
+            ChatEngine.me.feed.emit('anything', { test: true });
         }, 1000);
 
         ChatEngineYou.global.on('$.online.*', (payload) => {
 
-            if(payload.user.uuid == username) {
+            if (payload.user.uuid === username) {
 
                 payload.user.feed.connect();
                 payload.user.feed.once('anything', () => {
