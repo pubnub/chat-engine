@@ -227,11 +227,11 @@ describe('connect', () => {
         let newChat = 'this-is-only-a-test-3' + new Date().getTime();
         let a = false;
 
-        ChatEngine.on('$.created.chat', (data, source) => {
+        ChatEngine.on('$.created.chat', (data, chat) => {
 
             let lookingFor = globalChannel + '#chat#public.#' + newChat;
 
-            if (source.channel === lookingFor) {
+            if (chat.channel === lookingFor) {
                 done();
             }
 
