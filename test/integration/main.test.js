@@ -716,22 +716,15 @@ describe('private channels work', () => {
             done();
         });
 
-        ChatEngineYou.global.on('$.online.*', (payload) => {
-
-            if (payload.user.uuid === username) {
-
-                payload.user.direct.connect();
-                payload.user.direct.once('$.connected', () => {
-                    payload.user.direct.emit('anything', { test: true });
-                });
-
-            }
-
+        let u = new ChatEngineYou.User(username);
+        u.direct.connect();
+        u.direct.once('$.connected', () => {
+            u.direct.emit('anything', { test: true });
         });
 
     });
 
-    it('feed chat works', function shouldDirect(done) {
+    it('feed chat works', function shouldFeedCha(done) {
 
         this.timeout(60000);
 
@@ -739,17 +732,11 @@ describe('private channels work', () => {
             ChatEngine.me.feed.emit('anything', { test: true });
         }, 1000);
 
-        ChatEngineYou.global.on('$.online.*', (payload) => {
+        let u = new ChatEngineYou.User(username);
 
-            if (payload.user.uuid === username) {
-
-                payload.user.feed.connect();
-                payload.user.feed.once('anything', () => {
-                    done();
-                });
-
-            }
-
+        u.feed.connect();
+        u.feed.once('anything', () => {
+            done();
         });
 
     });
