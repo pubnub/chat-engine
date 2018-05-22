@@ -728,13 +728,12 @@ describe('private channels work', () => {
 
         this.timeout(60000);
 
-        setInterval(() => {
-            ChatEngine.me.feed.emit('anything', { test: true });
-        }, 1000);
-
         let u = new ChatEngineYou.User(username);
 
         u.feed.connect();
+        u.feed.on('$.connected', () => {
+            ChatEngine.me.feed.emit('anything', { test: true });
+        });
         u.feed.once('anything', () => {
             done();
         });
