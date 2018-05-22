@@ -6,11 +6,7 @@ That is what code is for.
 
 Each scenario is 30 seconds long
 
-## One user connects
-
-This is an example of a single user connecting to the system
-
-### 10 PubNub Functions calls
+## One user connects. This is an example of a single user connecting to the system
 
 User connects to ChatEngine See (#connect)
 
@@ -23,8 +19,6 @@ User connects to ChatEngine See (#connect)
 'blocks.join': 3 // global + direct + feed
 ```
 
-### 4 Presence calls
-
 User updates own state twice (see #connect) *
 Makes two hereNow requests on global channel (see #connect)
 
@@ -35,15 +29,13 @@ Makes two hereNow requests on global channel (see #connect)
 'presence.heartbeat': 2 // calls hereNow twice
 ```
 
-### 1 Subscribe
-
 Subscribes to global channel
 
 ```
 'subscribe.heartbeat': 1
 ```
 
-# Two users invite each other into private channels and call search twice. They each send two messages in private chat.
+## Two users invite each other into private channels and call search twice. They each send two messages in private chat.
 
 Two users each bootstrap their own client
 
