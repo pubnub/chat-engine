@@ -730,9 +730,17 @@ describe('private channels work', () => {
 
         let u = new ChatEngineYou.User(username);
 
+        ChatEngine.onAny((a) => {
+            console.log(a);
+        });
+        ChatEngineYou.onAny((a) => {
+            console.log(a);
+        });
+
         u.feed.on('$.connected', () => {
             ChatEngine.me.feed.emit('anything', { test: true });
         });
+
         u.feed.connect();
         u.feed.once('anything', () => {
             done();
