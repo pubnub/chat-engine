@@ -744,9 +744,9 @@ describe('private channels work', () => {
             console.log('connected to your feed');
         });
 
-        ChatEngine.me.feed.on('$.connected', () => {
+        setInterval(() => {
             ChatEngine.me.feed.emit('anything', { test: true });
-        });
+        }, 1000);
 
         u.feed.connect();
         u.feed.once('anything', () => {
