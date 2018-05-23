@@ -730,20 +730,6 @@ describe('private channels work', () => {
 
         let u = new ChatEngineYou.User(username);
 
-        console.log(u.uuid);
-        console.log(ChatEngine.me.uuid);
-
-        ChatEngine.onAny((a) => {
-            console.log('me', a);
-        });
-        ChatEngineYou.onAny((a) => {
-            console.log('you', a);
-        });
-
-        u.feed.on('$.connected', () => {
-            console.log('connected to your feed');
-        });
-
         setInterval(() => {
             ChatEngine.me.feed.emit('anything', { test: true });
         }, 1000);
