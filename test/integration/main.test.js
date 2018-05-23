@@ -738,6 +738,9 @@ describe('private channels work', () => {
         });
 
         u.feed.on('$.connected', () => {
+
+            console.log('connected to your feed');
+
             ChatEngine.me.feed.emit('anything', { test: true });
         });
 
