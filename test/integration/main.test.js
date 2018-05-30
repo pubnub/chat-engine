@@ -724,7 +724,7 @@ describe('private channels work', () => {
 
     });
 
-    it('feed chat works', function shouldFeedCha(done) {
+    it('feed chat works', function shouldFeedChat(done) {
 
         this.timeout(60000);
 
