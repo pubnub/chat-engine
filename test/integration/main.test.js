@@ -220,18 +220,18 @@ describe('connect', () => {
 
     });
 
-    it('should notify chatengine on created', function join(done) {
+    it('should notify chatengine on created chat', function join(done) {
 
         this.timeout(60000);
 
         let newChat = 'this-is-only-a-test-3' + new Date().getTime();
         let a = false;
 
-        ChatEngine.on('$.created.chat', (data, source) => {
+        ChatEngine.on('$.created.chat', (data, chat) => {
 
             let lookingFor = globalChannel + '#chat#public.#' + newChat;
 
-            if (source.channel === lookingFor) {
+            if (chat.channel === lookingFor) {
                 done();
             }
 
@@ -246,6 +246,20 @@ describe('connect', () => {
             }, 1000);
 
         });
+
+    });
+
+    it('should notify chatengine on created user', function newUserCreated(done) {
+
+        this.timeout(60000);
+
+        ChatEngine.on('$.created.user', (data, user) => {
+            assert.isObject(user);
+            done();
+        });
+
+        let newUser = new ChatEngine.User('some-new-user');
+        newUser.objectify();
 
     });
 
@@ -607,7 +621,6 @@ describe('remote chat list', () => {
 
         setTimeout(() => {
             let newChatToNotify = new ChatEngineClone.Chat(newChannel);
-            // we dont need this, just gets linter to pass
             newChatToNotify.objectify();
         }, 3000);
 

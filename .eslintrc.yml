@@ -31,6 +31,7 @@ rules:
   arrow-body-style: 0
   no-else-return: 0
   object-shorthand: 0
+  no-new: 0
   no-unused-vars:
     - warn
     - varsIgnorePattern: "process"
