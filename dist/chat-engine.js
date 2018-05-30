@@ -390,8 +390,6 @@ module.exports = {
 "use strict";
 
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -404,6 +402,7 @@ var waterfall = __webpack_require__(4);
 var RootEmitter = __webpack_require__(3);
 var Event = __webpack_require__(23);
 
+var augmentSender = __webpack_require__(70);
 /**
  An ChatEngine generic emitter that supports plugins and duplicates
  events on the root emitter.
@@ -434,6 +433,8 @@ var Emitter = function (_RootEmitter) {
          @private
          */
         _this._dataset = {};
+
+        _this.plugin(augmentSender(chatEngine));
 
         /**
          Emit events locally.
@@ -582,48 +583,20 @@ var Emitter = function (_RootEmitter) {
             var done = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {};
 
 
-            var complete = function complete() {
+            // let plugins modify the event
+            this.runPluginQueue('on', event, function (next) {
+                next(null, payload);
+            }, function (reject, pluginResponse) {
 
-                // let plugins modify the event
-                _this3.runPluginQueue('on', event, function (next) {
-                    next(null, payload);
-                }, function (reject, pluginResponse) {
-
-                    if (reject) {
-                        done(reject);
-                    } else {
-                        // emit this event to any listener
-                        _this3._emit(event, pluginResponse);
-                        done(null, event, pluginResponse);
-                    }
-                });
-            };
-
-            // this can be made into plugin
-            if ((typeof payload === 'undefined' ? 'undefined' : _typeof(payload)) === 'object') {
-
-                // restore chat in payload
-                if (!payload.chat) {
-                    payload.chat = this;
-                }
-
-                // if we should try to restore the sender property
-                if (payload.sender && typeof payload.sender === 'string') {
-
-                    // the user doesn't exist, create it
-                    payload.sender = new this.chatEngine.User(payload.sender);
-
-                    payload.sender._getStoredState(function () {
-                        complete();
-                    });
+                if (reject) {
+                    done(reject);
                 } else {
-                    // there's no "sender" in this object, move on
-                    complete();
+
+                    // emit this event to any listener
+                    _this3._emit(event, pluginResponse);
+                    done(null, event, pluginResponse);
                 }
-            } else {
-                // payload is not an object, we want nothing to do with it.
-                complete();
-            }
+            });
         }
 
         /**
@@ -2244,7 +2217,7 @@ var init = __webpack_require__(29);
 Global object used to create an instance of {@link ChatEngine}.
 
 @alias ChatEngineCore
-@param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/java-se-java/api-reference-configuration).
+@param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/web-javascript/api-reference-configuration).
 @param ceConfig {Object} A list of ChatEngine specific configuration options.
 @param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link ChatEngine.global}
 @param [ceConfig.enableSync] {Boolean} Synchronizes chats between instances with the same {@link Me#uuid}. See {@link Me#sync}.
@@ -2315,7 +2288,7 @@ var pack = __webpack_require__(50);
 
 var RootEmitter = __webpack_require__(3);
 var Chat = __webpack_require__(52);
-var Me = __webpack_require__(95);
+var Me = __webpack_require__(99);
 var User = __webpack_require__(27);
 var waterfall = __webpack_require__(4);
 
@@ -3805,7 +3778,7 @@ default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModul
 /* 50 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.11","description":"ChatEngine","main":"dist/chat-engine.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-env":"^1.6.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.13","description":"ChatEngine","main":"dist/chat-engine.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-env":"^1.6.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
 
 /***/ }),
 /* 51 */
@@ -4556,7 +4529,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var waterfall = __webpack_require__(4);
 var Emitter = __webpack_require__(1);
 var Event = __webpack_require__(23);
-var Search = __webpack_require__(70);
+var Search = __webpack_require__(71);
+
+var augmentChat = __webpack_require__(98);
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -4595,6 +4570,8 @@ var Chat = function (_Emitter) {
         _this.chatEngine = chatEngine;
 
         _this.name = 'Chat';
+
+        _this.plugin(augmentChat(_this));
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
@@ -5859,6 +5836,39 @@ module.exports = shortOut;
 "use strict";
 
 
+module.exports = function (chatEngine) {
+
+    return {
+        middleware: {
+            on: {
+                '*': function _(payload, next) {
+
+                    // if we should try to restore the sender property
+                    if (payload.sender && typeof payload.sender === 'string') {
+
+                        // get the user from ChatEngine
+                        payload.sender = new chatEngine.User(payload.sender);
+
+                        payload.sender._getStoredState(function () {
+                            next(null, payload);
+                        });
+                    } else {
+                        // there's no "sender" in this object, move on
+                        next(null, payload);
+                    }
+                }
+            }
+        }
+    };
+};
+
+/***/ }),
+/* 71 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -5866,7 +5876,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var Emitter = __webpack_require__(1);
-var eachSeries = __webpack_require__(71);
+var eachSeries = __webpack_require__(72);
+
+var eventFilter = __webpack_require__(96);
+var senderFilter = __webpack_require__(97);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
@@ -5886,7 +5899,7 @@ var Search = function (_Emitter) {
 
         _classCallCheck(this, Search);
 
-        var _this = _possibleConstructorReturn(this, (Search.__proto__ || Object.getPrototypeOf(Search)).call(this));
+        var _this = _possibleConstructorReturn(this, (Search.__proto__ || Object.getPrototypeOf(Search)).call(this, chatEngine));
 
         _this.chatEngine = chatEngine;
 
@@ -5985,34 +5998,6 @@ var Search = function (_Emitter) {
             });
         };
 
-        var eventFilter = function eventFilter(event) {
-            return {
-                middleware: {
-                    on: {
-                        '*': function _(payload, next) {
-
-                            var matches = payload && payload.event && payload.event === event;
-                            next(!matches, payload);
-                        }
-                    }
-                }
-            };
-        };
-
-        var senderFilter = function senderFilter(user) {
-            return {
-                middleware: {
-                    on: {
-                        '*': function _(payload, next) {
-
-                            var matches = payload && payload.sender && payload.sender.uuid === user.uuid;
-                            next(!matches, payload);
-                        }
-                    }
-                }
-            };
-        };
-
         /**
          * @private
          */
@@ -6027,6 +6012,7 @@ var Search = function (_Emitter) {
                     if (!reject) {
                         _this.needleCount += 1;
                     }
+
                     cb();
                 });
             } else {
@@ -6035,9 +6021,10 @@ var Search = function (_Emitter) {
         };
 
         _this.next = function () {
-            if (_this.hasMore) {
-                _this.maxPage = _this.maxPage + _this.config.pages;
 
+            if (_this.hasMore) {
+
+                _this.maxPage = _this.maxPage + _this.config.pages;
                 _this.find();
             } else {
                 _this._emit('$.search.finish');
@@ -6052,13 +6039,14 @@ var Search = function (_Emitter) {
                 response.messages.reverse();
 
                 eachSeries(response.messages, _this.triggerHistory, function () {
+
                     if (_this.hasMore && _this.numPage === _this.maxPage) {
                         _this._emit('$.search.pause');
                     } else if (_this.hasMore && (_this.needleCount < _this.config.limit || _this.messagesBetweenTimetokens)) {
-
                         _this.numPage += 1;
                         _this.find();
                     } else {
+
                         if (_this.needleCount >= _this.config.limit && !_this.messagesBetweenTimetokens) {
                             _this.hasMore = false;
                         }
@@ -6076,11 +6064,11 @@ var Search = function (_Emitter) {
         };
 
         if (_this.config.event) {
-            _this.plugin(eventFilter(_this.config.event));
+            _this.plugins.unshift(eventFilter(_this.config.event));
         }
 
         if (_this.config.sender) {
-            _this.plugin(senderFilter(_this.config.sender));
+            _this.plugins.unshift(senderFilter(_this.config.sender));
         }
 
         /**
@@ -6098,7 +6086,7 @@ var Search = function (_Emitter) {
 module.exports = Search;
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6108,11 +6096,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _eachLimit = __webpack_require__(72);
+var _eachLimit = __webpack_require__(73);
 
 var _eachLimit2 = _interopRequireDefault(_eachLimit);
 
-var _doLimit = __webpack_require__(94);
+var _doLimit = __webpack_require__(95);
 
 var _doLimit2 = _interopRequireDefault(_doLimit);
 
@@ -6142,7 +6130,7 @@ exports.default = (0, _doLimit2.default)(_eachLimit2.default, 1);
 module.exports = exports['default'];
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6153,11 +6141,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = eachLimit;
 
-var _eachOfLimit = __webpack_require__(73);
+var _eachOfLimit = __webpack_require__(74);
 
 var _eachOfLimit2 = _interopRequireDefault(_eachOfLimit);
 
-var _withoutIndex = __webpack_require__(93);
+var _withoutIndex = __webpack_require__(94);
 
 var _withoutIndex2 = _interopRequireDefault(_withoutIndex);
 
@@ -6190,7 +6178,7 @@ function eachLimit(coll, limit, iteratee, callback) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6209,7 +6197,7 @@ var _once = __webpack_require__(16);
 
 var _once2 = _interopRequireDefault(_once);
 
-var _iterator = __webpack_require__(74);
+var _iterator = __webpack_require__(75);
 
 var _iterator2 = _interopRequireDefault(_iterator);
 
@@ -6217,7 +6205,7 @@ var _onlyOnce = __webpack_require__(22);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
-var _breakLoop = __webpack_require__(92);
+var _breakLoop = __webpack_require__(93);
 
 var _breakLoop2 = _interopRequireDefault(_breakLoop);
 
@@ -6267,7 +6255,7 @@ function _eachOfLimit(limit) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6282,11 +6270,11 @@ var _isArrayLike = __webpack_require__(24);
 
 var _isArrayLike2 = _interopRequireDefault(_isArrayLike);
 
-var _getIterator = __webpack_require__(75);
+var _getIterator = __webpack_require__(76);
 
 var _getIterator2 = _interopRequireDefault(_getIterator);
 
-var _keys = __webpack_require__(76);
+var _keys = __webpack_require__(77);
 
 var _keys2 = _interopRequireDefault(_keys);
 
@@ -6331,7 +6319,7 @@ function iterator(coll) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6350,11 +6338,11 @@ var iteratorSymbol = typeof Symbol === 'function' && Symbol.iterator;
 module.exports = exports['default'];
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var arrayLikeKeys = __webpack_require__(77),
-    baseKeys = __webpack_require__(88),
+var arrayLikeKeys = __webpack_require__(78),
+    baseKeys = __webpack_require__(89),
     isArrayLike = __webpack_require__(24);
 
 /**
@@ -6393,15 +6381,15 @@ module.exports = keys;
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseTimes = __webpack_require__(78),
-    isArguments = __webpack_require__(79),
+var baseTimes = __webpack_require__(79),
+    isArguments = __webpack_require__(80),
     isArray = __webpack_require__(14),
-    isBuffer = __webpack_require__(81),
-    isIndex = __webpack_require__(83),
-    isTypedArray = __webpack_require__(84);
+    isBuffer = __webpack_require__(82),
+    isIndex = __webpack_require__(84),
+    isTypedArray = __webpack_require__(85);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -6448,7 +6436,7 @@ module.exports = arrayLikeKeys;
 
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports) {
 
 /**
@@ -6474,10 +6462,10 @@ module.exports = baseTimes;
 
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseIsArguments = __webpack_require__(80),
+var baseIsArguments = __webpack_require__(81),
     isObjectLike = __webpack_require__(7);
 
 /** Used for built-in method references. */
@@ -6516,7 +6504,7 @@ module.exports = isArguments;
 
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(5),
@@ -6540,11 +6528,11 @@ module.exports = baseIsArguments;
 
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(6),
-    stubFalse = __webpack_require__(82);
+    stubFalse = __webpack_require__(83);
 
 /** Detect free variable `exports`. */
 var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -6585,7 +6573,7 @@ module.exports = isBuffer;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports) {
 
 /**
@@ -6609,7 +6597,7 @@ module.exports = stubFalse;
 
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports) {
 
 /** Used as references for various `Number` constants. */
@@ -6640,12 +6628,12 @@ module.exports = isIndex;
 
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseIsTypedArray = __webpack_require__(85),
-    baseUnary = __webpack_require__(86),
-    nodeUtil = __webpack_require__(87);
+var baseIsTypedArray = __webpack_require__(86),
+    baseUnary = __webpack_require__(87),
+    nodeUtil = __webpack_require__(88);
 
 /* Node.js helper references. */
 var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
@@ -6673,7 +6661,7 @@ module.exports = isTypedArray;
 
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(5),
@@ -6739,7 +6727,7 @@ module.exports = baseIsTypedArray;
 
 
 /***/ }),
-/* 86 */
+/* 87 */
 /***/ (function(module, exports) {
 
 /**
@@ -6759,7 +6747,7 @@ module.exports = baseUnary;
 
 
 /***/ }),
-/* 87 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(20);
@@ -6788,11 +6776,11 @@ module.exports = nodeUtil;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
 
 /***/ }),
-/* 88 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isPrototype = __webpack_require__(89),
-    nativeKeys = __webpack_require__(90);
+var isPrototype = __webpack_require__(90),
+    nativeKeys = __webpack_require__(91);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -6824,7 +6812,7 @@ module.exports = baseKeys;
 
 
 /***/ }),
-/* 89 */
+/* 90 */
 /***/ (function(module, exports) {
 
 /** Used for built-in method references. */
@@ -6848,10 +6836,10 @@ module.exports = isPrototype;
 
 
 /***/ }),
-/* 90 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var overArg = __webpack_require__(91);
+var overArg = __webpack_require__(92);
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeKeys = overArg(Object.keys, Object);
@@ -6860,7 +6848,7 @@ module.exports = nativeKeys;
 
 
 /***/ }),
-/* 91 */
+/* 92 */
 /***/ (function(module, exports) {
 
 /**
@@ -6881,7 +6869,7 @@ module.exports = overArg;
 
 
 /***/ }),
-/* 92 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6896,7 +6884,7 @@ exports.default = {};
 module.exports = exports["default"];
 
 /***/ }),
-/* 93 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6914,7 +6902,7 @@ function _withoutIndex(iteratee) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 94 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6932,7 +6920,75 @@ function doLimit(fn, limit) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 95 */
+/* 96 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function (event) {
+    return {
+        middleware: {
+            on: {
+                '*': function _(payload, next) {
+
+                    var matches = payload && payload.event && payload.event === event;
+
+                    next(!matches, payload);
+                }
+            }
+        }
+    };
+};
+
+/***/ }),
+/* 97 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function (user) {
+    return {
+        middleware: {
+            on: {
+                '*': function _(payload, next) {
+                    var matches = payload && payload.sender && payload.sender.uuid === user.uuid;
+                    next(!matches, payload);
+                }
+            }
+        }
+    };
+};
+
+/***/ }),
+/* 98 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function (chat) {
+
+    return {
+        middleware: {
+            on: {
+                '*': function _(payload, next) {
+
+                    // restore chat in payload
+                    if (!payload.chat) {
+                        payload.chat = chat;
+                    }
+
+                    next(null, payload);
+                }
+            }
+        }
+    };
+};
+
+/***/ }),
+/* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6949,7 +7005,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var User = __webpack_require__(27);
-var Session = __webpack_require__(96);
+var Session = __webpack_require__(100);
 /**
  Represents the client connection as a special {@link User} with write permissions.
  Has the ability to update it's state on the network. An instance of
@@ -7037,7 +7093,7 @@ var Me = function (_User) {
 module.exports = Me;
 
 /***/ }),
-/* 96 */
+/* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
