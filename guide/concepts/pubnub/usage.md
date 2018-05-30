@@ -19,7 +19,7 @@ User connects to ChatEngine See (#connect)
 'blocks.join': 3 // global + direct + feed
 ```
 
-User updates own state twice (see #connect) *
+@todo User updates own state twice (see #connect) *
 Makes two hereNow requests on global channel (see #connect)
 
 * One state call is duplicated (this is a bug)
@@ -62,7 +62,7 @@ Two users each bootstrap their own client
 'subscribe.heartbeat': 18
 ```
 
-Each user updates state twice.
+@todo Each user updates state twice.
 
 ```
 'presence.heartbeat': 4
@@ -85,6 +85,50 @@ history: 4
 
 ```
 publish: 6
+```
+
+## 10 users join 1 group and send 10 messages each
+
+10 users connect
+
+```
+'blocks.bootstrap': 10
+'blocks.user_read': 10
+'blocks.user_write': 10
+'blocks.group': 10
+```
+
+Each user granted on global, direct, feed, and the new group chat.
+
+```
+'blocks.grant': 40
+'blocks.join': 40
+```
+
+@todo Unclear...
+
+```
+'presence.state': 40
+```
+
+Messages are received (but are packed together).
+
+```
+'subscribe': 63
+```
+
+Presence Heartbeat
+
+@todo Presence here_now is called in global chat twice per user.
+
+```
+'presence.heartbeat': 20
+```
+
+10 users publish 10 messages
+
+```
+publish: 100
 ```
 
 # Usage
