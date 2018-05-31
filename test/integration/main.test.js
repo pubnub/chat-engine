@@ -3,8 +3,12 @@ const expect = require('chai').expect;
 
 let decache = require('decache');
 
-const pubkey = process.env.PUB_KEY_0;
-const subkey = process.env.SUB_KEY_0;
+const config = {
+  publishKey: process.env.PUB_KEY_0,
+  subscribeKey: process.env.SUB_KEY_0,
+  heartbeatInterval: 120,
+  presenceTimeout: 150
+};
 
 let ChatEngine;
 let ChatEngineYou;
@@ -42,13 +46,8 @@ function createChatEngine(done) {
 
     this.timeout(60000);
 
-    ChatEngine = require('../../src/index.js').create({
-        publishKey: pubkey,
-        subscribeKey: subkey
-    }, {
-        globalChannel,
-        throwErrors: true
-    });
+    ChatEngine = require('../../src/index.js').create(config, { globalChannel, throwErrors: true });
+
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
@@ -60,14 +59,7 @@ function createChatEngineSync(done) {
 
     this.timeout(60000);
 
-    ChatEngineSync = require('../../src/index.js').create({
-        publishKey: pubkey,
-        subscribeKey: subkey
-    }, {
-        globalChannel,
-        enableSync: true,
-        throwErrors: true
-    });
+    ChatEngineSync = require('../../src/index.js').create(config, { globalChannel, enableSync: true, throwErrors: true });
 
     ChatEngineSync.connect(username, { works: false }, username);
     ChatEngineSync.on('$.ready', () => {
@@ -81,14 +73,7 @@ function createChatEngineClone(done) {
 
     this.timeout(60000);
 
-    ChatEngineClone = require('../../src/index.js').create({
-        publishKey: pubkey,
-        subscribeKey: subkey
-    }, {
-        globalChannel,
-        enableSync: true,
-        throwErrors: true
-    });
+    ChatEngineClone = require('../../src/index.js').create(config, { globalChannel, enableSync: true, throwErrors: true });
     ChatEngineClone.connect(username, { works: true }, username);
     ChatEngineClone.on('$.ready', () => {
         done();
@@ -100,13 +85,7 @@ function createChatEngineYou(done) {
 
     this.timeout(60000);
 
-    ChatEngineYou = require('../../src/index.js').create({
-        publishKey: pubkey,
-        subscribeKey: subkey
-    }, {
-        globalChannel,
-        throwErrors: true
-    });
+    ChatEngineYou = require('../../src/index.js').create(config, { globalChannel, throwErrors: true });
     ChatEngineYou.connect(yousername, { works: true }, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
@@ -118,13 +97,8 @@ function createChatEngineHistory(done) {
 
     this.timeout(60000);
 
-    ChatEngineHistory = require('../../src/index.js').create({
-        publishKey: pubkey,
-        subscribeKey: subkey
-    }, {
-        globalChannel: 'g',
-        throwErrors: true
-    });
+    ChatEngineHistory = require('../../src/index.js').create(config, { globalChannel: 'g', throwErrors: true });
+
     ChatEngineHistory.connect(yousername, { works: true }, yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
@@ -136,20 +110,13 @@ function createChatEngineConnect(done) {
 
     this.timeout(60000);
 
-    ChatEngineConnect = require('../../src/index.js').create({
-        publishKey: pubkey,
-        subscribeKey: subkey
-    }, {
-        globalChannel,
-        throwErrors: true
-    });
+    ChatEngineConnect = require('../../src/index.js').create(config, { globalChannel, throwErrors: true });
+
     ChatEngineConnect.connect(username, { works: true }, username);
     ChatEngineConnect.on('$.ready', () => {
-
         setTimeout(() => {
             done();
         }, 30000);
-
     });
 
 }
@@ -158,14 +125,8 @@ function createChatEngineMeta(done) {
 
     this.timeout(60000);
 
-    ChatEngine = require('../../src/index.js').create({
-        publishKey: pubkey,
-        subscribeKey: subkey
-    }, {
-        globalChannel,
-        throwErrors: true,
-        enableMeta: true
-    });
+    ChatEngine = require('../../src/index.js').create(config, { globalChannel, throwErrors: true, enableMeta: true });
+
     ChatEngine.connect(username, { works: true }, username);
     ChatEngine.on('$.ready', () => {
         done();
@@ -834,10 +795,7 @@ describe('connection management', () => {
 
         ChatEngineConnect.once('$.disconnected', () => {
 
-            ChatEngineConnect = require('../../src/index.js').create({
-                publishKey: pubkey,
-                subscribeKey: subkey
-            }, {
+            ChatEngineConnect = require('../../src/index.js').create(config, {
                 globalChannel,
                 throwErrors: true
             });
