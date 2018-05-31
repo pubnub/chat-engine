@@ -17,7 +17,9 @@ describe('#user', () => {
                 subscribeKey: 'demo',
                 heartbeatInterval: 120,
                 presenceTimeout: 150
-            });
+            }
+        );
+
         userInstance = new User(chatEngineInstance, '123456');
     });
 

@@ -21,7 +21,8 @@ describe('#event', () => {
                 subscribeKey: 'demo',
                 heartbeatInterval: 120,
                 presenceTimeout: 150
-            });
+            }
+        );
 
         // mock pubnub
         chatEngineInstance.pubnub = {

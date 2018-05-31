@@ -18,7 +18,8 @@ describe('#emitter', () => {
                 subscribeKey: 'demo',
                 heartbeatInterval: 120,
                 presenceTimeout: 150
-            });
+            }
+        );
 
         emitterInstance = new Emitter(chatEngineInstance);
 
