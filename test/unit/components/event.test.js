@@ -12,7 +12,7 @@ describe('#event', () => {
 
     beforeEach(() => {
         chatEngineInstance = Bootstrap({ globalChannel: 'common', insecure: true },
-          { publishKey: 'demo', subscribeKey: 'demo', heartbeatInterval: 120, presenceTimeout: 150 });
+            { publishKey: 'demo', subscribeKey: 'demo', heartbeatInterval: 120, presenceTimeout: 150 });
 
         // mock pubnub
         chatEngineInstance.pubnub = {

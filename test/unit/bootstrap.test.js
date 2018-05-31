@@ -19,7 +19,7 @@ describe('#bootstrap', () => {
         Bootstrap = proxyquire('../../src/bootstrap', { axios: mock });
 
         chatEngineInstance = Bootstrap({ globalChannel: 'common' },
-          { publishKey: 'demo', subscribeKey: 'demo', heartbeatInterval: 120, presenceTimeout: 150 });
+            { publishKey: 'demo', subscribeKey: 'demo', heartbeatInterval: 120, presenceTimeout: 150 });
 
         // mock pubnub
         chatEngineInstance.pubnub = {

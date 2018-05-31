@@ -4,10 +4,10 @@ const expect = require('chai').expect;
 let decache = require('decache');
 
 const config = {
-  publishKey: process.env.PUB_KEY_0,
-  subscribeKey: process.env.SUB_KEY_0,
-  heartbeatInterval: 120,
-  presenceTimeout: 150
+    publishKey: process.env.PUB_KEY_0,
+    subscribeKey: process.env.SUB_KEY_0,
+    heartbeatInterval: 120,
+    presenceTimeout: 150
 };
 
 let ChatEngine;
