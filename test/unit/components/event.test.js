@@ -11,8 +11,17 @@ describe('#event', () => {
     let event = null;
 
     beforeEach(() => {
-        chatEngineInstance = Bootstrap({ globalChannel: 'common', insecure: true },
-            { publishKey: 'demo', subscribeKey: 'demo', heartbeatInterval: 120, presenceTimeout: 150 });
+        chatEngineInstance = Bootstrap(
+            {
+                globalChannel: 'common',
+                insecure: true
+            },
+            {
+                publishKey: 'demo',
+                subscribeKey: 'demo',
+                heartbeatInterval: 120,
+                presenceTimeout: 150
+            });
 
         // mock pubnub
         chatEngineInstance.pubnub = {

@@ -7,8 +7,17 @@ describe('#user', () => {
     let userInstance = null;
 
     beforeEach(() => {
-        chatEngineInstance = Bootstrap({ globalChannel: 'common', insecure: true },
-            { publishKey: 'demo', subscribeKey: 'demo', heartbeatInterval: 120, presenceTimeout: 150 });
+        chatEngineInstance = Bootstrap(
+            {
+                globalChannel: 'common',
+                insecure: true
+            },
+            {
+                publishKey: 'demo',
+                subscribeKey: 'demo',
+                heartbeatInterval: 120,
+                presenceTimeout: 150
+            });
         userInstance = new User(chatEngineInstance, '123456');
     });
 

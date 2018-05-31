@@ -8,8 +8,18 @@ describe('#emitter', () => {
     let chatEngineInstance = null;
 
     beforeEach(() => {
-        chatEngineInstance = Bootstrap({ globalChannel: 'common', insecure: true },
-            { publishKey: 'demo', subscribeKey: 'demo', heartbeatInterval: 120, presenceTimeout: 150 });
+        chatEngineInstance = Bootstrap(
+            {
+                globalChannel: 'common',
+                insecure: true
+            },
+            {
+                publishKey: 'demo',
+                subscribeKey: 'demo',
+                heartbeatInterval: 120,
+                presenceTimeout: 150
+            });
+
         emitterInstance = new Emitter(chatEngineInstance);
 
         // mock pubnub
