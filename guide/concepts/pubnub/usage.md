@@ -160,7 +160,7 @@ publish: 100
 
 ## User
 
-- automatic
+- on creation (automatic)
     - PubNub function user_state
         - attempts to get state from server if state has not been set through other means
 - update()
@@ -169,7 +169,7 @@ publish: 100
 
 ## Chat
 
-- connect()
+- automatic on connect() (happens 3 times for global, feed, direct)
     - PubNub function grant
         - gives user permission to chat channel
     - PubNub function join
@@ -182,8 +182,8 @@ publish: 100
     - if enableSync
         - PubNub publishes a message
             - received by self in multiple windows
-    - PubNub hereNow()
-    - PubNub hereNow()
+    - PubNub hereNow() (global only)
+    - PubNub hereNow() (global only)
         - 5 seconds later
 - publish()
     - PubNub publish to chat channel
