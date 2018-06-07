@@ -350,6 +350,54 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
     };
 
+    ChatEngine.globalReady = (state) => {
+
+        // build the current user
+        ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
+
+        /**
+        * Fired when a {@link Me} has been created within ChatEngine.
+        * @event ChatEngine#$"."created"."me
+        * @example
+        * ChatEngine.on('$.created.me', (data, me) => {
+        *     console.log('Me was created', me);
+        * });
+        */
+        ChatEngine.me.onConstructed();
+
+        if (ChatEngine.ceConfig.enableSync) {
+            ChatEngine.me.session.subscribe();
+        }
+
+        ChatEngine.me.update(state, () => {
+
+            /**
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (data) => {
+             *     let me = data.me;
+             * })
+             */
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
+            });
+
+            ChatEngine.ready = true;
+
+            ChatEngine.listenToPubNub();
+            ChatEngine.subscribeToPubNub();
+
+            ChatEngine.global.getUserUpdates();
+
+            if (ChatEngine.ceConfig.enableSync) {
+                ChatEngine.me.session.restore();
+            }
+
+        });
+
+    }
+
     /**
      * Initialize ChatEngine modules on first time boot.
      * @private
@@ -363,51 +411,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
 
         ChatEngine.global.once('$.connected', () => {
-
-            // build the current user
-            ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
-
-            /**
-            * Fired when a {@link Me} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."me
-            * @example
-            * ChatEngine.on('$.created.me', (data, me) => {
-            *     console.log('Me was created', me);
-            * });
-            */
-            ChatEngine.me.onConstructed();
-
-            if (ChatEngine.ceConfig.enableSync) {
-                ChatEngine.me.session.subscribe();
-            }
-
-            ChatEngine.me.update(state, () => {
-
-                /**
-                 *  Fired when ChatEngine is connected to the internet and ready to go!
-                 * @event ChatEngine#$"."ready
-                 * @example
-                 * ChatEngine.on('$.ready', (data) => {
-                 *     let me = data.me;
-                 * })
-                 */
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.ready = true;
-
-                ChatEngine.listenToPubNub();
-                ChatEngine.subscribeToPubNub();
-
-                ChatEngine.global.getUserUpdates();
-
-                if (ChatEngine.ceConfig.enableSync) {
-                    ChatEngine.me.session.restore();
-                }
-
-            });
-
+            ChatEngine.globalReady(state);
         });
 
     };
