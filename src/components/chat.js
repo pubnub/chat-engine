@@ -313,7 +313,7 @@ class Chat extends Emitter {
      */
     userJoin(uuid, state) {
 
-        // Ensure that this user exists in the global list
+        // Ensure that this user exists in memory
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
         this.chatEngine.users[uuid].assign(state);
@@ -376,7 +376,7 @@ class Chat extends Emitter {
      */
     userUpdate(uuid, state) {
 
-        // ensure the user exists within the global space
+        // ensure the user exists within memory
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         // if we don't know about this user
@@ -507,7 +507,7 @@ class Chat extends Emitter {
         let user = this.users[uuid];
 
         // remove the user from the local list of users
-        // we don't remove the user from the global list,
+        // we don't remove the user from memory,
         // because they may be online in other channels
         delete this.users[uuid];
 
@@ -573,7 +573,7 @@ class Chat extends Emitter {
      @param {Object} state The new state {@link Me} will have within this {@link User}
      */
     setState(state, callback) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, callback);
+        this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, callback);
     }
 
     /**
@@ -639,8 +639,8 @@ class Chat extends Emitter {
             user: this.chatEngine.me
         });
 
-        // global channel updates are triggered manually, only get presence on custom chats
-        if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+        // only get presence on custom chats
+        if (this.group === 'custom') {
 
             this.getUserUpdates();
 

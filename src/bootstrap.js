@@ -36,13 +36,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.chats = {};
 
     /**
-     * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
-     * @member {Chat} global
-     * @memberof ChatEngine
-     */
-    ChatEngine.global = false;
-
-    /**
      * This instance of ChatEngine represented as a special {@link User} know as {@link Me}.
      * @member {Me} me
      * @memberof ChatEngine
@@ -358,55 +351,45 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
-        // create a new chat to use as global chat
-        // we don't do auth on this one because it's assumed to be done with the /auth request below
-        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
+        // build the current user
+        ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
 
-        ChatEngine.global.once('$.connected', () => {
+        /**
+        * Fired when a {@link Me} has been created within ChatEngine.
+        * @event ChatEngine#$"."created"."me
+        * @example
+        * ChatEngine.on('$.created.me', (data, me) => {
+        *     console.log('Me was created', me);
+        * });
+        */
+        ChatEngine.me.onConstructed();
 
-            // build the current user
-            ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
+        if (ChatEngine.ceConfig.enableSync) {
+            ChatEngine.me.session.subscribe();
+        }
+
+        ChatEngine.me.update(state, () => {
 
             /**
-            * Fired when a {@link Me} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."me
-            * @example
-            * ChatEngine.on('$.created.me', (data, me) => {
-            *     console.log('Me was created', me);
-            * });
-            */
-            ChatEngine.me.onConstructed();
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (data) => {
+             *     let me = data.me;
+             * })
+             */
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
+            });
+
+            ChatEngine.ready = true;
+
+            ChatEngine.listenToPubNub();
+            ChatEngine.subscribeToPubNub();
 
             if (ChatEngine.ceConfig.enableSync) {
-                ChatEngine.me.session.subscribe();
+                ChatEngine.me.session.restore();
             }
-
-            ChatEngine.me.update(state, () => {
-
-                /**
-                 *  Fired when ChatEngine is connected to the internet and ready to go!
-                 * @event ChatEngine#$"."ready
-                 * @example
-                 * ChatEngine.on('$.ready', (data) => {
-                 *     let me = data.me;
-                 * })
-                 */
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.ready = true;
-
-                ChatEngine.listenToPubNub();
-                ChatEngine.subscribeToPubNub();
-
-                ChatEngine.global.getUserUpdates();
-
-                if (ChatEngine.ceConfig.enableSync) {
-                    ChatEngine.me.session.restore();
-                }
-
-            });
 
         });
 
