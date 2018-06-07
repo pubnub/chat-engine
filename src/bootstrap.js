@@ -406,13 +406,19 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
-        // create a new chat to use as global chat
-        // we don't do auth on this one because it's assumed to be done with the /auth request below
-        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
+        if (!ChatEngine.disableGlobal) {
 
-        ChatEngine.global.once('$.connected', () => {
+            // create a new chat to use as global chat
+            // we don't do auth on this one because it's assumed to be done with the /auth request below
+            ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
+
+            ChatEngine.global.once('$.connected', () => {
+                ChatEngine.globalReady(state);
+            });
+
+        } else {
             ChatEngine.globalReady(state);
-        });
+        }
 
     };
 

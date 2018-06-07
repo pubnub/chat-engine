@@ -41,6 +41,10 @@ const create = (pnConfig, ceConfig = {}) => {
         ceConfig.enableMeta = false;
     }
 
+    if (typeof ceConfig.disableGlobal === 'undefined') {
+        ceConfig.disableGlobal = true;
+    }
+
     ceConfig.endpoint = ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/chat-engine-server';
 
     pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 120;

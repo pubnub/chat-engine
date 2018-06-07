@@ -573,7 +573,7 @@ class Chat extends Emitter {
      @param {Object} state The new state {@link Me} will have within this {@link User}
      */
     setState(state, callback) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, callback);
+        this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, callback);
     }
 
     /**
