@@ -31,7 +31,7 @@ class Session extends Emitter {
      */
     subscribe() {
 
-        this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.chatEngine.me.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
+        this.sync = new this.chatEngine.Chat([this.chatEngine.ceConfig.globalChannel, 'user', this.chatEngine.me.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
 
         // subscribe to the events on our sync chat and forward them
         this.sync.on('$.session.notify.chat.join', (payload) => {

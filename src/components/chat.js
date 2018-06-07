@@ -565,14 +565,20 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     Set the state for {@link Me} within this {@link User}.
-     Broadcasts the ```$.state``` event on other clients
 
-     @private
-     @param {Object} state The new state {@link Me} will have within this {@link User}
+    /**
+     * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
+     * will be notified of this change via ```$.state```.
+     * Retrieve state at any time with {@link User#state}.
+     * @param {Object} state The new state for {@link Me}
+     * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
+     * Defaults to ```ChatEngine.global```.
+     * @fires Chat#event:$"."state
+     * @example
+     * // update state
+     * chat.update({value: true});
      */
-    setState(state, callback) {
+    update(state, callback) {
         this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, callback);
     }
 

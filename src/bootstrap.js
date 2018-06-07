@@ -364,34 +364,27 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         */
         ChatEngine.me.onConstructed();
 
+        /**
+         *  Fired when ChatEngine is connected to the internet and ready to go!
+         * @event ChatEngine#$"."ready
+         * @example
+         * ChatEngine.on('$.ready', (data) => {
+         *     let me = data.me;
+         * })
+         */
+        ChatEngine._emit('$.ready', {
+            me: ChatEngine.me
+        });
+
+        ChatEngine.ready = true;
+
+        ChatEngine.listenToPubNub();
+        ChatEngine.subscribeToPubNub();
+
         if (ChatEngine.ceConfig.enableSync) {
             ChatEngine.me.session.subscribe();
+            ChatEngine.me.session.restore();
         }
-
-        ChatEngine.me.update(state, () => {
-
-            /**
-             *  Fired when ChatEngine is connected to the internet and ready to go!
-             * @event ChatEngine#$"."ready
-             * @example
-             * ChatEngine.on('$.ready', (data) => {
-             *     let me = data.me;
-             * })
-             */
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
-            });
-
-            ChatEngine.ready = true;
-
-            ChatEngine.listenToPubNub();
-            ChatEngine.subscribeToPubNub();
-
-            if (ChatEngine.ceConfig.enableSync) {
-                ChatEngine.me.session.restore();
-            }
-
-        });
 
     };
 

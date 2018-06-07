@@ -99,7 +99,8 @@ class User extends Emitter {
      * @private
      * @param {Object} state The new state for the user
      */
-    update(state) {
+    update(chat, state) {
+
 
         let oldState = this.state || {};
         this.state = Object.assign(oldState, state);
