@@ -668,8 +668,6 @@ class Chat extends Emitter {
      */
     getUserUpdates() {
 
-        console.log('getting updates for ', this.channel);
-
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
         this.chatEngine.pubnub.hereNow({
