@@ -567,7 +567,7 @@ class Chat extends Emitter {
 
 
     /**
-     * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
+     * Update {@link Me}'s state in this {@link Chat}. All other {@link User}s
      * will be notified of this change via ```$.state```.
      * Retrieve state at any time with {@link User#state}.
      * @param {Object} state The new state for {@link Me}
@@ -667,6 +667,8 @@ class Chat extends Emitter {
      * Ask PubNub for information about {@link User}s in this {@link Chat}.
      */
     getUserUpdates() {
+
+        console.log('getting updates for ', this.channel);
 
         // get a list of users online now
         // ask PubNub for information about connected users in this channel

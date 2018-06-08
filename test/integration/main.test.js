@@ -46,7 +46,7 @@ function createChatEngine(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
     ChatEngine.connect(username, { works: true }, username);
@@ -64,7 +64,7 @@ function createChatEngineSync(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         enableSync: true,
         throwErrors: true
     });
@@ -85,7 +85,7 @@ function createChatEngineClone(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         enableSync: true,
         throwErrors: true
     });
@@ -104,7 +104,7 @@ function createChatEngineYou(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
     ChatEngineYou.connect(yousername, { works: true }, yousername);
@@ -122,7 +122,7 @@ function createChatEngineHistory(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel: 'g',
+        namespace: 'g',
         throwErrors: true
     });
     ChatEngineHistory.connect(yousername, { works: true }, yousername);
@@ -140,7 +140,7 @@ function createChatEngineConnect(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
     ChatEngineConnect.connect(username, { works: true }, username);
@@ -162,7 +162,7 @@ function createChatEngineMeta(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true,
         enableMeta: true
     });
@@ -838,7 +838,7 @@ describe('connection management', () => {
                 publishKey: pubkey,
                 subscribeKey: subkey
             }, {
-                globalChannel,
+                namespace: globalChannel,
                 throwErrors: true
             });
 

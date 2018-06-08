@@ -124,7 +124,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         let body = {
             uuid: ChatEngine.pnConfig.uuid,
-            global: ceConfig.globalChannel,
+            global: ceConfig.namespace,
             authKey: ChatEngine.pnConfig.authKey
         };
 
@@ -177,8 +177,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             chanPrivString = 'private.';
         }
 
-        if (channel.indexOf(ChatEngine.ceConfig.globalChannel) === -1) {
-            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        if (channel.indexOf(ChatEngine.ceConfig.namespace) === -1) {
+            channel = [ChatEngine.ceConfig.namespace, 'chat', chanPrivString, channel].join('#');
         }
 
         return channel;
@@ -331,9 +331,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.subscribeToPubNub = () => {
 
         let chanGroups = [
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#rooms',
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#system',
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#custom'
         ];
 
         ChatEngine.pubnub.subscribe({
@@ -364,27 +364,31 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         */
         ChatEngine.me.onConstructed();
 
-        /**
-         *  Fired when ChatEngine is connected to the internet and ready to go!
-         * @event ChatEngine#$"."ready
-         * @example
-         * ChatEngine.on('$.ready', (data) => {
-         *     let me = data.me;
-         * })
-         */
-        ChatEngine._emit('$.ready', {
-            me: ChatEngine.me
+        ChatEngine.me.direct.on('$.connected', () => {
+
+            ChatEngine.listenToPubNub();
+            ChatEngine.subscribeToPubNub();
+
+            /**
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (data) => {
+             *     let me = data.me;
+             * })
+             */
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
+            });
+
+            ChatEngine.ready = true;
+
+            if (ChatEngine.ceConfig.enableSync) {
+                ChatEngine.me.session.subscribe();
+                ChatEngine.me.session.restore();
+            }
+
         });
-
-        ChatEngine.ready = true;
-
-        ChatEngine.listenToPubNub();
-        ChatEngine.subscribeToPubNub();
-
-        if (ChatEngine.ceConfig.enableSync) {
-            ChatEngine.me.session.subscribe();
-            ChatEngine.me.session.restore();
-        }
 
     };
 
@@ -486,14 +490,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
-        ChatEngine.global.once('$.disconnected', () => {
-
-            ChatEngine.setAuth(authKey);
-            ChatEngine.reconnect();
-
-        });
 
         ChatEngine.disconnect();
+        ChatEngine.setAuth(authKey);
+        ChatEngine.reconnect();
+
 
     };
 
