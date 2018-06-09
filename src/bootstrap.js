@@ -364,7 +364,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         */
         ChatEngine.me.onConstructed();
 
-        ChatEngine.me.direct.on('$.connected', () => {
+        ChatEngine.me.direct.once('$.connected', () => {
 
             ChatEngine.listenToPubNub();
             ChatEngine.subscribeToPubNub();
