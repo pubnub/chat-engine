@@ -754,11 +754,12 @@ describe('state', () => {
 
         let doneCalled = false;
 
-        ChatEngine.on('$.state', (payload) => {
+        let newChat = new ChatEngine.Chat('get-state-update');
+        newChat.on('$.state', (payload) => {
 
             if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
-                if (payload.user.state.newParam && payload.user.state.newParam === true && !doneCalled) {
+                if (payload.user.state(newChat).newParam && payload.user.state(newChat).newParam === true && !doneCalled) {
                     doneCalled = true;
                     done();
                 }
@@ -766,7 +767,10 @@ describe('state', () => {
 
         });
 
-        ChatEngineYou.me.update({ newParam: true });
+        let youNewChat = new ChatEngineYou.Chat('get-state-update');
+        youNewChat.setState({ newParam: true }, (err, response) => {
+            // console.log(err, response);
+        });
 
     });
 

@@ -231,6 +231,7 @@ class Chat extends Emitter {
 
         // someone's state is updated
         if (presenceEvent.action === 'state-change') {
+
             this.userUpdate(presenceEvent.uuid, presenceEvent.state);
         }
 
@@ -316,7 +317,7 @@ class Chat extends Emitter {
         // Ensure that this user exists in memory
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-        this.chatEngine.users[uuid].assign(state);
+        this.chatEngine.users[uuid].assign(this, state);
 
         // check if the user already exists within the chatroom
         // so we know if we need to notify or not
@@ -386,7 +387,7 @@ class Chat extends Emitter {
         }
 
         // update this user's state in this chatroom
-        this.users[uuid].assign(state);
+        this.users[uuid].assign(this, state);
 
         /**
          * Broadcast that a {@link User} has changed state.
@@ -399,7 +400,7 @@ class Chat extends Emitter {
          *     console.log('User has changed state:', data.user, 'new state:', data.state);
          * });
          */
-        this.chatEngine._emit('$.state', {
+        this.trigger('$.state', {
             user: this.users[uuid],
             state: this.users[uuid].state
         });
@@ -578,7 +579,7 @@ class Chat extends Emitter {
      * // update state
      * chat.update({value: true});
      */
-    update(state, callback) {
+    setState(state, callback) {
         this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, callback);
     }
 

@@ -36,9 +36,9 @@ class User extends Emitter {
          * // State
          * let state = user.state;
          */
-        this.state = state;
+        this.states = {};
 
-        this._stateSet = false;
+        this._stateSet = {};
 
         /**
          * Feed is a Chat that only streams things a User does, like
@@ -95,17 +95,20 @@ class User extends Emitter {
 
     }
 
+    state(chat) {
+        return this.states[chat.channel];
+    }
+
     /**
      * @private
      * @param {Object} state The new state for the user
      */
     update(chat, state) {
 
+        let oldState = this.states[chat.channel] || {};
+        this.states[chat.channel] = Object.assign(oldState, state);
 
-        let oldState = this.state || {};
-        this.state = Object.assign(oldState, state);
-
-        this._stateSet = true;
+        this._stateSet[chat.channel] = true;
 
     }
 
@@ -114,31 +117,31 @@ class User extends Emitter {
 
      @private
      */
-    assign(state) {
-        this.update(state);
+    assign(chat, state) {
+        this.update(chat, state);
     }
 
     /**
     Get stored user state from remote server.
     @private
     */
-    _getStoredState(callback) {
+    _getStoredState(chat, callback) {
 
-        if (!this._stateSet) {
+        if (!this._stateSet[chat.channel]) {
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid
             }).then((res) => {
 
                 this.assign(res.data);
-                callback(this.state);
+                callback(this.states);
 
             }).catch((err) => {
                 this.chatEngine.throwError(this, 'trigger', 'getState', err);
             });
 
         } else {
-            callback(this.state);
+            callback(this.states);
         }
 
     }
