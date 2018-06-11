@@ -11,7 +11,7 @@ module.exports = (chatEngine) => {
                         // get the user from ChatEngine
                         payload.sender = new chatEngine.User(payload.sender);
 
-                        payload.sender._getStoredState(() => {
+                        payload.sender._getStoredState(payload.chat, () => {
                             next(null, payload);
                         });
 

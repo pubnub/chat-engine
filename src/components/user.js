@@ -125,9 +125,11 @@ class User extends Emitter {
     Get stored user state from remote server.
     @private
     */
-    _getStoredState(chat, callback) {
+    _getStoredState(chat = false, callback) {
 
-        if (!this._stateSet[chat.channel]) {
+        if(!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
+        } else if (!this._stateSet[chat.channel]) {
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid

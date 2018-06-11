@@ -1,8 +1,6 @@
 const waterfall = require('async/waterfall');
 const RootEmitter = require('./root_emitter');
 const Event = require('../components/event');
-
-const augmentSender = require('../plugins/augment/sender');
 /**
  An ChatEngine generic emitter that supports plugins and duplicates
  events on the root emitter.
@@ -30,8 +28,6 @@ class Emitter extends RootEmitter {
          @private
          */
         this._dataset = {};
-
-        this.plugin(augmentSender(chatEngine));
 
         /**
          Emit events locally.

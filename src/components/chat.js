@@ -5,6 +5,7 @@ const Event = require('../components/event');
 const Search = require('../components/search');
 
 const augmentChat = require('../plugins/augment/chat');
+const augmentSender = require('../plugins/augment/sender');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -33,6 +34,7 @@ class Chat extends Emitter {
         this.name = 'Chat';
 
         this.plugin(augmentChat(this));
+        this.plugin(augmentSender(this.chatEngine));
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
@@ -579,7 +581,7 @@ class Chat extends Emitter {
      * // update state
      * chat.update({value: true});
      */
-    setState(state, callback) {
+    setState(state, callback = () => {}) {
         this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, callback);
     }
 
