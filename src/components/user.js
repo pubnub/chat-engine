@@ -105,10 +105,14 @@ class User extends Emitter {
      */
     update(chat, state) {
 
-        let oldState = this.states[chat.channel] || {};
-        this.states[chat.channel] = Object.assign(oldState, state);
+        if(state && Object.keys(state).length) {
 
-        this._stateSet[chat.channel] = true;
+            let oldState = this.states[chat.channel] || {};
+            this.states[chat.channel] = Object.assign(oldState, state);
+
+            this._stateSet[chat.channel] = true;
+
+        }
 
     }
 
@@ -132,7 +136,8 @@ class User extends Emitter {
         } else if (!this._stateSet[chat.channel]) {
 
             this.chatEngine.request('get', 'user_state', {
-                user: this.uuid
+                user: this.uuid,
+                chat: chat.objectify()
             }).then((res) => {
 
                 this.assign(res.data);
