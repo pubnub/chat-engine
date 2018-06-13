@@ -243,7 +243,7 @@ class Chat extends Emitter {
      * Update the {@link Chat} metadata on the server.
      * @param  {object} data JSON object representing chat metadta.
      */
-    update(data) {
+    meta(data) {
 
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);

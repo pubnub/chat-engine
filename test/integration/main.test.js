@@ -53,9 +53,6 @@ function createChatEngine(done) {
     ChatEngine.on('$.ready', () => {
         done();
     });
-    ChatEngine.onAny((a) => {
-        console.log(a)
-    })
 
 }
 
@@ -128,7 +125,7 @@ function createChatEngineHistory(done) {
         namespace: 'g',
         throwErrors: true
     });
-    ChatEngineHistory.connect(yousername, { works: true }, yousername);
+    ChatEngineHistory.connect('robot-stephen', { works: true }, yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
@@ -417,6 +414,8 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
+        chatHistory.setState({oldState: true});
+
         // let i = 0;
         // while(i < 200) {
         //     chatHistory.emit('tester', {works: true, count: i});
@@ -577,6 +576,28 @@ describe('history', () => {
             });
         });
     });
+
+    it('should get previously set state', function shouldGetState(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        let newChat = new ChatEngineHistory.Chat('chat-history');
+
+        ChatEngineHistory.on('$.online.*', (payload) => {
+
+            if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
+
+                assert.equal(payload.user.state(newChat).oldState, true);
+                doneCalled = true;
+                done();
+            }
+
+        });
+
+    });
+
 });
 
 describe('meta', () => {

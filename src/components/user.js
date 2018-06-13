@@ -137,10 +137,12 @@ class User extends Emitter {
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid,
-                chat: chat.objectify()
+                channel: chat.channel
             }).then((res) => {
 
-                this.assign(res.data);
+                console.log('get stored state', res.data)
+
+                this.assign(chat, res.data);
                 callback(this.states[chat.channel]);
 
             }).catch((err) => {
