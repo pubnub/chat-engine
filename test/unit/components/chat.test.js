@@ -48,6 +48,7 @@ describe('#chat', () => {
 
     it('disconnect chat', (done) => {
         chatInstance.users.user1 = {};
+        chatInstance.plugins = [];
 
         chatInstance.on('$.offline.disconnect', () => {
             done();
@@ -79,6 +80,7 @@ describe('#chat', () => {
 
     it('user leave the chat', (done) => {
         chatInstance.users.user1 = {};
+        chatInstance.plugins = [];
         chatInstance.on('$.offline.leave', () => {
             done();
         });

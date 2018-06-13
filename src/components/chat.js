@@ -243,7 +243,7 @@ class Chat extends Emitter {
      * Update the {@link Chat} metadata on the server.
      * @param  {object} data JSON object representing chat metadta.
      */
-    meta(data) {
+    update(data) {
 
         let oldMeta = this.meta || {};
         this.meta = Object.assign(oldMeta, data);
@@ -545,6 +545,7 @@ class Chat extends Emitter {
     userDisconnect(uuid) {
 
         let user = this.users[uuid];
+
         delete this.users[uuid];
 
         // make sure this event is real, user may have already left
