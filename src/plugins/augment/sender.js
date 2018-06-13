@@ -6,7 +6,8 @@ module.exports = (chatEngine) => {
                 '*': (payload, next) => {
 
                     // if we should try to restore the sender property
-                    if (payload.sender && typeof payload.sender === 'string' || payload.user) {
+                    let senderDefined = payload.sender && typeof payload.sender === 'string';
+                    if (senderDefined || payload.user) {
 
                         let uuid = payload.sender || payload.user.uuid;
 

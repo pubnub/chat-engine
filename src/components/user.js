@@ -105,7 +105,7 @@ class User extends Emitter {
      */
     update(chat, state) {
 
-        if(state && Object.keys(state).length) {
+        if (state && Object.keys(state).length) {
 
             let oldState = this.states[chat.channel] || {};
             this.states[chat.channel] = Object.assign(oldState, state);
@@ -131,7 +131,7 @@ class User extends Emitter {
     */
     _getStoredState(chat = false, callback) {
 
-        if(!chat) {
+        if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
         } else if (!this._stateSet[chat.channel]) {
 
