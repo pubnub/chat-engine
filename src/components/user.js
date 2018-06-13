@@ -141,14 +141,14 @@ class User extends Emitter {
             }).then((res) => {
 
                 this.assign(res.data);
-                callback(this.states);
+                callback(this.states[chat.channel]);
 
             }).catch((err) => {
                 this.chatEngine.throwError(this, 'trigger', 'getState', err);
             });
 
         } else {
-            callback(this.states);
+            callback(this.states[chat.channel]);
         }
 
     }

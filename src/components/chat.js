@@ -404,7 +404,7 @@ class Chat extends Emitter {
          */
         this.trigger('$.state', {
             user: this.users[uuid],
-            state: this.users[uuid].state
+            state: this.users[uuid].state(this.channel)
         });
 
     }

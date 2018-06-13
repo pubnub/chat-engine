@@ -87,10 +87,13 @@ describe('#chat', () => {
     });
 
     it('update state', (done) => {
-        chatEngineInstance.on('$.state', (obj) => {
+
+        chatInstance.on('$.state', (obj) => {
+
             assert(obj.user.uuid === 'user2', 'was updated to the right user');
-            assert.deepEqual(obj.state(chatInstance), { state: 'not disturb' }, 'was updated the state correctly');
+            assert.deepEqual(obj.user.state(chatInstance), { state: 'not disturb' }, 'was updated the state correctly');
             done();
+
         });
 
         chatInstance.userUpdate('user2', { state: 'not disturb' });
