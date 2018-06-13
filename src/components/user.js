@@ -134,6 +134,7 @@ class User extends Emitter {
         if(!chat) {
             this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
         } else if (!this._stateSet[chat.channel]) {
+
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid,
                 channel: chat.channel

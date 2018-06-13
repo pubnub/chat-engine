@@ -414,7 +414,7 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
-        chatHistory.setState({oldState: true});
+        chatHistory.setState({ oldState: true });
 
         // let i = 0;
         // while(i < 200) {
@@ -773,9 +773,7 @@ describe('state', () => {
         });
 
         let youNewChat = new ChatEngineYou.Chat('get-state-update');
-        youNewChat.setState({ newParam: true }, (err, response) => {
-            // console.log(err, response);
-        });
+        youNewChat.setState({ newParam: true }, () => {});
 
     });
 
@@ -804,7 +802,7 @@ describe('memory', () => {
 
                 doneCalled = true;
 
-                expect(Object.keys(a.users)).to.include.members(Object.keys(b.users));
+                expect(aUsers).to.include.members(bUsers);
 
                 // now we test leaving
                 a.once('$.offline.leave', () => {

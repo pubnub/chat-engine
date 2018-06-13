@@ -662,7 +662,7 @@ class Chat extends Emitter {
         }
 
         this.on('$.system.leave', (payload) => {
-            this.userLeave(payload.sender.uuid);
+            this.userLeave(payload.sender);
         });
 
     }
