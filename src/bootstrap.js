@@ -364,6 +364,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         */
         ChatEngine.me.onConstructed();
 
+        if (ChatEngine.ceConfig.enableSync) {
+            ChatEngine.me.session.subscribe();
+        }
+
         ChatEngine.me.direct.once('$.connected', () => {
 
             ChatEngine.listenToPubNub();
@@ -384,7 +388,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.ready = true;
 
             if (ChatEngine.ceConfig.enableSync) {
-                ChatEngine.me.session.subscribe();
                 ChatEngine.me.session.restore();
             }
 

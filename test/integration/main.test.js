@@ -1,3 +1,8 @@
+process.on('unhandledRejection', (reason, p) => {
+  console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+  // application specific logging, throwing an error, or other logic here
+});
+
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 
@@ -655,7 +660,6 @@ describe('remote chat list', () => {
         this.timeout(60000);
 
         ChatEngineSync.me.session.once('$.group.restored', (payload) => {
-
             assert.isObject(ChatEngineSync.me.session.chats[payload.group]);
             done();
 
