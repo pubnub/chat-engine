@@ -124,7 +124,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         let body = {
             uuid: ChatEngine.pnConfig.uuid,
-            global: ceConfig.namespace,
+            namespace: ceConfig.namespace,
             authKey: ChatEngine.pnConfig.authKey
         };
 
@@ -154,7 +154,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         let info = channel.split('#');
 
         return {
-            global: info[0],
+            namespace: info[0],
             type: info[1],
             private: info[2] === 'private.'
         };

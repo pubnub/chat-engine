@@ -576,7 +576,6 @@ class Chat extends Emitter {
      * Retrieve state at any time with {@link User#state}.
      * @param {Object} state The new state for {@link Me}
      * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
-     * Defaults to ```ChatEngine.global```.
      * @fires Chat#event:$"."state
      * @example
      * // update state
@@ -586,7 +585,7 @@ class Chat extends Emitter {
 
         this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
 
-            if(response.error) {
+            if (response.error) {
                 this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message));
             }
 
