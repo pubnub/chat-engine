@@ -137,6 +137,7 @@ class User extends Emitter {
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid,
+
                 channel: chat.channel
             }).then((res) => {
 

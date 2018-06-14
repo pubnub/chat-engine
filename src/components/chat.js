@@ -584,11 +584,10 @@ class Chat extends Emitter {
      */
     setState(state) {
 
-        state = undefined;
         this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
 
             if(response.error) {
-                this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message);
+                this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message));
             }
 
         });
