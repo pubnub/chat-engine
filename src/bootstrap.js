@@ -347,7 +347,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (state) => {
+    ChatEngine.firstConnect = () => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
@@ -505,11 +505,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
-     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, state = {}, authKey = PubNub.generateUUID()) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID()) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
@@ -517,7 +516,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(() => {
-            ChatEngine.firstConnect(state);
+            ChatEngine.firstConnect();
         });
 
     };

@@ -54,7 +54,7 @@ function createChatEngine(done) {
         namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.connect(username, username);
     ChatEngine.on('$.ready', () => {
         done();
     });
@@ -74,7 +74,7 @@ function createChatEngineSync(done) {
         throwErrors: true
     });
 
-    ChatEngineSync.connect(username, { works: false }, username);
+    ChatEngineSync.connect(username, username);
     ChatEngineSync.on('$.ready', () => {
         done();
     });
@@ -94,7 +94,7 @@ function createChatEngineClone(done) {
         enableSync: true,
         throwErrors: true
     });
-    ChatEngineClone.connect(username, { works: true }, username);
+    ChatEngineClone.connect(username, username);
     ChatEngineClone.on('$.ready', () => {
         done();
     });
@@ -112,7 +112,7 @@ function createChatEngineYou(done) {
         namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngineYou.connect(yousername, { works: true }, yousername);
+    ChatEngineYou.connect(yousername, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
     });
@@ -130,7 +130,7 @@ function createChatEngineHistory(done) {
         namespace: 'g',
         throwErrors: true
     });
-    ChatEngineHistory.connect('robot-stephen', { works: true }, yousername);
+    ChatEngineHistory.connect('robot-stephen', yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
@@ -148,7 +148,7 @@ function createChatEngineConnect(done) {
         namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngineConnect.connect(username, { works: true }, username);
+    ChatEngineConnect.connect(username, username);
     ChatEngineConnect.on('$.ready', () => {
 
         setTimeout(() => {
@@ -171,7 +171,7 @@ function createChatEngineMeta(done) {
         throwErrors: true,
         enableMeta: true
     });
-    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.connect(username, username);
     ChatEngine.on('$.ready', () => {
         done();
     });
@@ -859,7 +859,7 @@ describe('connection management', () => {
 
             });
 
-            ChatEngineConnect.connect(newUsername, {}, newUsername);
+            ChatEngineConnect.connect(newUsername, newUsername);
 
         });
 
