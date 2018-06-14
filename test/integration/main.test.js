@@ -777,7 +777,7 @@ describe('state', () => {
         });
 
         let youNewChat = new ChatEngineYou.Chat('get-state-update');
-        youNewChat.setState({ newParam: true }, () => {});
+        youNewChat.setState({ newParam: true });
 
     });
 

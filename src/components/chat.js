@@ -580,10 +580,19 @@ class Chat extends Emitter {
      * @fires Chat#event:$"."state
      * @example
      * // update state
-     * chat.update({value: true});
+     * chat.i({value: true});
      */
-    setState(state, callback = () => {}) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, callback);
+    setState(state) {
+
+        state = undefined;
+        this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
+
+            if(response.error) {
+                this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message);
+            }
+
+        });
+
     }
 
     /**
