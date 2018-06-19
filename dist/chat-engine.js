@@ -401,8 +401,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var waterfall = __webpack_require__(4);
 var RootEmitter = __webpack_require__(3);
 var Event = __webpack_require__(23);
-
-var augmentSender = __webpack_require__(70);
 /**
  An ChatEngine generic emitter that supports plugins and duplicates
  events on the root emitter.
@@ -433,8 +431,6 @@ var Emitter = function (_RootEmitter) {
          @private
          */
         _this._dataset = {};
-
-        _this.plugin(augmentSender(chatEngine));
 
         /**
          Emit events locally.
@@ -2087,9 +2083,9 @@ var User = function (_Emitter) {
          * // State
          * let state = user.state;
          */
-        _this.state = state;
+        _this.states = {};
 
-        _this._stateSet = false;
+        _this._stateSet = {};
 
         /**
          * Feed is a Chat that only streams things a User does, like
@@ -2108,7 +2104,7 @@ var User = function (_Emitter) {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        _this.feed = new _this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, _this.constructor.name === 'Me', {}, 'system');
+        _this.feed = new _this.chatEngine.Chat([_this.chatEngine.ceConfig.namespace, 'user', uuid, 'read.', 'feed'].join('#'), false, _this.constructor.name === 'Me', {}, 'system');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -2129,7 +2125,7 @@ var User = function (_Emitter) {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        _this.direct = new _this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, _this.constructor.name === 'Me', {}, 'system');
+        _this.direct = new _this.chatEngine.Chat([_this.chatEngine.ceConfig.namespace, 'user', uuid, 'write.', 'direct'].join('#'), false, _this.constructor.name === 'Me', {}, 'system');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -2145,20 +2141,28 @@ var User = function (_Emitter) {
         return _ret = _this, _possibleConstructorReturn(_this, _ret);
     }
 
-    /**
-     * @private
-     * @param {Object} state The new state for the user
-     */
-
-
     _createClass(User, [{
+        key: 'state',
+        value: function state(chat) {
+            return this.states[chat.channel];
+        }
+
+        /**
+         * @private
+         * @param {Object} state The new state for the user
+         */
+
+    }, {
         key: 'update',
-        value: function update(state) {
+        value: function update(chat, state) {
 
-            var oldState = this.state || {};
-            this.state = Object.assign(oldState, state);
+            if (state && Object.keys(state).length) {
 
-            this._stateSet = true;
+                var oldState = this.states[chat.channel] || {};
+                this.states[chat.channel] = Object.assign(oldState, state);
+
+                this._stateSet[chat.channel] = true;
+            }
         }
 
         /**
@@ -2168,8 +2172,8 @@ var User = function (_Emitter) {
 
     }, {
         key: 'assign',
-        value: function assign(state) {
-            this.update(state);
+        value: function assign(chat, state) {
+            this.update(chat, state);
         }
 
         /**
@@ -2179,22 +2183,30 @@ var User = function (_Emitter) {
 
     }, {
         key: '_getStoredState',
-        value: function _getStoredState(callback) {
+        value: function _getStoredState() {
             var _this2 = this;
 
-            if (!this._stateSet) {
+            var chat = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+            var callback = arguments[1];
+
+
+            if (!chat) {
+                this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
+            } else if (!this._stateSet[chat.channel]) {
 
                 this.chatEngine.request('get', 'user_state', {
-                    user: this.uuid
+                    user: this.uuid,
+
+                    channel: chat.channel
                 }).then(function (res) {
 
-                    _this2.assign(res.data);
-                    callback(_this2.state);
+                    _this2.assign(chat, res.data);
+                    callback(_this2.states[chat.channel]);
                 }).catch(function (err) {
                     _this2.chatEngine.throwError(_this2, 'trigger', 'getState', err);
                 });
             } else {
-                callback(this.state);
+                callback(this.states[chat.channel]);
             }
         }
     }]);
@@ -2219,7 +2231,7 @@ Global object used to create an instance of {@link ChatEngine}.
 @alias ChatEngineCore
 @param pnConfig {Object} ChatEngine is based off PubNub. Supply your PubNub configuration parameters here. See the getting started tutorial and [the PubNub docs](https://www.pubnub.com/docs/web-javascript/api-reference-configuration).
 @param ceConfig {Object} A list of ChatEngine specific configuration options.
-@param [ceConfig.globalChannel=chat-engine] {String} The root channel. See {@link ChatEngine.global}
+@param [ceConfig.namespace=chat-engine] {String} The root channel. See {@link ChatEngine.global}
 @param [ceConfig.enableSync] {Boolean} Synchronizes chats between instances with the same {@link Me#uuid}. See {@link Me#sync}.
 @param [ceConfig.enableMeta] {Boolean} Persists {@link Chat#meta} on the server. See {@link Chat#update}.
 @param [ceConfig.throwErrors=true] {Boolean} Throws errors in JS console.
@@ -2238,10 +2250,10 @@ var create = function create(pnConfig) {
     var ceConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
 
-    if (ceConfig.globalChannel) {
-        ceConfig.globalChannel = ceConfig.globalChannel.toString();
+    if (ceConfig.namespace) {
+        ceConfig.namespace = ceConfig.namespace.toString();
     } else {
-        ceConfig.globalChannel = 'chat-engine';
+        ceConfig.namespace = 'chat-engine';
     }
 
     if (typeof ceConfig.throwErrors === 'undefined') {
@@ -2321,13 +2333,6 @@ module.exports = function () {
      * @type {Object}
      */
     ChatEngine.chats = {};
-
-    /**
-     * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
-     * @member {Chat} global
-     * @memberof ChatEngine
-     */
-    ChatEngine.global = false;
 
     /**
      * This instance of ChatEngine represented as a special {@link User} know as {@link Me}.
@@ -2419,7 +2424,7 @@ module.exports = function () {
 
         var body = {
             uuid: ChatEngine.pnConfig.uuid,
-            global: ceConfig.globalChannel,
+            namespace: ceConfig.namespace,
             authKey: ChatEngine.pnConfig.authKey
         };
 
@@ -2447,7 +2452,7 @@ module.exports = function () {
         var info = channel.split('#');
 
         return {
-            global: info[0],
+            namespace: info[0],
             type: info[1],
             private: info[2] === 'private.'
         };
@@ -2472,8 +2477,8 @@ module.exports = function () {
             chanPrivString = 'private.';
         }
 
-        if (channel.indexOf(ChatEngine.ceConfig.globalChannel) === -1) {
-            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        if (channel.indexOf(ChatEngine.ceConfig.namespace) === -1) {
+            channel = [ChatEngine.ceConfig.namespace, 'chat', chanPrivString, channel].join('#');
         }
 
         return channel;
@@ -2613,7 +2618,7 @@ module.exports = function () {
      */
     ChatEngine.subscribeToPubNub = function () {
 
-        var chanGroups = [ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms', ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system', ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'];
+        var chanGroups = [ceConfig.namespace + '#' + ChatEngine.me.uuid + '#rooms', ceConfig.namespace + '#' + ChatEngine.me.uuid + '#system', ceConfig.namespace + '#' + ChatEngine.me.uuid + '#custom'];
 
         ChatEngine.pubnub.subscribe({
             channelGroups: chanGroups,
@@ -2625,58 +2630,49 @@ module.exports = function () {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = function (state) {
+    ChatEngine.firstConnect = function () {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
-        // create a new chat to use as global chat
-        // we don't do auth on this one because it's assumed to be done with the /auth request below
-        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
+        // build the current user
+        ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
 
-        ChatEngine.global.once('$.connected', function () {
+        /**
+        * Fired when a {@link Me} has been created within ChatEngine.
+        * @event ChatEngine#$"."created"."me
+        * @example
+        * ChatEngine.on('$.created.me', (data, me) => {
+        *     console.log('Me was created', me);
+        * });
+        */
+        ChatEngine.me.onConstructed();
 
-            // build the current user
-            ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
+        if (ChatEngine.ceConfig.enableSync) {
+            ChatEngine.me.session.subscribe();
+        }
+
+        ChatEngine.me.direct.once('$.connected', function () {
+
+            ChatEngine.listenToPubNub();
+            ChatEngine.subscribeToPubNub();
 
             /**
-            * Fired when a {@link Me} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."me
-            * @example
-            * ChatEngine.on('$.created.me', (data, me) => {
-            *     console.log('Me was created', me);
-            * });
-            */
-            ChatEngine.me.onConstructed();
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (data) => {
+             *     let me = data.me;
+             * })
+             */
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
+            });
+
+            ChatEngine.ready = true;
 
             if (ChatEngine.ceConfig.enableSync) {
-                ChatEngine.me.session.subscribe();
+                ChatEngine.me.session.restore();
             }
-
-            ChatEngine.me.update(state, function () {
-
-                /**
-                 *  Fired when ChatEngine is connected to the internet and ready to go!
-                 * @event ChatEngine#$"."ready
-                 * @example
-                 * ChatEngine.on('$.ready', (data) => {
-                 *     let me = data.me;
-                 * })
-                 */
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.ready = true;
-
-                ChatEngine.listenToPubNub();
-                ChatEngine.subscribeToPubNub();
-
-                ChatEngine.global.getUserUpdates();
-
-                if (ChatEngine.ceConfig.enableSync) {
-                    ChatEngine.me.session.restore();
-                }
-            });
         });
     };
 
@@ -2778,26 +2774,20 @@ module.exports = function () {
         var authKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : PubNub.generateUUID();
 
 
-        ChatEngine.global.once('$.disconnected', function () {
-
-            ChatEngine.setAuth(authKey);
-            ChatEngine.reconnect();
-        });
-
         ChatEngine.disconnect();
+        ChatEngine.setAuth(authKey);
+        ChatEngine.reconnect();
     };
 
     /**
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
-     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
      * @fires $"."connected
      */
     ChatEngine.connect = function (uuid) {
-        var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        var authKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : PubNub.generateUUID();
+        var authKey = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : PubNub.generateUUID();
 
 
         // this creates a user known as Me and
@@ -2806,7 +2796,7 @@ module.exports = function () {
         ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(function () {
-            ChatEngine.firstConnect(state);
+            ChatEngine.firstConnect();
         });
     };
 
@@ -3778,7 +3768,7 @@ default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModul
 /* 50 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.13","description":"ChatEngine","main":"dist/chat-engine.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-env":"^1.6.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.13","description":"ChatEngine","main":"dist/chat-engine.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-es2015":"^6.24.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
 
 /***/ }),
 /* 51 */
@@ -4529,9 +4519,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var waterfall = __webpack_require__(4);
 var Emitter = __webpack_require__(1);
 var Event = __webpack_require__(23);
-var Search = __webpack_require__(71);
+var Search = __webpack_require__(70);
 
-var augmentChat = __webpack_require__(98);
+var augmentChat = __webpack_require__(97);
+var augmentSender = __webpack_require__(98);
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -4572,6 +4563,7 @@ var Chat = function (_Emitter) {
         _this.name = 'Chat';
 
         _this.plugin(augmentChat(_this));
+        _this.plugin(augmentSender(_this.chatEngine));
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
@@ -4772,6 +4764,7 @@ var Chat = function (_Emitter) {
 
             // someone's state is updated
             if (presenceEvent.action === 'state-change') {
+
                 this.userUpdate(presenceEvent.uuid, presenceEvent.state);
             }
         }
@@ -4858,10 +4851,10 @@ var Chat = function (_Emitter) {
         key: 'userJoin',
         value: function userJoin(uuid, state) {
 
-            // Ensure that this user exists in the global list
+            // Ensure that this user exists in memory
             // so we can reference it from here out
             this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-            this.chatEngine.users[uuid].assign(state);
+            this.chatEngine.users[uuid].assign(this, state);
 
             // check if the user already exists within the chatroom
             // so we know if we need to notify or not
@@ -4921,7 +4914,7 @@ var Chat = function (_Emitter) {
         key: 'userUpdate',
         value: function userUpdate(uuid, state) {
 
-            // ensure the user exists within the global space
+            // ensure the user exists within memory
             this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
             // if we don't know about this user
@@ -4931,7 +4924,7 @@ var Chat = function (_Emitter) {
             }
 
             // update this user's state in this chatroom
-            this.users[uuid].assign(state);
+            this.users[uuid].assign(this, state);
 
             /**
              * Broadcast that a {@link User} has changed state.
@@ -4944,9 +4937,12 @@ var Chat = function (_Emitter) {
              *     console.log('User has changed state:', data.user, 'new state:', data.state);
              * });
              */
-            this.chatEngine._emit('$.state', {
+
+            console.log('user update', state);
+            console.log(this.users[uuid]);
+            this.trigger('$.state', {
                 user: this.users[uuid],
-                state: this.users[uuid].state
+                state: this.users[uuid].state(this)
             });
         }
 
@@ -5068,7 +5064,7 @@ var Chat = function (_Emitter) {
             var user = this.users[uuid];
 
             // remove the user from the local list of users
-            // we don't remove the user from the global list,
+            // we don't remove the user from memory,
             // because they may be online in other channels
             delete this.users[uuid];
 
@@ -5103,6 +5099,7 @@ var Chat = function (_Emitter) {
         value: function userDisconnect(uuid) {
 
             var user = this.users[uuid];
+
             delete this.users[uuid];
 
             // make sure this event is real, user may have already left
@@ -5125,16 +5122,28 @@ var Chat = function (_Emitter) {
         }
 
         /**
-         Set the state for {@link Me} within this {@link User}.
-         Broadcasts the ```$.state``` event on other clients
-          @private
-         @param {Object} state The new state {@link Me} will have within this {@link User}
+         * Update {@link Me}'s state in this {@link Chat}. All other {@link User}s
+         * will be notified of this change via ```$.state```.
+         * Retrieve state at any time with {@link User#state}.
+         * @param {Object} state The new state for {@link Me}
+         * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
+         * @fires Chat#event:$"."state
+         * @example
+         * // update state
+         * chat.i({value: true});
          */
 
     }, {
         key: 'setState',
-        value: function setState(state, callback) {
-            this.chatEngine.pubnub.setState({ state: state, channels: [this.chatEngine.global.channel] }, callback);
+        value: function setState(state) {
+            var _this7 = this;
+
+            this.chatEngine.pubnub.setState({ state: state, channels: [this.channel] }, function (response) {
+
+                if (response.error) {
+                    _this7.chatEngine.throwError(_this7, 'trigger', 'state', new Error(response.message));
+                }
+            });
         }
 
         /**
@@ -5179,7 +5188,7 @@ var Chat = function (_Emitter) {
     }, {
         key: 'connectionReady',
         value: function connectionReady() {
-            var _this7 = this;
+            var _this8 = this;
 
             this.connected = true;
             this.hasConnected = true;
@@ -5206,19 +5215,19 @@ var Chat = function (_Emitter) {
                 user: this.chatEngine.me
             });
 
-            // global channel updates are triggered manually, only get presence on custom chats
-            if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+            // only get presence on custom chats
+            if (this.group === 'custom') {
 
                 this.getUserUpdates();
 
                 // we may miss updates, so call this again 5 seconds later
                 setTimeout(function () {
-                    _this7.getUserUpdates();
+                    _this8.getUserUpdates();
                 }, 5000);
             }
 
             this.on('$.system.leave', function (payload) {
-                _this7.userLeave(payload.sender.uuid);
+                _this8.userLeave(payload.sender);
             });
         }
 
@@ -5229,7 +5238,7 @@ var Chat = function (_Emitter) {
     }, {
         key: 'getUserUpdates',
         value: function getUserUpdates() {
-            var _this8 = this;
+            var _this9 = this;
 
             // get a list of users online now
             // ask PubNub for information about connected users in this channel
@@ -5238,7 +5247,7 @@ var Chat = function (_Emitter) {
                 includeUUIDs: true,
                 includeState: true
             }, function (s, r) {
-                _this8.onHereNow(s, r);
+                _this9.onHereNow(s, r);
             });
         }
 
@@ -5250,13 +5259,13 @@ var Chat = function (_Emitter) {
     }, {
         key: 'connect',
         value: function connect() {
-            var _this9 = this;
+            var _this10 = this;
 
             // establish good will with the server
             this.handshake(function () {
 
                 // now that we've got connection, do everything else via connectionReady
-                _this9.connectionReady();
+                _this10.connectionReady();
             });
         }
 
@@ -5273,35 +5282,35 @@ var Chat = function (_Emitter) {
     }, {
         key: 'handshake',
         value: function handshake(complete) {
-            var _this10 = this;
+            var _this11 = this;
 
             waterfall([function (next) {
-                if (!_this10.chatEngine.pubnub) {
+                if (!_this11.chatEngine.pubnub) {
                     next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
                 } else {
                     next();
                 }
             }, function (next) {
 
-                _this10.chatEngine.request('post', 'grant', { chat: _this10.objectify() }).then(function () {
+                _this11.chatEngine.request('post', 'grant', { chat: _this11.objectify() }).then(function () {
                     next();
                 }).catch(next);
             }, function (next) {
 
-                _this10.chatEngine.request('post', 'join', { chat: _this10.objectify() }).then(function () {
+                _this11.chatEngine.request('post', 'join', { chat: _this11.objectify() }).then(function () {
                     next();
                 }).catch(next);
             }, function (next) {
 
-                if (_this10.chatEngine.ceConfig.enableMeta) {
+                if (_this11.chatEngine.ceConfig.enableMeta) {
 
-                    _this10.chatEngine.request('get', 'chat', {}, { channel: _this10.channel }).then(function (response) {
+                    _this11.chatEngine.request('get', 'chat', {}, { channel: _this11.channel }).then(function (response) {
 
                         // asign metadata locally
                         if (response.data.found) {
-                            _this10.meta = response.data.chat.meta;
+                            _this11.meta = response.data.chat.meta;
                         } else {
-                            _this10.update(_this10.meta);
+                            _this11.update(_this11.meta);
                         }
 
                         next();
@@ -5312,7 +5321,7 @@ var Chat = function (_Emitter) {
             }], function (error) {
 
                 if (error) {
-                    _this10.chatEngine.throwError(_this10, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error: error });
+                    _this11.chatEngine.throwError(_this11, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error: error });
                 } else {
                     complete();
                 }
@@ -5836,39 +5845,6 @@ module.exports = shortOut;
 "use strict";
 
 
-module.exports = function (chatEngine) {
-
-    return {
-        middleware: {
-            on: {
-                '*': function _(payload, next) {
-
-                    // if we should try to restore the sender property
-                    if (payload.sender && typeof payload.sender === 'string') {
-
-                        // get the user from ChatEngine
-                        payload.sender = new chatEngine.User(payload.sender);
-
-                        payload.sender._getStoredState(function () {
-                            next(null, payload);
-                        });
-                    } else {
-                        // there's no "sender" in this object, move on
-                        next(null, payload);
-                    }
-                }
-            }
-        }
-    };
-};
-
-/***/ }),
-/* 71 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -5876,10 +5852,10 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var Emitter = __webpack_require__(1);
-var eachSeries = __webpack_require__(72);
+var eachSeries = __webpack_require__(71);
 
-var eventFilter = __webpack_require__(96);
-var senderFilter = __webpack_require__(97);
+var eventFilter = __webpack_require__(95);
+var senderFilter = __webpack_require__(96);
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
@@ -6086,7 +6062,7 @@ var Search = function (_Emitter) {
 module.exports = Search;
 
 /***/ }),
-/* 72 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6096,11 +6072,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _eachLimit = __webpack_require__(73);
+var _eachLimit = __webpack_require__(72);
 
 var _eachLimit2 = _interopRequireDefault(_eachLimit);
 
-var _doLimit = __webpack_require__(95);
+var _doLimit = __webpack_require__(94);
 
 var _doLimit2 = _interopRequireDefault(_doLimit);
 
@@ -6130,7 +6106,7 @@ exports.default = (0, _doLimit2.default)(_eachLimit2.default, 1);
 module.exports = exports['default'];
 
 /***/ }),
-/* 73 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6141,11 +6117,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = eachLimit;
 
-var _eachOfLimit = __webpack_require__(74);
+var _eachOfLimit = __webpack_require__(73);
 
 var _eachOfLimit2 = _interopRequireDefault(_eachOfLimit);
 
-var _withoutIndex = __webpack_require__(94);
+var _withoutIndex = __webpack_require__(93);
 
 var _withoutIndex2 = _interopRequireDefault(_withoutIndex);
 
@@ -6178,7 +6154,7 @@ function eachLimit(coll, limit, iteratee, callback) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 74 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6197,7 +6173,7 @@ var _once = __webpack_require__(16);
 
 var _once2 = _interopRequireDefault(_once);
 
-var _iterator = __webpack_require__(75);
+var _iterator = __webpack_require__(74);
 
 var _iterator2 = _interopRequireDefault(_iterator);
 
@@ -6205,7 +6181,7 @@ var _onlyOnce = __webpack_require__(22);
 
 var _onlyOnce2 = _interopRequireDefault(_onlyOnce);
 
-var _breakLoop = __webpack_require__(93);
+var _breakLoop = __webpack_require__(92);
 
 var _breakLoop2 = _interopRequireDefault(_breakLoop);
 
@@ -6255,7 +6231,7 @@ function _eachOfLimit(limit) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 75 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6270,11 +6246,11 @@ var _isArrayLike = __webpack_require__(24);
 
 var _isArrayLike2 = _interopRequireDefault(_isArrayLike);
 
-var _getIterator = __webpack_require__(76);
+var _getIterator = __webpack_require__(75);
 
 var _getIterator2 = _interopRequireDefault(_getIterator);
 
-var _keys = __webpack_require__(77);
+var _keys = __webpack_require__(76);
 
 var _keys2 = _interopRequireDefault(_keys);
 
@@ -6319,7 +6295,7 @@ function iterator(coll) {
 module.exports = exports['default'];
 
 /***/ }),
-/* 76 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6338,11 +6314,11 @@ var iteratorSymbol = typeof Symbol === 'function' && Symbol.iterator;
 module.exports = exports['default'];
 
 /***/ }),
-/* 77 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var arrayLikeKeys = __webpack_require__(78),
-    baseKeys = __webpack_require__(89),
+var arrayLikeKeys = __webpack_require__(77),
+    baseKeys = __webpack_require__(88),
     isArrayLike = __webpack_require__(24);
 
 /**
@@ -6381,15 +6357,15 @@ module.exports = keys;
 
 
 /***/ }),
-/* 78 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseTimes = __webpack_require__(79),
-    isArguments = __webpack_require__(80),
+var baseTimes = __webpack_require__(78),
+    isArguments = __webpack_require__(79),
     isArray = __webpack_require__(14),
-    isBuffer = __webpack_require__(82),
-    isIndex = __webpack_require__(84),
-    isTypedArray = __webpack_require__(85);
+    isBuffer = __webpack_require__(81),
+    isIndex = __webpack_require__(83),
+    isTypedArray = __webpack_require__(84);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -6436,7 +6412,7 @@ module.exports = arrayLikeKeys;
 
 
 /***/ }),
-/* 79 */
+/* 78 */
 /***/ (function(module, exports) {
 
 /**
@@ -6462,10 +6438,10 @@ module.exports = baseTimes;
 
 
 /***/ }),
-/* 80 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseIsArguments = __webpack_require__(81),
+var baseIsArguments = __webpack_require__(80),
     isObjectLike = __webpack_require__(7);
 
 /** Used for built-in method references. */
@@ -6504,7 +6480,7 @@ module.exports = isArguments;
 
 
 /***/ }),
-/* 81 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(5),
@@ -6528,11 +6504,11 @@ module.exports = baseIsArguments;
 
 
 /***/ }),
-/* 82 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(6),
-    stubFalse = __webpack_require__(83);
+    stubFalse = __webpack_require__(82);
 
 /** Detect free variable `exports`. */
 var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
@@ -6573,7 +6549,7 @@ module.exports = isBuffer;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
 
 /***/ }),
-/* 83 */
+/* 82 */
 /***/ (function(module, exports) {
 
 /**
@@ -6597,7 +6573,7 @@ module.exports = stubFalse;
 
 
 /***/ }),
-/* 84 */
+/* 83 */
 /***/ (function(module, exports) {
 
 /** Used as references for various `Number` constants. */
@@ -6628,12 +6604,12 @@ module.exports = isIndex;
 
 
 /***/ }),
-/* 85 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var baseIsTypedArray = __webpack_require__(86),
-    baseUnary = __webpack_require__(87),
-    nodeUtil = __webpack_require__(88);
+var baseIsTypedArray = __webpack_require__(85),
+    baseUnary = __webpack_require__(86),
+    nodeUtil = __webpack_require__(87);
 
 /* Node.js helper references. */
 var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
@@ -6661,7 +6637,7 @@ module.exports = isTypedArray;
 
 
 /***/ }),
-/* 86 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var baseGetTag = __webpack_require__(5),
@@ -6727,7 +6703,7 @@ module.exports = baseIsTypedArray;
 
 
 /***/ }),
-/* 87 */
+/* 86 */
 /***/ (function(module, exports) {
 
 /**
@@ -6747,7 +6723,7 @@ module.exports = baseUnary;
 
 
 /***/ }),
-/* 88 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(20);
@@ -6776,11 +6752,11 @@ module.exports = nodeUtil;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module)))
 
 /***/ }),
-/* 89 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var isPrototype = __webpack_require__(90),
-    nativeKeys = __webpack_require__(91);
+var isPrototype = __webpack_require__(89),
+    nativeKeys = __webpack_require__(90);
 
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
@@ -6812,7 +6788,7 @@ module.exports = baseKeys;
 
 
 /***/ }),
-/* 90 */
+/* 89 */
 /***/ (function(module, exports) {
 
 /** Used for built-in method references. */
@@ -6836,10 +6812,10 @@ module.exports = isPrototype;
 
 
 /***/ }),
-/* 91 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var overArg = __webpack_require__(92);
+var overArg = __webpack_require__(91);
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeKeys = overArg(Object.keys, Object);
@@ -6848,7 +6824,7 @@ module.exports = nativeKeys;
 
 
 /***/ }),
-/* 92 */
+/* 91 */
 /***/ (function(module, exports) {
 
 /**
@@ -6869,7 +6845,7 @@ module.exports = overArg;
 
 
 /***/ }),
-/* 93 */
+/* 92 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6884,7 +6860,7 @@ exports.default = {};
 module.exports = exports["default"];
 
 /***/ }),
-/* 94 */
+/* 93 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6902,7 +6878,7 @@ function _withoutIndex(iteratee) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 95 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6920,7 +6896,7 @@ function doLimit(fn, limit) {
 module.exports = exports["default"];
 
 /***/ }),
-/* 96 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6942,7 +6918,7 @@ module.exports = function (event) {
 };
 
 /***/ }),
-/* 97 */
+/* 96 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6962,7 +6938,7 @@ module.exports = function (user) {
 };
 
 /***/ }),
-/* 98 */
+/* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -6988,6 +6964,42 @@ module.exports = function (chat) {
 };
 
 /***/ }),
+/* 98 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function (chatEngine) {
+
+    return {
+        middleware: {
+            on: {
+                '*': function _(payload, next) {
+
+                    // if we should try to restore the sender property
+                    var senderDefined = payload.sender && typeof payload.sender === 'string';
+                    if (senderDefined || payload.user) {
+
+                        var uuid = payload.sender || payload.user.uuid;
+
+                        // get the user from ChatEngine
+                        var workingUser = new chatEngine.User(uuid);
+
+                        workingUser._getStoredState(payload.chat, function () {
+                            next(null, payload);
+                        });
+                    } else {
+                        // there's no "sender" in this object, move on
+                        next(null, payload);
+                    }
+                }
+            }
+        }
+    };
+};
+
+/***/ }),
 /* 99 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6995,8 +7007,6 @@ module.exports = function (chat) {
 
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -7045,45 +7055,10 @@ var Me = function (_User) {
         return _ret = _this, _possibleConstructorReturn(_this, _ret);
     }
 
-    /**
-     * assign updates from network
-     * @private
-     */
-
-
     _createClass(Me, [{
-        key: 'assign',
-        value: function assign(state) {
-            // we call "update" because calling "super.assign"
-            // will direct back to "this.update" which creates
-            // a loop of network updates
-            _get(Me.prototype.__proto__ || Object.getPrototypeOf(Me.prototype), 'update', this).call(this, state);
-        }
-
-        /**
-         * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
-         * will be notified of this change via ```$.state```.
-         * Retrieve state at any time with {@link User#state}.
-         * @param {Object} state The new state for {@link Me}
-         * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
-         * Defaults to ```ChatEngine.global```.
-         * @fires Chat#event:$"."state
-         * @example
-         * // update state
-         * me.update({value: true});
-         */
-
-    }, {
         key: 'update',
-        value: function update(state) {
-            var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {};
-
-
-            // run the root update function
-            _get(Me.prototype.__proto__ || Object.getPrototypeOf(Me.prototype), 'update', this).call(this, state);
-
-            // publish the update over the global channel
-            this.chatEngine.global.setState(state, callback);
+        value: function update(chat, state) {
+            chat.setState(state);
         }
     }]);
 
@@ -7148,7 +7123,7 @@ var Session = function (_Emitter) {
         value: function subscribe() {
             var _this2 = this;
 
-            this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.chatEngine.me.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
+            this.sync = new this.chatEngine.Chat([this.chatEngine.ceConfig.namespace, 'user', this.chatEngine.me.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
 
             // subscribe to the events on our sync chat and forward them
             this.sync.on('$.session.notify.chat.join', function (payload) {
@@ -7178,7 +7153,7 @@ var Session = function (_Emitter) {
             groups.forEach(function (group) {
 
                 // generate the channel group string for PubNub using the current uuid
-                var channelGroup = [_this3.chatEngine.ceConfig.globalChannel, _this3.chatEngine.me.uuid, group].join('#');
+                var channelGroup = [_this3.chatEngine.ceConfig.namespace, _this3.chatEngine.me.uuid, group].join('#');
 
                 // ask pubnub for a list of channels for this group
                 _this3.chatEngine.pubnub.channelGroups.listChannels({
