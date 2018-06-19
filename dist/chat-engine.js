@@ -6986,6 +6986,12 @@ module.exports = function (chatEngine) {
                         // get the user from ChatEngine
                         var workingUser = new chatEngine.User(uuid);
 
+                        if (payload.user) {
+                            payload.user = workingUser;
+                        } else {
+                            payload.sender = workingUser;
+                        }
+
                         workingUser._getStoredState(payload.chat, function () {
                             next(null, payload);
                         });

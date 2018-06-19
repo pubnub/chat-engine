@@ -14,6 +14,12 @@ module.exports = (chatEngine) => {
                         // get the user from ChatEngine
                         let workingUser = new chatEngine.User(uuid);
 
+                        if(payload.user) {
+                            payload.user = workingUser;
+                        } else {
+                            payload.sender = workingUser;
+                        }
+
                         workingUser._getStoredState(payload.chat, () => {
                             next(null, payload);
                         });
