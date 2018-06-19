@@ -402,9 +402,12 @@ class Chat extends Emitter {
          *     console.log('User has changed state:', data.user, 'new state:', data.state);
          * });
          */
+
+        console.log('user update', state)
+         console.log(this.users[uuid]);
         this.trigger('$.state', {
             user: this.users[uuid],
-            state: this.users[uuid].state(this.channel)
+            state: this.users[uuid].state(this)
         });
 
     }

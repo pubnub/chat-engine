@@ -33,6 +33,10 @@ class Me extends User {
 
     }
 
+    update(chat, state) {
+        chat.setState(state);
+    }
+
 }
 
 module.exports = Me;
