@@ -34,6 +34,9 @@ class Me extends User {
     }
 
     update(chat, state) {
+
+        this.assign(chat, state);
+
         chat.setState(state);
     }
 
