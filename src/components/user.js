@@ -91,6 +91,9 @@ class User extends Emitter {
     }
 
     state(chat) {
+
+        console.log(chat.chananel)
+
         return this.states[chat.channel];
     }
 
@@ -132,7 +135,6 @@ class User extends Emitter {
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid,
-
                 channel: chat.channel
             }).then((res) => {
 

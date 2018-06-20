@@ -20,9 +20,9 @@ module.exports = (chatEngine) => {
                             payload.sender = workingUser;
                         }
 
-                        workingUser._getStoredState(payload.chat, () => {
+                        // workingUser._getStoredState(payload.chat, () => {
                             next(null, payload);
-                        });
+                        // });
 
                     } else {
                         // there's no "sender" in this object, move on

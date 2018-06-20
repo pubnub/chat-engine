@@ -403,8 +403,6 @@ class Chat extends Emitter {
          * });
          */
 
-        console.log('user update', state)
-         console.log(this.users[uuid]);
         this.trigger('$.state', {
             user: this.users[uuid],
             state: this.users[uuid].state(this)

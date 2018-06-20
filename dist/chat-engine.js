@@ -2133,17 +2133,15 @@ var User = function (_Emitter) {
             chatEngine.users[uuid] = _this;
         }
 
-        if (Object.keys(state).length) {
-            // update this user's state in it's created context
-            _this.assign(state);
-        }
-
         return _ret = _this, _possibleConstructorReturn(_this, _ret);
     }
 
     _createClass(User, [{
         key: 'state',
         value: function state(chat) {
+
+            console.log(chat.chananel);
+
             return this.states[chat.channel];
         }
 
@@ -2153,8 +2151,8 @@ var User = function (_Emitter) {
          */
 
     }, {
-        key: 'update',
-        value: function update(chat, state) {
+        key: 'assign',
+        value: function assign(chat, state) {
 
             if (state && Object.keys(state).length) {
 
@@ -2171,9 +2169,9 @@ var User = function (_Emitter) {
          */
 
     }, {
-        key: 'assign',
-        value: function assign(chat, state) {
-            this.update(chat, state);
+        key: 'update',
+        value: function update(chat, state) {
+            this.assign(chat, state);
         }
 
         /**
@@ -2196,7 +2194,6 @@ var User = function (_Emitter) {
 
                 this.chatEngine.request('get', 'user_state', {
                     user: this.uuid,
-
                     channel: chat.channel
                 }).then(function (res) {
 
@@ -4938,8 +4935,6 @@ var Chat = function (_Emitter) {
              * });
              */
 
-            console.log('user update', state);
-            console.log(this.users[uuid]);
             this.trigger('$.state', {
                 user: this.users[uuid],
                 state: this.users[uuid].state(this)
@@ -6992,9 +6987,9 @@ module.exports = function (chatEngine) {
                             payload.sender = workingUser;
                         }
 
-                        workingUser._getStoredState(payload.chat, function () {
-                            next(null, payload);
-                        });
+                        // workingUser._getStoredState(payload.chat, () => {
+                        next(null, payload);
+                        // });
                     } else {
                         // there's no "sender" in this object, move on
                         next(null, payload);
@@ -7064,6 +7059,9 @@ var Me = function (_User) {
     _createClass(Me, [{
         key: 'update',
         value: function update(chat, state) {
+
+            this.assign(chat, state);
+
             chat.setState(state);
         }
     }]);
