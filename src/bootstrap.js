@@ -6,7 +6,7 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
-const series = require('async/series');
+const waterfall = require('async/waterfall');
 
 /**
 @class ChatEngine
@@ -196,12 +196,36 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
         }
 
-        series([
-            (next) => ChatEngine.request('post', 'bootstrap').then(next).catch(handshakeError),
-            (next) => ChatEngine.request('post', 'user_read').then(next).catch(handshakeError),
-            (next) => ChatEngine.request('post', 'user_write').then(next).catch(handshakeError),
-            (next) => ChatEngine.request('post', 'group').then(next).catch(handshakeError)
-        ], complete);
+        waterfall([
+            (next) => {
+                ChatEngine.request('post', 'bootstrap').then(() => {
+                    next(null);
+                }).catch(handshakeError);
+            },
+            (next) => {
+                ChatEngine.request('post', 'user_read').then(() => {
+                    next(null);
+                }).catch(handshakeError);
+            },
+            (next) => {
+                ChatEngine.request('post', 'user_write').then(() => {
+                    next(null);
+                }).catch(handshakeError);
+            },
+            (next) => {
+                ChatEngine.request('post', 'group').then(() => {
+                    next();
+                }).catch(handshakeError);
+            }
+        ], (error) => {
+
+            if (error) {
+                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+            } else {
+                complete();
+            }
+
+        });
 
     };
 
@@ -348,8 +372,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.me.session.subscribe();
         }
 
-        let waitForConnected = ChatEngine.me.direct;
         ChatEngine.global = false;
+        let waitForConnected = ChatEngine.me.direct;
 
         if (ChatEngine.ceConfig.enableGlobal) {
             ChatEngine.global = new ChatEngine.Chat('global');
