@@ -391,6 +391,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 ChatEngine.me.session.restore();
             }
 
+            ChatEngine.global = false;
+            if (ChatEngine.ceConfig.enableGlobal) {
+                ChatEngine.global = new ChatEngine.Chat('global');
+            }
+
         });
 
     };

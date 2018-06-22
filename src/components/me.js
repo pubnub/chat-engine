@@ -33,11 +33,15 @@ class Me extends User {
 
     }
 
-    update(chat, state) {
+    update(state, chat = this.chatEngine.global) {
 
-        this.assign(chat, state);
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state update.'));
+        } else {
+            this.assign(state, chat);
+            chat.setState(state);
+        }
 
-        chat.setState(state);
     }
 
 }

@@ -319,7 +319,7 @@ class Chat extends Emitter {
         // Ensure that this user exists in memory
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-        this.chatEngine.users[uuid].assign(this, state);
+        this.chatEngine.users[uuid].assign(state, this);
 
         // check if the user already exists within the chatroom
         // so we know if we need to notify or not
@@ -389,7 +389,7 @@ class Chat extends Emitter {
         }
 
         // update this user's state in this chatroom
-        this.users[uuid].assign(this, state);
+        this.users[uuid].assign(state, this);
 
         /**
          * Broadcast that a {@link User} has changed state.

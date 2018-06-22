@@ -21,7 +21,7 @@ describe('#user', () => {
 
         let someChat = new chatEngineInstance.Chat('state-chat');
 
-        userInstance.update(someChat, { typing: true });
+        userInstance.update({ typing: true }, someChat);
         assert(userInstance.state(someChat).typing, 'got the expected value');
         done();
     });

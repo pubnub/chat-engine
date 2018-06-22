@@ -90,20 +90,25 @@ class User extends Emitter {
 
     }
 
-    state(chat) {
+    state(chat = this.chatEngine.global) {
 
-        console.log(chat.chananel)
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state lookup.'));
+        } else {
+            return this.states[chat.channel];
+        }
 
-        return this.states[chat.channel];
     }
 
     /**
      * @private
      * @param {Object} state The new state for the user
      */
-    assign(chat, state) {
+    assign(state, chat = this.chatEngine.global) {
 
-        if (state && Object.keys(state).length) {
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state assign.'));
+        } else if (state && Object.keys(state).length) {
 
             let oldState = this.states[chat.channel] || {};
             this.states[chat.channel] = Object.assign(oldState, state);
@@ -119,8 +124,13 @@ class User extends Emitter {
 
      @private
      */
-    update(chat, state) {
-        this.assign(chat, state);
+    update(state, chat = this.chatEngine.global) {
+
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state update.'));
+        } else {
+            this.assign(state, chat);
+        }
     }
 
     /**
@@ -138,7 +148,7 @@ class User extends Emitter {
                 channel: chat.channel
             }).then((res) => {
 
-                this.assign(chat, res.data);
+                this.assign(res.data, chat);
                 callback(this.states[chat.channel]);
 
             }).catch((err) => {
