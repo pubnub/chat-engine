@@ -348,7 +348,15 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.me.session.subscribe();
         }
 
-        ChatEngine.me.direct.once('$.connected', () => {
+        let waitForConnected = ChatEngine.me.direct;
+        ChatEngine.global = false;
+
+        if (ChatEngine.ceConfig.enableGlobal) {
+            ChatEngine.global = new ChatEngine.Chat('global');
+            waitForConnected = ChatEngine.global;
+        }
+
+        waitForConnected.once('$.connected', () => {
 
             ChatEngine.listenToPubNub();
             ChatEngine.subscribeToPubNub();
@@ -369,14 +377,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             if (ChatEngine.ceConfig.enableSync) {
                 ChatEngine.me.session.restore();
-            }
-
-            ChatEngine.global = false;
-
-            console.log('enable global', ChatEngine.ceConfig.enableGlobal)
-
-            if (ChatEngine.ceConfig.enableGlobal) {
-                ChatEngine.global = new ChatEngine.Chat('global');
             }
 
         });
