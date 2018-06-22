@@ -1,5 +1,5 @@
 
-const waterfall = require('async/waterfall');
+const series = require('async/series');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');
 const Search = require('../components/search');
@@ -719,34 +719,21 @@ class Chat extends Emitter {
      */
     handshake(complete) {
 
-        waterfall([
+        let handshakeError = (error) => {
+            ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+        }
+
+        series([
             (next) => {
                 if (!this.chatEngine.pubnub) {
-                    next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
+                    handshakeError('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
                 } else {
                     next();
                 }
             },
+            (next) => this.chatEngine.request('post', 'grant', { chat: this.objectify() }).then(next).catch(handshakeError),
+            (next) => this.chatEngine.request('post', 'join', { chat: this.objectify() }).then(next).catch(next),
             (next) => {
-
-                this.chatEngine.request('post', 'grant', { chat: this.objectify() })
-                    .then(() => {
-                        next();
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
-                this.chatEngine.request('post', 'join', { chat: this.objectify() })
-                    .then(() => {
-                        next();
-                    })
-                    .catch(next);
-
-            },
-            (next) => {
-
 
                 if (this.chatEngine.ceConfig.enableMeta) {
 
@@ -763,21 +750,14 @@ class Chat extends Emitter {
                             next();
 
                         })
-                        .catch(next);
+                        .catch(handshakeError);
 
                 } else {
                     next();
                 }
 
             }
-        ], (error) => {
-
-            if (error) {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            } else {
-                complete();
-            }
-        });
+        ], complete);
 
     }
 

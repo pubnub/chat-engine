@@ -6,7 +6,7 @@ const RootEmitter = require('./modules/root_emitter');
 const Chat = require('./components/chat');
 const Me = require('./components/me');
 const User = require('./components/user');
-const waterfall = require('async/waterfall');
+const series = require('async/series');
 
 /**
 @class ChatEngine
@@ -192,36 +192,16 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.handshake = (complete) => {
 
-        waterfall([
-            (next) => {
-                ChatEngine.request('post', 'bootstrap').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_read').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'user_write').then(() => {
-                    next(null);
-                }).catch(next);
-            },
-            (next) => {
-                ChatEngine.request('post', 'group').then(() => {
-                    next();
-                }).catch(next);
-            }
-        ], (error) => {
+        let handshakeError = (error) => {
+            ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+        }
 
-            if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
-            } else {
-                complete();
-            }
-
-        });
+        series([
+            (next) => ChatEngine.request('post', 'bootstrap').then(next).catch(handshakeError),
+            (next) => ChatEngine.request('post', 'user_read').then(next).catch(handshakeError),
+            (next) => ChatEngine.request('post', 'user_write').then(next).catch(handshakeError),
+            (next) => ChatEngine.request('post', 'group').then(next).catch(handshakeError)
+        ], complete);
 
     };
 
@@ -392,6 +372,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             }
 
             ChatEngine.global = false;
+
+            console.log('enable global', ChatEngine.ceConfig.enableGlobal)
+
             if (ChatEngine.ceConfig.enableGlobal) {
                 ChatEngine.global = new ChatEngine.Chat('global');
             }
