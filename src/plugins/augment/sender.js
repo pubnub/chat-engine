@@ -7,6 +7,7 @@ module.exports = (chatEngine) => {
 
                     // if we should try to restore the sender property
                     let senderDefined = payload.sender && typeof payload.sender === 'string';
+
                     if (senderDefined || payload.user) {
 
                         let uuid = payload.sender || payload.user.uuid;
@@ -20,14 +21,9 @@ module.exports = (chatEngine) => {
                             payload.sender = workingUser;
                         }
 
-                        // workingUser._getStoredState(payload.chat, () => {
-                            next(null, payload);
-                        // });
-
-                    } else {
-                        // there's no "sender" in this object, move on
-                        next(null, payload);
                     }
+
+                    next(null, payload);
 
                 }
             }

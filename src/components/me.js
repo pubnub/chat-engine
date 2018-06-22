@@ -35,8 +35,6 @@ class Me extends User {
 
     update(state, chat = this.chatEngine.global) {
 
-        console.log('this chatengine', this.chatEngine)
-
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state update.'));
         } else {

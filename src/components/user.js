@@ -92,10 +92,6 @@ class User extends Emitter {
 
     state(chat = this.chatEngine.global) {
 
-        console.log('chat is ', chat)
-        console.log('global is', this.chatEngine.global)
-        console.log('chatengine is', this.chatEngine)
-
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state lookup.'));
         } else {
