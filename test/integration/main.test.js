@@ -927,7 +927,7 @@ describe('remote chat list', () => {
 
 });
 
-describe('invite', () => {
+describe('private channels work', () => {
 
     beforeEach(reset);
     beforeEach(createChatEngine);
@@ -980,6 +980,39 @@ describe('invite', () => {
 
             }
 
+        });
+
+    });
+
+    it('direct chat works', function shouldDirect(done) {
+
+        this.timeout(60000);
+
+        ChatEngine.me.direct.on('anything', () => {
+            done();
+        });
+
+        let u = new ChatEngineYou.User(username);
+        u.direct.connect();
+        u.direct.once('$.connected', () => {
+            u.direct.emit('anything', { test: true });
+        });
+
+    });
+
+    it('feed chat works', function shouldFeedChat(done) {
+
+        this.timeout(60000);
+
+        let u = new ChatEngineYou.User(username);
+
+        setTimeout(() => {
+            ChatEngine.me.feed.emit('anything', { test: true });
+        }, 12000);
+
+        u.feed.connect();
+        u.feed.once('anything', () => {
+            done();
         });
 
     });
