@@ -96,10 +96,10 @@ class User extends Emitter {
     }
 
     /**
-     * @private
-     * @param {Object} state The new state for the user
+     this is only called from network updates
+     @private
      */
-    update(state) {
+    assign(state) {
 
         let oldState = this.state || {};
         this.state = Object.assign(oldState, state);
@@ -109,12 +109,11 @@ class User extends Emitter {
     }
 
     /**
-     this is only called from network updates
-
-     @private
+     * @private
+     * @param {Object} state The new state for the user
      */
-    assign(state) {
-        this.update(state);
+    update(state) {
+        this.assign(state);
     }
 
     /**
