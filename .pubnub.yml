@@ -6,6 +6,43 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
+  - version: v0.9.14
+    date: 2018-6-26
+    changes:
+      - type: improvement
+        text: refactor filter and augmentation functions to work via plugin structure
+      - type: improvement
+        text: update readme to include browser support matrix, plugin images, and concept descriptions
+      - type: improvement
+        text: update reliablity of state setting by using pubnub state set callbacks
+      - type: improvement
+        text: don't store $.system.leave events in channel history
+      - type: feature
+        text: support chat metadata through feature flag (ceConfig.enableMeta) to reduce unused network calls
+      - type: improvement
+        text: reduce heartbeat interval for presence updates
+      - type: improvement
+        text: add disconnect, reconnect, and reauthorize to documentation sidebar
+      - type: feature
+        text: Add babel pollyfill to support create-react-app
+      - type: improvement
+        text: qa the docs and ensure they match latest version
+      - type: improvement
+        text: ensure $.online.join is called
+      - type: improvement
+        text: add documentation on debugging ChatEngine problems
+      - type: feature
+        text: add ability to profile usage by setting ceConfig.profile to true
+      - type: improvement
+        text: ensure user uuid is a string
+      - type: improvement
+        text: reduce dependency on async library
+      - type: improvement
+        text: name facade class functions
+      - type: improvement
+        text: correctly link to full documentation in readme
+      - type: improvement
+        text: add jsdelivr badge to docs
   - version: v0.9.5
     date: 2018-02-27
     changes:
