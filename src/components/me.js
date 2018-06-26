@@ -34,17 +34,6 @@ class Me extends User {
     }
 
     /**
-     * assign updates from network
-     * @private
-     */
-    assign(state) {
-        // we call "update" because calling "super.assign"
-        // will direct back to "this.update" which creates
-        // a loop of network updates
-        super.update(state);
-    }
-
-    /**
      * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
      * will be notified of this change via ```$.state```.
      * Retrieve state at any time with {@link User#state}.
@@ -58,11 +47,21 @@ class Me extends User {
      */
     update(state, callback = () => {}) {
 
-        // run the root update function
-        super.update(state);
+        // assign state values locally before broadcasting them over the network
+        this.assign(state);
 
         // publish the update over the global channel
         this.chatEngine.global.setState(state, callback);
+    }
+
+    /**
+     * assign updates from network
+     * @private
+     */
+    assign(state) {
+
+        // run the root update function
+        super.assign(state);
 
     }
 
