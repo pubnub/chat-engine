@@ -382,7 +382,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         }
 
         if (!waitForConnected) {
-            waitForConnecte = ChatEngine.me.direct;
+            waitForConnected = ChatEngine.me.direct;
         }
 
         waitForConnected.once('$.connected', () => {
