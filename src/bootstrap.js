@@ -390,10 +390,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.listenToPubNub();
             ChatEngine.subscribeToPubNub();
 
-            if (ChatEngine.ceConfig.enableGlobal && state) {
-                ChatEngine.me.update(state, ChatEngine.global);
-            }
-
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
