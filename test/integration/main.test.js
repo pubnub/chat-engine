@@ -1,3 +1,8 @@
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    // application specific logging, throwing an error, or other logic here
+});
+
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 
@@ -46,10 +51,10 @@ function createChatEngine(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.connect(username, username);
     ChatEngine.on('$.ready', () => {
         done();
     });
@@ -64,12 +69,12 @@ function createChatEngineSync(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         enableSync: true,
         throwErrors: true
     });
 
-    ChatEngineSync.connect(username, { works: false }, username);
+    ChatEngineSync.connect(username, username);
     ChatEngineSync.on('$.ready', () => {
         done();
     });
@@ -85,11 +90,11 @@ function createChatEngineClone(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         enableSync: true,
         throwErrors: true
     });
-    ChatEngineClone.connect(username, { works: true }, username);
+    ChatEngineClone.connect(username, username);
     ChatEngineClone.on('$.ready', () => {
         done();
     });
@@ -104,10 +109,10 @@ function createChatEngineYou(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngineYou.connect(yousername, { works: true }, yousername);
+    ChatEngineYou.connect(yousername, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
     });
@@ -122,10 +127,10 @@ function createChatEngineHistory(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel: 'g',
+        namespace: 'g',
         throwErrors: true
     });
-    ChatEngineHistory.connect(yousername, { works: true }, yousername);
+    ChatEngineHistory.connect('robot-stephen', yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
@@ -140,10 +145,10 @@ function createChatEngineConnect(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngineConnect.connect(username, { works: true }, username);
+    ChatEngineConnect.connect(username, username);
     ChatEngineConnect.on('$.ready', () => {
 
         setTimeout(() => {
@@ -162,11 +167,11 @@ function createChatEngineMeta(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true,
         enableMeta: true
     });
-    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.connect(username, username);
     ChatEngine.on('$.ready', () => {
         done();
     });
@@ -629,6 +634,8 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
+        chatHistory.setState({ oldState: true });
+
         // let i = 0;
         // while(i < 200) {
         //     chatHistory.emit('tester', {works: true, count: i});
@@ -789,6 +796,28 @@ describe('history', () => {
             });
         });
     });
+
+    it('should get previously set state', function shouldGetState(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        let newChat = new ChatEngineHistory.Chat('chat-history');
+
+        newChat.on('$.online.*', (payload) => {
+
+            if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
+
+                assert.equal(payload.user.state(newChat).oldState, true);
+                doneCalled = true;
+                done();
+            }
+
+        });
+
+    });
+
 });
 
 describe('meta', () => {
@@ -846,7 +875,6 @@ describe('remote chat list', () => {
         this.timeout(60000);
 
         ChatEngineSync.me.session.once('$.group.restored', (payload) => {
-
             assert.isObject(ChatEngineSync.me.session.chats[payload.group]);
             done();
 
@@ -992,36 +1020,20 @@ describe('state', () => {
     beforeEach(createChatEngine);
     beforeEach(createChatEngineYou);
 
-    it('should get previously set state', function shouldGetState(done) {
-
-        this.timeout(20000);
-
-        let doneCalled = false;
-
-        ChatEngine.on('$.online.*', (payload) => {
-
-            if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
-
-                assert.equal(payload.user.state.works, true);
-                doneCalled = true;
-                done();
-            }
-
-        });
-
-    });
-
     it('should get state update', function shouldGetStateUpdate(done) {
 
         this.timeout(20000);
 
         let doneCalled = false;
 
-        ChatEngine.on('$.state', (payload) => {
+        let newChat = new ChatEngine.Chat('get-state-update');
+        newChat.on('$.state', (payload) => {
 
             if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
-                if (payload.user.state.newParam && payload.user.state.newParam === true && !doneCalled) {
+                console.log(payload.user.states)
+
+                if (payload.user.state(newChat).newParam && payload.user.state(newChat).newParam === true && !doneCalled) {
                     doneCalled = true;
                     done();
                 }
@@ -1029,7 +1041,8 @@ describe('state', () => {
 
         });
 
-        ChatEngineYou.me.update({ newParam: true });
+        let youNewChat = new ChatEngineYou.Chat('get-state-update');
+        youNewChat.setState({ newParam: true });
 
     });
 
@@ -1058,7 +1071,7 @@ describe('memory', () => {
 
                 doneCalled = true;
 
-                expect(Object.keys(a.users)).to.include.members(Object.keys(b.users));
+                expect(aUsers).to.include.members(bUsers);
 
                 // now we test leaving
                 a.once('$.offline.leave', () => {
@@ -1101,7 +1114,7 @@ describe('connection management', () => {
                 publishKey: pubkey,
                 subscribeKey: subkey
             }, {
-                globalChannel,
+                namespace: globalChannel,
                 throwErrors: true
             });
 
@@ -1111,7 +1124,7 @@ describe('connection management', () => {
 
             });
 
-            ChatEngineConnect.connect(newUsername, {}, newUsername);
+            ChatEngineConnect.connect(newUsername, newUsername);
 
         });
 

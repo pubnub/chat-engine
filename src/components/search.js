@@ -3,6 +3,8 @@ const eachSeries = require('async/eachSeries');
 
 const eventFilter = require('../plugins/filter/event');
 const senderFilter = require('../plugins/filter/sender');
+
+const augmentState = require('../plugins/augment/state');
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
@@ -191,6 +193,8 @@ class Search extends Emitter {
         if (this.config.sender) {
             this.plugins.unshift(senderFilter(this.config.sender));
         }
+
+        this.plugin(augmentState(this.chatEngine));
 
         /**
          * Search has started.

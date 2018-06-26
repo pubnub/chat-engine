@@ -5,6 +5,7 @@ const Event = require('../components/event');
 const Search = require('../components/search');
 
 const augmentChat = require('../plugins/augment/chat');
+const augmentSender = require('../plugins/augment/sender');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -33,6 +34,7 @@ class Chat extends Emitter {
         this.name = 'Chat';
 
         this.plugin(augmentChat(this));
+        this.plugin(augmentSender(this.chatEngine));
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
@@ -231,6 +233,7 @@ class Chat extends Emitter {
 
         // someone's state is updated
         if (presenceEvent.action === 'state-change') {
+
             this.userUpdate(presenceEvent.uuid, presenceEvent.state);
         }
 
@@ -313,10 +316,10 @@ class Chat extends Emitter {
      */
     userJoin(uuid, state) {
 
-        // Ensure that this user exists in the global list
+        // Ensure that this user exists in memory
         // so we can reference it from here out
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-        this.chatEngine.users[uuid].assign(state);
+        this.chatEngine.users[uuid].assign(state, this);
 
         // check if the user already exists within the chatroom
         // so we know if we need to notify or not
@@ -376,7 +379,7 @@ class Chat extends Emitter {
      */
     userUpdate(uuid, state) {
 
-        // ensure the user exists within the global space
+        // ensure the user exists within memory
         this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
 
         // if we don't know about this user
@@ -386,7 +389,7 @@ class Chat extends Emitter {
         }
 
         // update this user's state in this chatroom
-        this.users[uuid].assign(state);
+        this.users[uuid].assign(state, this);
 
         /**
          * Broadcast that a {@link User} has changed state.
@@ -399,9 +402,10 @@ class Chat extends Emitter {
          *     console.log('User has changed state:', data.user, 'new state:', data.state);
          * });
          */
-        this.chatEngine._emit('$.state', {
+
+        this.trigger('$.state', {
             user: this.users[uuid],
-            state: this.users[uuid].state
+            state: this.users[uuid].state(this)
         });
 
     }
@@ -507,7 +511,7 @@ class Chat extends Emitter {
         let user = this.users[uuid];
 
         // remove the user from the local list of users
-        // we don't remove the user from the global list,
+        // we don't remove the user from memory,
         // because they may be online in other channels
         delete this.users[uuid];
 
@@ -542,6 +546,7 @@ class Chat extends Emitter {
     userDisconnect(uuid) {
 
         let user = this.users[uuid];
+
         delete this.users[uuid];
 
         // make sure this event is real, user may have already left
@@ -565,15 +570,28 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     Set the state for {@link Me} within this {@link User}.
-     Broadcasts the ```$.state``` event on other clients
 
-     @private
-     @param {Object} state The new state {@link Me} will have within this {@link User}
+    /**
+     * Update {@link Me}'s state in this {@link Chat}. All other {@link User}s
+     * will be notified of this change via ```$.state```.
+     * Retrieve state at any time with {@link User#state}.
+     * @param {Object} state The new state for {@link Me}
+     * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
+     * @fires Chat#event:$"."state
+     * @example
+     * // update state
+     * chat.i({value: true});
      */
-    setState(state, callback) {
-        this.chatEngine.pubnub.setState({ state, channels: [this.chatEngine.global.channel] }, callback);
+    setState(state) {
+
+        this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
+
+            if (response.error) {
+                this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message));
+            }
+
+        });
+
     }
 
     /**
@@ -639,8 +657,8 @@ class Chat extends Emitter {
             user: this.chatEngine.me
         });
 
-        // global channel updates are triggered manually, only get presence on custom chats
-        if (this.channel !== this.chatEngine.global.channel && this.group === 'custom') {
+        // only get presence on custom chats
+        if (this.group === 'custom') {
 
             this.getUserUpdates();
 
@@ -652,7 +670,7 @@ class Chat extends Emitter {
         }
 
         this.on('$.system.leave', (payload) => {
-            this.userLeave(payload.sender.uuid);
+            this.userLeave(payload.sender);
         });
 
     }
@@ -701,6 +719,10 @@ class Chat extends Emitter {
      */
     handshake(complete) {
 
+        let handshakeError = (error) => {
+            this.chatEngine.throwError(this.chatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + this.chatEngine.ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+        }
+
         waterfall([
             (next) => {
                 if (!this.chatEngine.pubnub) {
@@ -710,25 +732,20 @@ class Chat extends Emitter {
                 }
             },
             (next) => {
-
                 this.chatEngine.request('post', 'grant', { chat: this.objectify() })
                     .then(() => {
                         next();
                     })
-                    .catch(next);
-
+                    .catch(handshakeError);
             },
             (next) => {
-
                 this.chatEngine.request('post', 'join', { chat: this.objectify() })
                     .then(() => {
                         next();
                     })
-                    .catch(next);
-
+                    .catch(handshakeError);
             },
             (next) => {
-
 
                 if (this.chatEngine.ceConfig.enableMeta) {
 
@@ -745,7 +762,7 @@ class Chat extends Emitter {
                             next();
 
                         })
-                        .catch(next);
+                        .catch(handshakeError);
 
                 } else {
                     next();
@@ -753,7 +770,6 @@ class Chat extends Emitter {
 
             }
         ], (error) => {
-
             if (error) {
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
             } else {

@@ -36,13 +36,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.chats = {};
 
     /**
-     * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
-     * @member {Chat} global
-     * @memberof ChatEngine
-     */
-    ChatEngine.global = false;
-
-    /**
      * This instance of ChatEngine represented as a special {@link User} know as {@link Me}.
      * @member {Me} me
      * @memberof ChatEngine
@@ -63,20 +56,22 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.ready = false;
 
+
+    ChatEngine.global = false;
     /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
      */
     ChatEngine.package = pack;
 
-    ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
+    ChatEngine.throwError = (self, cb, key, ceError, payload = false) => {
 
         if (ceConfig.throwErrors) {
             // throw ceError;
-            console.error(payload);
-            throw ceError;
+            console.error(payload || ceError);
         }
 
+        payload = payload || {};
         payload.ceError = ceError.toString();
 
         self[cb](['$', 'error', key].join('.'), payload);
@@ -131,7 +126,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         let body = {
             uuid: ChatEngine.pnConfig.uuid,
-            global: ceConfig.globalChannel,
+            namespace: ceConfig.namespace,
             authKey: ChatEngine.pnConfig.authKey
         };
 
@@ -161,7 +156,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         let info = channel.split('#');
 
         return {
-            global: info[0],
+            namespace: info[0],
             type: info[1],
             private: info[2] === 'private.'
         };
@@ -184,8 +179,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             chanPrivString = 'private.';
         }
 
-        if (channel.indexOf(ChatEngine.ceConfig.globalChannel) === -1) {
-            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        if (channel.indexOf(ChatEngine.ceConfig.namespace) === -1) {
+            channel = [ChatEngine.ceConfig.namespace, 'chat', chanPrivString, channel].join('#');
         }
 
         return channel;
@@ -199,26 +194,30 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.handshake = (complete) => {
 
+        let handshakeError = (error) => {
+            ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+        }
+
         waterfall([
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
-                }).catch(next);
+                }).catch(handshakeError);
             },
             (next) => {
                 ChatEngine.request('post', 'user_read').then(() => {
                     next(null);
-                }).catch(next);
+                }).catch(handshakeError);
             },
             (next) => {
                 ChatEngine.request('post', 'user_write').then(() => {
                     next(null);
-                }).catch(next);
+                }).catch(handshakeError);
             },
             (next) => {
                 ChatEngine.request('post', 'group').then(() => {
                     next();
-                }).catch(next);
+                }).catch(handshakeError);
             }
         ], (error) => {
 
@@ -338,9 +337,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.subscribeToPubNub = () => {
 
         let chanGroups = [
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#rooms',
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#system',
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#custom'
         ];
 
         ChatEngine.pubnub.subscribe({
@@ -354,59 +353,60 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (state) => {
+    ChatEngine.firstConnect = (state = false) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
-        // create a new chat to use as global chat
-        // we don't do auth on this one because it's assumed to be done with the /auth request below
-        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
+        // build the current user
+        ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
 
-        ChatEngine.global.once('$.connected', () => {
+        /**
+        * Fired when a {@link Me} has been created within ChatEngine.
+        * @event ChatEngine#$"."created"."me
+        * @example
+        * ChatEngine.on('$.created.me', (data, me) => {
+        *     console.log('Me was created', me);
+        * });
+        */
+        ChatEngine.me.onConstructed();
 
-            // build the current user
-            ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
+        if (ChatEngine.ceConfig.enableSync) {
+            ChatEngine.me.session.subscribe();
+        }
 
-            /**
-            * Fired when a {@link Me} has been created within ChatEngine.
-            * @event ChatEngine#$"."created"."me
-            * @example
-            * ChatEngine.on('$.created.me', (data, me) => {
-            *     console.log('Me was created', me);
-            * });
-            */
-            ChatEngine.me.onConstructed();
+        let waitForConnected = ChatEngine.me.direct;
 
-            if (ChatEngine.ceConfig.enableSync) {
-                ChatEngine.me.session.subscribe();
+        if (ChatEngine.ceConfig.enableGlobal) {
+            ChatEngine.global = new ChatEngine.Chat('global');
+            waitForConnected = ChatEngine.global;
+        }
+
+        waitForConnected.once('$.connected', () => {
+
+            ChatEngine.listenToPubNub();
+            ChatEngine.subscribeToPubNub();
+
+            if (ChatEngine.ceConfig.enableGlobal && state) {
+                ChatEngine.me.update(state, ChatEngine.global);
             }
 
-            ChatEngine.me.update(state, () => {
-
-                /**
-                 *  Fired when ChatEngine is connected to the internet and ready to go!
-                 * @event ChatEngine#$"."ready
-                 * @example
-                 * ChatEngine.on('$.ready', (data) => {
-                 *     let me = data.me;
-                 * })
-                 */
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.ready = true;
-
-                ChatEngine.listenToPubNub();
-                ChatEngine.subscribeToPubNub();
-
-                ChatEngine.global.getUserUpdates();
-
-                if (ChatEngine.ceConfig.enableSync) {
-                    ChatEngine.me.session.restore();
-                }
-
+            /**
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (data) => {
+             *     let me = data.me;
+             * })
+             */
+            ChatEngine._emit('$.ready', {
+                me: ChatEngine.me
             });
+
+            ChatEngine.ready = true;
+
+            if (ChatEngine.ceConfig.enableSync) {
+                ChatEngine.me.session.restore();
+            }
 
         });
 
@@ -510,14 +510,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
-        ChatEngine.global.once('$.disconnected', () => {
-
-            ChatEngine.setAuth(authKey);
-            ChatEngine.reconnect();
-
-        });
 
         ChatEngine.disconnect();
+        ChatEngine.setAuth(authKey);
+        ChatEngine.reconnect();
+
 
     };
 
@@ -525,11 +522,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
-     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
+     * @param {Object} [initialState] The initial state for {@link Me} in {@link ChatEngine#global}. Only valid if ```enableGlobal``` is true in {@ChatEngineCore#create}
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, state = {}, authKey = PubNub.generateUUID()) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
@@ -537,7 +534,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(() => {
-            ChatEngine.firstConnect(state);
+            ChatEngine.firstConnect(initialState);
         });
 
     };

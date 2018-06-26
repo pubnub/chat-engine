@@ -48,6 +48,7 @@ describe('#chat', () => {
 
     it('disconnect chat', (done) => {
         chatInstance.users.user1 = {};
+        chatInstance.plugins = [];
 
         chatInstance.on('$.offline.disconnect', () => {
             done();
@@ -79,6 +80,7 @@ describe('#chat', () => {
 
     it('user leave the chat', (done) => {
         chatInstance.users.user1 = {};
+        chatInstance.plugins = [];
         chatInstance.on('$.offline.leave', () => {
             done();
         });
@@ -87,10 +89,13 @@ describe('#chat', () => {
     });
 
     it('update state', (done) => {
-        chatEngineInstance.on('$.state', (obj) => {
+
+        chatInstance.on('$.state', (obj) => {
+
             assert(obj.user.uuid === 'user2', 'was updated to the right user');
-            assert.deepEqual(obj.state, { state: 'not disturb' }, 'was updated the state correctly');
+            assert.deepEqual(obj.user.state(chatInstance), { state: 'not disturb' }, 'was updated the state correctly');
             done();
+
         });
 
         chatInstance.userUpdate('user2', { state: 'not disturb' });

@@ -36,9 +36,9 @@ class User extends Emitter {
          * // State
          * let state = user.state;
          */
-        this.state = state;
+        this.states = {};
 
-        this._stateSet = false;
+        this._stateSet = {};
 
         /**
          * Feed is a Chat that only streams things a User does, like
@@ -57,7 +57,7 @@ class User extends Emitter {
          */
 
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
-        this.feed = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+        this.feed = new this.chatEngine.Chat([this.chatEngine.ceConfig.namespace, 'user', uuid, 'read.', 'feed'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         /**
          * Direct is a private channel that anybody can publish to but only
@@ -78,7 +78,7 @@ class User extends Emitter {
          * them.direct.connect();
          * them.direct.emit('private-message', {secret: 42});
          */
-        this.direct = new this.chatEngine.Chat([chatEngine.global.channel, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
+        this.direct = new this.chatEngine.Chat([this.chatEngine.ceConfig.namespace, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
         // if the user does not exist at all and we get enough
         // information to build the user
@@ -86,12 +86,19 @@ class User extends Emitter {
             chatEngine.users[uuid] = this;
         }
 
-        if (Object.keys(state).length) {
-            // update this user's state in it's created context
-            this.assign(state);
-        }
-
         return this;
+
+    }
+
+    state(chat = this.chatEngine.global) {
+
+        console.log(chat)
+
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state lookup.'));
+        } else {
+            return this.states[chat.channel] || {};
+        }
 
     }
 
@@ -99,12 +106,18 @@ class User extends Emitter {
      * @private
      * @param {Object} state The new state for the user
      */
-    update(state) {
+    assign(state, chat = this.chatEngine.global) {
 
-        let oldState = this.state || {};
-        this.state = Object.assign(oldState, state);
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state assign.'));
+        } else if (state && Object.keys(state).length) {
 
-        this._stateSet = true;
+            let oldState = this.states[chat.channel] || {};
+            this.states[chat.channel] = Object.assign(oldState, state);
+
+            this._stateSet[chat.channel] = true;
+
+        }
 
     }
 
@@ -113,31 +126,39 @@ class User extends Emitter {
 
      @private
      */
-    assign(state) {
-        this.update(state);
+    update(state, chat = this.chatEngine.global) {
+
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state update.'));
+        } else {
+            this.assign(state, chat);
+        }
     }
 
     /**
     Get stored user state from remote server.
     @private
     */
-    _getStoredState(callback) {
+    _getStoredState(chat = false, callback) {
 
-        if (!this._stateSet) {
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
+        } else if (!this._stateSet[chat.channel]) {
 
             this.chatEngine.request('get', 'user_state', {
-                user: this.uuid
+                user: this.uuid,
+                channel: chat.channel
             }).then((res) => {
 
-                this.assign(res.data);
-                callback(this.state);
+                this.assign(res.data, chat);
+                callback(this.states[chat.channel]);
 
             }).catch((err) => {
                 this.chatEngine.throwError(this, 'trigger', 'getState', err);
             });
 
         } else {
-            callback(this.state);
+            callback(this.states[chat.channel]);
         }
 
     }
