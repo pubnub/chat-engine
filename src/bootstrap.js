@@ -62,14 +62,14 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.package = pack;
 
-    ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
+    ChatEngine.throwError = (self, cb, key, ceError, payload = false) => {
 
         if (ceConfig.throwErrors) {
             // throw ceError;
-            console.error(payload);
-            throw ceError;
+            console.error(payload || ceError);
         }
 
+        payload = payload || {};
         payload.ceError = ceError.toString();
 
         self[cb](['$', 'error', key].join('.'), payload);

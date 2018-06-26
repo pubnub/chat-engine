@@ -95,7 +95,7 @@ class User extends Emitter {
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state lookup.'));
         } else {
-            return this.states[chat.channel];
+            return this.states[chat.channel] || {};
         }
 
     }
