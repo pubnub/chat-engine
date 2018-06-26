@@ -56,6 +56,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.ready = false;
 
+
+    ChatEngine.global = false;
     /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
@@ -351,7 +353,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = () => {
+    ChatEngine.firstConnect = (state = false) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
@@ -372,7 +374,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.me.session.subscribe();
         }
 
-        ChatEngine.global = false;
         let waitForConnected = ChatEngine.me.direct;
 
         if (ChatEngine.ceConfig.enableGlobal) {
@@ -384,6 +385,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             ChatEngine.listenToPubNub();
             ChatEngine.subscribeToPubNub();
+
+            if (ChatEngine.ceConfig.enableGlobal && state) {
+                ChatEngine.me.update(state, ChatEngine.global);
+            }
 
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
@@ -518,9 +523,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
+     * @param {Object} [initialState] The initial state for {@link Me} in {@link ChatEngine#global}. Only valid if ```enableGlobal``` is true in {@ChatEngineCore#create}
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID()) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
@@ -528,7 +534,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(() => {
-            ChatEngine.firstConnect();
+            ChatEngine.firstConnect(initialState);
         });
 
     };
