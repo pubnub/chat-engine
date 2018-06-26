@@ -86,13 +86,19 @@ class User extends Emitter {
             chatEngine.users[uuid] = this;
         }
 
+        if (state) {
+            this.update(state)
+        }
+
         return this;
 
     }
 
     state(chat = this.chatEngine.global) {
 
-        console.log(chat)
+        console.log(this.states)
+
+        console.log('lookup state for ', chat.channel, this.states[chat.channel])
 
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state lookup.'));
@@ -108,6 +114,8 @@ class User extends Emitter {
      */
     assign(state, chat = this.chatEngine.global) {
 
+        console.log('assign state', state, chat.channel)
+
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state assign.'));
         } else if (state && Object.keys(state).length) {
@@ -116,6 +124,8 @@ class User extends Emitter {
             this.states[chat.channel] = Object.assign(oldState, state);
 
             this._stateSet[chat.channel] = true;
+
+            console.log('state set as', this.states[chat.channel])
 
         }
 
