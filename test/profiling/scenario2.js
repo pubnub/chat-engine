@@ -17,7 +17,9 @@ let chats = [];
 
 let ChatEngine = ChatEngineCore.create({
     publishKey: process.env.PUB_KEY_0,
-    subscribeKey: process.env.SUB_KEY_0
+    subscribeKey: process.env.SUB_KEY_0,
+    heartbeatInterval: 120,
+    presenceTimeout: 150
 }, {
     throwErrors: true,
     debug: false

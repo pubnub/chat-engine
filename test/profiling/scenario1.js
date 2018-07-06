@@ -5,6 +5,8 @@ let globalChannel = 'global';
 let ChatEngine = ChatEngineCore.create({
     publishKey: process.env.PUB_KEY_0,
     subscribeKey: process.env.SUB_KEY_0,
+    heartbeatInterval: 120,
+    presenceTimeout: 150
 }, {
     endpoint: 'http://localhost:3000/insecure',
     globalChannel,
