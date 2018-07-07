@@ -233,7 +233,6 @@ class Chat extends Emitter {
 
         // someone's state is updated
         if (presenceEvent.action === 'state-change') {
-
             this.userUpdate(presenceEvent.uuid, presenceEvent.state);
         }
 
@@ -384,6 +383,9 @@ class Chat extends Emitter {
 
         // if we don't know about this user
         if (!this.users[uuid]) {
+
+            this.users[uuid] = this.chatEngine.users[uuid];
+
             // do the whole join thing
             this.userJoin(uuid, state);
         }
