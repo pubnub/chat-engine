@@ -402,6 +402,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 me: ChatEngine.me
             });
 
+            if (state && ChatEngine.ceConfig.enableGlobal) {
+                ChatEngine.global.setState(state);
+            }
+
             ChatEngine.ready = true;
 
             if (ChatEngine.ceConfig.enableSync) {
