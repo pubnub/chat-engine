@@ -1041,7 +1041,6 @@ describe('interactions', () => {
             done();
         });
 
-
     });
 
 });
