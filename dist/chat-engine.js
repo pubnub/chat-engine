@@ -2146,14 +2146,14 @@ var User = function (_Emitter) {
     }
 
     /**
-     * @private
-     * @param {Object} state The new state for the user
+     this is only called from network updates
+     @private
      */
 
 
     _createClass(User, [{
-        key: 'update',
-        value: function update(state) {
+        key: 'assign',
+        value: function assign(state) {
 
             var oldState = this.state || {};
             this.state = Object.assign(oldState, state);
@@ -2162,14 +2162,14 @@ var User = function (_Emitter) {
         }
 
         /**
-         this is only called from network updates
-          @private
+         * @private
+         * @param {Object} state The new state for the user
          */
 
     }, {
-        key: 'assign',
-        value: function assign(state) {
-            this.update(state);
+        key: 'update',
+        value: function update(state) {
+            this.assign(state);
         }
 
         /**
@@ -2258,8 +2258,7 @@ var create = function create(pnConfig) {
 
     ceConfig.endpoint = ceConfig.endpoint || 'https://pubsub.pubnub.com/v1/blocks/sub-key/' + pnConfig.subscribeKey + '/chat-engine-server';
 
-    pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 120;
-    pnConfig.presenceTimeout = pnConfig.presenceTimeout || 150;
+    pnConfig.heartbeatInterval = pnConfig.heartbeatInterval || 0;
 
     // return an instance of ChatEngine
     return init(ceConfig, pnConfig);
@@ -3778,7 +3777,7 @@ default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModul
 /* 50 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.13","description":"ChatEngine","main":"dist/chat-engine.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-env":"^1.6.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.16","description":"ChatEngine","main":"dist/chat-engine.js","node":"src/index.js","react-native":"src/index.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-es2015":"^6.24.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
 
 /***/ }),
 /* 51 */
@@ -6767,6 +6766,14 @@ var freeProcess = moduleExports && freeGlobal.process;
 /** Used to access faster Node.js helpers. */
 var nodeUtil = (function() {
   try {
+    // Use `util.types` for Node.js 10+.
+    var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+    if (types) {
+      return types;
+    }
+
+    // Legacy `process.binding('util')` for Node.js < 10.
     return freeProcess && freeProcess.binding && freeProcess.binding('util');
   } catch (e) {}
 }());
@@ -7046,44 +7053,43 @@ var Me = function (_User) {
     }
 
     /**
-     * assign updates from network
-     * @private
+     * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
+     * will be notified of this change via ```$.state```.
+     * Retrieve state at any time with {@link User#state}.
+     * @param {Object} state The new state for {@link Me}
+     * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
+     * Defaults to ```ChatEngine.global```.
+     * @fires Chat#event:$"."state
+     * @example
+     * // update state
+     * me.update({value: true});
      */
 
 
     _createClass(Me, [{
-        key: 'assign',
-        value: function assign(state) {
-            // we call "update" because calling "super.assign"
-            // will direct back to "this.update" which creates
-            // a loop of network updates
-            _get(Me.prototype.__proto__ || Object.getPrototypeOf(Me.prototype), 'update', this).call(this, state);
-        }
-
-        /**
-         * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
-         * will be notified of this change via ```$.state```.
-         * Retrieve state at any time with {@link User#state}.
-         * @param {Object} state The new state for {@link Me}
-         * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
-         * Defaults to ```ChatEngine.global```.
-         * @fires Chat#event:$"."state
-         * @example
-         * // update state
-         * me.update({value: true});
-         */
-
-    }, {
         key: 'update',
         value: function update(state) {
             var callback = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {};
 
 
-            // run the root update function
-            _get(Me.prototype.__proto__ || Object.getPrototypeOf(Me.prototype), 'update', this).call(this, state);
+            // assign state values locally before broadcasting them over the network
+            this.assign(state);
 
             // publish the update over the global channel
             this.chatEngine.global.setState(state, callback);
+        }
+
+        /**
+         * assign updates from network
+         * @private
+         */
+
+    }, {
+        key: 'assign',
+        value: function assign(state) {
+
+            // run the root update function
+            _get(Me.prototype.__proto__ || Object.getPrototypeOf(Me.prototype), 'assign', this).call(this, state);
         }
     }]);
 
