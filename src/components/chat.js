@@ -586,12 +586,6 @@ class Chat extends Emitter {
      */
     setState(state) {
 
-        console.log('setStaet', this.chatEngine.me)
-
-        if (this.chatEngine.me) {
-            this.chatEngine.me.update(state);
-        }
-
         this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
 
             if (response.error) {
