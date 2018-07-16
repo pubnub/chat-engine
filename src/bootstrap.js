@@ -392,7 +392,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             if (state && ChatEngine.ceConfig.enableGlobal) {
                 ChatEngine.me.update(state);
-                ChatEngine.global.setState(state);
             }
 
             ChatEngine.ready = true;
