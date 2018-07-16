@@ -390,6 +390,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.listenToPubNub();
             ChatEngine.subscribeToPubNub();
 
+            if (state && ChatEngine.ceConfig.enableGlobal) {
+                ChatEngine.me.update(state);
+                ChatEngine.global.setState(state);
+            }
+
+            ChatEngine.ready = true;
+
             /**
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
@@ -401,12 +408,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine._emit('$.ready', {
                 me: ChatEngine.me
             });
-
-            if (state && ChatEngine.ceConfig.enableGlobal) {
-                ChatEngine.global.setState(state);
-            }
-
-            ChatEngine.ready = true;
 
             if (ChatEngine.ceConfig.enableSync) {
                 ChatEngine.me.session.restore();
