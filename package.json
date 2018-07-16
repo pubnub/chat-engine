@@ -1,10 +1,10 @@
 {
   "author": "PubNub",
   "name": "chat-engine",
-  "version": "0.9.16",
+  "version": "0.9.18",
   "description": "ChatEngine",
-  "main": "dist/chat-engine.js",
-  "node": "src/index.js",
+  "browser": "dist/chat-engine.js",
+  "main": "src/index.js",
   "react-native": "src/index.js",
   "scripts": {
     "build": "gulp",
