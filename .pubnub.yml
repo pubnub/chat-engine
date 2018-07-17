@@ -6,6 +6,15 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
+  - version: v0.9.18
+    date: 2018-7-16
+    changes:
+      - type: improvement 
+        text: patch entry points for web/node
+      -	type: improvement
+	text: add entry points for react-native and node
+      -	type: improvement
+	text: remove presence defaults
   - version: v0.9.14
     date: 2018-6-26
     changes:
