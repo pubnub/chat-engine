@@ -9,11 +9,8 @@ changelog:
   - version: v0.9.18
     date: 2018-7-16
     changes:
-      - type: improvement 
-        text: patch entry points for web/node
-      -	type: improvement
-	text: add entry points for react-native and node
-      -	type: improvement
+      - type: improvement
+        text: patch entry points for web/node. Fixes an issue where compiled web package is loaded in node environment.
 	text: remove presence defaults
   - version: v0.9.14
     date: 2018-6-26
