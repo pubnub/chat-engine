@@ -10,8 +10,9 @@ changelog:
     date: 2018-7-16
     changes:
       - type: improvement
-        text: patch entry points for web/node. Fixes an issue where compiled web package is loaded in node environment.
-	text: remove presence defaults
+        text: Patch entry points for web/node. Fixes an issue where compiled web package is loaded in node environment.
+      - type: improvement
+        text: Fixes truthy bug preventing presence intervals from being disabled. Remove PubNub presenceTimeout default. Set PubNub heartbeatInterval to 0 by default.
   - version: v0.9.14
     date: 2018-6-26
     changes:
