@@ -1,5 +1,5 @@
 name: chat-engine
-version: 0.9.14
+version: 0.9.18
 schema: 1
 scm: github.com/pubnub/chat-engine
 files:
