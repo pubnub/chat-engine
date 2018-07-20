@@ -56,8 +56,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.ready = false;
 
-
+    /**
+     * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
+     * @member {Chat} global
+     * @memberof ChatEngine
+     */
     ChatEngine.global = false;
+
     /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
