@@ -367,22 +367,7 @@ describe('chat', () => {
 
         this.timeout(60000);
 
-        ChatEngine.onAny((a) => {
-            console.log(a);
-        })
-
-        console.log(ChatEngine.ceConfig.namespace)
-
         let chat3 = new ChatEngine.Chat('chat-3' + new Date().getTime());
-
-        chat3.once('$.connected', () => {
-            console.log('connected');
-        });
-
-        ChatEngine.on('$.network.*.*', (a, b) => {
-            console.log('network')
-            console.log(a, b);
-        })
 
         chat3.once('something', (payload) => {
 
@@ -393,8 +378,6 @@ describe('chat', () => {
         });
 
         setTimeout(() => {
-            console.log('emitting');
-
             chat3.emit('something', {
                 text: 'hello world'
             });
@@ -604,10 +587,6 @@ describe('history', () => {
     });
 
     it('should get previously set state', function shouldGetState(done) {
-
-        ChatEngineHistory.onAny((a) => {
-            console.log(a)
-        })
 
         this.timeout(20000);
 
@@ -832,15 +811,11 @@ describe('memory', () => {
             let aUsers = Object.keys(a.users);
             let bUsers = Object.keys(b.users);
 
-            console.log(aUsers, bUsers)
-
             if (aUsers.length > 1 && bUsers.length > 1 && !doneCalled) {
 
                 doneCalled = true;
 
                 expect(aUsers).to.include.members(bUsers);
-
-                console.log('great, now leaving')
 
                 // now we test leaving
                 a.once('$.offline.leave', () => {

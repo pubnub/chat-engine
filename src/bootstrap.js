@@ -355,6 +355,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.firstConnect = (state = false) => {
 
+        ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
+
         let firstConnection = () => {
 
             // build the current user
@@ -402,19 +404,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         };
 
-        ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
-
         let waitForConnected = false;
 
         if (ChatEngine.ceConfig.enableGlobal) {
             ChatEngine.global = new ChatEngine.Chat('global');
-            waitForConnected = ChatEngine.global;
-        }
-
-        if (!waitForConnected) {
-            firstConnection();
+            ChatEngine.global.once('$.connected', firstConnection);
         } else {
-            waitForConnected.once('$.connected', firstConnection);
+            firstConnection();
         }
 
     };
