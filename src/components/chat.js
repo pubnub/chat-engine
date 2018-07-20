@@ -6,6 +6,7 @@ const Search = require('../components/search');
 
 const augmentChat = require('../plugins/augment/chat');
 const augmentSender = require('../plugins/augment/sender');
+const augmentState = require('../plugins/augment/state');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -35,6 +36,7 @@ class Chat extends Emitter {
 
         this.plugin(augmentChat(this));
         this.plugin(augmentSender(this.chatEngine));
+        this.plugin(augmentState(this.chatEngine));
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
@@ -586,13 +588,19 @@ class Chat extends Emitter {
      */
     setState(state) {
 
-        this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
+        if (!this.connected) {
+            this.chatEngine.throwError(this, 'trigger', 'state', new Error('Trying to set state in chat you are not connected to. You must wait for the $.connected event before setting state in this chat.'));
+        } else {
 
-            if (response.error) {
-                this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message));
-            }
+            this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
 
-        });
+                if (response.error) {
+                    this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message));
+                }
+
+            });
+
+        }
 
     }
 
@@ -634,7 +642,6 @@ class Chat extends Emitter {
      */
     connectionReady() {
 
-        this.connected = true;
         this.hasConnected = true;
 
         /**
@@ -672,7 +679,7 @@ class Chat extends Emitter {
         }
 
         this.on('$.system.leave', (payload) => {
-            this.userLeave(payload.sender);
+            this.userLeave(payload.sender.uuid);
         });
 
     }

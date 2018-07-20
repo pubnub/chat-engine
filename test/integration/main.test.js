@@ -49,7 +49,9 @@ function createChatEngine(done) {
 
     ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey
+        subscribeKey: subkey,
+        heartbeatInterval: 15,
+        presenceTimeout: 15
     }, {
         namespace: globalChannel,
         throwErrors: true
@@ -107,7 +109,9 @@ function createChatEngineYou(done) {
 
     ChatEngineYou = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey
+        subscribeKey: subkey,
+        heartbeatInterval: 15,
+        presenceTimeout: 15
     }, {
         namespace: globalChannel,
         throwErrors: true
@@ -363,7 +367,22 @@ describe('chat', () => {
 
         this.timeout(60000);
 
-        let chat3 = new ChatEngine.Chat('chat-teser3' + new Date().getTime());
+        ChatEngine.onAny((a) => {
+            console.log(a);
+        })
+
+        console.log(ChatEngine.ceConfig.namespace)
+
+        let chat3 = new ChatEngine.Chat('chat-3' + new Date().getTime());
+
+        chat3.once('$.connected', () => {
+            console.log('connected');
+        });
+
+        ChatEngine.on('$.network.*.*', (a, b) => {
+            console.log('network')
+            console.log(a, b);
+        })
 
         chat3.once('something', (payload) => {
 
@@ -374,6 +393,8 @@ describe('chat', () => {
         });
 
         setTimeout(() => {
+            console.log('emitting');
+
             chat3.emit('something', {
                 text: 'hello world'
             });
@@ -419,8 +440,6 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
-        chatHistory.setState({ oldState: true });
-
         // let i = 0;
         // while(i < 200) {
         //     chatHistory.emit('tester', {works: true, count: i});
@@ -429,6 +448,8 @@ describe('history', () => {
         // }
 
         chatHistory.on('$.connected', () => {
+
+            chatHistory.setState({ oldState: true });
 
             let search = chatHistory.search({
                 event: 'tester',
@@ -584,13 +605,17 @@ describe('history', () => {
 
     it('should get previously set state', function shouldGetState(done) {
 
+        ChatEngineHistory.onAny((a) => {
+            console.log(a)
+        })
+
         this.timeout(20000);
 
         let doneCalled = false;
 
         let newChat = new ChatEngineHistory.Chat('chat-history');
 
-        newChat.on('$.online.*', (payload) => {
+        newChat.on('$.online.join', (payload) => {
 
             if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
 
@@ -779,7 +804,10 @@ describe('state', () => {
         });
 
         let youNewChat = new ChatEngineYou.Chat('get-state-update');
-        youNewChat.setState({ newParam: true });
+
+        youNewChat.on('$.connected', () => {
+            youNewChat.setState({ newParam: true });
+        });
 
     });
 
@@ -804,11 +832,15 @@ describe('memory', () => {
             let aUsers = Object.keys(a.users);
             let bUsers = Object.keys(b.users);
 
+            console.log(aUsers, bUsers)
+
             if (aUsers.length > 1 && bUsers.length > 1 && !doneCalled) {
 
                 doneCalled = true;
 
                 expect(aUsers).to.include.members(bUsers);
+
+                console.log('great, now leaving')
 
                 // now we test leaving
                 a.once('$.offline.leave', () => {
@@ -822,10 +854,10 @@ describe('memory', () => {
 
         };
 
-        a.on('$.online.join', () => {
+        a.on('$.online.*', () => {
             checkDone();
         });
-        b.on('$.online.join', () => {
+        b.on('$.online.*', () => {
             checkDone();
         });
 

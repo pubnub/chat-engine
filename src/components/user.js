@@ -86,7 +86,7 @@ class User extends Emitter {
             chatEngine.users[uuid] = this;
         }
 
-        if (state) {
+        if (state && this.constructor.name !== 'Me') {
             this.update(state)
         }
 

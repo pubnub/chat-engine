@@ -355,42 +355,27 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.firstConnect = (state = false) => {
 
-        ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
+        let firstConnection = () => {
 
-        let waitForConnected = false;
+            // build the current user
+            ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
 
-        if (ChatEngine.ceConfig.enableGlobal) {
-            ChatEngine.global = new ChatEngine.Chat('global');
-            waitForConnected = ChatEngine.global;
-        }
+            /**
+            * Fired when a {@link Me} has been created within ChatEngine.
+            * @event ChatEngine#$"."created"."me
+            * @example
+            * ChatEngine.on('$.created.me', (data, me) => {
+            *     console.log('Me was created', me);
+            * });
+            */
+            ChatEngine.me.onConstructed();
 
-        // build the current user
-        ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
-
-        /**
-        * Fired when a {@link Me} has been created within ChatEngine.
-        * @event ChatEngine#$"."created"."me
-        * @example
-        * ChatEngine.on('$.created.me', (data, me) => {
-        *     console.log('Me was created', me);
-        * });
-        */
-        ChatEngine.me.onConstructed();
-
-        if (ChatEngine.ceConfig.enableSync) {
-            ChatEngine.me.session.subscribe();
-        }
-
-        if (!waitForConnected) {
-            waitForConnected = ChatEngine.me.direct;
-        }
-
-        waitForConnected.once('$.connected', () => {
-
-            ChatEngine.listenToPubNub();
-            ChatEngine.subscribeToPubNub();
+            if (ChatEngine.ceConfig.enableSync) {
+                ChatEngine.me.session.subscribe();
+            }
 
             if (state && ChatEngine.ceConfig.enableGlobal) {
+                console.log('calling me update')
                 ChatEngine.me.update(state);
             }
 
@@ -408,11 +393,29 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 me: ChatEngine.me
             });
 
+            ChatEngine.listenToPubNub();
+            ChatEngine.subscribeToPubNub();
+
             if (ChatEngine.ceConfig.enableSync) {
                 ChatEngine.me.session.restore();
             }
 
-        });
+        };
+
+        ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
+
+        let waitForConnected = false;
+
+        if (ChatEngine.ceConfig.enableGlobal) {
+            ChatEngine.global = new ChatEngine.Chat('global');
+            waitForConnected = ChatEngine.global;
+        }
+
+        if (!waitForConnected) {
+            firstConnection();
+        } else {
+            waitForConnected.once('$.connected', firstConnection);
+        }
 
     };
 
