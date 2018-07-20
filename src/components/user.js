@@ -87,7 +87,7 @@ class User extends Emitter {
         }
 
         if (Object.keys(state).length && state && this.constructor.name !== 'Me') {
-            this.update(state)
+            this.update(state);
         }
 
         return this;

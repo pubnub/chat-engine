@@ -200,7 +200,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         let handshakeError = (error) => {
             ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
-        }
+        };
 
         waterfall([
             (next) => {
@@ -381,7 +381,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             }
 
             if (state && ChatEngine.ceConfig.enableGlobal) {
-                console.log('calling me update')
                 ChatEngine.me.update(state);
             }
 
@@ -407,8 +406,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             }
 
         };
-
-        let waitForConnected = false;
 
         if (ChatEngine.ceConfig.enableGlobal) {
             ChatEngine.global = new ChatEngine.Chat('global');

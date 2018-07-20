@@ -1,4 +1,4 @@
-module.exports = (chatEngine) => {
+module.exports = () => {
 
     return {
         middleware: {

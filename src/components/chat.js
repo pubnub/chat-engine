@@ -730,7 +730,7 @@ class Chat extends Emitter {
 
         let handshakeError = (error) => {
             this.chatEngine.throwError(this.chatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + this.chatEngine.ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
-        }
+        };
 
         waterfall([
             (next) => {
