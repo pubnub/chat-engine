@@ -772,8 +772,6 @@ describe('state', () => {
 
             if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
-                console.log(payload.user.states)
-
                 if (payload.user.state(newChat).newParam && payload.user.state(newChat).newParam === true && !doneCalled) {
                     doneCalled = true;
                     done();
