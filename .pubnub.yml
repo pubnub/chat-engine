@@ -6,6 +6,18 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
+  - version: v0.10.x
+    changes:
+        - type: feature
+          text: Adds the ability to disable globalChannel preventing transactions for users who do not use it.
+        - type: feature
+          text: State can be set within specific chats.
+        - type: improvement
+          text: Errors are properly caught by promise rejections.
+        - type: improvement
+          text: References to globalChannel are now called namespace.
+        - type: improvement
+          text: Message augmentation further isolated into plugn structure.
   - version: v0.9.5
     date: 2018-02-27
     changes:
