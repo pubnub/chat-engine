@@ -50,19 +50,18 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.pubnub = false;
 
     /**
-     * Indicates if ChatEngine has fired the {@link ChatEngine#$"."ready} event.
-     * @member {Object} ready
-     * @memberof ChatEngine
-     */
-    ChatEngine.ready = false;
-
-    /**
      * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
      * @member {Chat} global
      * @memberof ChatEngine
      */
     ChatEngine.global = false;
 
+    /**
+     * Indicates if ChatEngine has fired the {@link ChatEngine#$"."ready} event.
+     * @member {Object} ready
+     * @memberof ChatEngine
+     */
+    ChatEngine.ready = false;
     /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
