@@ -9,7 +9,7 @@ module.exports = () => {
 
                     if (workingUser) {
 
-                        workingUser._getStoredState(payload.chat, () => {
+                        workingUser._restoreState(payload.chat, () => {
                             next(null, payload);
                         });
 

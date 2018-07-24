@@ -178,6 +178,8 @@ class Chat extends Emitter {
 
                 let send = () => {
 
+                    console.log('emitting invite')
+
                     /**
                      * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
                      * Fired by the {@link Chat#invite} method.
@@ -319,8 +321,7 @@ class Chat extends Emitter {
 
         // Ensure that this user exists in memory
         // so we can reference it from here out
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-        this.chatEngine.users[uuid].assign(state, this);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid, state);
 
         // check if the user already exists within the chatroom
         // so we know if we need to notify or not
@@ -380,8 +381,10 @@ class Chat extends Emitter {
      */
     userUpdate(uuid, state) {
 
+        console.log('user update', uuid, state)
+
         // ensure the user exists within memory
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
+        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid, state);
 
         // if we don't know about this user
         if (!this.users[uuid]) {

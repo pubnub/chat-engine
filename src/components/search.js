@@ -189,16 +189,17 @@ class Search extends Emitter {
             return this;
         };
 
+        this.plugin(augmentSender(this.chatEngine));
+
         if (this.config.event) {
-            this.plugins.unshift(eventFilter(this.config.event));
+            this.plugin(eventFilter(this.config.event));
         }
 
         if (this.config.sender) {
-            this.plugins.unshift(senderFilter(this.config.sender));
+            this.plugin(senderFilter(this.config.sender));
         }
 
         this.plugin(augmentChat(chat));
-        this.plugin(augmentSender(this.chatEngine));
         this.plugin(augmentState(this.chatEngine));
 
         /**

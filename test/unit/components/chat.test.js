@@ -9,6 +9,7 @@ describe('#chat', () => {
     let chatInstance = null;
 
     beforeEach(() => {
+
         chatEngineInstance = Bootstrap({ globalChannel: 'common', insecure: true }, { publishKey: 'demo', subscribeKey: 'demo' });
 
         // mock pubnub

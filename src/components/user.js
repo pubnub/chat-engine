@@ -86,8 +86,8 @@ class User extends Emitter {
             chatEngine.users[uuid] = this;
         }
 
-        if (Object.keys(state).length && state && this.constructor.name !== 'Me') {
-            this.update(state);
+        if (state && Object.keys(state).length) {
+            this.assign(state);
         }
 
         return this;
@@ -117,8 +117,6 @@ class User extends Emitter {
             let oldState = this.states[chat.channel] || {};
             this.states[chat.channel] = Object.assign(oldState, state);
 
-            this._stateSet[chat.channel] = true;
-
         }
 
     }
@@ -141,19 +139,20 @@ class User extends Emitter {
     Get stored user state from remote server.
     @private
     */
-    _getStoredState(chat = false, callback) {
+    _restoreState(chat = false, callback) {
 
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
         } else if (!this._stateSet[chat.channel]) {
+
+            this._stateSet[chat.channel] = true;
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid,
                 channel: chat.channel
             }).then((res) => {
 
-                this.assign(res.data, chat);
-                callback(this.states[chat.channel]);
+                this.assign(res.data, chat, true);
 
             }).catch((err) => {
                 this.chatEngine.throwError(this, 'trigger', 'getState', err);

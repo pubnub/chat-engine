@@ -712,9 +712,13 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
+            console.log('got invite')
+
             myChat = new ChatEngine.Chat(payload.data.channel);
 
             myChat.on('$.connected', () => {
+
+                console.log('emitting message')
 
                 myChat.emit('message', {
                     text: 'sup?'
@@ -726,9 +730,17 @@ describe('invite', () => {
 
         yourChat = new ChatEngineYou.Chat(privChannel, true);
 
+        ChatEngine.onAny((a) => {
+            console.log(a)
+        })
+
         yourChat.on('$.connected', () => {
 
+            console.log('$.yourchat connected')
+
             setTimeout(() => {
+
+                console.log('using invite class invite')
 
                 // me is the current context
                 yourChat.invite(ChatEngine.me);
@@ -740,6 +752,8 @@ describe('invite', () => {
         let done2 = false;
 
         yourChat.on('message', (payload) => {
+
+            console.log('getting message')
 
             if (!done2) {
 
@@ -814,6 +828,7 @@ describe('memory', () => {
                 doneCalled = true;
 
                 expect(aUsers).to.include.members(bUsers);
+                expect(bUsers).to.include.members(aUsers);
 
                 // now we test leaving
                 a.once('$.offline.leave', () => {
