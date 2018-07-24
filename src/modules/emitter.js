@@ -219,6 +219,7 @@ class Emitter extends RootEmitter {
 
         });
 
+
         // waterfall runs the functions in assigned order
         // waiting for one to complete before moving to the next
         // when it's done, the ```last``` parameter is called

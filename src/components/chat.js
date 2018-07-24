@@ -590,7 +590,7 @@ class Chat extends Emitter {
 
         if (!this.connected) {
             this.chatEngine.throwError(this, 'trigger', 'state', new Error('Trying to set state in chat you are not connected to. You must wait for the $.connected event before setting state in this chat.'));
-        } else {
+        } else if (state && Object.keys(state).length) {
 
             this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
 
@@ -657,14 +657,6 @@ class Chat extends Emitter {
         if (this.chatEngine.me.session) {
             this.chatEngine.me.session.join(this);
         }
-
-        // add self to list of users
-        this.users[this.chatEngine.me.uuid] = this.chatEngine.me;
-
-        // trigger my own online event
-        this.trigger('$.online.join', {
-            user: this.chatEngine.me
-        });
 
         // only get presence on custom chats
         if (this.group === 'custom') {

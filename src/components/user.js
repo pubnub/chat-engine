@@ -115,6 +115,7 @@ class User extends Emitter {
         } else if (state && Object.keys(state).length) {
 
             let oldState = this.states[chat.channel] || {};
+
             this.states[chat.channel] = Object.assign(oldState, state);
 
             this._stateSet[chat.channel] = true;
@@ -151,16 +152,14 @@ class User extends Emitter {
                 user: this.uuid,
                 channel: chat.channel
             }).then((res) => {
-
                 this.assign(res.data, chat);
-                callback(this.states[chat.channel]);
-
+                return callback(this.states[chat.channel]);
             }).catch((err) => {
                 this.chatEngine.throwError(this, 'trigger', 'getState', err);
             });
 
         } else {
-            callback(this.states[chat.channel]);
+            return callback(this.states[chat.channel]);
         }
 
     }

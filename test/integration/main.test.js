@@ -340,7 +340,7 @@ describe('chat', () => {
 
         let chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
-        chat.on('$.online.join', (p) => {
+        chat.on('$.online.here', (p) => {
 
             if (p.user.uuid === ChatEngine.me.uuid) {
                 done();
@@ -594,11 +594,12 @@ describe('history', () => {
 
         let newChat = new ChatEngineHistory.Chat('chat-history');
 
-        newChat.on('$.online.join', (payload) => {
+        newChat.on('$.online.here', (payload) => {
 
             if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
 
                 assert.equal(payload.user.state(newChat).oldState, true);
+
                 doneCalled = true;
                 done();
             }
@@ -768,6 +769,7 @@ describe('state', () => {
         let doneCalled = false;
 
         let newChat = new ChatEngine.Chat('get-state-update');
+
         newChat.on('$.state', (payload) => {
 
             if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {

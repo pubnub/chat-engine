@@ -141,6 +141,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         body = Object.assign(body, inputBody);
         params = Object.assign(params, inputParams);
 
+        // console.log(method, route, body, params)
+
         if (method === 'get' || method === 'delete') {
             params = Object.assign(params, body);
             return axios[method](ceConfig.endpoint, { params });
