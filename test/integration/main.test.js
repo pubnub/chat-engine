@@ -334,11 +334,15 @@ describe('chat', () => {
 
     });
 
-    it('should get me as join event', function getMe(done) {
+    it('should get me as online event', function getMe(done) {
 
         this.timeout(60000);
 
         let chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
+
+        chat.onAny((a) => {
+            console.log(a)
+        });
 
         chat.on('$.online.here', (p) => {
 
@@ -369,6 +373,10 @@ describe('chat', () => {
 
         let chat3 = new ChatEngine.Chat('chat-3' + new Date().getTime());
 
+        chat3.onAny((a) => {
+            console.log(a)
+        })
+
         chat3.once('something', (payload) => {
 
             assert(payload.timetoken);
@@ -377,12 +385,19 @@ describe('chat', () => {
 
         });
 
-        setTimeout(() => {
-            chat3.emit('something', {
-                text: 'hello world'
-            });
-        }, 5000);
+        chat3.on('$.connected', () => {
 
+            setTimeout(() => {
+
+                console.log("emitting")
+
+                chat3.emit('something', {
+                    text: 'hello world'
+                });
+            }, 5000);
+
+
+        });
 
     });
 

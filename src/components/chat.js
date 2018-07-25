@@ -97,8 +97,6 @@ class Chat extends Emitter {
          */
         this.asleep = false;
 
-        this.chatEngine.chats[this.channel] = this;
-
         if (autoConnect) {
             this.connect();
         }
@@ -733,6 +731,7 @@ class Chat extends Emitter {
                 }
             },
             (next) => {
+
                 this.chatEngine.request('post', 'grant', { chat: this.objectify() })
                     .then(() => {
                         next();

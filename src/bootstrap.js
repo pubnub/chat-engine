@@ -173,7 +173,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Get the internal channel name of supplied string
      * @private
      */
-    ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = true) => {
+    ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = false) => {
 
         let channel = original.toString();
 
@@ -567,6 +567,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.Chat = function createChat(...args) {
 
+        console.log(args)
+
         let internalChannel = ChatEngine.augmentChannel(args[0], args[1]);
 
         if (ChatEngine.chats[internalChannel]) {
@@ -574,6 +576,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         } else {
 
             let newChat = new Chat(ChatEngine, ...args);
+
+            ChatEngine.chats[internalChannel] = newChat;
 
             /**
             * Fired when a {@link Chat} has been created within ChatEngine.
@@ -606,6 +610,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         } else {
 
             let newUser = new User(ChatEngine, ...args);
+
+            ChatEngine.users[args[0]] = newUser;
 
             /**
             * Fired when a {@link User} has been created within ChatEngine.

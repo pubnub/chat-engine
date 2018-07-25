@@ -80,12 +80,6 @@ class User extends Emitter {
          */
         this.direct = new this.chatEngine.Chat([this.chatEngine.ceConfig.namespace, 'user', uuid, 'write.', 'direct'].join('#'), false, this.constructor.name === 'Me', {}, 'system');
 
-        // if the user does not exist at all and we get enough
-        // information to build the user
-        if (!chatEngine.users[uuid]) {
-            chatEngine.users[uuid] = this;
-        }
-
         if (Object.keys(state).length && state && this.constructor.name !== 'Me') {
             this.update(state);
         }
@@ -118,8 +112,6 @@ class User extends Emitter {
 
             this.states[chat.channel] = Object.assign(oldState, state);
 
-            this._stateSet[chat.channel] = true;
-
         }
 
     }
@@ -146,7 +138,9 @@ class User extends Emitter {
 
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
-        } else if (!this._stateSet[chat.channel]) {
+        } else if (!this._stateSet[chat.channel] && chat.group == 'custom') {
+
+            this._stateSet[chat.channel] = true;
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid,
