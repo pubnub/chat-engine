@@ -927,7 +927,7 @@ describe('remote chat list', () => {
 
 });
 
-describe('private channels work', () => {
+describe('interactions', () => {
 
     beforeEach(reset);
     beforeEach(createChatEngine);
@@ -981,6 +981,32 @@ describe('private channels work', () => {
             }
 
         });
+
+    });
+
+    it('should emit to chat without connecting', function shouldEmitNoConnect(done) {
+
+        this.timeout(60000);
+
+        let ourChan = 'chat-tester4' + new Date().getTime();
+
+        let chatConnected = new ChatEngine.Chat(ourChan);
+        let chatNOTConnected = new ChatEngineYou.Chat(ourChan, false, false);
+
+        chatNOTConnected.on('$.connected', () => {
+            done('should not connect');
+        });
+
+        chatConnected.once('something', (payload) => {
+            assert.isObject(payload);
+            done();
+        });
+
+        setTimeout(() => {
+            chatNOTConnected.emit('something', {
+                text: 'hello world'
+            });
+        }, 5000);
 
     });
 
