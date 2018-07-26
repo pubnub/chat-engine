@@ -340,7 +340,8 @@ describe('chat', () => {
 
         let chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
-        chat.on('$.online.here', (p) => {
+        // it's unclear if you'll be "here" or "join" by the time we're connected
+        chat.on('$.online.*', (p) => {
 
             if (p.user.uuid === ChatEngine.me.uuid) {
                 done();
@@ -420,6 +421,27 @@ describe('history', () => {
     beforeEach(reset);
     beforeEach(createChatEngineHistory);
 
+    it('should get previously set state', function shouldGetState(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        let newChat = new ChatEngineHistory.Chat('chat-history', {restoreState: true});
+
+        newChat.on('$.online.here', (payload) => {
+
+            if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
+
+                assert.equal(payload.user.state(newChat).oldState, true);
+
+                doneCalled = true;
+                done();
+            }
+
+        });
+
+    });
     it('should get 50 messages', function get50(done) {
 
         let count = 0;
@@ -591,28 +613,6 @@ describe('history', () => {
         });
     });
 
-    it('should get previously set state', function shouldGetState(done) {
-
-        this.timeout(20000);
-
-        let doneCalled = false;
-
-        let newChat = new ChatEngineHistory.Chat('chat-history');
-
-        newChat.on('$.online.here', (payload) => {
-
-            if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
-
-                assert.equal(payload.user.state(newChat).oldState, true);
-
-                doneCalled = true;
-                done();
-            }
-
-        });
-
-    });
-
 });
 
 describe('meta', () => {
@@ -717,8 +717,6 @@ describe('invite', () => {
         this.timeout(60000);
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
-
-            console.log(payload)
 
             myChat = new ChatEngine.Chat(payload.data.channel, {isPrivate: true});
 

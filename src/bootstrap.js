@@ -409,7 +409,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         };
 
         if (ChatEngine.ceConfig.enableGlobal) {
-            ChatEngine.global = new ChatEngine.Chat('global', false, true, {}, 'system', restoreGlobalState);
+            ChatEngine.global = new ChatEngine.Chat('global', {
+                group: 'system',
+                restoreGlobalState
+            });
             ChatEngine.global.once('$.connected', firstConnection);
         } else {
             firstConnection();
