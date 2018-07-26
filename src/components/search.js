@@ -42,14 +42,32 @@ class Search extends Emitter {
         An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
         @type {Object}
         */
-        this.config = config;
-        this.config.event = config.event;
-        this.config.limit = config.limit || 20;
-        this.config.channel = this.chat.channel;
-        this.config.includeTimetoken = true;
-        this.config.stringifiedTimeToken = true;
-        this.config.count = this.config.count || 100;
-        this.config.pages = this.config.pages || 10;
+        let defaults = {
+            limit: 20,
+            channel: this.chat.channel,
+            includeTimetoken: true,
+            stringifiedTimeToken: true,
+            count: 100,
+            pages: 10,
+            restoreState: false
+        };
+
+        this.config = Object.assign(defaults, config);
+
+        if (this.config.event) {
+            this.plugins.unshift(eventFilter(this.config.event));
+        }
+
+        if (this.config.sender) {
+            this.plugins.unshift(senderFilter(this.config.sender));
+        }
+
+        this.plugin(augmentChat(chat));
+        this.plugin(augmentSender(this.chatEngine));
+
+        if (this.config.restoreState) {
+            this.plugin(augmentState(this.chatEngine));
+        }
 
         /** @private */
         this.maxPage = this.config.pages;
@@ -188,18 +206,6 @@ class Search extends Emitter {
 
             return this;
         };
-
-        if (this.config.event) {
-            this.plugins.unshift(eventFilter(this.config.event));
-        }
-
-        if (this.config.sender) {
-            this.plugins.unshift(senderFilter(this.config.sender));
-        }
-
-        this.plugin(augmentChat(chat));
-        this.plugin(augmentSender(this.chatEngine));
-        this.plugin(augmentState(this.chatEngine));
 
         /**
          * Search has started.

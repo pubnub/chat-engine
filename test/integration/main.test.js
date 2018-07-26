@@ -626,7 +626,7 @@ describe('meta', () => {
 
         let meta = { works: true };
 
-        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), false, true, meta);
+        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), {meta});
 
         chat.on('$.connected', () => {
             assert.equal(chat.meta, meta);
@@ -718,7 +718,9 @@ describe('invite', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            myChat = new ChatEngine.Chat(payload.data.channel);
+            console.log(payload)
+
+            myChat = new ChatEngine.Chat(payload.data.channel, {isPrivate: true});
 
             myChat.on('$.connected', () => {
 
@@ -730,7 +732,7 @@ describe('invite', () => {
 
         });
 
-        yourChat = new ChatEngineYou.Chat(privChannel, true);
+        yourChat = new ChatEngineYou.Chat(privChannel, {isPrivate: true});
 
         yourChat.on('$.connected', () => {
 

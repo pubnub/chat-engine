@@ -62,6 +62,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @memberof ChatEngine
      */
     ChatEngine.ready = false;
+
     /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
@@ -357,7 +358,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (state = false) => {
+    ChatEngine.firstConnect = (state = false, restoreGlobalState = false) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
@@ -408,7 +409,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         };
 
         if (ChatEngine.ceConfig.enableGlobal) {
-            ChatEngine.global = new ChatEngine.Chat('global');
+            ChatEngine.global = new ChatEngine.Chat('global', false, true, {}, 'system', restoreGlobalState);
             ChatEngine.global.once('$.connected', firstConnection);
         } else {
             firstConnection();
@@ -530,7 +531,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param {Object} [initialState] The initial state for {@link Me} in {@link ChatEngine#global}. Only valid if ```enableGlobal``` is true in {@ChatEngineCore#create}
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState, restoreGlobalState = false) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
@@ -538,7 +539,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(() => {
-            ChatEngine.firstConnect(initialState);
+            ChatEngine.firstConnect(initialState, restoreGlobalState);
         });
 
     };

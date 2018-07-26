@@ -25,9 +25,19 @@ const augmentState = require('../plugins/augment/state');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), isPrivate = false, autoConnect = true, meta = {}, group = 'custom') {
+    constructor(chatEngine, channel = new Date().getTime(), config) {
 
         super(chatEngine);
+
+        let defaults = {
+            isPrivate: false,
+            autoConnect: true,
+            meta: {},
+            group: 'custom',
+            restoreState: false
+        }
+
+        config = Object.assign(defaults, config);
 
         this.chatEngine = chatEngine;
 
@@ -35,7 +45,10 @@ class Chat extends Emitter {
 
         this.plugin(augmentChat(this));
         this.plugin(augmentSender(this.chatEngine));
-        this.plugin(augmentState(this.chatEngine));
+
+        if(config.restoreState) {
+            this.plugin(augmentState());
+        }
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
@@ -43,21 +56,21 @@ class Chat extends Emitter {
         * @readonly
         * @private
         */
-        this.group = group;
+        this.group = config.group;
 
         /**
         * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
         * @type Boolean
         * @readonly
         */
-        this.isPrivate = isPrivate;
+        this.isPrivate = config.isPrivate;
 
         /**
          * Chat metadata persisted on the server. Useful for storing things like the name and description. Call {@link Chat#update} to update the remote information.
          * @type Object
          * @readonly
          */
-        this.meta = meta || {};
+        this.meta = config.meta;
 
         /**
          * A string identifier for the Chat room. Any chat with an identical channel will be able to communicate with one another.
@@ -96,7 +109,7 @@ class Chat extends Emitter {
          */
         this.asleep = false;
 
-        if (autoConnect) {
+        if (config.autoConnect) {
             this.connect();
         }
 
