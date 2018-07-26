@@ -1,4 +1,3 @@
-
 const waterfall = require('async/waterfall');
 const Emitter = require('../modules/emitter');
 const Event = require('../components/event');

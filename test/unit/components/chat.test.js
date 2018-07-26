@@ -1,7 +1,18 @@
 const assert = require('chai').assert;
 const sinon = require('sinon');
-const Bootstrap = require('../../../src/bootstrap');
+const proxyquire = require('proxyquire');
 const Chat = require('../../../src/components/chat');
+
+const mock = {
+    get: () => {
+        return Promise.resolve({ data: {} });
+    },
+    post: () => {
+        return Promise.resolve({ data: {} });
+    }
+};
+
+const Bootstrap = proxyquire('../../../src/bootstrap', { axios: mock });
 
 describe('#chat', () => {
 
