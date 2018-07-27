@@ -174,7 +174,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Get the internal channel name of supplied string
      * @private
      */
-    ChatEngine.augmentChannel = (original = new Date().getTime(), config) => {
+    ChatEngine.augmentChannel = (original = new Date().getTime(), config = {}) => {
 
         let channel = original.toString();
 
@@ -244,17 +244,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.listenToPubNub = () => {
 
-        console.log('listenToPubNub called')
-
         ChatEngine.pubnub.addListener({
             message: (m) => {
 
-                console.log(m)
-
                 // assign the message timetoken as a property of the payload
                 m.message.timetoken = m.timetoken;
-
-                console.log(ChatEngine.chats)
 
                 if (ChatEngine.chats[m.channel]) {
                     ChatEngine.chats[m.channel].trigger(m.message.event, m.message);
@@ -262,6 +256,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             },
             presence: (payload) => {
+
+                console.log(payload)
 
                 if (ChatEngine.chats[payload.channel]) {
                     ChatEngine.chats[payload.channel].onPresence(payload);
@@ -418,7 +414,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         if (ChatEngine.ceConfig.enableGlobal) {
             ChatEngine.global = new ChatEngine.Chat('global', {
-                group: 'system',
+                group: 'custom',
                 restoreGlobalState
             });
             ChatEngine.global.once('$.connected', firstConnection);

@@ -5,7 +5,8 @@ const Search = require('../components/search');
 
 const augmentChat = require('../plugins/augment/chat');
 const augmentSender = require('../plugins/augment/sender');
-const augmentState = require('../plugins/augment/state');
+const restoreState = require('../plugins/augment/restoreState');
+const getState = require('../plugins/augment/getState');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -45,9 +46,10 @@ class Chat extends Emitter {
 
         this.plugin(augmentChat(this));
         this.plugin(augmentSender(this.chatEngine));
+        this.plugin(getState());
 
         if(config.restoreState) {
-            this.plugin(augmentState());
+            this.plugin(restoreState());
         }
 
         /**
@@ -78,7 +80,7 @@ class Chat extends Emitter {
          * @readonly
          * @see [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-)
          */
-        this.channel = this.chatEngine.augmentChannel(channel, this.isPrivate);
+        this.channel = this.chatEngine.augmentChannel(channel, config);
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
@@ -230,6 +232,9 @@ class Chat extends Emitter {
 
         // someone joins channel
         if (presenceEvent.action === 'join') {
+
+            console.log(presenceEvent.state)
+
             this.userJoin(presenceEvent.uuid, presenceEvent.state);
         }
 
@@ -326,6 +331,8 @@ class Chat extends Emitter {
      @param {Boolean} trigger Force a trigger that this user is online
      */
     userJoin(uuid, state) {
+
+        console.log('user join', uuid, state)
 
         // Ensure that this user exists in memory
         // so we can reference it from here out

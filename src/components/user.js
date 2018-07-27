@@ -38,7 +38,9 @@ class User extends Emitter {
          */
         this.states = {};
 
-        this._stateSet = {};
+        this._restoredState = {};
+
+        this._gotState = {};
 
         /**
          * Feed is a Chat that only streams things a User does, like
@@ -59,7 +61,8 @@ class User extends Emitter {
         // grants for these chats are done on auth. Even though they're marked private, they are locked down via the server
         this.feed = new this.chatEngine.Chat([this.chatEngine.ceConfig.namespace, 'user', uuid, 'read.', 'feed'].join('#'), {
             autoConnect: this.constructor.name === 'Me',
-            isPrivate: 'system'
+            group: 'system',
+            isPrivate: false
         });
 
         /**
@@ -83,7 +86,8 @@ class User extends Emitter {
          */
         this.direct = new this.chatEngine.Chat([this.chatEngine.ceConfig.namespace, 'user', uuid, 'write.', 'direct'].join('#'), {
             autoConnect: this.constructor.name === 'Me',
-            isPrivate: 'system'
+            group: 'system',
+            isPrivate: false
         });
 
         if (Object.keys(state).length && state && this.constructor.name !== 'Me') {
@@ -140,13 +144,13 @@ class User extends Emitter {
     Get stored user state from remote server.
     @private
     */
-    _getStoredState(chat = false, callback) {
+    _restoreState(chat = false, callback) {
 
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
-        } else if (!this._stateSet[chat.channel] && chat.group == 'custom') {
+        } else if (!this._restoredState[chat.channel] && chat.group == 'custom') {
 
-            this._stateSet[chat.channel] = true;
+            this._restoredState[chat.channel] = true;
 
             this.chatEngine.request('get', 'user_state', {
                 user: this.uuid,
@@ -155,7 +159,7 @@ class User extends Emitter {
                 this.assign(res.data, chat);
                 return callback(this.states[chat.channel]);
             }).catch((err) => {
-                this.chatEngine.throwError(this, 'trigger', 'getState', err);
+                this.chatEngine.throwError(this, 'trigger', 'restoreState', err);
             });
 
         } else {
@@ -164,7 +168,33 @@ class User extends Emitter {
 
     }
 
+    _getState(chat = false, callback) {
 
-}
+        if (!chat) {
+            this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
+        } else if (!this._gotState[chat.channel] && chat.group == 'custom') {
 
+            this._gotState[chat.channel] = true;
+
+            this.chatEngine.pubnub.getState({
+                uuid: this.uuid,
+                channels: [chat.channel]
+            }, (status, response) => {
+
+                if(status.error) {
+                    this.chatEngine.throwError(this, 'trigger', 'getState', status.errorData);
+                } else {
+                    this.assign(response.channels[chat.channel], chat);
+                    return callback(this.states[chat.channel]);
+                }
+
+            });
+
+        } else {
+            return callback(this.states[chat.channel]);
+        }
+
+    }
+
+};
 module.exports = User;

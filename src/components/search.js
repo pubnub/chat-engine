@@ -5,7 +5,8 @@ const eventFilter = require('../plugins/filter/event');
 const senderFilter = require('../plugins/filter/sender');
 
 const augmentChat = require('../plugins/augment/chat');
-const augmentState = require('../plugins/augment/state');
+const restoreState = require('../plugins/augment/restoreState');
+const getState = require('../plugins/augment/getState');
 const augmentSender = require('../plugins/augment/sender');
 
 /**
@@ -64,9 +65,10 @@ class Search extends Emitter {
 
         this.plugin(augmentChat(chat));
         this.plugin(augmentSender(this.chatEngine));
+        this.plugin(getState(this.chatEngine));
 
         if (this.config.restoreState) {
-            this.plugin(augmentState(this.chatEngine));
+            this.plugin(restoreState(this.chatEngine));
         }
 
         /** @private */
