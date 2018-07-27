@@ -15,6 +15,8 @@ const waterfall = require('async/waterfall');
 */
 module.exports = (ceConfig = {}, pnConfig = {}) => {
 
+    console.log(pack.version)
+
     // Create the root ChatEngine object
     let ChatEngine = new RootEmitter();
 
@@ -172,7 +174,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Get the internal channel name of supplied string
      * @private
      */
-    ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = false) => {
+    ChatEngine.augmentChannel = (original = new Date().getTime(), config) => {
 
         let channel = original.toString();
 
@@ -180,7 +182,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // private.* is totally locked down and users must be granted access one by one
         let chanPrivString = 'public.';
 
-        if (isPrivate) {
+        if (config.isPrivate) {
             chanPrivString = 'private.';
         }
 
@@ -242,11 +244,17 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.listenToPubNub = () => {
 
+        console.log('listenToPubNub called')
+
         ChatEngine.pubnub.addListener({
             message: (m) => {
 
+                console.log(m)
+
                 // assign the message timetoken as a property of the payload
                 m.message.timetoken = m.timetoken;
+
+                console.log(ChatEngine.chats)
 
                 if (ChatEngine.chats[m.channel]) {
                     ChatEngine.chats[m.channel].trigger(m.message.event, m.message);
