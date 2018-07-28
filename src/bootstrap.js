@@ -581,7 +581,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             let newChat = new Chat(ChatEngine, ...args);
 
-            ChatEngine.chats[internalChannel] = newChat;
+            ChatEngine.chats[internalChannel] = ChatEngine.chats[internalChannel] || newChat;
 
             /**
             * Fired when a {@link Chat} has been created within ChatEngine.
@@ -615,7 +615,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             let newUser = new User(ChatEngine, ...args);
 
-            ChatEngine.users[args[0]] = newUser;
+            ChatEngine.users[args[0]] = ChatEngine.users[args[0]] || newUser;
 
             /**
             * Fired when a {@link User} has been created within ChatEngine.
