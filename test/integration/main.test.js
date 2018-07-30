@@ -411,17 +411,6 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
-        for (let i = 0; i < 200; i++) {
-
-            chatHistory.emit('tester', {
-                text: 'hello world ' + i
-            });
-            chatHistory.emit('not-tester', {
-                text: 'hello world ' + i
-            });
-
-        }
-
         chatHistory.on('$.connected', () => {
 
             let search = chatHistory.search({
