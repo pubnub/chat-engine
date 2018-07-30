@@ -278,7 +278,7 @@ describe('connect.fail()', () => {
     beforeEach(createChatEngine);
 
     it('should fail to connect with channel name greater than 90 chars', (done) => {
-        globalChannel = globalChannel + '12345678901234567890123456789012345678901234567890123456789012345678901234567890';
+        globalChannel += '12345678901234567890123456789012345678901234567890123456789012345678901234567890';
 
         ChatEngine = require('../../src/index.js').create({
             publishKey: pubkey,
@@ -410,6 +410,17 @@ describe('history', () => {
         this.timeout(60000);
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
+
+        for (let i = 0; i < 200; i++) {
+
+            chatHistory.emit('tester', {
+                text: 'hello world ' + i
+            });
+            chatHistory.emit('not-tester', {
+                text: 'hello world ' + i
+            });
+
+        }
 
         chatHistory.on('$.connected', () => {
 
