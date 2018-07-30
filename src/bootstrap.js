@@ -257,8 +257,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             },
             presence: (payload) => {
 
-                console.log(payload)
-
                 if (ChatEngine.chats[payload.channel]) {
                     ChatEngine.chats[payload.channel].onPresence(payload);
                 }

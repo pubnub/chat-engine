@@ -232,9 +232,6 @@ class Chat extends Emitter {
 
         // someone joins channel
         if (presenceEvent.action === 'join') {
-
-            console.log(presenceEvent.state)
-
             this.userJoin(presenceEvent.uuid, presenceEvent.state);
         }
 
@@ -331,8 +328,6 @@ class Chat extends Emitter {
      @param {Boolean} trigger Force a trigger that this user is online
      */
     userJoin(uuid, state) {
-
-        console.log('user join', uuid, state)
 
         // Ensure that this user exists in memory
         // so we can reference it from here out
