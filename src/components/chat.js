@@ -111,6 +111,8 @@ class Chat extends Emitter {
          */
         this.asleep = false;
 
+        console.log('autoConnect from config?', config.autoConnect)
+
         if (config.autoConnect) {
             this.connect();
         }
@@ -673,12 +675,14 @@ class Chat extends Emitter {
         // only get presence on custom chats
         if (this.group === 'custom') {
 
-            this.getUserUpdates();
+            console.log('connectionReady')
 
-            // we may miss updates, so call this again 5 seconds later
+            // we may miss updates
+            // this.getUserUpdates();
+
             setTimeout(() => {
                 this.getUserUpdates();
-            }, 5000);
+            }, 1000);
 
         }
 
@@ -693,6 +697,8 @@ class Chat extends Emitter {
      */
     getUserUpdates() {
 
+        console.log('get user updates', this.channel)
+
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
         this.chatEngine.pubnub.hereNow({
@@ -700,6 +706,9 @@ class Chat extends Emitter {
             includeUUIDs: true,
             includeState: true
         }, (s, r) => {
+
+            console.log('here now called', this.channel)
+
             this.onHereNow(s, r);
         });
 
@@ -711,8 +720,12 @@ class Chat extends Emitter {
      */
     connect() {
 
+        console.log('connect called', this.channel)
+
         // establish good will with the server
         this.handshake(() => {
+
+            console.log('connectionReady', this.channel)
 
             // now that we've got connection, do everything else via connectionReady
             this.connectionReady();
