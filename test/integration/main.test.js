@@ -291,8 +291,10 @@ describe('connect.fail()', () => {
         ChatEngine.connect(username, { works: true }, username);
         ChatEngine.on('$.error.auth', (err) => {
             assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
-            assert.equal(err.error.response.data, expected);
+            const expected = 'Illegal channel length! Please shorten channel name to meet 90 char limit.';
+            assert.equal(err.error.response.data.error, expected);
+            assert.isAtLeast(err.error.response.data.length, 90);
+            assert.include(err.error.response.data.channel, globalChannel);
             done();
         });
 
