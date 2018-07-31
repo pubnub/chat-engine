@@ -1,4 +1,6 @@
-module.exports = () => {
+module.exports = (chat) => {
+
+    console.log('restore state', chat)
 
     let middleware = function (payload, next) {
 
@@ -6,7 +8,7 @@ module.exports = () => {
 
         if (workingUser) {
 
-            workingUser._restoreState(payload.chat, () => {
+            workingUser._restoreState(chat, () => {
                 next(null, payload);
             });
 

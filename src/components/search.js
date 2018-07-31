@@ -67,8 +67,12 @@ class Search extends Emitter {
         this.plugin(augmentSender(this.chatEngine));
         this.plugin(getState(this.chatEngine));
 
+        console.log(this.config)
+
+        this.restoreState = config.restoreState;
+
         if (this.config.restoreState) {
-            this.plugin(restoreState(this.chatEngine));
+            this.plugin(restoreState(this.restoreState));
         }
 
         /** @private */

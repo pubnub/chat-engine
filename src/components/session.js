@@ -55,7 +55,7 @@ class Session extends Emitter {
 
         // these are custom groups that separate custom chats from system chats
         // for better fitlering
-        let groups = ['custom', 'system'];
+        let groups = ['custom'];
 
         // loop through the groups
         groups.forEach((group) => {
@@ -141,7 +141,12 @@ class Session extends Emitter {
         } else {
 
             // otherwise, try to recreate it with the server information
-            this.chats[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
+            this.chats[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, {
+                private: chat.private,
+                autoConnect: false,
+                meta: chat.meta,
+                group: chat.group
+            });
 
             /**
             Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.

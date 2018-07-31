@@ -48,8 +48,10 @@ class Chat extends Emitter {
         this.plugin(augmentSender(this.chatEngine));
         this.plugin(getState());
 
-        if(config.restoreState) {
-            this.plugin(restoreState());
+        this.restoreState = config.restoreState;
+
+        if(this.restoreState) {
+            this.plugin(restoreState(this.restoreState));
         }
 
         /**
@@ -111,9 +113,9 @@ class Chat extends Emitter {
          */
         this.asleep = false;
 
-        console.log('autoConnect from config?', config.autoConnect)
+        this.autoConnect = config.autoConnect;
 
-        if (config.autoConnect) {
+        if (this.autoConnect) {
             this.connect();
         }
 
@@ -461,6 +463,9 @@ class Chat extends Emitter {
      * @private
      */
     onConnected() {
+
+
+
         this.connected = true;
         this.trigger('$.connected');
     }
@@ -675,8 +680,6 @@ class Chat extends Emitter {
         // only get presence on custom chats
         if (this.group === 'custom') {
 
-            console.log('connectionReady')
-
             // we may miss updates
             // this.getUserUpdates();
 
@@ -697,8 +700,6 @@ class Chat extends Emitter {
      */
     getUserUpdates() {
 
-        console.log('get user updates', this.channel)
-
         // get a list of users online now
         // ask PubNub for information about connected users in this channel
         this.chatEngine.pubnub.hereNow({
@@ -706,9 +707,6 @@ class Chat extends Emitter {
             includeUUIDs: true,
             includeState: true
         }, (s, r) => {
-
-            console.log('here now called', this.channel)
-
             this.onHereNow(s, r);
         });
 
@@ -720,12 +718,8 @@ class Chat extends Emitter {
      */
     connect() {
 
-        console.log('connect called', this.channel)
-
         // establish good will with the server
         this.handshake(() => {
-
-            console.log('connectionReady', this.channel)
 
             // now that we've got connection, do everything else via connectionReady
             this.connectionReady();

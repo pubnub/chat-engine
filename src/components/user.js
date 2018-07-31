@@ -124,6 +124,8 @@ class User extends Emitter {
 
         }
 
+        this._gotState[chat.channel] = true;
+
     }
 
     /**
@@ -146,6 +148,8 @@ class User extends Emitter {
     */
     _restoreState(chat = false, callback) {
 
+        console.log('attempting to restoreState', this._restoredState[chat.channel], chat.group);
+
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
         } else if (!this._restoredState[chat.channel] && chat.group == 'custom') {
@@ -156,6 +160,7 @@ class User extends Emitter {
                 user: this.uuid,
                 channel: chat.channel
             }).then((res) => {
+
                 this.assign(res.data, chat);
                 return callback(this.states[chat.channel]);
             }).catch((err) => {
@@ -175,6 +180,8 @@ class User extends Emitter {
         } else if (!this._gotState[chat.channel] && chat.group == 'custom') {
 
             this._gotState[chat.channel] = true;
+
+            console.log('calling get state', this.uuid, chat.group, chat.channel)
 
             this.chatEngine.pubnub.getState({
                 uuid: this.uuid,

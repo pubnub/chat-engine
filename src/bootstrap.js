@@ -164,7 +164,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
         return {
             namespace: info[0],
-            type: info[1],
+            group: info[1],
             private: info[2] === 'private.'
         };
 
