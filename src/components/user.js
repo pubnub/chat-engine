@@ -109,8 +109,8 @@ class User extends Emitter {
     }
 
     /**
-     * @private
-     * @param {Object} state The new state for the user
+     this is only called from network updates
+     @private
      */
     assign(state, chat = this.chatEngine.global) {
 
@@ -129,9 +129,8 @@ class User extends Emitter {
     }
 
     /**
-     this is only called from network updates
-
-     @private
+     * @private
+     * @param {Object} state The new state for the user
      */
     update(state, chat = this.chatEngine.global) {
 
@@ -140,6 +139,7 @@ class User extends Emitter {
         } else {
             this.assign(state, chat);
         }
+
     }
 
     /**

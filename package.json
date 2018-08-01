@@ -3,8 +3,8 @@
   "name": "chat-engine",
   "version": "0.10.5",
   "description": "ChatEngine",
-  "main": "dist/chat-engine.js",
-  "node": "src/index.js",
+  "browser": "dist/chat-engine.js",
+  "main": "src/index.js",
   "react-native": "src/index.js",
   "scripts": {
     "build": "gulp",

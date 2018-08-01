@@ -33,6 +33,18 @@ class Me extends User {
 
     }
 
+    /**
+     * Update {@link Me}'s state in a {@link Chat}. All other {@link User}s
+     * will be notified of this change via ```$.state```.
+     * Retrieve state at any time with {@link User#state}.
+     * @param {Object} state The new state for {@link Me}
+     * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
+     * Defaults to ```ChatEngine.global```.
+     * @fires Chat#event:$"."state
+     * @example
+     * // update state
+     * me.update({value: true});
+     */
     update(state, chat = this.chatEngine.global) {
 
         if (!chat) {

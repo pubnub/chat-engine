@@ -1,5 +1,5 @@
 name: chat-engine
-version: 0.9.5
+version: 0.9.18
 schema: 1
 scm: github.com/pubnub/chat-engine
 files:
@@ -8,24 +8,68 @@ files:
 changelog:
   - version: v0.10.x
     changes:
-        - type: feature
-          text: Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
-        - type: feature
-          text: .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. But the tricky thing here is that it is restoring the state of different chat than the one being searched. Big benefit is that this is not enabled on every chat by default like in 0.9, so it will reduce function executions.
-        - type: feature
-          text: Adds the ability to disable globalChannel preventing transactions for users who do not use it.
-        - type: feature
-          text: State can be set within specific chats.
-        - type: improvement
-          text: Errors are properly caught by promise rejections.
-        - type: improvement
-          text: References to globalChannel are now called namespace.
-        - type: improvement
-          text: Message augmentation further isolated into plugin structure.
-        - type: improvement
-          text: Me will now appear as $.online.here event when first connected to chat
-        - type: improvement
-          text: Fix bug where chats can potentially be stored in memory more than once
+      - type: feature
+        text: Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
+      - type: feature
+        text: .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. But the tricky thing here is that it is restoring the state of different chat than the one being searched. Big benefit is that this is not enabled on every chat by default like in 0.9, so it will reduce function executions.
+      - type: feature
+        text: Adds the ability to disable globalChannel preventing transactions for users who do not use it.
+      - type: feature
+        text: State can be set within specific chats.
+      - type: improvement
+        text: Errors are properly caught by promise rejections.
+      - type: improvement
+        text: References to globalChannel are now called namespace.
+      - type: improvement
+        text: Message augmentation further isolated into plugin structure.
+      - type: improvement
+        text: Me will now appear as $.online.here event when first connected to chat
+      - type: improvement
+        text: Fix bug where chats can potentially be stored in memory more than once
+  - version: v0.9.18
+    date: 2018-7-16
+    changes:
+      - type: improvement
+        text: Patch entry points for web/node. Fixes an issue where compiled web package is loaded in node environment.
+      - type: improvement
+        text: Fixes truthy bug preventing presence intervals from being disabled. Remove PubNub presenceTimeout default. Set PubNub heartbeatInterval to 0 by default.
+  - version: v0.9.14
+    date: 2018-6-26
+    changes:
+      - type: improvement
+        text: refactor filter and augmentation functions to work via plugin structure
+      - type: improvement
+        text: update readme to include browser support matrix, plugin images, and concept descriptions
+      - type: improvement
+        text: update reliablity of state setting by using pubnub state set callbacks
+      - type: improvement
+        text: don't store $.system.leave events in channel history
+      - type: feature
+        text: support chat metadata through feature flag (ceConfig.enableMeta) to reduce unused network calls
+      - type: improvement
+        text: reduce heartbeat interval for presence updates
+      - type: improvement
+        text: add disconnect, reconnect, and reauthorize to documentation sidebar
+      - type: feature
+        text: Add babel pollyfill to support create-react-app
+      - type: improvement
+        text: qa the docs and ensure they match latest version
+      - type: improvement
+        text: ensure $.online.join is called
+      - type: improvement
+        text: add documentation on debugging ChatEngine problems
+      - type: feature
+        text: add ability to profile usage by setting ceConfig.profile to true
+      - type: improvement
+        text: ensure user uuid is a string
+      - type: improvement
+        text: reduce dependency on async library
+      - type: improvement
+        text: name facade class functions
+      - type: improvement
+        text: correctly link to full documentation in readme
+      - type: improvement
+        text: add jsdelivr badge to docs
   - version: v0.9.5
     date: 2018-02-27
     changes:
