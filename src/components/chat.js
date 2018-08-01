@@ -708,13 +708,19 @@ class Chat extends Emitter {
      */
     connect() {
 
-        // establish good will with the server
-        this.handshake(() => {
+        if (this.connected) {
+            this.chatEngine.throwError(this.chatEngine, 'emit', 'connection', new Error('Connect called but chat is already connected.'));
+        } else {
 
-            // now that we've got connection, do everything else via connectionReady
-            this.connectionReady();
+            // establish good will with the server
+            this.handshake(() => {
 
-        });
+                // now that we've got connection, do everything else via connectionReady
+                this.connectionReady();
+
+            });
+
+        }
 
     }
 
