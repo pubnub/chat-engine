@@ -428,7 +428,7 @@ describe('history', () => {
         let doneCalled = false;
 
         let newChat = new ChatEngineHistory.Chat('chat-history');
-        newChat.restoreState(newChat);
+        newChat.restoreState();
 
         newChat.on('$.online.here', (payload) => {
 
