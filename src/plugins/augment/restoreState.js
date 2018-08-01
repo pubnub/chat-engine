@@ -1,8 +1,8 @@
 module.exports = (chat) => {
 
-    console.log('restore state', chat)
-
     let middleware = function (payload, next) {
+
+        console.log('_restoreState called', payload)
 
         let workingUser = payload.sender || payload.user;
 

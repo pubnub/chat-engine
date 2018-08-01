@@ -1,6 +1,8 @@
 const waterfall = require('async/waterfall');
 const RootEmitter = require('./root_emitter');
 const Event = require('../components/event');
+const restoreState = require('../plugins/augment/restoreState');
+
 /**
  An ChatEngine generic emitter that supports plugins and duplicates
  events on the root emitter.
@@ -234,6 +236,25 @@ class Emitter extends RootEmitter {
 
     }
 
+    restoreState(chat = false) {
+
+        if (!chat && this.name == 'Chat') {
+            chat = this;
+        }
+
+        if(!chat && ChatEngine.global) {
+            chat = ChatEngine.global;
+        }
+
+        if (chat) {
+            this.plugin(restoreState(chat));
+        } else {
+            ChatEngine.throwError(this, 'emit', 'restoreState', new Error('Must supply a chat to restoreState'));
+        }
+
+        return this;
+
+    }
 }
 
 module.exports = Emitter;

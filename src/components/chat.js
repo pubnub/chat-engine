@@ -5,8 +5,6 @@ const Search = require('../components/search');
 
 const augmentChat = require('../plugins/augment/chat');
 const augmentSender = require('../plugins/augment/sender');
-const restoreState = require('../plugins/augment/restoreState');
-const getState = require('../plugins/augment/getState');
 
 /**
  This is the root {@link Chat} class that represents a chat room
@@ -34,8 +32,7 @@ class Chat extends Emitter {
             isPrivate: false,
             autoConnect: true,
             meta: {},
-            group: 'custom',
-            restoreState: false
+            group: 'custom'
         }
 
         config = Object.assign(defaults, config);
@@ -46,13 +43,6 @@ class Chat extends Emitter {
 
         this.plugin(augmentChat(this));
         this.plugin(augmentSender(this.chatEngine));
-        this.plugin(getState());
-
-        this.restoreState = config.restoreState;
-
-        if(this.restoreState) {
-            this.plugin(restoreState(this.restoreState));
-        }
 
         /**
         * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.

@@ -5,8 +5,6 @@ const eventFilter = require('../plugins/filter/event');
 const senderFilter = require('../plugins/filter/sender');
 
 const augmentChat = require('../plugins/augment/chat');
-const restoreState = require('../plugins/augment/restoreState');
-const getState = require('../plugins/augment/getState');
 const augmentSender = require('../plugins/augment/sender');
 
 /**
@@ -49,8 +47,7 @@ class Search extends Emitter {
             includeTimetoken: true,
             stringifiedTimeToken: true,
             count: 100,
-            pages: 10,
-            restoreState: false
+            pages: 10
         };
 
         this.config = Object.assign(defaults, config);
@@ -65,15 +62,6 @@ class Search extends Emitter {
 
         this.plugin(augmentChat(chat));
         this.plugin(augmentSender(this.chatEngine));
-        this.plugin(getState(this.chatEngine));
-
-        console.log(this.config)
-
-        this.restoreState = config.restoreState;
-
-        if (this.config.restoreState) {
-            this.plugin(restoreState(this.restoreState));
-        }
 
         /** @private */
         this.maxPage = this.config.pages;
