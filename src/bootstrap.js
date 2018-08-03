@@ -15,8 +15,6 @@ const waterfall = require('async/waterfall');
 */
 module.exports = (ceConfig = {}, pnConfig = {}) => {
 
-    console.log(pack.version)
-
     // Create the root ChatEngine object
     let ChatEngine = new RootEmitter();
 
@@ -360,7 +358,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (state = false, restoreGlobalState = false) => {
+    ChatEngine.firstConnect = (state = false, globalConfig = false) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
@@ -411,10 +409,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         };
 
         if (ChatEngine.ceConfig.enableGlobal) {
-            ChatEngine.global = new ChatEngine.Chat('global', {
-                group: 'custom',
-                restoreGlobalState
-            });
+            ChatEngine.global = new ChatEngine.Chat('global', globalConfig);
             ChatEngine.global.once('$.connected', firstConnection);
         } else {
             firstConnection();
@@ -536,7 +531,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param {Object} [initialState] The initial state for {@link Me} in {@link ChatEngine#global}. Only valid if ```enableGlobal``` is true in {@ChatEngineCore#create}
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState, restoreGlobalState = false) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState, globalConfig = false) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
@@ -544,7 +539,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ChatEngine.pnConfig.authKey = authKey;
 
         ChatEngine.handshake(() => {
-            ChatEngine.firstConnect(initialState, restoreGlobalState);
+            ChatEngine.firstConnect(initialState, globalConfig);
         });
 
     };

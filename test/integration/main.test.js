@@ -642,8 +642,7 @@ describe('history', () => {
 
         let doneCalled = false;
 
-        let newChat = new ChatEngineHistory.Chat('chat-history');
-        newChat.restoreState();
+        let newChat = new ChatEngineHistory.Chat('chat-history', { autoConnect: false }).restoreState();
 
         newChat.on('$.online.here', (payload) => {
 
@@ -656,6 +655,8 @@ describe('history', () => {
             }
 
         });
+
+        newChat.connect();
 
     });
     it('should get 50 messages', function get50(done) {
@@ -842,7 +843,7 @@ describe('meta', () => {
 
         let meta = { works: true };
 
-        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), {meta});
+        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), { meta });
 
         chat.on('$.connected', () => {
             assert.equal(chat.meta, meta);
@@ -982,7 +983,7 @@ describe('interactions', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            myChat = new ChatEngine.Chat(payload.data.channel, {isPrivate: true});
+            myChat = new ChatEngine.Chat(payload.data.channel, { isPrivate: true });
 
             myChat.on('$.connected', () => {
 
@@ -994,7 +995,7 @@ describe('interactions', () => {
 
         });
 
-        yourChat = new ChatEngineYou.Chat(privChannel, {isPrivate: true});
+        yourChat = new ChatEngineYou.Chat(privChannel, { isPrivate: true });
 
         yourChat.on('$.connected', () => {
 
@@ -1030,7 +1031,7 @@ describe('interactions', () => {
         let ourChan = 'chat-tester4' + new Date().getTime();
 
         let chatConnected = new ChatEngine.Chat(ourChan);
-        let chatNOTConnected = new ChatEngineYou.Chat(ourChan, {autoConnect: false});
+        let chatNOTConnected = new ChatEngineYou.Chat(ourChan, { autoConnect: false });
 
         chatNOTConnected.on('$.connected', () => {
             done('should not connect');
