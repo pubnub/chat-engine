@@ -152,7 +152,7 @@ class User extends Emitter {
 
         if (!chat) {
             this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
-        } else if (!this._restoredState[chat.channel] && chat.group == 'custom') {
+        } else if (!this._restoredState[chat.channel] && chat.group === 'custom') {
 
             this._restoredState[chat.channel] = true;
 
@@ -173,35 +173,6 @@ class User extends Emitter {
 
     }
 
-    _getState(chat = false, callback) {
+}
 
-        if (!chat) {
-            this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
-        } else if (!this._gotState[chat.channel] && chat.group == 'custom') {
-
-            this._gotState[chat.channel] = true;
-
-            console.log('calling get state', this.uuid, chat.group, chat.channel)
-
-            this.chatEngine.pubnub.getState({
-                uuid: this.uuid,
-                channels: [chat.channel]
-            }, (status, response) => {
-
-                if(status.error) {
-                    this.chatEngine.throwError(this, 'trigger', 'getState', status.errorData);
-                } else {
-                    this.assign(response.channels[chat.channel], chat);
-                    return callback(this.states[chat.channel]);
-                }
-
-            });
-
-        } else {
-            return callback(this.states[chat.channel]);
-        }
-
-    }
-
-};
 module.exports = User;

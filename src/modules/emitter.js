@@ -238,18 +238,18 @@ class Emitter extends RootEmitter {
 
     restoreState(chat = false) {
 
-        if (!chat && this.name == 'Chat') {
+        if (!chat && this.name === 'Chat') {
             chat = this;
         }
 
-        if(!chat && ChatEngine.global) {
-            chat = ChatEngine.global;
+        if (!chat && this.chatEngine.global) {
+            chat = this.chatEngine.global;
         }
 
         if (chat) {
             this.plugin(restoreState(chat));
         } else {
-            ChatEngine.throwError(this, 'emit', 'restoreState', new Error('Must supply a chat to restoreState'));
+            this.chatEngine.throwError(this, 'emit', 'restoreState', new Error('Must supply a chat to restoreState'));
         }
 
         return this;

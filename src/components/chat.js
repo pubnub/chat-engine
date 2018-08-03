@@ -33,7 +33,7 @@ class Chat extends Emitter {
             autoConnect: true,
             meta: {},
             group: 'custom'
-        }
+        };
 
         config = Object.assign(defaults, config);
 
@@ -453,9 +453,6 @@ class Chat extends Emitter {
      * @private
      */
     onConnected() {
-
-
-
         this.connected = true;
         this.trigger('$.connected');
     }
