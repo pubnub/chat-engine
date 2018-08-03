@@ -644,7 +644,7 @@ describe('history', () => {
 
         let newChat = new ChatEngineHistory.Chat('chat-history', { autoConnect: false }).restoreState();
 
-        newChat.on('$.online.here', (payload) => {
+        newChat.on('$.online.*', (payload) => {
 
             if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
 

@@ -23,8 +23,6 @@ changelog:
       - type: improvement
         text: Message augmentation further isolated into plugin structure.
       - type: improvement
-        text: Me will now appear as $.online.here event when first connected to chat
-      - type: improvement
         text: Fix bug where chats can potentially be stored in memory more than once
   - version: v0.9.18
     date: 2018-7-16
