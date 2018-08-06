@@ -156,13 +156,13 @@ class Search extends Emitter {
         this.find = () => {
             this.page((response) => {
                 response.messages.reverse();
+                this.numPage += 1;
 
                 eachSeries(response.messages, this.triggerHistory, () => {
 
                     if (this.hasMore && this.numPage === this.maxPage) {
                         this._emit('$.search.pause');
                     } else if (this.hasMore && (this.needleCount < this.config.limit || this.messagesBetweenTimetokens)) {
-                        this.numPage += 1;
                         this.find();
                     } else {
 
