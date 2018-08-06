@@ -24,6 +24,8 @@ changelog:
         text: Message augmentation further isolated into plugin structure.
       - type: improvement
         text: Fix bug where chats can potentially be stored in memory more than once
+      - type: improvement
+        text: hereNow only called once
   - version: v0.9.18
     date: 2018-7-16
     changes:

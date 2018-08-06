@@ -52,6 +52,8 @@ class Search extends Emitter {
 
         this.config = Object.assign(defaults, config);
 
+        console.log('calling search', this.config)
+
         if (this.config.event) {
             this.plugins.unshift(eventFilter(this.config.event));
         }

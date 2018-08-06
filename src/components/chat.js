@@ -137,9 +137,34 @@ class Chat extends Emitter {
             let occupants = response.channels[this.channel].occupants;
 
             // format the userList for rltm.js standard
-            occupants.forEach((occupant) => {
+             occupants.forEach((occupant) => {
+                this.userHere(occupant.uuid, occupant.state);
                 this.userUpdate(occupant.uuid, occupant.state);
             });
+
+        }
+
+    }
+
+    userHere(uuid, state) {
+
+        if (!this.ensureUser(uuid, state)) {
+
+            /**
+             * Broadcast that a {@link User} has come online. This is when
+             * the framework firsts learn of a user. This can be triggered
+             * by, ```$.join```, or other network events that
+             * notify the framework of a new user.
+             *
+             * @event Chat#$"."online"."here
+             * @param {Object} data The payload returned by the event
+             * @param {User} data.user The {@link User} that came online
+             * @example
+             * chat.on('$.online.here', (data) => {
+             *     console.log('User has come online:', data.user);
+             * });
+             */
+            this.trigger('$.online.here', { user: this.users[uuid] });
 
         }
 
@@ -241,6 +266,7 @@ class Chat extends Emitter {
 
         // someone's state is updated
         if (presenceEvent.action === 'state-change') {
+            this.userJoin(presenceEvent.uuid, presenceEvent.state);
             this.userUpdate(presenceEvent.uuid, presenceEvent.state);
         }
 
@@ -313,15 +339,7 @@ class Chat extends Emitter {
 
     }
 
-    /**
-     Add a user to the {@link Chat}, creating it if it doesn't already exist.
-
-     @private
-     @param {String} uuid The user uuid
-     @param {Object} state The user initial state
-     @param {Boolean} trigger Force a trigger that this user is online
-     */
-    userJoin(uuid, state) {
+    ensureUser(uuid, state) {
 
         // Ensure that this user exists in memory
         // so we can reference it from here out
@@ -335,27 +353,21 @@ class Chat extends Emitter {
         // assign the user to the chatroom
         this.users[uuid] = this.chatEngine.users[uuid];
 
-        // trigger the join event over this chatroom
-        if (userAlreadyHere) {
+        return userAlreadyHere;
 
-            /**
-             * Broadcast that a {@link User} has come online. This is when
-             * the framework firsts learn of a user. This can be triggered
-             * by, ```$.join```, or other network events that
-             * notify the framework of a new user.
-             *
-             * @event Chat#$"."online"."here
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
-             * @example
-             * chat.on('$.online.here', (data) => {
-                      *     console.log('User has come online:', data.user);
-                      * });
-             */
+    }
 
-            this.trigger('$.online.here', { user: this.users[uuid] });
+    /**
+     Add a user to the {@link Chat}, creating it if it doesn't already exist.
 
-        } else {
+     @private
+     @param {String} uuid The user uuid
+     @param {Object} state The user initial state
+     @param {Boolean} trigger Force a trigger that this user is online
+     */
+    userJoin(uuid, state) {
+
+        if (!this.ensureUser(uuid, state)) {
 
             /**
              * Fired when a {@link User} has joined the room.
@@ -385,18 +397,6 @@ class Chat extends Emitter {
      * @param {Object} state State to update for the user
      */
     userUpdate(uuid, state) {
-
-        // ensure the user exists within memory
-        this.chatEngine.users[uuid] = this.chatEngine.users[uuid] || new this.chatEngine.User(uuid);
-
-        // if we don't know about this user
-        if (!this.users[uuid]) {
-
-            this.users[uuid] = this.chatEngine.users[uuid];
-
-            // do the whole join thing
-            this.userJoin(uuid, state);
-        }
 
         // update this user's state in this chatroom
         this.users[uuid].assign(state, this);
@@ -470,8 +470,8 @@ class Chat extends Emitter {
      * @private
      */
     onLeave() {
-        this.trigger('$.left');
         this.onDisconnected();
+        this.trigger('$.left');
     }
 
     /**
