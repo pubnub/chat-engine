@@ -24,7 +24,7 @@ const augmentSender = require('../plugins/augment/sender');
  */
 class Chat extends Emitter {
 
-    constructor(chatEngine, channel = new Date().getTime(), config) {
+    constructor(chatEngine, channel = new Date().getTime(), config = {}) {
 
         super(chatEngine);
 
