@@ -97,7 +97,7 @@ describe('#chat', () => {
             done();
 
         });
-
+        chatInstance.userJoin('user2', { state: 'active' });
         chatInstance.userUpdate('user2', { state: 'not disturb' });
     });
 
