@@ -78,17 +78,6 @@ describe('#chat', () => {
 
     });
 
-    it('user join to chat already here', (done) => {
-
-        chatInstance.on('$.online.here', () => {
-            done();
-        });
-
-        chatInstance.userJoin('user2', { state: 'active' });
-        chatInstance.userJoin('user2', { state: 'active' });
-
-    });
-
     it('user leave the chat', (done) => {
         chatInstance.users.user1 = {};
         chatInstance.plugins = [];
