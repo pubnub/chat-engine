@@ -358,7 +358,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (state = false, globalConfig = false) => {
+    ChatEngine.firstConnect = (state = false, globalConfig = {}) => {
 
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
@@ -531,7 +531,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param {Object} [initialState] The initial state for {@link Me} in {@link ChatEngine#global}. Only valid if ```enableGlobal``` is true in {@ChatEngineCore#create}
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState, globalConfig = false) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState, globalConfig = {}) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
