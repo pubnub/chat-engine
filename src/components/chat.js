@@ -7,21 +7,21 @@ const augmentChat = require('../plugins/augment/chat');
 const augmentSender = require('../plugins/augment/sender');
 
 /**
- This is the root {@link Chat} class that represents a chat room
+This is the root {@link Chat} class that represents a chat room
 
- @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
- @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
- @param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
- @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
- @class Chat
- @extends Emitter
- @extends RootEmitter
- @fires Chat#$"."ready
- @fires Chat#$"."state
- @fires Chat#$"."online"."*
- @fires Chat#$"."offline"."*
- */
+@param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
+@param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
+@param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
+@param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
+@param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
+@class Chat
+@extends Emitter
+@extends RootEmitter
+@fires Chat#$"."ready
+@fires Chat#$"."state
+@fires Chat#$"."online"."*
+@fires Chat#$"."offline"."*
+*/
 class Chat extends Emitter {
 
     constructor(chatEngine, channel = new Date().getTime(), config = {}) {
@@ -137,7 +137,7 @@ class Chat extends Emitter {
             let occupants = response.channels[this.channel].occupants;
 
             // format the userList for rltm.js standard
-             occupants.forEach((occupant) => {
+            occupants.forEach((occupant) => {
                 this.userHere(occupant.uuid, occupant.state);
                 this.userUpdate(occupant.uuid, occupant.state);
             });
