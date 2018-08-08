@@ -1,4 +1,4 @@
-## Namespaces
+## Event Namespaces
 
 Event names follow a pattern that helps determine where an object originated.
 

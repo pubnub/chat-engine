@@ -45,7 +45,7 @@ All private {@link Chat}s are create under this namespace. This namespace is loc
 read or write access. They must be granted them.
 
 ```js
-let privateChat = new Chat('private-channel', true);
+let privateChat = new Chat('private-channel', {isPrivate: true});
 
 console.log(privateChat.channel);
 // privateChat.channel == "chat-engine#chat#private.#private-channel"
