@@ -2818,7 +2818,7 @@ object.on('event.*', (payload) => {
 
 <div class="description">
     <p>Search through previously emitted events. Parameters act as AND operators. Returns an instance of the emitter based History. Will
-     which will emit all old events unless <code>config.event</code> is supplied.</p>
+which will emit all old events unless <code>config.event</code> is supplied.</p>
 </div>
 
 
@@ -2832,14 +2832,14 @@ object.on('event.*', (payload) => {
     <h5>Example</h5>
     
     <pre class="prettyprint"><code>chat.search({
-        event: 'my-custom-event',
-        sender: ChatEngine.me,
-        limit: 20
-    }).on('my-custom-event', (event) => {
-        console.log('this is an old event!', event);
-    }).on('$.search.finish', () => {
-        console.log('we have all our results!')
-    });</code></pre>
+    event: 'my-custom-event',
+    sender: ChatEngine.me,
+    limit: 20
+}).on('my-custom-event', (event) => {
+    console.log('this is an old event!', event);
+}).on('$.search.finish', () => {
+    console.log('we have all our results!')
+});</code></pre>
 
 
 
