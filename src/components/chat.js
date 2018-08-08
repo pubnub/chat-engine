@@ -8,12 +8,12 @@ const augmentSender = require('../plugins/augment/sender');
 
 /**
 This is the root {@link Chat} class that represents a chat room
-
-@param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
-@param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
-@param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
-@param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
-@param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
+@param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-). Max 50 characters.
+@param config {Object} A list of Chat configuration options.
+@param {Boolean} [config.isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
+@param {Boolean} [config.autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
+@param {Object} [config.meta={}] Chat metadata that will be persisted on the server and populated on creation.
+@param {String} [config.group='custom'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
 @class Chat
 @extends Emitter
 @extends RootEmitter
@@ -21,6 +21,7 @@ This is the root {@link Chat} class that represents a chat room
 @fires Chat#$"."state
 @fires Chat#$"."online"."*
 @fires Chat#$"."offline"."*
+@return {Chat
 */
 class Chat extends Emitter {
 
@@ -37,15 +38,26 @@ class Chat extends Emitter {
 
         config = Object.assign(defaults, config);
 
+        /**
+        * Hold a reference to the chatEngine instance
+        * @type ChatEngine
+        * @readonly
+        */
         this.chatEngine = chatEngine;
 
-        this.name = 'Chat';
-
+        // import internal plugins that augment payload
         this.plugin(augmentChat(this));
         this.plugin(augmentSender(this.chatEngine));
 
         /**
-        * Classify the chat within some group, Valid options are 'system', 'fixed', or 'custom'.
+        * Easy reference to this object class
+        * @type String
+        * @readonly
+        */
+        this.name = 'Chat';
+
+        /**
+        * Classify the chat within some group, Valid options are 'system' or 'custom'.
         * @type Boolean
         * @readonly
         * @private
@@ -53,7 +65,7 @@ class Chat extends Emitter {
         this.group = config.group;
 
         /**
-        * Excludes all users from reading or writing to the {@link chat} unless they have been explicitly invited via {@link Chat#invite};
+        * Excludes all users from reading or writing to the {@link Chat} unless they have been explicitly invited via {@link Chat#invite}.
         * @type Boolean
         * @readonly
         */
@@ -76,7 +88,7 @@ class Chat extends Emitter {
 
         /**
          A list of users in this {@link Chat}. Automatically kept in sync as users join and leave the chat.
-         Use [$.join](/Chat.html#event:$%2522.%2522join) and related events to get notified when this changes
+         Use ```$.online.join``` and related events to get notified when this changes.
 
          @type Object
          @readonly
@@ -84,14 +96,16 @@ class Chat extends Emitter {
         this.users = {};
 
         /**
-         * Boolean value that indicates of the Chat is connected to the network
+         * Boolean value that indicates of the Chat is currently connected to the network.
          * @type {Boolean}
+         * @readonly
          */
         this.connected = false;
 
         /**
          * Keep a record if we've every successfully connected to this chat before.
          * @type {Boolean}
+         * @readonly
          */
         this.hasConnected = false;
 
@@ -100,9 +114,15 @@ class Chat extends Emitter {
          * chat is put to "sleep". If a connection is reestablished
          * via {@link ChatEngine#reconnect}, sleeping chats reconnect automatically.
          * @type {Boolean}
+         * @readonly
          */
         this.asleep = false;
 
+        /**
+        * Should this Chat connect immediately
+        * @type Boolean
+        * @readonly
+        */
         this.autoConnect = config.autoConnect;
 
         if (this.autoConnect) {
@@ -146,15 +166,18 @@ class Chat extends Emitter {
 
     }
 
+    /**
+     * Emits an event when a user is found online
+     * @private
+     */
     userHere(uuid, state) {
 
         if (!this.ensureUser(uuid, state)) {
 
             /**
-             * Broadcast that a {@link User} has come online. This is when
-             * the framework firsts learn of a user. This can be triggered
-             * by, ```$.join```, or other network events that
-             * notify the framework of a new user.
+             * Emitted when a {@link User} is found in the channel
+             * when we first connect. This {@link User} was here when
+             * we got here.
              *
              * @event Chat#$"."online"."here
              * @param {Object} data The payload returned by the event
@@ -162,7 +185,7 @@ class Chat extends Emitter {
              * @example
              * chat.on('$.online.here', (data) => {
              *     console.log('User has come online:', data.user);
-             * });
+             * })
              */
             this.trigger('$.online.here', { user: this.users[uuid] });
 
@@ -247,8 +270,6 @@ class Chat extends Emitter {
      */
     onPresence(presenceEvent) {
 
-        // make sure channel matches this channel
-
         // someone joins channel
         if (presenceEvent.action === 'join') {
             this.userJoin(presenceEvent.uuid, presenceEvent.state);
@@ -259,7 +280,7 @@ class Chat extends Emitter {
             this.userLeave(presenceEvent.uuid);
         }
 
-        // someone timesout
+        // someone times out
         if (presenceEvent.action === 'timeout') {
             this.userDisconnect(presenceEvent.uuid);
         }
@@ -297,6 +318,7 @@ class Chat extends Emitter {
      *
      * @param {String} event The event name
      * @param {Object} data The event payload object
+     * @return {Event} Returns an Event object you can subscribe to for network updates.
      * @example
      * chat.emit('custom-event', {value: true});
      * chat.on('custom-event', (payload) => {
@@ -339,6 +361,10 @@ class Chat extends Emitter {
 
     }
 
+    /**
+     * Places a {@link User} in memory if not already there.
+     * @private
+     */
     ensureUser(uuid, state) {
 
         // Ensure that this user exists in memory
@@ -583,14 +609,13 @@ class Chat extends Emitter {
 
     /**
      * Update {@link Me}'s state in this {@link Chat}. All other {@link User}s
-     * will be notified of this change via ```$.state```.
-     * Retrieve state at any time with {@link User#state}.
+     * will be notified of this change via ```$.state``` event.
+     * Retrieve state at any time with {@link User#state()}.
      * @param {Object} state The new state for {@link Me}
-     * @param {Chat} chat An instance of the {@link Chat} where state will be updated.
      * @fires Chat#event:$"."state
      * @example
      * // update state
-     * chat.i({value: true});
+     * chat.setState({value: true});
      */
     setState(state) {
 
@@ -660,6 +685,7 @@ class Chat extends Emitter {
          */
         this.onConnected();
 
+        // add this chat to session if sessions are enabled in this instance
         if (this.chatEngine.me.session) {
             this.chatEngine.me.session.join(this);
         }
@@ -667,9 +693,7 @@ class Chat extends Emitter {
         // only get presence on custom chats
         if (this.group === 'custom') {
 
-            // we may miss updates
-            // this.getUserUpdates();
-
+            // This timeout ensures we get our own online event
             setTimeout(() => {
                 this.getUserUpdates();
             }, 1000);
@@ -684,6 +708,7 @@ class Chat extends Emitter {
 
     /**
      * Ask PubNub for information about {@link User}s in this {@link Chat}.
+     * @fires Chat#$"."online"."here
      */
     getUserUpdates() {
 
@@ -700,8 +725,14 @@ class Chat extends Emitter {
     }
 
     /**
-     * Establish authentication with the server, then subscribe with PubNub.
+     * Connect to PubNub servers to initialize the chat. Establish authentication with the server, then subscribe with PubNub.
      * @fires Chat#$"."ready
+     * @example
+     * // create a new chatroom, but don't connect to it automatically
+     * let chat = new Chat('some-chat', {autoConnect: false});
+     *
+     * // connect to the chat when we feel like it
+     * chat.connect();
      */
     connect() {
 
@@ -722,13 +753,8 @@ class Chat extends Emitter {
     }
 
     /**
-     * Connect to PubNub servers to initialize the chat.
-     * @example
-     * // create a new chatroom, but don't connect to it automatically
-     * let chat = new Chat('some-chat', false)
-     *
-     * // connect to the chat when we feel like it
-     * chat.connect();
+     * Ensures this client can connect to the channel and then adds it to the channel group.
+     * @private
      */
     handshake(complete) {
 
