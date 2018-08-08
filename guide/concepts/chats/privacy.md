@@ -11,7 +11,7 @@ new Chat('channel');
 This is a private chat that a user must authenticated in. Usually this is done via {@link Chat#invite}. See {@tutorial private}
 
 ```js
-new Chat('channel', true);
+new Chat('channel', {isPrivate: true});
 ```
 
 ## Direct Chat
@@ -23,7 +23,7 @@ This is helpful for sending messages directly to users, to ping them, or challen
 ```js
 // me
 me.direct.on('game-invite', (payload) => {
-     console.log(payload.sender.uuid, 'sent your a game invite on the map', payload.data.map);
+    console.log(payload.sender.uuid, 'sent your a game invite on the map', payload.data.map);
 });
 
 // someone else

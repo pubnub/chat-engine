@@ -97,7 +97,7 @@ message was sent to. For more on this, see <a href="tutorial-payload.html">Event
 on every machine because state is synced between everybody.</p>
 <pre class="prettyprint source lang-js"><code>lobby.on('message', (payload) => {
     console.log(payload.sender.uuid, 'sent a message', payload.data.text);
-    console.log('they are on team', payload.sender.state.team);
+    console.log('they are on team', payload.sender.state().team);
 });</code></pre><h2>Private Chat</h2><p>What if we want to invite <code>stephen</code> into a private chat? We can find
 <code>stephen</code> from our list of users in the lobby. See <a href="Chat.html#users">Chat#users</a></p>
 <p>We can use <code>stephen</code>'s uuid to get his <a href="User.html">User</a>.</p>

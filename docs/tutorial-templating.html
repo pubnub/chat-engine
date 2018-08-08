@@ -74,7 +74,7 @@ chat.on('message', (payload) => {
 <p>For example in angular:</p>
 <pre class="prettyprint source"><code>&lt;ul id=&quot;online-list&quot;>
     &lt;li ng-repeat=&quot;(uuid, user) in chat.users&quot;>
-        &lt;a href=&quot;#&quot; ng-click=&quot;chat.invite(user)&quot;>{{user.state.username}}&lt;/a>
+        &lt;a href=&quot;#&quot; ng-click=&quot;chat.invite(user)&quot;>{{user.state().username}}&lt;/a>
     &lt;/li>
 &lt;/ul></code></pre><p>Note that binding ChatEngine data to Angular requires forcefully telling Angular that something has changed. The following is a small Angular plugin that, when loaded, will render your Angular app anytime anything changes in ChatEngine.</p>
 <pre class="prettyprint source lang-js"><code>// plugin

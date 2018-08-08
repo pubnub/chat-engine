@@ -49,7 +49,7 @@
    console.log(payload);
 });</code></pre><h2>Errors in Production</h2><p>In a production app, it is not a good idea to throw errors. If you'd like to suprress errors, supply <code>throwErrors: false</code> in your <code>ceConfig</code>.</p>
 <h3>Example Errors</h3><p>These are the errors thrown when a client tries to access a <a href="Chat.html">Chat</a> you don’t have PAM access to (see privacy):</p>
-<pre class="prettyprint source lang-js"><code>let PrivateChat = new ChatEngine.Chat(‘locked-down-i-dont-have-permissions’);</code></pre><p>Private Chat Emits These Events</p>
+<pre class="prettyprint source lang-js"><code>let PrivateChat = new ChatEngine.Chat(‘locked-down-i-dont-have-permissions’, { isPrivate: true });</code></pre><p>Private Chat Emits These Events</p>
 <ul>
 <li>$.error.presence</li>
 <li>$.error.publish</li>

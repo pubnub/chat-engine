@@ -57,13 +57,12 @@ const getColor = () => {
 <pre class="prettyprint source"><code>ChatEngine.global.on('$.state', (payload) => {
   console.log(payload.user + ' updated state: ' + payload.state);
 });
-</code></pre><p>You can set <a href="Me.html#state">Me#state</a> during connection by supplying the second param of <a href="ChatEngine.html#connect">ChatEngine#connect</a>.</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian-jennings', {color: getColor()});</code></pre><p>What if we want to get a <a href="User.html">User</a>'s state some other time without events? You can simply check for the User.state property.</p>
+</code></pre><p>What if we want to get a <a href="User.html">User</a>'s state some other time without events? You can simply check for the <a href="User.html#state">User#state</a> method.</p>
 <pre class="prettyprint source lang-js"><code>// get the first user in global chat
 let user = ChatEngine.global.users[0];
 
 // output the user's state
-console.log(user.state);</code></pre>
+console.log(user.state());</code></pre>
 </article>
 
 </section>
