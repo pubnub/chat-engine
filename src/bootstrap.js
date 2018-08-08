@@ -11,6 +11,7 @@ const waterfall = require('async/waterfall');
 /**
 @class ChatEngine
 @extends RootEmitter
+@fires ChatEngine#$"."ready
 @return {ChatEngine} Returns an instance of {@link ChatEngine}
 */
 module.exports = (ceConfig = {}, pnConfig = {}) => {
@@ -501,7 +502,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * // early
      * ChatEngine.connect(...);
      *
-     * ChatEngine.once('$.connected', () => {
+     * ChatEngine.once('$.ready', () => {
      *     // first connection established
      * });
      *
@@ -509,7 +510,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * ChatEngine.reauthorize(authKey);
      *
      * // we are connected again
-     * ChatEngine.once('$.connected', () => {
+     * ChatEngine.once('$.ready', () => {
      *     // we are connected again
      * });
      */

@@ -17,11 +17,13 @@ This is the root {@link Chat} class that represents a chat room
 @class Chat
 @extends Emitter
 @extends RootEmitter
-@fires Chat#$"."ready
+@fires Chat#$"."connected
 @fires Chat#$"."state
-@fires Chat#$"."online"."*
-@fires Chat#$"."offline"."*
-@return {Chat
+@fires Chat#$"."online"."join
+@fires Chat#$"."online"."here
+@fires Chat#$"."offline"."leave
+@fires Chat#$"."offline"."disconnect
+@return {Chat}
 */
 class Chat extends Emitter {
 
@@ -38,11 +40,6 @@ class Chat extends Emitter {
 
         config = Object.assign(defaults, config);
 
-        /**
-        * Hold a reference to the chatEngine instance
-        * @type ChatEngine
-        * @readonly
-        */
         this.chatEngine = chatEngine;
 
         // import internal plugins that augment payload
@@ -50,10 +47,10 @@ class Chat extends Emitter {
         this.plugin(augmentSender(this.chatEngine));
 
         /**
-        * Easy reference to this object class
-        * @type String
-        * @readonly
-        */
+         * An easy reference to this object class name.
+         * @type {String}
+         * @readOnly
+         */
         this.name = 'Chat';
 
         /**
@@ -119,7 +116,7 @@ class Chat extends Emitter {
         this.asleep = false;
 
         /**
-        * Should this Chat connect immediately
+        * Should this Chat connect immediately?
         * @type Boolean
         * @readonly
         */
@@ -146,7 +143,7 @@ class Chat extends Emitter {
         if (status.error) {
 
             /**
-             * There was a problem fetching the presence of this chat
+             * There was a problem fetching the presence of this chat.
              * @event Chat#$"."error"."presence
              */
             this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'));
@@ -314,7 +311,7 @@ class Chat extends Emitter {
     /**
      * Send events to other clients in this {@link User}.
      * Events are trigger over the network  and all events are made
-     * on behalf of {@link Me}
+     * on behalf of {@link Me}.
      *
      * @param {String} event The event name
      * @param {Object} data The event payload object
@@ -429,7 +426,7 @@ class Chat extends Emitter {
 
         /**
          * Broadcast that a {@link User} has changed state.
-         * @event ChatEngine#$"."state
+         * @event Chat#$"."state
          * @param {Object} data The payload returned by the event
          * @param {User} data.user The {@link User} that changed state
          * @param {Object} data.state The new user state
@@ -438,7 +435,6 @@ class Chat extends Emitter {
          *     console.log('User has changed state:', data.user, 'new state:', data.state);
          * });
          */
-
         this.trigger('$.state', {
             user: this.users[uuid],
             state: this.users[uuid].state(this)
@@ -479,7 +475,17 @@ class Chat extends Emitter {
      * @private
      */
     onConnected() {
+
         this.connected = true;
+
+        /**
+         * Broadcast that the {@link Chat} is connected to the network.
+         * @event Chat#$"."connected
+         * @example
+         * chat.on('$.connected', () => {
+         *     console.log('chat is ready to go!');
+         * });
+         */
         this.trigger('$.connected');
     }
 
@@ -488,8 +494,19 @@ class Chat extends Emitter {
      * @private
      */
     onDisconnected() {
+
         this.connected = false;
+
+        /**
+         * Broadcast that the {@link Chat} has been disconnected from the network.
+         * @event Chat#$"."disconnected
+         * @example
+         * chat.on('$.disconnected', () => {
+         *     console.log('chat is disconnected!');
+         * });
+         */
         this.trigger('$.disconnected');
+
     }
     /**
      * Fires upon manually invoked leaving.
@@ -497,6 +514,8 @@ class Chat extends Emitter {
      */
     onLeave() {
         this.onDisconnected();
+
+        // this may be useless
         this.trigger('$.left');
     }
 
@@ -504,6 +523,7 @@ class Chat extends Emitter {
      * Leave from the {@link Chat} on behalf of {@link Me}. Disconnects from the {@link Chat} and will stop
      * receiving events.
      * @fires Chat#event:$"."offline"."leave
+     * @fires Chat#event:$"."lelft
      * @example
      * chat.leave();
      */
@@ -675,14 +695,6 @@ class Chat extends Emitter {
 
         this.hasConnected = true;
 
-        /**
-         * Broadcast that the {@link Chat} is connected to the network.
-         * @event Chat#$"."connected
-         * @example
-         * chat.on('$.connected', () => {
-         *     console.log('chat is ready to go!');
-         * });
-         */
         this.onConnected();
 
         // add this chat to session if sessions are enabled in this instance
