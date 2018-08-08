@@ -48,7 +48,7 @@
 <pre class="prettyprint source lang-js"><code>chat.emit('message', 'Hey, this is Ian!');</code></pre><p>This will broadcast the <code>message</code> event over the internet to all other clients. Subscribe to the event using <a href="Chat.html#on">Chat#on</a> to get notified of the event.</p>
 <h2>Subscribing to Events</h2><p>You can subscribe to custom events by supplying any string as first parameter in <code>on()`</code>. The second parameter is a callback function that will be run whenever the event is emitted by ANY other user in the same <a href="Chat.html">Chat</a>.</p>
 <pre class="prettyprint source lang-js"><code>chat.on('message', (payload) => {
-  console.log(payload.sender.uuid, payload.data);
+    console.log(payload.sender.uuid, payload.data);
 });</code></pre><p>Anytime your or any other client uses the <code>emit()</code> function with the same event name, it will fire the callback defined in <code>on()</code> on every client subscribed to it.</p>
 <p>Curious about <code>payload.sender</code> and <code>payload.data</code>? See <a href="tutorial-payload.html">Event Payload</a>.</p>
 <p><img src="/guide/getting-started/assets/README-316b8bd1.gif" alt=""></p>

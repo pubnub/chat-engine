@@ -47,7 +47,7 @@
 <h2>Connection</h2><p>First, we need to connect to <a href="ChatEngine.html">ChatEngine</a> via <a href="ChatEngine.html#connect">ChatEngine#connect</a>.
 The values input into <a href="ChatEngine.html#connect">ChatEngine#connect</a> create a new <a href="User.html">User</a> called
 <a href="Me.html">Me</a> that this client will act as.</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian', {team: 'red'});</code></pre><p>This will connect to <a href="ChatEngine.html">ChatEngine</a> with <a href="Me.html#uuid">Me#uuid</a> equal to &quot;ian a <a href="Me.html#state">Me#state</a> of <code>{team: red}</code>.</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian');</code></pre><p>This will connect to <a href="ChatEngine.html">ChatEngine</a> with <a href="Me.html#uuid">Me#uuid</a> equal to &quot;ian&quot;.</p>
 <h2>The $.ready event</h2><p>Because <a href="ChatEngine.html">ChatEngine</a> must do some work to connect to the server, we must wait for it to respond before
 working with <a href="Chat.html">Chat</a>s and <a href="User.html">User</a>s.</p>
 <p>When <a href="ChatEngine.html">ChatEngine</a> is ready, it will emit <a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a>. We can subscribe to this event with <a href="ChatEngine.html#on">ChatEngine#on</a>.</p>
@@ -55,7 +55,7 @@ working with <a href="Chat.html">Chat</a>s and <a href="User.html">User</a>s.</p
     console.log('ChatEngine ready to go!');
 });</code></pre><p>The <code>$</code> represents a &quot;system&quot; event. You can read more about system events in the tutorial on <a href="tutorial-namespaces.html">Namespaces</a>. You can subscribe to all system events via <code>ChatEngine.on('$.*')</code>, read more in the tutorial on <a href="tutorial-wildcard.html">Wildcards</a>.</p>
 <h2>Me</h2><p>When <a href="ChatEngine.html#on">ChatEngine#on</a> is fired, <a href="Me.html">Me</a> is supplied as <code>data.me</code> in the response.</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian', {team: 'red'});
+<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian');
 ChatEngine.on('$.ready', (data) => {
     let me = data.me; // ian
 });</code></pre><p>All calls made to <a href="ChatEngine.html">ChatEngine</a> are made on behalf of <a href="Me.html">Me</a>.</p>
@@ -91,9 +91,8 @@ is available as <code>payload.data.text</code>.</p>
 message was sent to. For more on this, see <a href="tutorial-payload.html">Event Payload</a>.</p>
 <pre class="prettyprint source lang-js"><code>lobby.on('message', (payload) => {
     console.log(payload.sender.uiud, 'sent a message to', payload.chat.channel, 'with value', payload.data);
-});</code></pre><h2>State</h2><p>But hey, what if we want more information about the user that sent the <code>message</code>. Remember how we supplied
-<code>{team: 'red'}</code> during <a href="ChatEngine.html#connect">ChatEngine#connect</a>?</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian', {team: 'red'});</code></pre><p>We can get that value with <a href="User.html#state">User#state</a>. This value will be the same
+});</code></pre><h2>State</h2><p>But hey, what if we want more information about the user that sent the <code>message</code>. The state of <a href="Me.html">Me</a> can be updated with <a href="Me.html#update">Me#update</a>. Here we set <a href="Me.html#state">Me#state</a> as <code>{team: 'red'}</code>.</p>
+<pre class="prettyprint source lang-js"><code>Me.update({team: 'red'});</code></pre><p>We can get that value with <a href="User.html#state">User#state</a>. This value will be the same
 on every machine because state is synced between everybody.</p>
 <pre class="prettyprint source lang-js"><code>lobby.on('message', (payload) => {
     console.log(payload.sender.uuid, 'sent a message', payload.data.text);
@@ -103,7 +102,7 @@ on every machine because state is synced between everybody.</p>
 <p>We can use <code>stephen</code>'s uuid to get his <a href="User.html">User</a>.</p>
 <pre class="prettyprint source lang-js"><code>let stephen = lobby.users['stephen'];</code></pre><p>Ok, let's make a new chat and invite him to it. We'll create a new <a href="Chat.html">Chat</a>
 and then fire the <a href="Chat.html#invite">Chat#invite</a> which invites a <a href="User.html">User</a> to a <a href="Chat.html">Chat</a>.</p>
-<pre class="prettyprint source lang-js"><code>let privateChat = new ChatEngine.Chat('private');
+<pre class="prettyprint source lang-js"><code>let privateChat = new ChatEngine.Chat('private', {isPrivate: true});
 privateChat.invite(stephen);</code></pre><p>So how does <code>stephen</code> know that he got invited? <a href="Chat.html#invite">Chat#invite</a> sends
 <code>stephen</code> a direct message that nobody else can see over a special <a href="Chat.html">Chat</a>
 called <a href="User.html#direct">User#direct</a>.</p>
@@ -111,7 +110,7 @@ called <a href="User.html#direct">User#direct</a>.</p>
 via <a href="Me.html#direct">Me#direct</a>. The key for the new chat that we created is available as <code>payload.data.channel</code>.</p>
 <pre class="prettyprint source lang-js"><code>me.direct.on('$.invite', (payload) => {
 
-    let invitedChat = new $scope.ChatEngine.Chat(payload.data.channel);
+    let invitedChat = new $scope.ChatEngine.Chat(payload.data.channel, {isPrivate: true});
 
     invitedChat.emit('message', {
         text: 'hello everybody!'

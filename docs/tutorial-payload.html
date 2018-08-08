@@ -55,11 +55,17 @@ data.</p>
 <h2>Simple Example</h2><p>In this demo we'll mock up a user named 'Ian' emitting the 'like' event on a user named 'Alex'.</p>
 <p>On Ian's page:</p>
 <pre class="prettyprint source lang-js"><code>// connect with UUID 'ian' and add a user state
-ChatEngine.connect('ian', {fullName: 'Ian Jennings'});
+ChatEngine.connect('ian');
 
-// emit a 'like' event over global chat
-ChatEngine.global.emit('like', {
-    who: 'alex'
+ChatEngine.on('$.ready', (data) => {
+
+    data.me.update({fullName: 'Ian Jennings'});
+
+    // emit a 'like' event over global chat
+    ChatEngine.global.emit('like', {
+        who: 'alex'
+    });
+
 });</code></pre><p>On Alex's page:</p>
 <pre class="prettyprint source lang-js"><code>// connect with UUID 'alex'
 ChatEngine.connect('alex');

@@ -41,7 +41,7 @@
 </header>
 
 <article>
-    <h2>Namespaces</h2><p>Event names follow a pattern that helps determine where an object originated.</p>
+    <h2>Event Namespaces</h2><p>Event names follow a pattern that helps determine where an object originated.</p>
 <h3>Custom Events</h3><p>Custom events are events you define in your framework, like <code>message</code> and <code>invite</code>. They are simply strings, but they should not include any special characters (except <code>.</code>).</p>
 <h3>$ - System Events</h3><p>System events always begin with a <code>$</code>. For example, <a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a> and <a href="Chat.html#event:$%2522.%2522online%2522.%2522join">$.online.join</a> are examples of events emitted by ChatEninge. They are system events that are automatically emitted when specific things happen. System events are documented in the reference.</p>
 <h3>$plugin - PLugin Events</h3><p>Plugin events always begin with <code>$pluginName</code>. <code>$typingIndicator.startTyping</code> is an example of an event emitted by the <a href="module-chat-engine-typing-indicator.html">module:chat-engine-typing-indicator</a> plugin. The <code>$typingIndicator</code> string is a plugin namespace and <code>startTyping</code> is the plugin event. Namespacing plugins helps ensure that there is no collision between plugins.</p>

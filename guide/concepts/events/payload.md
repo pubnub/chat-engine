@@ -32,7 +32,7 @@ ChatEngine.connect('ian');
 
 ChatEngine.on('$.ready', (data) => {
 
-    data.me.update();
+    data.me.update({fullName: 'Ian Jennings'});
 
     // emit a 'like' event over global chat
     ChatEngine.global.emit('like', {

@@ -50,7 +50,7 @@ nobody can read or write anything.</p>
     subscribeKey: 'YOUR_SUB_KEY'
 });
 
-ChatEngine.connect(username, {}, 'YOUR_AUTH_KEY');</code></pre><p>It authorizes PubNub Access Manager permissions for the supplied authentication key on all read and write channels. See <a href="tutorial-topology.html">PubNub Channel Topology</a>.</p>
+ChatEngine.connect(username, 'YOUR_AUTH_KEY');</code></pre><p>It authorizes PubNub Access Manager permissions for the supplied authentication key on all read and write channels. See <a href="tutorial-topology.html">PubNub Channel Topology</a>.</p>
 <p><code>YOUR_AUTH_KEY</code> is typically a session based token that should be cycled frequently. Providing a consistent auth key is not recommended.</p>
 <h2>Successful Authentication</h2><p>When the endpoint responds and ChatEngine successfully connects to PubNub, <a href="ChatEngine.html">ChatEngine</a>
 emits the <code>$.ready</code> event.</p>

@@ -60,7 +60,7 @@ console.log(ChatEngine.global.channel);
 console.log(chat.channel);
 // chat.channel == &quot;chat-engine#chat#public.#custom-channel&quot;</code></pre><h4><code>globalChannel + '#chat#private.*'</code></h4><p>All private <a href="Chat.html">Chat</a>s are create under this namespace. This namespace is locked down and no users have
 read or write access. They must be granted them.</p>
-<pre class="prettyprint source lang-js"><code>let privateChat = new Chat('private-channel', true);
+<pre class="prettyprint source lang-js"><code>let privateChat = new Chat('private-channel', {isPrivate: true});
 
 console.log(privateChat.channel);
 // privateChat.channel == &quot;chat-engine#chat#private.#private-channel&quot;</code></pre><h4><code>globalChannel + '#user#' + myUUID + '#read.*'</code></h4><p>This is the namespace containing <a href="User.html">User</a> owned <a href="Chat.html">Chat</a>s. The user who's <a href="User.html#uuid">User#uuid</a> matches <code>myUUID</code> has all permissions, while other <a href="User.html">User</a>s only have read permissions. <a href="User.html#feed">User#feed</a> belongs to this namespace.</p>
