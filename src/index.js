@@ -20,7 +20,6 @@ ChatEngine = ChatEngineCore.create({
     subscribeKey: 'YOUR_SUB_KEY'
 });
 */
-
 const create = (pnConfig, ceConfig = {}) => {
 
     if (ceConfig.namespace) {

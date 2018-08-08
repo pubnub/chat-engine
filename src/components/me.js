@@ -21,10 +21,15 @@ class Me extends User {
 
         this.chatEngine = chatEngine;
 
+        /**
+         * The {@link Session} Class for {@link Me}
+         * @type {Boolean}
+         */
         this.session = false;
 
         this.name = 'Me';
 
+        // only fill in session if enabled via config
         if (this.chatEngine.ceConfig.enableSync) {
             this.session = new Session(chatEngine);
         }

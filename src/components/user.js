@@ -38,6 +38,11 @@ class User extends Emitter {
          */
         this.states = {};
 
+        /**
+         * Stores a record after state is restored by the server to ensure
+         * it only happens once
+         * @private
+         */
         this._restoredState = {};
 
         this._gotState = {};
@@ -90,6 +95,7 @@ class User extends Emitter {
             isPrivate: false
         });
 
+        // only update state if state set and this is actually "Me"
         if (Object.keys(state).length && state && this.constructor.name !== 'Me') {
             this.update(state);
         }
@@ -98,6 +104,11 @@ class User extends Emitter {
 
     }
 
+    /**
+     * Get the {@link User}'s state from memory. State is populated by the network.
+     * @param  {Chat} [chat=ChatEngine#global] The Chat from which to get the user's state. Defaults to the global chat if enabled.
+     * @return {Object} The user's state.
+     */
     state(chat = this.chatEngine.global) {
 
         if (!chat) {
@@ -109,9 +120,9 @@ class User extends Emitter {
     }
 
     /**
-     this is only called from network updates
-     @private
-     */
+    * This is only called from network updates
+    * @private
+    */
     assign(state, chat = this.chatEngine.global) {
 
         if (!chat) {

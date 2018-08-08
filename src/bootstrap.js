@@ -361,6 +361,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.firstConnect = (state = false, globalConfig = {}) => {
 
+        // create the PubNub instance but don't connect
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
         let firstConnection = () => {
@@ -378,14 +379,17 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             */
             ChatEngine.me.onConstructed();
 
+            // Get session updates if enabled via config
             if (ChatEngine.ceConfig.enableSync) {
                 ChatEngine.me.session.subscribe();
             }
 
+            // Update Me state in global chat if global enabled via config
             if (state && ChatEngine.ceConfig.enableGlobal) {
                 ChatEngine.me.update(state);
             }
 
+            // Set the internal state as ready
             ChatEngine.ready = true;
 
             /**
@@ -400,9 +404,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 me: ChatEngine.me
             });
 
+            // Bind to PubNub events
             ChatEngine.listenToPubNub();
+
+            // Subscribe to PubNub
             ChatEngine.subscribeToPubNub();
 
+            // Restore the session
             if (ChatEngine.ceConfig.enableSync) {
                 ChatEngine.me.session.restore();
             }
@@ -516,11 +524,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
-
         ChatEngine.disconnect();
         ChatEngine.setAuth(authKey);
         ChatEngine.reconnect();
-
 
     };
 
@@ -575,6 +581,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             let newChat = new Chat(ChatEngine, ...args);
 
+            // assign the chat to internal memory store
             ChatEngine.chats[internalChannel] = ChatEngine.chats[internalChannel] || newChat;
 
             /**
@@ -609,6 +616,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             let newUser = new User(ChatEngine, ...args);
 
+            // assign the user to internal memory store
             ChatEngine.users[args[0]] = ChatEngine.users[args[0]] || newUser;
 
             /**
