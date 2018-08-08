@@ -28,11 +28,17 @@ On Ian's page:
 
 ```js
 // connect with UUID 'ian' and add a user state
-ChatEngine.connect('ian', {fullName: 'Ian Jennings'});
+ChatEngine.connect('ian');
 
-// emit a 'like' event over global chat
-ChatEngine.global.emit('like', {
-    who: 'alex'
+ChatEngine.on('$.ready', (data) => {
+
+    data.me.update();
+
+    // emit a 'like' event over global chat
+    ChatEngine.global.emit('like', {
+        who: 'alex'
+    });
+
 });
 ```
 
