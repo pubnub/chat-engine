@@ -126,6 +126,11 @@ class Chat extends Emitter {
             this.connect();
         }
 
+        // bind to the leave event to remove user from memory
+        this.on('$.system.leave', (payload) => {
+            this.userLeave(payload.sender.uuid);
+        });
+
         return this;
 
     }
@@ -711,10 +716,6 @@ class Chat extends Emitter {
             }, 1000);
 
         }
-
-        this.on('$.system.leave', (payload) => {
-            this.userLeave(payload.sender.uuid);
-        });
 
     }
 
