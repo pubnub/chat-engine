@@ -109,7 +109,7 @@ class Search extends Emitter {
 
                     /**
                      * There was a problem fetching the history of this chat.
-                     * @event Search#$"."error"."history
+                     * @event Search#$"."error"."search
                      */
                     this.chatEngine.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
                 } else {

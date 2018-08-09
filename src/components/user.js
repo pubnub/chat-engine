@@ -110,7 +110,11 @@ class User extends Emitter {
     state(chat = this.chatEngine.global) {
 
         if (!chat) {
-            this.chatEngine.throwError(this, 'trigger', 'state', new Error('No chat specified for state lookup.'));
+            /**
+             * Trying to retrieve the state for a user without supplying a chat
+             * @event User#$"."error"."state"."param
+             */
+            this.chatEngine.throwError(this, 'trigger', 'state.param', new Error('No chat specified for state lookup.'));
         } else {
             return this.states[chat.channel] || {};
         }
@@ -156,7 +160,11 @@ class User extends Emitter {
     _restoreState(chat = false, callback) {
 
         if (!chat) {
-            this.chatEngine.throwError(this, 'trigger', 'getState', new Error('No chat supplied'));
+            /**
+             * Trying to restore the state for a user without supplying a chat parameter.
+             * @event User#$"."error"."restoreState"."param
+             */
+            this.chatEngine.throwError(this, 'trigger', 'restoreState.param', new Error('No chat supplied'));
         } else if (!this._restoredState[chat.channel] && chat.group === 'custom') {
 
             this._restoredState[chat.channel] = true;
@@ -170,7 +178,11 @@ class User extends Emitter {
                 return callback(this.states[chat.channel]);
 
             }).catch((err) => {
-                this.chatEngine.throwError(this, 'trigger', 'restoreState', err);
+                /**
+                 * Problem making network request to restore state.
+                 * @event User#$"."error"."restoreState"."network
+                 */
+                this.chatEngine.throwError(this, 'trigger', 'restoreState.network', err);
             });
 
         } else {

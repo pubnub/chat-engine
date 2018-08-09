@@ -259,7 +259,11 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'search', new Error('Something went wrong while making a request to authentication server.'), { error });
+                /**
+                 * There was some problem inviting the user into the channel.
+                 * @event Chat#$"."error"."invite
+                 */
+                this.chatEngine.throwError(this, 'trigger', 'invite', new Error('Something went wrong while making a request to authentication server.'), { error });
             });
 
     }
@@ -308,7 +312,11 @@ class Chat extends Emitter {
             chat: this.objectify()
         }).then(() => {
         }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
+            /**
+             * There was some problem updating the metadata on the server.
+             * @event Chat#$"."error"."meta
+             */
+            this.chatEngine.throwError(this, 'trigger', 'meta', new Error('Something went wrong while trying to update metadata.'), { error });
         });
 
     }
@@ -556,7 +564,11 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
+                /**
+                 * There was some problem leaving the chat.
+                 * @event Chat#$"."error"."leave
+                 */
+                this.chatEngine.throwError(this, 'trigger', 'leave', new Error('Something went wrong while making a request to chat server.'), { error });
             });
 
     }
@@ -645,13 +657,22 @@ class Chat extends Emitter {
     setState(state) {
 
         if (!this.connected) {
-            this.chatEngine.throwError(this, 'trigger', 'state', new Error('Trying to set state in chat you are not connected to. You must wait for the $.connected event before setting state in this chat.'));
+            /**
+            * Trying to set state of a chat you are not authorized in.
+            * @event Chat#$"."error"."state"."notConnected
+            */
+            this.chatEngine.throwError(this, 'trigger', 'state.notConnected', new Error('Trying to set state in chat you are not connected to. You must wait for the $.connected event before setting state in this chat.'));
         } else if (state && Object.keys(state).length) {
 
             this.chatEngine.pubnub.setState({ state, channels: [this.channel] }, (response) => {
 
                 if (response.error) {
-                    this.chatEngine.throwError(this, 'trigger', 'state', new Error(response.message));
+
+                    /**
+                    * There was a problem setting state.
+                    * @event Chat#$"."error"."state"."update
+                    */
+                    this.chatEngine.throwError(this, 'trigger', 'state.update', new Error(response.message));
                 }
 
             });
@@ -687,7 +708,12 @@ class Chat extends Emitter {
         if (this.hasConnected) {
             return new Search(this.chatEngine, this, config);
         } else {
-            this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'));
+
+            /**
+            * Trying to call {@link Chat#search} on a chat you are not connected to.
+            * @event Chat#$"."error"."search"."notConnected
+            */
+            this.chatEngine.throwError(this, 'trigger', 'search.notConnected', new Error('You must wait for the $.connected event before calling Chat#search'));
         }
 
     }
@@ -750,7 +776,12 @@ class Chat extends Emitter {
     connect() {
 
         if (this.connected) {
-            this.chatEngine.throwError(this.chatEngine, 'emit', 'connection', new Error('Connect called but chat is already connected.'));
+
+            /**
+            * Trying to connect to a chat already connected to.
+            * @event Chat#$"."error"."connection"."duplicate
+            */
+            this.chatEngine.throwError(this, '_emit', 'connection.duplicate', new Error('Connect called but chat is already connected.'));
         } else {
 
             // establish good will with the server
@@ -772,13 +803,22 @@ class Chat extends Emitter {
     handshake(complete) {
 
         let handshakeError = (error) => {
-            this.chatEngine.throwError(this.chatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + this.chatEngine.ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+
+            /**
+            * Something went wrong while performing server handshake for chat.
+            * @event Chat#$"."error"."connection"."handshake
+            */
+            this.chatEngine.throwError(this, '_emit', 'connection.handshake', new Error('There was a problem logging into the auth server (' + this.chatEngine.ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
         };
 
         waterfall([
             (next) => {
                 if (!this.chatEngine.pubnub) {
-                    next('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.');
+                    /**
+                    * Trying to create chat before ChatEngine has fired $.ready event.
+                    * @event Chat#$"."error"."connection"."notReady
+                    */
+                    this.chatEngine.throwError(this, '_emit', 'connection.notReady', new Error('You must call ChatEngine.connect() and wait for the $.ready event before creating new Chats.'));
                 } else {
                     next();
                 }
@@ -822,16 +862,10 @@ class Chat extends Emitter {
                 }
 
             }
-        ], (error) => {
-            if (error) {
-                this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
-            } else {
-                complete();
-            }
-        });
+        ], complete);
 
     }
 
-}
+};
 
 module.exports = Chat;

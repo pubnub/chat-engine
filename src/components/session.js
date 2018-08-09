@@ -69,7 +69,11 @@ class Session extends Emitter {
             }, (status, response) => {
 
                 if (status.error) {
-                    this.chatEngine.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
+                    /**
+                    * There was a problem restoring the chats for your session.
+                    * @event Session#$"."error"."sync
+                    */
+                    this.chatEngine.throwError(this, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
                 } else {
 
                     // loop through the returned channels
