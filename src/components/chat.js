@@ -866,6 +866,6 @@ class Chat extends Emitter {
 
     }
 
-};
+}
 
 module.exports = Chat;

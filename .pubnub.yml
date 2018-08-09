@@ -8,6 +8,10 @@ files:
 changelog:
   - version: v0.10.x
     changes:
+      - type: improvement
+        text: $.ready returns Me rather than {me: Me}
+      - type: improvement
+        text: Document all emitted errors, provide more accurate namespacing for error events.
       - type: feature
         text: Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
       - type: feature

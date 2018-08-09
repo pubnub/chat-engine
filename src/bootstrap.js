@@ -391,13 +391,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
              *  Fired when ChatEngine is connected to the internet and ready to go!
              * @event ChatEngine#$"."ready
              * @example
-             * ChatEngine.on('$.ready', (data) => {
-             *     let me = data.me;
+             * ChatEngine.on('$.ready', (me) => {
+             *     console.log('I am ', me.uuid);
              * })
              */
-            ChatEngine._emit('$.ready', {
-                me: ChatEngine.me
-            });
+            ChatEngine._emit('$.ready', ChatEngine.me);
 
             // Bind to PubNub events
             ChatEngine.listenToPubNub();
