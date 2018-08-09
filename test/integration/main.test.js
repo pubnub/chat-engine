@@ -667,12 +667,12 @@ describe('history', () => {
 
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
-        // let i = 0;
-        // while(i < 200) {
-        //     chatHistory.emit('tester', {works: true, count: i});
-        //     chatHistory.emit('not-tester', {works: false, count: i});
-        //     i++;
-        // }
+        let i = 0;
+        while(i <= 200) {
+            chatHistory.emit('tester', {works: true, count: i});
+            chatHistory.emit('not-tester', {works: false, count: i});
+            i++;
+        }
 
         chatHistory.on('$.connected', () => {
 
