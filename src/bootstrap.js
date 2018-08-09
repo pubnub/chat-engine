@@ -379,11 +379,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             */
             ChatEngine.me.onConstructed();
 
-            // Get session updates if enabled via config
-            if (ChatEngine.ceConfig.enableSync) {
-                ChatEngine.me.session.subscribe();
-            }
-
             // Update Me state in global chat if global enabled via config
             if (state && ChatEngine.ceConfig.enableGlobal) {
                 ChatEngine.me.update(state);
@@ -412,6 +407,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             // Restore the session
             if (ChatEngine.ceConfig.enableSync) {
+                ChatEngine.me.session.subscribe();
                 ChatEngine.me.session.restore();
             }
 
