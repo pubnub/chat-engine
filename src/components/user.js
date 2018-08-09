@@ -45,8 +45,6 @@ class User extends Emitter {
          */
         this._restoredState = {};
 
-        this._gotState = {};
-
         /**
          * Feed is a Chat that only streams things a User does, like
          * 'startTyping' or 'idle' events for example. Anybody can subscribe
@@ -134,8 +132,6 @@ class User extends Emitter {
             this.states[chat.channel] = Object.assign(oldState, state);
 
         }
-
-        this._gotState[chat.channel] = true;
 
     }
 
