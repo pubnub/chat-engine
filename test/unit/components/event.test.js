@@ -33,7 +33,7 @@ describe('#event', () => {
 
     it('should emit a message', (done) => {
 
-        event.on('$.emitted', () => {
+        chat.on('$.emitted', () => {
             done();
         });
 
