@@ -84,7 +84,7 @@ class Event extends Emitter {
                  * @event Event#$"."emitted"
                  * @param {Object} data The message payload
                  */
-                this._emit('$.emitted', m);
+                this.chat.trigger('$.emitted', m);
 
             } else {
 
