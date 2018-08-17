@@ -4,7 +4,7 @@ let spawnClient = (uuid, invite) => {
         publishKey: 'pub-c-d8599c43-cecf-42ba-a72f-aa3b24653c2b',
         subscribeKey: 'sub-c-6c6c021c-c4e2-11e7-9628-f616d8b03518'
     }, {
-        globalChannel: 'minified-tester'
+        globalChannel: 'mini-tester'
     });
 
     ChatEngine.on('$.ready', (data) => {
@@ -18,11 +18,14 @@ let spawnClient = (uuid, invite) => {
         let otherUser = new ChatEngine.User(invite);
 
         setTimeout(() => {
-            otherUser.direct.emit('$.something.hey');
+            otherUser.direct.connect();
+            otherUser.direct.on('$.connected', () => {
+                otherUser.direct.emit('$.something.hey');
+            })
         });
 
     });
 
-    ChatEngine.connect(uuid, {}, 'auth');
+    ChatEngine.connect(uuid, {}, uuid);
 
 }
