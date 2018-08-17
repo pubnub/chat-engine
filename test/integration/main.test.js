@@ -1131,10 +1131,10 @@ describe('memory', () => {
 
         };
 
-        a.on('$.online.join', () => {
+        a.on('$.online.*', () => {
             checkDone();
         });
-        b.on('$.online.join', () => {
+        b.on('$.online.*', () => {
             checkDone();
         });
 
