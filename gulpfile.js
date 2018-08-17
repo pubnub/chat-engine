@@ -43,7 +43,7 @@ gulp.task('clean', () => {
 
 gulp.task('minify_code', () => {
     return gulp.src('dist/chat-engine.js')
-        .pipe(uglify({ mangle: true, compress: true }))
+        .pipe(uglify({ mangle: false, compress: true }))
         .pipe(rename('chat-engine.min.js'))
         .pipe(gulp.dest('dist'));
 });
