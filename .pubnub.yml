@@ -9,13 +9,15 @@ changelog:
   - version: v0.10.x
     changes:
       - type: improvement
-        text: $.ready returns Me rather than {me: Me}
+        text: Online and offline events fire more reliablity.
+      - type: improvement
+        text: $.ready returns Me rather than the object {me: Me}.
       - type: improvement
         text: Document all emitted errors, provide more accurate namespacing for error events.
       - type: feature
         text: Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
       - type: feature
-        text: .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. But the tricky thing here is that it is restoring the state of different chat than the one being searched. Big benefit is that this is not enabled on every chat by default like in 0.9, so it will reduce function executions.
+        text: .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. Works for both Chat and Search.
       - type: feature
         text: Adds the ability to disable globalChannel preventing transactions for users who do not use it.
       - type: feature
@@ -27,7 +29,7 @@ changelog:
       - type: improvement
         text: Message augmentation further isolated into plugin structure.
       - type: improvement
-        text: hereNow only called once
+        text: PubNub HereNow only called a single time.
   - version: v0.9.18
     date: 2018-7-16
     changes:
