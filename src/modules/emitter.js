@@ -242,6 +242,10 @@ class Emitter extends RootEmitter {
             chat = this;
         }
 
+        if (!chat && this.chat) {
+            chat = this.chat;
+        }
+
         if (!chat && this.chatEngine.global) {
             chat = this.chatEngine.global;
         }
