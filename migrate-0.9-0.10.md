@@ -96,48 +96,37 @@ let newChat = new ChatEngine.Chat('online-list-example', true);
 let newChat = new ChatEngine.Chat('online-list-example' {isPrivate: true});
 ```
 
+# More errors
+
+We've added more errors, better classified and documented current errors thrown
+by ChatEngine. Check the docs for the full list.
+
 # Restoring old state
 
 Say you update the state of a ```User```, but then they sign off. In the past
 we attempted to restore their old state with an extra request. However, this
 can be pretty inefficient if you don't need the functionality.
 
-This functionality is now a method that can be called on any event emitter.
+This functionality is now a method that can be called on any event emitter. Just
+call ```restoreState()``` on the object and ChatEngine will attempt to restore
+the state of ```Users``` before events are emitted.
+
 
 ```js
 chat.search({
     event: 'message',
     limit: 50
 })
-.restoreState(chat) // supply the chat to restore state from, defaults to global
+.restoreState()
 .on('message', (data) => {
     //...
 });
 ```
 
-# restoreState method
+# Online and Offline Events
 
-# More errors
+Previously it was possible for the same user to fire an ```$.online.here``` event
+and an ```$.online.join``` event. Users will now fire one or the other.
 
-      - type: improvement
-        text: Online and offline events fire more reliablity.
-      - type: improvement
-        text: $.ready returns Me rather than the object {me: Me}.
-      - type: improvement
-        text: Document all emitted errors, provide more accurate namespacing for error events.
-      - type: feature
-        text: Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
-      - type: feature
-        text: .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. Works for both Chat and Search.
-      - type: feature
-        text: Adds the ability to disable globalChannel preventing transactions for users who do not use it.
-      - type: feature
-        text: State can be set within specific chats.
-      - type: improvement
-        text: Errors are properly caught by promise rejections.
-      - type: improvement
-        text: References to globalChannel are now called namespace.
-      - type: improvement
-        text: Message augmentation further isolated into plugin structure.
-      - type: improvement
-        text: PubNub HereNow only called a single time.
+- $.online.here - User is here at the time we connect to Chat
+- $.online.join - User joins chat after connection
