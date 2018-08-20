@@ -201,7 +201,11 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.handshake = (complete) => {
 
         let handshakeError = (error) => {
-            ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+            /**
+             * There was a problem during the initial connection with the server
+             * @event Chat#$"."error"."connect"."handshake
+             */
+            ChatEngine.throwError(ChatEngine, '_emit', 'connect.handshake', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
         };
 
         waterfall([
@@ -228,7 +232,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         ], (error) => {
 
             if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+                ChatEngine.throwError(ChatEngine, '_emit', 'connect.unhandled', new Error('Error thrown during connect handshake.'));
             } else {
                 complete();
             }
@@ -359,7 +363,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (state = false, globalConfig = {}) => {
+    ChatEngine.firstConnect = (globalConfig = {}) => {
 
         // create the PubNub instance but don't connect
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
@@ -378,11 +382,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             * });
             */
             ChatEngine.me.onConstructed();
-
-            // Update Me state in global chat if global enabled via config
-            if (state && ChatEngine.ceConfig.enableGlobal) {
-                ChatEngine.me.update(state);
-            }
 
             // Set the internal state as ready
             ChatEngine.ready = true;
@@ -529,19 +528,30 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
-     * @param {Object} [initialState] The initial state for {@link Me} in {@link ChatEngine#global}. Only valid if ```enableGlobal``` is true in {@ChatEngineCore#create}
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), initialState, globalConfig = {}) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), globalConfig = {}) => {
 
-        // this creates a user known as Me and
-        // connects to the global chatroom
-        ChatEngine.pnConfig.uuid = uuid;
-        ChatEngine.pnConfig.authKey = authKey;
+        if (typeof authKey == 'number' || typeof authKey == 'string') {
 
-        ChatEngine.handshake(() => {
-            ChatEngine.firstConnect(initialState, globalConfig);
-        });
+            // this creates a user known as Me and
+            // connects to the global chatroom
+            ChatEngine.pnConfig.uuid = uuid;
+            ChatEngine.pnConfig.authKey = authKey;
+
+            ChatEngine.handshake(() => {
+                ChatEngine.firstConnect(globalConfig);
+            });
+
+        } else {
+
+            /**
+             * Invalid auth key provided. Auth key must be a string or integer.
+             * @event Chat#$"."error"."connect"."invalidAuthKey
+             */
+            ChatEngine.throwError(ChatEngine, '_emit', 'connect.invalidAuthKey', new Error('Auth key must be a string or integer. You may be using a connect call from v0.9, please migrate your .connect() call to v0.10.'));
+
+        }
 
     };
 

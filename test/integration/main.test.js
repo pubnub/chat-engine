@@ -329,7 +329,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
 
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
@@ -351,7 +351,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -372,7 +372,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -393,7 +393,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -414,7 +414,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -435,7 +435,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -456,7 +456,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -477,7 +477,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -498,7 +498,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
@@ -519,7 +519,7 @@ describe('connect.fail', () => {
         });
 
         ChatEngine.connect(username, username);
-        ChatEngine.on('$.error.auth', (err) => {
+        ChatEngine.on('$.error.connect.handshake', (err) => {
             assert.equal(err.error.response.status, 400);
             const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
