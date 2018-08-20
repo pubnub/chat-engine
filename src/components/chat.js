@@ -582,7 +582,9 @@ class Chat extends Emitter {
      @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
      @param {Event} [config.event] The {@link Event} to search for.
      @param {User} [config.sender] The {@link User} who sent the message.
+     @param {Number} [config.pages=10] The maximum number of history requests which {@link ChatEngine} will do automatically to fulfill `limit` requirement.
      @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history. Limit will be ignored in case if both 'start' and 'end' timetokens has been passed in search configuration.
+     @param {Number} [config.count=100] The maximum number of messages which can be fetched with single history request.
      @param {Number} [config.start=0] The timetoken to begin searching between.
      @param {Number} [config.end=0] The timetoken to end searching between.
      @param {Boolean} [config.reverse=false] Search oldest messages first.
