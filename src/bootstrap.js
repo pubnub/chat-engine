@@ -532,7 +532,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), globalConfig = {}) => {
 
-        if (typeof authKey == 'number' || typeof authKey == 'string') {
+        if (typeof authKey === 'number' || typeof authKey === 'string') {
 
             // this creates a user known as Me and
             // connects to the global chatroom
