@@ -830,6 +830,24 @@ describe('history', () => {
         });
     });
 
+    it('should fetch one page and wait', function emittedDescendingOrder(done) {
+
+        this.timeout(60000);
+
+        let chatHistory = new ChatEngineHistory.Chat('chat-history');
+
+        chatHistory.on('$.connected', () => {
+            let search = chatHistory.search({
+                event: 'tester',
+                count: 10,
+                pages: 1
+            }).on('$.search.pause', () => {
+
+                assert.equal(search.hasMore, true, 'potentially should be more data');
+                done();
+            });
+        });
+    });
 });
 
 describe('meta', () => {
