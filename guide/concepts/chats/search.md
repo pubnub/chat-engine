@@ -1,3 +1,5 @@
+# Search a Chat Room
+
 Search is a way to retrieve old events that were fired before ChatEngine
 was loaded. This way, when someone reloads their page or closes the app,
 they'll see the old messages the next time they log in.

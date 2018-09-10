@@ -16,14 +16,32 @@
      "concepts": {
          "title": "Concepts",
          "children": {
+            "configuration": {
+                "title": "Configuration"
+            },
+            "connect": {
+                "title": "Connect"
+            },
+            "chatRooms": {
+                "title": "Chat Rooms"
+            },
+            "messages": {
+                "title": "Messages"
+            },
+            "networkEvents": {
+                "title": "Network Events"
+            },
+            "pubnubFunctions": {
+                "title": "PubNub Function"
+            },
+            "security": {
+                "title": "Security"
+            },
              "me": {
                  "title": "Me"
              },
              "users": {
                  "title": "Users and State"
-             },
-             "chats": {
-                 "title": "Chats"
              },
              "events": {
                  "title": "Events"
@@ -77,6 +95,66 @@
                  "title": "PubNub Channel Topology"
              }
          }
+     },
+     "chatFeatures": {
+         "title": "Chat Features",
+         "children": {
+             "onlineOfflineStatus": {
+                 "title": "Online/Offline Status"
+             },
+             "mobilePushNotifications": {
+                 "title": "Mobile Push Notifications"
+             },
+             "typingIndicators": {
+                 "title": "Typing Indicators"
+             },
+             "unreadMessageCounts": {
+                 "title": "Unread Message Counts"
+             },
+             "richMedia": {
+                 "title": "Rich Media"
+             },
+             "imageUpload": {
+                 "title": "Image Upload"
+             }
+         }
+     },
+     "additionalPlugins": {
+         "title": "Additional Plugins",
+         "children": {
+             "muteUsers": {
+                 "title": "Mute Users"
+             },
+             "emoji": {
+                 "title": "Emoji"
+             },
+             "markdown": {
+                 "title": "Markdown Formatting"
+             },
+             "desktopNotifications": {
+                 "title": "Desktop Notifications"
+             }
+         }
+     },
+     "advancedConcepts": {
+        "title": "Advanced Concepts",
+        "children": {
+            "pubnubChannelTopology": {
+                "title": "PubNub Channel Topology"
+            },
+            "authentication": {
+                "title": "Authentication"
+            },
+            "buildAPlugin": {
+                "title": "Build A Plugin"
+            },
+            "integrateWithPubnubFunctions": {
+                "title": "Integrate With PubNub Functions"
+            },
+            "advancedSecurity": {
+                "title": "Advanced Security Topics"
+            }
+        }
      },
      "js": {
          "title": "Javascript",
