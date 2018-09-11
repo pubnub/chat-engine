@@ -38,61 +38,61 @@
                 "title": "Security"
             },
              "me": {
-                 "title": "Me"
+                 "title": "[OLD] Me"
              },
              "users": {
-                 "title": "Users and State"
+                 "title": "[OLD] Users and State"
              },
              "events": {
-                 "title": "Events"
+                 "title": "[OLD] Events"
              },
              "payload": {
-                 "title": "Event Payload"
+                 "title": "[OLD] Event Payload"
              },
              "namespaces": {
-                 "title": "Namespaces"
+                 "title": "[OLD] Namespaces"
              },
              "wildcard": {
-                 "title": "Wildcards"
+                 "title": "[OLD] Wildcards"
              },
              "search": {
-                 "title": "Search"
+                 "title": "[OLD] Search"
              },
              "globalChat": {
-                 "title": "Global Chat"
+                 "title": "[OLD] Global Chat"
              },
              "online-list": {
-                 "title": "Online List"
+                 "title": "[OLD] Online List"
              },
              "auth": {
-                 "title": "Authentication"
+                 "title": "[OLD] Authentication"
              },
              "privacy": {
-                 "title": "Privacy"
+                 "title": "[OLD] Privacy"
              },
              "private": {
-                 "title": "Private Chats"
+                 "title": "[OLD] Private Chats"
              },
              "templating": {
-                 "title": "Templating"
+                 "title": "[OLD] Templating"
              },
              "debugging": {
-                 "title": "Debugging"
+                 "title": "[OLD] Debugging"
              },
              "errors": {
-                 "title": "Errors"
+                 "title": "[OLD] Errors"
              },
              "using": {
-                 "title": "Plugins"
+                 "title": "[OLD] Plugins"
              },
              "build": {
-                 "title": "Build a Plugin"
+                 "title": "[OLD] Build a Plugin"
              },
              "functions": {
-                 "title": "PubNub Functions"
+                 "title": "[OLD] PubNub Functions"
              },
              "topology": {
-                 "title": "PubNub Channel Topology"
+                 "title": "[OLD] PubNub Channel Topology"
              }
          }
      },
