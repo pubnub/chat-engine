@@ -19,8 +19,8 @@
             "configuration": {
                 "title": "Configuration"
             },
-            "connect": {
-                "title": "Connect"
+            "user": {
+                "title": "User"
             },
             "chatRooms": {
                 "title": "Chat Rooms"
@@ -156,6 +156,9 @@
             },
             "initializationOptions": {
                 "title": "Additional Initialization Options"
+            },
+            "connect": {
+                "title": "Connect Deep Dive"
             }
         }
      },
