@@ -14,6 +14,8 @@ changelog:
         text: $.ready returns Me rather than the object {me: Me}.
       - type: improvement
         text: Document all emitted errors, provide more accurate namespacing for error events.
+      - type: improvement
+        text: $.online.join and $.online.leave reliablity fire in rooms with more than 20 users
       - type: feature
         text: Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
       - type: feature

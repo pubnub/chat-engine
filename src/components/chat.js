@@ -286,6 +286,19 @@ class Chat extends Emitter {
             this.userLeave(presenceEvent.uuid);
         }
 
+        // someone joins channel
+        if (presenceEvent.action === 'interval') {
+            if(presenceEvent.join) {
+                presenceEvent.join.forEach((uuid) => this.userJoin(uuid));
+            }
+            if(presenceEvent.leave) {
+                presenceEvent.leave.forEach((uuid) => this.userLeave(uuid));
+            }
+            if(presenceEvent.timeout) {
+                presenceEvent.timeout.forEach((uuid) => this.userDisconnect(uuid));
+            }
+        }
+
         // someone times out
         if (presenceEvent.action === 'timeout') {
             this.userDisconnect(presenceEvent.uuid);
@@ -375,7 +388,7 @@ class Chat extends Emitter {
      * Places a {@link User} in memory if not already there.
      * @private
      */
-    ensureUser(uuid, state) {
+    ensureUser(uuid, state = {}) {
 
         // Ensure that this user exists in memory
         // so we can reference it from here out
@@ -390,6 +403,7 @@ class Chat extends Emitter {
         this.users[uuid] = this.chatEngine.users[uuid];
 
         return userAlreadyHere;
+
 
     }
 
