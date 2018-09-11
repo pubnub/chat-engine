@@ -93,7 +93,7 @@ class User extends Emitter {
             isPrivate: false
         });
 
-        // only update state if state set and this is actually "Me"
+        // only update state if state set and this is not "Me"
         if (state && Object.keys(state).length && this.constructor.name !== 'Me' && this.chatEngine.global) {
             this.update(state);
         }
