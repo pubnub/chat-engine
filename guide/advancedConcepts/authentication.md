@@ -1,13 +1,13 @@
-# Native Authentication Support
+## Native Authentication Support
 
 Currently, PubNub does not offer an authentication API solution (only [Authorization](security.md#authorization)).
 
 To apply authentication logic to ChatEngine, one must update the [PubNub CE Function's](pubnubFunctions.md#PubNub CE Function) ```authPolicy()``` function to authenticate via a **3rd-Party** provider such as GitHub, Facebook, Google, etc.
 
 
-# How to Support 3rd-Party Authentication
+## How to Support 3rd-Party Authentication
 
-## Design Paradigm
+### Design Paradigm
 
 Unfortunately, at the time of writing, CE developers must manually implement authentication. Currently, CE's best option is to leverage a 3rd-Party authentication API. The general architectural design is as follows:
 

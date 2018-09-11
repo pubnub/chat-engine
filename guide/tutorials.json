@@ -32,7 +32,7 @@
                 "title": "Network Events"
             },
             "pubnubFunctions": {
-                "title": "PubNub Function"
+                "title": "PubNub Functions"
             },
             "security": {
                 "title": "Security"
@@ -153,6 +153,9 @@
             },
             "advancedSecurity": {
                 "title": "Advanced Security Topics"
+            },
+            "initializationOptions": {
+                "title": "Additional Initialization Options"
             }
         }
      },

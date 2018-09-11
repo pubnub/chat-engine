@@ -47,3 +47,5 @@ ChatEngine = new ChatEngineCore.create({
     ssl: true
 });
 ```
+
+## AES
