@@ -288,14 +288,14 @@ class Chat extends Emitter {
 
         // someone joins channel
         if (presenceEvent.action === 'interval') {
-            if(presenceEvent.join) {
-                presenceEvent.join.forEach((uuid) => this.userJoin(uuid));
+            if (presenceEvent.join) {
+                presenceEvent.join.forEach(uuid => this.userJoin(uuid));
             }
-            if(presenceEvent.leave) {
-                presenceEvent.leave.forEach((uuid) => this.userLeave(uuid));
+            if (presenceEvent.leave) {
+                presenceEvent.leave.forEach(uuid => this.userLeave(uuid));
             }
-            if(presenceEvent.timeout) {
-                presenceEvent.timeout.forEach((uuid) => this.userDisconnect(uuid));
+            if (presenceEvent.timeout) {
+                presenceEvent.timeout.forEach(uuid => this.userDisconnect(uuid));
             }
         }
 
