@@ -137,6 +137,8 @@ class User extends Emitter {
 
         }
 
+        return this.states[chat.channel];
+
     }
 
     /**

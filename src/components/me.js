@@ -59,8 +59,7 @@ class Me extends User {
             */
             this.chatEngine.throwError(this, 'trigger', 'updateParam', new Error('No chat specified for state update.'));
         } else {
-            this.assign(state, chat);
-            chat.setState(state);
+            chat.setState(this.assign(state, chat));
         }
 
     }
