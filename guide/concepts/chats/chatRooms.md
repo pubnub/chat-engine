@@ -66,7 +66,7 @@ otherUser = ChatEngine.users['adam-UUID'];
 chat.invite(otherUser);
 ```
 
-Listen for a {@link Chat#invite|```$.INVITE```} event.
+Listen for a {@link Chat#invite| ```$.INVITE``` } event.
 
 Users can listen to {@link Chat#invite| ```$.invite```} events on their direct channel to receive invites for chats. If the user is offline, they can call search on their direct channel to retrieve missed invites.
 
