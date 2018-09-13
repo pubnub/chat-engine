@@ -1,24 +1,5 @@
 @import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
 
-* {
-  box-sizing: border-box
-}
-
-html, body {
-  height: 100%;
-  width: 100%;
-}
-
-body {
-  color: #4d4e53;
-  background-color: white;
-  margin: 0 auto;
-  padding: 0 20px;
-  font-family: 'Helvetica Neue', Helvetica, sans-serif;
-  font-size: 16px;
-  line-height: 160%;
-}
-
 a,
 a:active {
   color: #606;
