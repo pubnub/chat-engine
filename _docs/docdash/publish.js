@@ -492,7 +492,7 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
         });
 
         if (itemsNav !== '') {
-            nav += '<h3>' + itemHeading + '</h3><ul>' + itemsNav + '</ul>';
+            nav += '<div data-ce-head="'+itemHeading+'"><h3>' + itemHeading + '</h3><ul>' + itemsNav + '</ul></div>';
         }
     }
 
