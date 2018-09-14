@@ -435,60 +435,91 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
             </div>
         </div>
     </div>
-    <div class="container" id="docs-output">
-        <div class="row">
-            <div class="col-md-4">
-                <img src="https://www.pubnub.com/wp-content/uploads/2017/11/chat-engine-logo.svg">
-                <div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Dropdown button
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" href="#">Something else here</a>
-                  </div>
+    <div id="docs-output">
+
+        <div id="ce-pn-sub-nav">
+
+            <div class="container" >
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="https://www.pubnub.com/wp-content/uploads/2017/11/chat-engine-logo.svg" id="ce-logo">
+                    </div>
+                    <div class="col-md-3">
+
+                        <div id="ce-sdk-select">
+                            <div class="dropdown">
+                              <button class="btn btn-lg btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Javascript
+                              </button>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="#">Javascript</a>
+                                <a class="dropdown-item" href="#">Android</a>
+                                <a class="dropdown-item" href="#">iOS</a>
+                              </div>
+                            </div>
+                            <div class="dropdown">
+                              <button class="btn btn-lg btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                v0.9.15
+                              </button>
+                              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="#">v0.9.15</a>
+                                <a class="dropdown-item" href="#">v0.9.14</a>
+                                <a class="dropdown-item" href="#">v0.9.13</a>
+                                <a class="dropdown-item" href="#">v0.9.12</a>
+                              </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-5" id="ce-header-nav">
+
+                        <div class="ce-sub-nav">
+                          <a href="tutorial-getting-started.html">Overview</a>
+                          <a href="tutorial-js.html">Examples</a>
+                          <a href="tutorial-concepts.html">Tutorials</a>
+                          <a href="module-chat-engine-emoji.html">Plugins</a>
+                          <a href="Chat.html">Reference</a>
+                        </div>
+
+                    </div>
                 </div>
             </div>
-            <div class="col-md-8" id="ce-header-nav">
 
-                <div class="ce-sub-nav">
-                  <a class="active" href="#">Overview</a>
-                  <a class="" href="#">Examples</a>
-                  <a class="" href="#">Tutorials</a>
-                  <a class="" href="#">Plugins</a>
-                  <a class="" href="#">Reference</a>
+        </div>
+
+        <div class="container">
+            <div class="row">
+
+                <nav class="col-md-4" id="ce-side-nav">
+
+                    <div id="ce-side-nav-pad">
+                    <?js= this.nav ?>
+                    </div>
+
+                </nav>
+
+                <div id="main" class="col-md-8">
+
+                    <?js if (title != 'Home') { ?>
+                    <h1 class="page-title"><?js= title ?></h1>
+                    <?js } ?>
+
+                    <?js= content ?>
+
                 </div>
 
-            </div>
-        </div>
-        <div class="row">
+                <br class="clear">
 
-            <nav class="col-md-4">
 
-                <?js= this.nav ?>
-
-            </nav>
-
-            <div id="main" class="col-md-8">
-                <?js if (title != 'Home') { ?>
-                <h1 class="page-title"><?js= title ?></h1>
-                <?js } ?>
-
-                <?js= content ?>
+                <script>prettyPrint();</script>
+                <script src="scripts/linenumber.js"></script>
             </div>
 
-            <br class="clear">
+            <footer>
+                Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc <?js= env.version.number ?></a><?js if(env.conf.templates && env.conf.templates.default && env.conf.templates.default.includeDate !== false) { ?> on <?js= (new Date()) ?><?js } ?> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+            </footer>
 
-
-            <script>prettyPrint();</script>
-            <script src="scripts/linenumber.js"></script>
         </div>
-
-        <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc <?js= env.version.number ?></a><?js if(env.conf.templates && env.conf.templates.default && env.conf.templates.default.includeDate !== false) { ?> on <?js= (new Date()) ?><?js } ?> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
-        </footer>
-
     </div>
     <script src='https://www.pubnub.com/wp-content/plugins/bwp-minify/min/?f=static/intl-tel-input/build/js/intlTelInput.js,wp-content/themes/pubnub/js/phone-validation.js,wp-content/themes/pubnub/js/script.js&#038;ver=148732091320181'></script>
     <script src='/static/js/main.min.js?ts=1536827280' async='async'></script>

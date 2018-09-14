@@ -8,14 +8,6 @@
   /* × and + */
   /** Add a '#' to static members */
 }
-#docs-output h1,
-#docs-output h2,
-#docs-output h3,
-#docs-output h4,
-#docs-output h5,
-#docs-output h6 {
-  text-transform: none;
-}
 #docs-output a,
 #docs-output a:active {
   color: #606;
@@ -34,7 +26,6 @@
   margin-bottom: 1em;
 }
 #docs-output h1, #docs-output h2, #docs-output h3, #docs-output h4, #docs-output h5, #docs-output h6 {
-  font-family: "Montserrat", sans-serif;
 }
 #docs-output h1, #docs-output h2, #docs-output h3, #docs-output h4, #docs-output h5, #docs-output h6 {
   color: #000;
@@ -49,7 +40,7 @@
 }
 #docs-output h1.page-title {
   font-size: 48px;
-  margin: 1em 30px;
+  margin-bottom: 30px;
 }
 #docs-output h2 {
   font-size: 24px;
@@ -110,7 +101,8 @@
 #docs-output section {
   display: block;
   background-color: #fff;
-  padding: 0 0 0 30px;
+  padding: 0;
+  margin: 0;
 }
 #docs-output .variation {
   display: none;
@@ -135,7 +127,6 @@
   color: #000;
 }
 #docs-output nav ul {
-  font-family: "Lucida Grande", "Lucida Sans Unicode", arial, sans-serif;
   font-size: 100%;
   line-height: 17px;
   padding: 0;
@@ -144,11 +135,13 @@
 }
 #docs-output nav ul a,
 #docs-output nav ul a:active {
-  font-family: "Montserrat", sans-serif;
   line-height: 18px;
   padding: 0;
   display: block;
-  font-size: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+  padding-bottom: 10px;
 }
 #docs-output nav a:hover,
 #docs-output nav a:active {
@@ -171,7 +164,11 @@
 }
 #docs-output nav ul ul a {
   color: #98999a;
-  border-left: 1px solid #d8dcdf;
+  font-weight: normal;
+  font-size: 16px;
+  padding-top: 9px;
+  color: #4a4a4a;
+  padding-bottom: 3px;
 }
 #docs-output nav ul ul a,
 #docs-output nav ul ul a:active {
@@ -271,13 +268,14 @@
   width: inherit;
   line-height: 18px;
   display: block;
-  background-color: #0d152a;
+  background-color: #000;
   color: #aeaeae;
+  padding: 0px;
 }
 #docs-output .prettyprint code {
   line-height: 18px;
   display: block;
-  background-color: #0d152a;
+  background-color: #000;
   color: #4D4E53;
 }
 #docs-output .prettyprint > code {
@@ -541,13 +539,55 @@
   max-width: 100%;
 }
 
+#docs-output h1,
+#docs-output h2,
+#docs-output h3,
+#docs-output h4,
+#docs-output h5,
+#docs-output h6 {
+  text-transform: none;
+  padding-left: 0px;
+}
 
 .ce-sub-nav {
+  position: absolute;
+  right: 0px;
+  top: 11px;
 }
 .ce-sub-nav a {
-    padding-top: 30px;
-    padding-bottom: 30px;
-    margin-right: 20px;
-    display: block;
-    float: left;
+    margin-left: 20px;
+}
+#ce-sdk-select .dropdown-toggle {
+  float: left;
+  margin-right: 15px;
+}
+
+#ce-logo {
+  width:  220px;
+  margin-bottom: 14px;
+}
+
+#ce-sdk-select {
+      padding-top: 7px;
+}
+#ce-pn-sub-nav {
+  padding-top: 10px;
+  padding-bottom: 0px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#ce-side-nav {
+  background-color: #f5f5f5;
+}
+#ce-side-nav-pad {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+#ce-side-nav h2 {
+  display: none;
+}
+#docs-output #main {
+  padding-left: 50px;
+  padding-top: 25px;
 }
