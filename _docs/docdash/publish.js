@@ -420,19 +420,21 @@ function buildTutorialNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, cl
 
         items.forEach(function(item) {
 
+            console.log(item)
+
             var methods = find({kind:'function', memberof: item.longname});
             var members = find({kind:'member', memberof: item.longname});
             var events = find({kind:'event', memberof: item.longname});
 
             var docdash = env && env.conf && env.conf.docdash || {};
 
-            itemsNav += '<div data-sidebar="'+item.name+'"><h3>' + linktoFn(item.longname, item.name.replace(/^module:/, '')) + '</h3>';
+            itemsNav += '<div data-ce-head="'+item.title+'"><h3>' + linktoFn(item.longname, item.name.replace(/^module:/, '')) + '</h3>';
 
             itemsNav += '<ul>';
             // tutorials
             item.children.forEach(function(item) {
 
-                itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn('', item.name);
+                itemsNav += '<li data-sidebar="'+item.title+'">' + linktoFn('', item.name);
 
                 if(item.children.length) {
 
@@ -440,7 +442,7 @@ function buildTutorialNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, cl
 
                     item.children.forEach(function(item) {
 
-                        itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn('', item.name);
+                        itemsNav += '<li data-sidebar="'+item.longname+'">' + linktoFn('', item.name);
                         itemsNav += '</li>';
 
                     });
