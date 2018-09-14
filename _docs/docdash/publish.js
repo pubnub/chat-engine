@@ -469,7 +469,7 @@ function buildTutorialNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, cl
     return nav;
 }
 
-function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, classes) {
+function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, classes = [], globals = []) {
 
     var nav = '';
     var loopAgain = loopAgain || false;
@@ -477,17 +477,13 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
     if (items && items.length) {
         var itemsNav = '';
 
-        if(itemHeading == 'Guides') {
-            for(var i in items) {
-                if(items[i].name == "concepts") {
-                    items.unshift(items[i]);
-                }
-            }
-            for(var i in items) {
-                if(items[i].name == "getting-started") {
-                    items.unshift(items[i]);
-                }
-            }
+        if (globals.length) {
+
+            globals.forEach(function(g) {
+                itemsNav += '<li data-sidebar="'+g.name+'">' + linkto(g.longname, g.name);
+                itemsNav += '</li>';
+            });
+
         }
 
         items.forEach(function(item) {
@@ -549,6 +545,7 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
         });
 
         if (itemsNav !== '') {
+
             nav += '<div data-ce-head="'+itemHeading+'"><h3>' + itemHeading + '</h3><ul>' + itemsNav + '</ul></div>';
         }
     }
@@ -587,29 +584,8 @@ function buildNav(members) {
 
     nav += buildTutorialNav(members.tutorials, 'Guides', seenTutorials, linktoTutorial, true, members.children);
 
-    if (members.globals.length) {
-
-        var globalNav = '';
-
-        members.globals.forEach(function(g) {
-            if ( g.kind !== 'typedef' && !hasOwnProp.call(seen, g.longname) ) {
-                globalNav += '<li>' + linkto(g.longname, g.name) + '</li>';
-            }
-            seen[g.longname] = true;
-        });
-
-        if (!globalNav) {
-            // turn the heading into a link so you can actually get to the global page
-            nav += '<h3>' + linkto('global', 'Global') + '</h3>';
-        }
-        else {
-            nav += '<h3>Global</h3><ul>' + globalNav + '</ul>';
-        }
-    }
-
-
     nav += buildMemberNav(members.modules, 'Plugins', {}, linkto, true, members.classes);
-    nav += buildMemberNav(members.classes, 'Reference', seen, linkto);
+    nav += buildMemberNav(members.classes, 'Reference', seen, linkto, false, members.classes, members.globals);
 
     nav += buildMemberNav(members.externals, 'Externals', seen, linktoExternal);
     // nav += buildMemberNav(members.events, 'Events', seen, linkto);
