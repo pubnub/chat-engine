@@ -10,8 +10,6 @@ var taffy = require('taffydb').taffy;
 var template = require('jsdoc/template');
 var util = require('util');
 
-console.log(helper.linkto)
-
 var htmlsafe = helper.htmlsafe;
 var linkto = helper.linkto;
 var resolveAuthorLinks = helper.resolveAuthorLinks;
@@ -412,6 +410,65 @@ function hasCeextends(rootClass, items) {
 
 }
 
+function buildTutorialNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, classes) {
+
+    var nav = '';
+    var loopAgain = loopAgain || false;
+
+    if (items && items.length) {
+        var itemsNav = '';
+
+        items.forEach(function(item) {
+
+            var methods = find({kind:'function', memberof: item.longname});
+            var members = find({kind:'member', memberof: item.longname});
+            var events = find({kind:'event', memberof: item.longname});
+
+            var docdash = env && env.conf && env.conf.docdash || {};
+
+            itemsNav += '<div data-sidebar="'+item.name+'"><h3>' + linktoFn(item.longname, item.name.replace(/^module:/, '')) + '</h3>';
+
+            itemsNav += '<ul>';
+            // tutorials
+            item.children.forEach(function(item) {
+
+                itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn('', item.name);
+
+                if(item.children.length) {
+
+                    itemsNav += '<ul>';
+
+                    item.children.forEach(function(item) {
+
+                        itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn('', item.name);
+                        itemsNav += '</li>';
+
+                    });
+
+                    itemsNav += '</ul>';
+
+                }
+
+                itemsNav += '</li>';
+
+
+            });
+
+            itemsNav += '</ul>';
+
+            itemsNav += '</div>';
+            itemsSeen[item.longname] = true;
+
+        });
+
+        if (itemsNav !== '') {
+            nav += itemsNav;
+        }
+    }
+
+    return nav;
+}
+
 function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, classes) {
 
     var nav = '';
@@ -527,7 +584,8 @@ function buildNav(members) {
     var nav = '<h2><a href="index.html">Home</a></h2>';
     var seen = {};
     var seenTutorials = {};
-    nav += buildMemberNav(members.tutorials, 'Guides', seenTutorials, linktoTutorial, true, members.children);
+
+    nav += buildTutorialNav(members.tutorials, 'Guides', seenTutorials, linktoTutorial, true, members.children);
 
     if (members.globals.length) {
 

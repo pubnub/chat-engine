@@ -17,10 +17,12 @@
          "title": "Concepts",
          "children": {
              "me": {
-                 "title": "Me"
-             },
-             "users": {
-                 "title": "Users and State"
+                 "title": "Me",
+                 "children": {
+                     "users": {
+                         "title": "Users and State"
+                     }
+                }
              },
              "chats": {
                  "title": "Chats"
