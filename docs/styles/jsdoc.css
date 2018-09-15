@@ -139,7 +139,6 @@
   padding: 0;
   display: block;
   font-size: 18px;
-  font-weight: bold;
   color: #000;
   padding-bottom: 10px;
 }
@@ -155,6 +154,8 @@
 }
 #docs-output nav > ul > li > a {
   color: #606;
+  font-weight: bold;
+  font-size: 18px;
 }
 #docs-output nav ul ul {
   margin-bottom: 10px;
@@ -557,6 +558,10 @@
 .ce-sub-nav a {
     margin-left: 20px;
 }
+.ce-sub-nav .active {
+  border-bottom: 5px solid #007bff;
+  padding-bottom: 20px;
+}
 #ce-sdk-select .dropdown-toggle {
   float: left;
   margin-right: 15px;
@@ -590,4 +595,18 @@
 #docs-output #main {
   padding-left: 50px;
   padding-top: 25px;
+}
+div[data-ce-type] {
+  display: none;
+}
+#ce-side-nav a {
+  color: #909090;
+}
+#ce-side-nav .active {
+}
+#ce-side-nav div > ul > li {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 30px;
+  margin-top: 30px;
+  padding-bottom: 14px;
 }

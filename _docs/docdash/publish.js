@@ -420,21 +420,19 @@ function buildTutorialNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, cl
 
         items.forEach(function(item) {
 
-            console.log(item)
-
             var methods = find({kind:'function', memberof: item.longname});
             var members = find({kind:'member', memberof: item.longname});
             var events = find({kind:'event', memberof: item.longname});
 
             var docdash = env && env.conf && env.conf.docdash || {};
 
-            itemsNav += '<div data-ce-head="'+item.title+'"><h3>' + linktoFn(item.longname, item.name.replace(/^module:/, '')) + '</h3>';
+            itemsNav += '<div data-ce-type="tutorial"><h3>' + linktoFn(item.longname, item.name.replace(/^module:/, '')) + '</h3>';
 
             itemsNav += '<ul>';
             // tutorials
             item.children.forEach(function(item) {
 
-                itemsNav += '<li data-sidebar="'+item.title+'">' + linktoFn('', item.name);
+                itemsNav += '<li>' + linktoFn('', item.name);
 
                 if(item.children.length) {
 
@@ -442,7 +440,7 @@ function buildTutorialNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, cl
 
                     item.children.forEach(function(item) {
 
-                        itemsNav += '<li data-sidebar="'+item.longname+'">' + linktoFn('', item.name);
+                        itemsNav += '<li>' + linktoFn('', item.name);
                         itemsNav += '</li>';
 
                     });
@@ -482,7 +480,7 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
         if (globals.length) {
 
             globals.forEach(function(g) {
-                itemsNav += '<li data-sidebar="'+g.name+'">' + linkto(g.longname, g.name);
+                itemsNav += '<li>' + linkto(g.longname, g.name);
                 itemsNav += '</li>';
             });
 
@@ -497,11 +495,11 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
             var docdash = env && env.conf && env.conf.docdash || {};
 
             if ( !hasOwnProp.call(item, 'longname') ) {
-                itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn('', item.name);
+                itemsNav += '<li>' + linktoFn('', item.name);
                 itemsNav += '</li>';
             } else if ( !hasOwnProp.call(itemsSeen, item.longname) ) {
 
-                itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn(item.longname, item.name.replace(/^module:/, ''));
+                itemsNav += '<li>' + linktoFn(item.longname, item.name.replace(/^module:/, ''));
 
                 if(loopAgain) {
 
@@ -511,7 +509,7 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
                         // tutorials
                         item.children.forEach(function(item) {
 
-                            itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn('', item.name);
+                            itemsNav += '<li>' + linktoFn('', item.name);
                             itemsNav += '</li>';
 
                         });
@@ -548,7 +546,7 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
 
         if (itemsNav !== '') {
 
-            nav += '<div data-ce-head="'+itemHeading+'"><h3>' + itemHeading + '</h3><ul>' + itemsNav + '</ul></div>';
+            nav += '<div data-ce-type="'+items[0].kind+'"><h3>' + itemHeading + '</h3><ul>' + itemsNav + '</ul></div>';
         }
     }
 
