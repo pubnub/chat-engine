@@ -133,8 +133,7 @@
   margin: 0;
   list-style-type: none;
 }
-#docs-output nav ul a,
-#docs-output nav ul a:active {
+#docs-output nav ul a {
   line-height: 18px;
   padding: 0;
   display: block;
