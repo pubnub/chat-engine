@@ -251,7 +251,11 @@ class Emitter extends RootEmitter {
         }
 
         if (chat) {
-            this.plugin(restoreState(chat));
+            if (this.name === 'Me' || this.name === 'User') {
+                this._restoreState(chat, () => {});
+            } else {
+                this.plugin(restoreState(chat));
+            }
         } else {
             this.chatEngine.throwError(this, 'emit', 'restoreState', new Error('Must supply a chat to restoreState'));
         }
