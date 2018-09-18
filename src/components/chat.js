@@ -556,11 +556,6 @@ class Chat extends Emitter {
      */
     leave() {
 
-        // unsubscribe from the channel locally
-        this.chatEngine.pubnub.unsubscribe({
-            channels: [this.channel]
-        });
-
         // tell the server we left
         this.chatEngine.request('post', 'leave', { chat: this.objectify() })
             .then(() => {
