@@ -10,7 +10,7 @@
 }
 #docs-output a,
 #docs-output a:active {
-  color: #606;
+  color: #3394bf;
   text-decoration: none;
 }
 #docs-output a:hover {
@@ -41,6 +41,7 @@
 #docs-output h1.page-title {
   font-size: 48px;
   margin-bottom: 30px;
+  margin-top: 0px;
 }
 #docs-output h2 {
   font-size: 24px;
@@ -56,13 +57,13 @@
   color: #4d4e53;
 }
 #docs-output h4.name {
-  color: #fff;
-  background: #6d426d;
+  color: #b3454c;
+  background: #fff;
   box-shadow: 0 0.25em 0.5em #d3d3d3;
-  border-top: 1px solid #d3d3d3;
-  border-bottom: 1px solid #d3d3d3;
+  border: 1px solid #cecece;
   margin: 1.5em 0 0.5em;
   padding: 0.75em 0 0.75em 10px;
+  border-radius: 3px;
 }
 #docs-output h4.name a {
   color: #fc83ff;
@@ -109,7 +110,7 @@
 }
 #docs-output .signature-attributes {
   font-size: 60%;
-  color: #eee;
+  color: #6f6f6f;
   font-style: italic;
   font-weight: lighter;
 }
@@ -186,7 +187,6 @@
 }
 #docs-output footer {
   color: #474747;
-  margin-left: 310px;
   display: block;
   padding: 15px;
   font-style: italic;
@@ -194,6 +194,7 @@
   opacity: 0.3;
   text-align: center;
   font-size: 11px;
+  background-color: white;
 }
 #docs-output .ancestors {
   color: #999;
@@ -215,13 +216,13 @@
   color: #CA79CA;
 }
 #docs-output .type-signature:last-child {
-  color: #eee;
+  color: #6f6f6f;
 }
 #docs-output .name, #docs-output .signature {
   font-family: Consolas, Monaco, "Andale Mono", monospace;
 }
 #docs-output .signature {
-  color: #fc83ff;
+  color: #821515;
 }
 #docs-output .details {
   margin-top: 6px;
@@ -272,11 +273,18 @@
   color: #aeaeae;
   padding: 0px;
 }
+
+#docs-output pre {
+  padding: 0px;
+  border: none;
+}
 #docs-output .prettyprint code {
   line-height: 18px;
   display: block;
   background-color: #000;
   color: #4D4E53;
+  border-radius: 3px;
+  border: 1px solid #000;
 }
 #docs-output .prettyprint > code {
   padding: 15px;
@@ -558,7 +566,7 @@
     margin-left: 20px;
 }
 .ce-sub-nav .active {
-  border-bottom: 5px solid #007bff;
+  border-bottom: 5px solid #3394bf;
   padding-bottom: 20px;
 }
 #ce-sdk-select .dropdown-toggle {
