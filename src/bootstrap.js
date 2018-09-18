@@ -363,7 +363,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (globalConfig = {}) => {
+    ChatEngine.firstConnect = (globalChannel = 'global') => {
 
         // create the PubNub instance but don't connect
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
@@ -411,7 +411,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         };
 
         if (ChatEngine.ceConfig.enableGlobal) {
-            ChatEngine.global = new ChatEngine.Chat('global', globalConfig);
+            ChatEngine.global = new ChatEngine.Chat(globalChannel);
             ChatEngine.global.once('$.connected', firstConnection);
         } else {
             firstConnection();
@@ -528,9 +528,10 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
+     * @param {String} [globalChannel='global'] The channel to be used for ChatEngine#global.
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), globalConfig = {}) => {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), globalChannel = 'global') => {
 
         if (typeof authKey === 'number' || typeof authKey === 'string') {
 
@@ -540,7 +541,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.pnConfig.authKey = authKey;
 
             ChatEngine.handshake(() => {
-                ChatEngine.firstConnect(globalConfig);
+                ChatEngine.firstConnect(globalChannel);
             });
 
         } else {
