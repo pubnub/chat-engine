@@ -2,11 +2,10 @@
 
 {@link ChatEngine} generates ```$.online.*``` and ```$.offline.*``` events when users join or leave chat rooms. These events can be consumed by other users in the chat room to show online/offline status indicators.
 
-When a new user joins a chat room, a {@link Chat.online.here| ```$.online.here``` } event is emitted.
-
-- When an existing user joins a chat room, a ```$.online.join``` event is emitted.
-- When a user intentionally leaves a chat room, a ```$.offline.leave``` event is emitted.
-- When a user loses network connectivity, a ```$.offline.disconnect``` event is generated.
+- When a new user joins a chat room, a {@link Chat#event:$"."online"."here|  ```$.online.here``` } event is emitted.
+- When an existing user joins a chat room, a {@link Chat#event:$"."online"."join|  ```$.online.join``` } event is emitted.
+- When a user intentionally leaves a chat room, a {@link Chat#event:$"."offline"."leave|  ```$.offline.leave``` } event is emitted.
+- When a user loses network connectivity, a {@link Chat#event:$"."offline"."disconnect|  ```$.offline.disconnect``` } event is generated.
 
 ### Listen to ```$.ONLINE``` events
 

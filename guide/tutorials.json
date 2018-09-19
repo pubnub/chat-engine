@@ -38,6 +38,9 @@
                     },
                     "onlineOfflineEvents": {
                         "title": "Online Offline User Events"
+                    },
+                    "meUser": {
+                        "title": "The 'Me' User"
                     }
                 }
             },
@@ -98,7 +101,18 @@
                 }
             },
             "pubnubFunctions": {
-                "title": "PubNub Functions"
+                "title": "PubNub Functions",
+                "children": {
+                    "functionsOverview": {
+                        "title": "PubNub Functions Overview"
+                    },
+                    "onRequestFunction": {
+                        "title": "On Request Function"
+                    },
+                    "pubnubCeFunction": {
+                        "title": "PubNub ChatEngine Function(s)"
+                    }
+                }
             }
         }
     },
