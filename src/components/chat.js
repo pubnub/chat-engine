@@ -739,13 +739,13 @@ class Chat extends Emitter {
 
         this.onConnected();
 
-        // add this chat to session if sessions are enabled in this instance
-        if (this.chatEngine.me.session) {
-            this.chatEngine.me.session.join(this);
-        }
-
-        // only get presence on custom chats
+        // perform extra routines for user made chats
         if (this.group === 'custom') {
+
+            // add this chat to session if sessions are enabled in this instance
+            if (this.chatEngine.me.session) {
+                this.chatEngine.me.session.join(this);
+            }
 
             // This timeout ensures we get our own online event
             setTimeout(() => {
