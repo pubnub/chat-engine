@@ -545,29 +545,34 @@ class Chat extends Emitter {
      */
     leave() {
 
-        // tell the server we left
-        this.chatEngine.request('post', 'leave', { chat: this.objectify() })
-            .then(() => {
+        // only leave custom chats
+        if (this.group === 'custom') {
 
-                // trigger the disconnect events and update state
-                this.onLeave();
+            // tell the server we left
+            this.chatEngine.request('post', 'leave', { chat: this.objectify() })
+                .then(() => {
 
-                // tell the chat we've left
-                this.emit('$.system.leave', { subject: this.objectify() });
+                    // trigger the disconnect events and update state
+                    this.onLeave();
 
-                // tell session we've left
-                if (this.chatEngine.me.session) {
-                    this.chatEngine.me.session.leave(this);
-                }
+                    // tell the chat we've left
+                    this.emit('$.system.leave', { subject: this.objectify() });
 
-            })
-            .catch((error) => {
-                /**
-                 * There was some problem leaving the chat.
-                 * @event Chat#$"."error"."leave
-                 */
-                this.chatEngine.throwError(this, 'trigger', 'leave', new Error('Something went wrong while making a request to chat server.'), { error });
-            });
+                    // tell session we've left
+                    if (this.chatEngine.me.session) {
+                        this.chatEngine.me.session.leave(this);
+                    }
+
+                })
+                .catch((error) => {
+                    /**
+                     * There was some problem leaving the chat.
+                     * @event Chat#$"."error"."leave
+                     */
+                    this.chatEngine.throwError(this, 'trigger', 'leave', new Error('Something went wrong while making a request to chat server.'), { error });
+                });
+
+        }
 
     }
 
