@@ -9,7 +9,7 @@ The real time server component is provided by PubNub. ChatEngine is designed to 
 Thanks for testing the new version of ChatEngine. This branch is still under development and is subject to change. 0.10 includes many improvements and optimizations over 0.9:
 
 - Online and offline events fire more reliablity.
-- $.ready returns Me rather than the object {me: -
+- $.ready returns Me rather than the object {me}
 - Document all emitted errors, provide more accurate namespacing for error events.
 - $.online.join and $.online.leave reliablity fire in rooms with more than 20 users
 - Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
