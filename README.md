@@ -42,7 +42,8 @@ Our [integration tests](https://github.com/pubnub/chat-engine/blob/0.10-alpha/te
 
 ### Plugins
 
-Plugins, plugin tests and examples, have been migrated or verified to work with 0.10. You can find them within a branch called ```chat-354```. Plugins can be compiled with ```chat-engine-plugin``` if needed.
+Plugins, plugin tests and examples, have been migrated or verified to work with 0.10. You can find them within a branch called ```chat-354```. Plugins can be compiled with ```chat-engine-plugin``` if needed. See this plugin branch for an example:
+
 https://github.com/pubnub/chat-engine-emoji/tree/chat-354
 
 ## Get Help with 0.10
