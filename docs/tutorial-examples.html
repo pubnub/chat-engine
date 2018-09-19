@@ -44,7 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1">
     <link rel="canonical" href="https://www.pubnub.com/" />
 
-    <title>Quick Start Guide - PubNub ChatEngine</title>
+    <title>Examples - PubNub ChatEngine</title>
 
     <meta name="description" content="Focus on innovation and launch fast with our realtime APIs and global messaging infrastructure for web, mobile, and Internet of Things." />
     <link rel="publisher" href="https://plus.google.com/+Pubnub" />
@@ -519,117 +519,31 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                 <div id="main" class="col-md-8">
 
                     
-                    <h1 class="page-title">Quick Start Guide</h1>
+                    <h1 class="page-title">Examples</h1>
                     
 
                     <section>
 
 <header>
     
+    <ul>
+        <li><a href="tutorial-js.html">Javascript</a></li>
+    
+        <li><a href="tutorial-angular.html">Angular</a></li>
+    
+        <li><a href="tutorial-react.html">React</a></li>
+    
+        <li><a href="tutorial-jquery.html">jQuery</a></li>
+    
+        <li><a href="tutorial-nodejs.html">NodeJS</a></li>
+    </ul>
+    
 
-    <!-- <h2>Quick Start Guide</h2> -->
+    <!-- <h2>Examples</h2> -->
 </header>
 
 <article>
-    <p>This is a simple tutorial that explains ChatEngine as quickly as possible.</p>
-<p>Before following this guide, be sure to follow the setup instructions found in <a href="tutorial-install.html">Install ChatEngine</a> and <a href="tutorial-pubnub.html">Configure ChatEngine</a> tutorials.</p>
-<p>We'll be creating a simple chat lobby where you can see who's online and invite one another to private chats.</p>
-<h2>Connection</h2><p>First, we need to connect to <a href="ChatEngine.html">ChatEngine</a> via <a href="ChatEngine.html#connect">ChatEngine#connect</a>.
-The values input into <a href="ChatEngine.html#connect">ChatEngine#connect</a> create a new <a href="User.html">User</a> called
-<a href="Me.html">Me</a> that this client will act as.</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian', {team: 'red'});</code></pre><p>This will connect to <a href="ChatEngine.html">ChatEngine</a> with <a href="Me.html#uuid">Me#uuid</a> equal to &quot;ian a <a href="Me.html#state">Me#state</a> of <code>{team: red}</code>.</p>
-<h2>The $.ready event</h2><p>Because <a href="ChatEngine.html">ChatEngine</a> must do some work to connect to the server, we must wait for it to respond before
-working with <a href="Chat.html">Chat</a>s and <a href="User.html">User</a>s.</p>
-<p>When <a href="ChatEngine.html">ChatEngine</a> is ready, it will emit <a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a>. We can subscribe to this event with <a href="ChatEngine.html#on">ChatEngine#on</a>.</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.on('$.ready', (data) => {
-    console.log('ChatEngine ready to go!');
-});</code></pre><p>The <code>$</code> represents a &quot;system&quot; event. You can read more about system events in the tutorial on <a href="tutorial-namespaces.html">Namespaces</a>. You can subscribe to all system events via <code>ChatEngine.on('$.*')</code>, read more in the tutorial on <a href="tutorial-wildcard.html">Wildcards</a>.</p>
-<h2>Me</h2><p>When <a href="ChatEngine.html#on">ChatEngine#on</a> is fired, <a href="Me.html">Me</a> is supplied as <code>data.me</code> in the response.</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian', {team: 'red'});
-ChatEngine.on('$.ready', (data) => {
-    let me = data.me; // ian
-});</code></pre><p>All calls made to <a href="ChatEngine.html">ChatEngine</a> are made on behalf of <a href="Me.html">Me</a>.</p>
-<h2>Chats</h2><p>Let's create <a href="Chat.html">Chat</a> for us to join. We'll make a <a href="Chat.html">Chat</a> through
-which our users can communicate.</p>
-<pre class="prettyprint source lang-js"><code>let lobby = new ChatEngine.Chat('lobby');</code></pre><p>This will create a new <a href="Chat.html">Chat</a>. We'll be connected to it automatically.</p>
-<h2>Users</h2><p>So how do we see other other people online? Well <a href="Me.html">Me</a> is automatically
-recorded as joining our <a href="Chat.html">Chat</a>, and any other person who runs this program
-will see 'ian' as a <a href="User.html">User</a> online on the <a href="Chat.html">Chat</a>.</p>
-<p>You can get a list of online users via <a href="Chat.html#users">Chat#users</a>.</p>
-<pre class="prettyprint source lang-js"><code>console.log(lobby.users);</code></pre><p>Will output:</p>
-<pre class="prettyprint source"><code>{
-    ian: {
-        // this is a User objet
-    }
-}</code></pre><p>If we were to open another window and connect as 'stephen', we would see
-'stephen' in <code>lobby.users</code>.</p>
-<p>ChatEngine.connect('stephen', {team: 'blue'});</p>
-<p>Let's chat with <code>stephen</code>.</p>
-<h2>Sending Messages</h2><p>In order to chat, all we need to do is use the <a href="Chat.html#emit">Chat#emit</a> method to
-send a message over the internet to all other clients who have the program running.</p>
-<pre class="prettyprint source lang-js"><code>lobby.emit('message', {
-    text: 'hey'
-});</code></pre><p>The first parameter, <code>message</code>, is an event name that is just a string identifier. It helps us
-tell the difference between different events. See <a href="tutorial-events.html">Events</a> <a href="tutorial-namespaces.html">Namespaces</a> and <a href="tutorial-wildcard.html">Wildcards</a> for more.</p>
-<p>The second parameter is a JSON string that represents the message payload. This data
-is sent over the internet to all subscribing parties.</p>
-<h2>Listening for Messages</h2><p>We can get notified a new message by using <a href="Chat.html#on">Chat#on</a>. The <code>text</code> value
-is available as <code>payload.data.text</code>.</p>
-<pre class="prettyprint source lang-js"><code>lobby.on('message', (payload) => {
-    console.log(payload.data.text)
-});</code></pre><p>We can also get the <a href="User.html">User</a> that sent the <code>message</code> and the <a href="Chat.html">Chat</a> the
-message was sent to. For more on this, see <a href="tutorial-payload.html">Event Payload</a>.</p>
-<pre class="prettyprint source lang-js"><code>lobby.on('message', (payload) => {
-    console.log(payload.sender.uiud, 'sent a message to', payload.chat.channel, 'with value', payload.data);
-});</code></pre><h2>State</h2><p>But hey, what if we want more information about the user that sent the <code>message</code>. Remember how we supplied
-<code>{team: 'red'}</code> during <a href="ChatEngine.html#connect">ChatEngine#connect</a>?</p>
-<pre class="prettyprint source lang-js"><code>ChatEngine.connect('ian', {team: 'red'});</code></pre><p>We can get that value with <a href="User.html#state">User#state</a>. This value will be the same
-on every machine because state is synced between everybody.</p>
-<pre class="prettyprint source lang-js"><code>lobby.on('message', (payload) => {
-    console.log(payload.sender.uuid, 'sent a message', payload.data.text);
-    console.log('they are on team', payload.sender.state.team);
-});</code></pre><h2>Private Chat</h2><p>What if we want to invite <code>stephen</code> into a private chat? We can find
-<code>stephen</code> from our list of users in the lobby. See <a href="Chat.html#users">Chat#users</a></p>
-<p>We can use <code>stephen</code>'s uuid to get his <a href="User.html">User</a>.</p>
-<pre class="prettyprint source lang-js"><code>let stephen = lobby.users['stephen'];</code></pre><p>Ok, let's make a new chat and invite him to it. We'll create a new <a href="Chat.html">Chat</a>
-and then fire the <a href="Chat.html#invite">Chat#invite</a> which invites a <a href="User.html">User</a> to a <a href="Chat.html">Chat</a>.</p>
-<pre class="prettyprint source lang-js"><code>let privateChat = new ChatEngine.Chat('private');
-privateChat.invite(stephen);</code></pre><p>So how does <code>stephen</code> know that he got invited? <a href="Chat.html#invite">Chat#invite</a> sends
-<code>stephen</code> a direct message that nobody else can see over a special <a href="Chat.html">Chat</a>
-called <a href="User.html#direct">User#direct</a>.</p>
-<p><code>stephen</code> can find out when someone invites him by subscribing to the <code>$.invite</code> event
-via <a href="Me.html#direct">Me#direct</a>. The key for the new chat that we created is available as <code>payload.data.channel</code>.</p>
-<pre class="prettyprint source lang-js"><code>me.direct.on('$.invite', (payload) => {
-
-    let invitedChat = new $scope.ChatEngine.Chat(payload.data.channel);
-
-    invitedChat.emit('message', {
-        text: 'hello everybody!'
-    });
-
-});</code></pre><h2>Using Plugins</h2><p>What if we want to support <a href="https://en.wikipedia.org/wiki/Markdown">Markdown</a> in our messages? We can use a ChatEngine plugin. Plugins are loaded via the <a href="Chat.html#plugin">Chat#plugin</a>, <a href="User.html#plugin">User#plugin</a>, or <a href="Me.html#plugin">Me#plugin</a>.</p>
-<p>First we include it in the script.</p>
-<pre class="prettyprint source lang-js"><code>let ceMarkdown = require('chat-engine-markdown');</code></pre><p>Then we create a new <a href="Chat.html">Chat</a> and attach the plugin to it via <a href="Chat.html#plugin">Chat#plugin</a>.</p>
-<pre class="prettyprint source lang-js"><code>let pluginchat = new ChatEngine.Chat('markdown-chat');
-pluginchat.plugin(ceMarkdown({}));</code></pre><p>And now, when someone sends a message via <a href="Chat.html#emit">Chat#emit</a>...</p>
-<pre class="prettyprint source"><code>pluginchat.emit('message', {
-   text: 'This is some *markdown* **for sure**.'
-});</code></pre><p>The markdown plugin will parse markdown and replace it as HTML.</p>
-<pre class="prettyprint source lang-js"><code>pluginchat.on('message', (payload) => {
-   // payload.data.text == 'This is some &lt;em>markdown&lt;/em> &lt;strong>for sure&lt;/strong>.'
-});</code></pre><p>Check out the tutorials on <a href="tutorial-using.html">Plugins</a> and how <a href="tutorial-build.html">Build a Plugin</a>.</p>
-<h2>Hooking it up to a template</h2><p>ChatEngine is the back end to your chat app and does not include a template system. However, the
-event based system and data synchronization make it super easy to hook into
-a template system.</p>
-<p>Check out the guide on <a href="tutorial-templating.html">Templating</a> and our examples of working with different frameworks:</p>
-<ul>
-<li><a href="tutorial-ng-simple.html">Angular Bootstrap</a></li>
-<li><a href="tutorial-jq-kitchen.html">jQuery Kitchen Sink</a></li>
-<li><a href="tutorial-chat_.html">JS Chat</a></li>
-<li><a href="tutorial-online.html">JS Online List</a></li>
-<li><a href="tutorial-react-simple.html">React Web</a></li>
-<li><a href="tutorial-react-native.html">React Native</a></li>
-</ul>
+    <p>examples.md</p>
 </article>
 
 </section>
