@@ -19,11 +19,13 @@ You can install the new version of ChatEngine with ```npm install chat-engine@al
 ### Update the PubNub Function Code
 
 You'll need to update your ChatEngine PubNub Function to use the latest code found here:
+
 https://github.com/pubnub/chat-engine-setup/blob/CHAT-354-no-global/src/functions/server.js
 
 ### Migrate your client code
 
 A migration guide from 0.9 to 0.10 is available here:
+
 https://github.com/pubnub/chat-engine/blob/0.10-alpha/migrate-0.9-0.10.md
 
 ### Documentation and Reference
@@ -33,6 +35,7 @@ The documentation within the repository is mostly up to date. Clone this reposit
 ### Examples
 
 Updated examples can be found here:
+
 https://github.com/pubnub/chat-engine-examples/tree/CHAT-354-migration
 
 Our [integration tests](https://github.com/pubnub/chat-engine/blob/0.10-alpha/test/integration/main.test.js) are also passing and can be used as reference.
