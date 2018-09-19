@@ -61,7 +61,7 @@ https://github.com/pubnub/chat-engine-emoji/tree/chat-354
 
 Please let support@pubnub.com know about any trouble you're having with 0.10 and we'll do our best to get you going.
 
-# Back to regular scheduled programming
+# 0.9 Readme
 
 [![](https://data.jsdelivr.com/v1/package/npm/chat-engine/badge)](https://www.jsdelivr.com/package/npm/chat-engine)
 [![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
