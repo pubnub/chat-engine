@@ -232,30 +232,19 @@ class Chat extends Emitter {
         })
             .then(() => {
 
-                let send = () => {
-
-                    /**
-                     * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
-                     * Fired by the {@link Chat#invite} method.
-                     * @event Me#$"."invite
-                     * @tutorial private
-                     * @example
-                     * me.direct.on('$.invite', (payload) => {
-                     *    let privChat = new ChatEngine.Chat(payload.data.channel));
-                     * });
-                     */
-                    user.direct.emit('$.invite', {
-                        channel: this.channel
-                    });
-
-                };
-
-                if (!user.direct.connected) {
-                    user.direct.connect();
-                    user.direct.on('$.connected', send);
-                } else {
-                    send();
-                }
+                /**
+                 * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
+                 * Fired by the {@link Chat#invite} method.
+                 * @event Me#$"."invite
+                 * @tutorial private
+                 * @example
+                 * me.direct.on('$.invite', (payload) => {
+                 *    let privChat = new ChatEngine.Chat(payload.data.channel));
+                 * });
+                 */
+                user.direct.emit('$.invite', {
+                    channel: this.channel
+                });
 
             })
             .catch((error) => {
