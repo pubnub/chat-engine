@@ -4,6 +4,50 @@ PubNub ChatEngine is an object oriented event emitter based framework for buildi
 
 The real time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
 
+# 0.10 Alpha Preview Instructions
+
+Thanks for testing the new version of ChatEngine. 0.10 includes many improvements and optimizations over 0.9. This branch is still under development and is subject to change.
+
+A summary of changes is available in the [0.10 changelog](https://github.com/pubnub/chat-engine/blob/0.10-alpha/.pubnub.yml#L9).
+
+## Using the new version
+
+### Update the SDK
+
+You can install the new version of ChatEngine with ```npm install chat-engine@alpha``` which will return a version of 0.10.x. You can also use the jsdelivr link ```https://cdn.jsdelivr.net/npm/chat-engine@0.10.13/dist/chat-engine.min.js```.
+
+### Update the PubNub Function Code
+
+You'll need to update your ChatEngine PubNub Function to use the latest code found here:
+https://github.com/pubnub/chat-engine-setup/blob/CHAT-354-no-global/src/functions/server.js
+
+### Migrate your client code
+
+A migration guide from 0.9 to 0.10 is available here:
+https://github.com/pubnub/chat-engine/blob/0.10-alpha/migrate-0.9-0.10.md
+
+### Documentation and Reference
+
+The documentation within the repository is mostly up to date. Clone this repository and render it locally by running ```gulp serve_docs```.
+
+### Examples
+
+Updated examples can be found here:
+https://github.com/pubnub/chat-engine-examples/tree/CHAT-354-migration
+
+Our [integration tests](https://github.com/pubnub/chat-engine/blob/0.10-alpha/test/integration/main.test.js) are also passing and can be used as reference.
+
+### Plugins
+
+Plugins, plugin tests and examples, have been migrated or verified to work with 0.10. You can find them within a branch called ```chat-354```. Plugins can be compiled with ```chat-engine-plugin``` if needed.
+https://github.com/pubnub/chat-engine-emoji/tree/chat-354
+
+## Get Help with 0.10
+
+Please let support@pubnub.com know about any trouble you're having with 0.10 and we'll do our best to get you going.
+
+# Back to regular scheduled programming
+
 [![](https://data.jsdelivr.com/v1/package/npm/chat-engine/badge)](https://www.jsdelivr.com/package/npm/chat-engine)
 [![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)

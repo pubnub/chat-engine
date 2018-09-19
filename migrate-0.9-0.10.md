@@ -1,4 +1,4 @@
-We're proud to release the next version of ChatEngine, 0.10.20. This new
+We're proud to release the next version of ChatEngine, 0.10.x. This new
 version has major focus on improving efficiency and usability.
 
 By popular request, we've reworked the SDK to no longer require a
