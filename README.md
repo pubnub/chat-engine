@@ -6,9 +6,20 @@ The real time server component is provided by PubNub. ChatEngine is designed to 
 
 # 0.10 Alpha Preview Instructions
 
-Thanks for testing the new version of ChatEngine. 0.10 includes many improvements and optimizations over 0.9. This branch is still under development and is subject to change.
+Thanks for testing the new version of ChatEngine. This branch is still under development and is subject to change. 0.10 includes many improvements and optimizations over 0.9:
 
-A summary of changes is available in the [0.10 changelog](https://github.com/pubnub/chat-engine/blob/0.10-alpha/.pubnub.yml#L9).
+- Online and offline events fire more reliablity.
+- $.ready returns Me rather than the object {me: -
+- Document all emitted errors, provide more accurate namespacing for error events.
+- $.online.join and $.online.leave reliablity fire in rooms with more than 20 users
+- Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
+- .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. Works for both Chat and Search.
+- Adds the ability to disable globalChannel preventing transactions for users who do not use it.
+- State can be set within specific chats.
+- Errors are properly caught by promise rejections.
+- References to globalChannel are now called namespace.
+- Message augmentation further isolated into plugin structure.
+- PubNub HereNow only called a single time.
 
 ## Using the new version
 
