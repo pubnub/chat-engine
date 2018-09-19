@@ -1,80 +1,104 @@
 {
-    "getting-started":{
+    "getting-started": {
         "title":"Overview",
-        "children":{
-            "install":{
+        "children": {
+            "install": {
                 "title":"Install ChatEngine"
             },
-            "pubnub":{
+            "pubnub": {
                 "title":"Configure ChatEngine"
             },
-            "quick":{
+            "quick": {
                 "title":"Quick Start Guide"
             }
         }
     },
-    "concepts":{
-        "title":"Tutorials",
-        "children":{
-            "me":{
-                "title":"Me"
+    "concepts": {
+         "title": "Concepts",
+         "children": {
+            "configuration": {
+                "title": "Configuration"
             },
-            "users":{
-                "title":"Users and State"
+            "connect": {
+                "title": "Connect",
+                "children": {
+                    "connectToChatEngine": {
+                        "title": "Connect to ChatEngine"
+                    }
+                }
             },
-            "chats":{
-                "title":"Chats"
+            "theuser": {
+                "title": "User",
+                "children": {
+                    "listUsers": {
+                        "title": "List Users"
+                    },
+                    "userState": {
+                        "title": " User State"
+                    },
+                    "onlineOfflineEvents": {
+                        "title": "Online Offline User Events"
+                    }
+                }
             },
-            "events":{
-                "title":"Events"
+            "chatRooms": {
+                "title": "Chat Rooms",
+                "children": {
+                    "createChat": {
+                        "title": "Create a Chat Room"
+                    },
+                    "joinPublicChat": {
+                        "title": "Join a Public Chat Room"
+                    },
+                    "inviteUserPrivateChat": {
+                        "title": "Invite a User to a Private Chat Room"
+                    },
+                    "leaveChat": {
+                        "title": "Leave a Chat Room"
+                    }
+                }
             },
-            "payload":{
-                "title":"Event Payload"
+            "messages": {
+                "title": "Messages",
+                "children": {
+                    "sendMessagesToChat": {
+                        "title": "Send Messages to Chat"
+                    },
+                    "receiveMessageOnChat": {
+                        "title": "Receive Message On Chat"
+                    },
+                    "sendDirectMessage": {
+                        "title": "Send a Direct Message"
+                    },
+                    "messagesHistory": {
+                        "title": "Messages History"
+                    }
+                }
             },
-            "namespaces":{
-                "title":"Namespaces"
+            "networkEvents": {
+                "title": "Network Events",
+                "children": {
+                    "disconnectFromChatEngine": {
+                        "title":  "Disconnect from ChatEngine"
+                    },
+                    "reconnectToChatEngine": {
+                        "title": "Reconnect To ChatEngine"
+                    }
+                }
             },
-            "wildcard":{
-                "title":"Wildcards"
+            "security": {
+                "title": "Security",
+                "children": {
+                    "encryption": {
+                        "title": "Encryption"
+                    },
+                    "authorization": {
+                        "title": "Authorization"
+                    }
+                }
             },
-            "search":{
-                "title":"Search"
-            },
-            "globalChat":{
-                "title":"Global Chat"
-            },
-            "online-list":{
-                "title":"Online List"
-            },
-            "auth":{
-                "title":"Authentication"
-            },
-            "privacy":{
-                "title":"Privacy"
-            },
-            "private":{
-                "title":"Private Chats"
-            },
-            "templating":{
-                "title":"Templating"
-            },
-            "debugging":{
-                "title":"Debugging"
-            },
-            "errors":{
-                "title":"Errors"
-            },
-            "using":{
-                "title":"Plugins"
-            },
-            "build":{
-                "title":"Build a Plugin"
-            },
-            "functions":{
-                "title":"PubNub Functions"
-            },
-            "topology":{
-                "title":"PubNub Channel Topology"
+            "pubnubFunctions": {
+                "title": "PubNub Functions"
             }
         }
     },
