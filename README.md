@@ -29,9 +29,13 @@ You can install the new version of ChatEngine with ```npm install chat-engine@al
 
 ### Update the PubNub Function Code
 
-You'll need to update your ChatEngine PubNub Function to use the latest code found here:
+You'll need to update your ChatEngine PubNub Function to use the latest code found here. It would be wise to [use our account configuration tool to set up a new 0.9 app](https://www.pubnub.com/tutorials/chatengine/) and then copy and paste the new server code into it.
 
 https://github.com/pubnub/chat-engine-setup/blob/CHAT-354-no-global/src/functions/server.js
+
+### Enable Presence Deltas
+
+Enable Presence Deltas within your PubNub key configuration on https://admin.pubnub.com/. This can be found within your app and key settings.
 
 ### Migrate your client code
 
