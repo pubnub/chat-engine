@@ -23,9 +23,6 @@ Thanks for testing the new version of ChatEngine. This branch is still under dev
 
 ## Using the new version
 
-### Update the SDK
-
-You can install the new version of ChatEngine with ```npm install chat-engine@alpha``` which will return a version of 0.10.x. You can also use the jsdelivr link ```https://cdn.jsdelivr.net/npm/chat-engine@0.10.13/dist/chat-engine.min.js```.
 
 ### Update the PubNub Function Code
 
@@ -36,6 +33,10 @@ https://github.com/pubnub/chat-engine-setup/blob/CHAT-354-no-global/src/function
 ### Enable Presence Deltas
 
 Enable Presence Deltas within your PubNub key configuration on https://admin.pubnub.com/. This can be found within your app and key settings.
+
+### Update the SDK
+
+You can install the new version of ChatEngine with ```npm install chat-engine@alpha``` which will return a version of 0.10.x. You can also use the jsdelivr link ```https://cdn.jsdelivr.net/npm/chat-engine@0.10.13/dist/chat-engine.min.js```.
 
 ### Migrate your client code
 

@@ -86,14 +86,14 @@ class Session extends Emitter {
                             group
                         });
 
-                        /**
-                        Fired when session has been restored at boot. Fired once per
-                        session group.
-                        @event Me#$"."session"."group"."restored
-                        */
-                        this.trigger('$.group.restored', { group });
-
                     });
+
+                    /**
+                    Fired when session has been restored at boot. Fired once per
+                    session group.
+                    @event Me#$"."session"."group"."restored
+                    */
+                    this.trigger('$.group.restored', { group });
 
                 }
 
