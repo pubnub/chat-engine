@@ -478,8 +478,8 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                           <a href="index.html">Everything</a>
                           <a href="tutorial-js.html">Examples</a>
                           <a href="tutorial-concepts.html">Concepts</a>
-                          <a href="tutorial-advancedConcepts.html">Advanced Concepts</a>
-                          <a href="module-chat-engine-emoji.html">Plugins</a>
+                          <a href="tutorial-advancedConcepts.html">Advanced</a>
+                          <a href="plugins.html">Plugins</a>
                           <a href="Chat.html">Reference</a>
                         </div>
 
@@ -512,7 +512,9 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                             $(head).show();
 
                             let header = head.find('h3').text();
-                            $('a:contains("'+header+'")').addClass('active');
+                            $('a').filter(function() {
+                                return $(this).text() === header;
+                            }).addClass('active');
 
                         });
 
