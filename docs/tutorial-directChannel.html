@@ -44,7 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1">
     <link rel="canonical" href="https://www.pubnub.com/" />
 
-    <title>Leave a Chat Room - PubNub ChatEngine</title>
+    <title>Direct Channel - PubNub ChatEngine</title>
 
     <meta name="description" content="Focus on innovation and launch fast with our realtime APIs and global messaging infrastructure for web, mobile, and Internet of Things." />
     <link rel="publisher" href="https://plus.google.com/+Pubnub" />
@@ -526,7 +526,7 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                 <div id="main" class="col-md-8">
 
                     
-                    <h1 class="page-title">Leave a Chat Room</h1>
+                    <h1 class="page-title">Direct Channel</h1>
                     
 
                     <section>
@@ -534,17 +534,15 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 <header>
     
 
-    <!-- <h2>Leave a Chat Room</h2> -->
+    <!-- <h2>Direct Channel</h2> -->
 </header>
 
 <article>
-    <h2>Leave a Chat Room</h2><p>The <a href="Chat.html#leave"> <code>Chat.leave()</code> </a> method allows a user to leave a chat room and stop receiving messages.</p>
-<pre class="prettyprint source lang-js"><code>Chat.leave();</code></pre><p>// TODO: does this event exist???</p>
-<p>Listen to  <code>$.DISCONNECTED</code>  event.</p>
-<p>A $.disconnected event is generated when a user leaves the chat room:</p>
-<pre class="prettyprint source lang-js"><code>chat.on('$.disconnected', () => {
-    done();
-});</code></pre>
+    <h2>Direct Channel</h2><p>A direct chat channel can be used by a user to receive incoming requests from other users or alerts and notifications from a server. Any user can connect to a user’s direct channel to send messages, but only the user that owns the direct channel will have read permissions to receive messages on the channel.</p>
+<p>Direct channels can be accessed by calling <code>user.direct</code>.</p>
+<pre class="prettyprint source lang-js"><code>let joe = new ChatEngine.User('joe');
+console.log(joe.direct.channel);
+// joe.direct.channel == &quot;chat-engine#user#joe#write#direct&quot;</code></pre>
 </article>
 
 </section>

@@ -44,7 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1">
     <link rel="canonical" href="https://www.pubnub.com/" />
 
-    <title>Leave a Chat Room - PubNub ChatEngine</title>
+    <title>Feed Channel - PubNub ChatEngine</title>
 
     <meta name="description" content="Focus on innovation and launch fast with our realtime APIs and global messaging infrastructure for web, mobile, and Internet of Things." />
     <link rel="publisher" href="https://plus.google.com/+Pubnub" />
@@ -526,7 +526,7 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                 <div id="main" class="col-md-8">
 
                     
-                    <h1 class="page-title">Leave a Chat Room</h1>
+                    <h1 class="page-title">Feed Channel</h1>
                     
 
                     <section>
@@ -534,17 +534,15 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 <header>
     
 
-    <!-- <h2>Leave a Chat Room</h2> -->
+    <!-- <h2>Feed Channel</h2> -->
 </header>
 
 <article>
-    <h2>Leave a Chat Room</h2><p>The <a href="Chat.html#leave"> <code>Chat.leave()</code> </a> method allows a user to leave a chat room and stop receiving messages.</p>
-<pre class="prettyprint source lang-js"><code>Chat.leave();</code></pre><p>// TODO: does this event exist???</p>
-<p>Listen to  <code>$.DISCONNECTED</code>  event.</p>
-<p>A $.disconnected event is generated when a user leaves the chat room:</p>
-<pre class="prettyprint source lang-js"><code>chat.on('$.disconnected', () => {
-    done();
-});</code></pre>
+    <h2>Feed Channel</h2><p>A feed chat channel can be used by a user to broadcast a feed of messages to other users. For instance, the user can send out status updates or public tweets that other users can listen to. Any user can connect to feed channels and receive messages, but only the user that owns the feed channel will have write permissions to send messages on the channel.</p>
+<p>Feed channels can be accessed by calling <code>user.feed</code>.</p>
+<pre class="prettyprint source lang-js"><code>let joe = new ChatEngine.User('joe');
+console.log(joe.feed.channel);
+// joe.feed.channel == &quot;chat-engine#user#joe#read#feed&quot;</code></pre>
 </article>
 
 </section>

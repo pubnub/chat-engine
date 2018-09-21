@@ -44,7 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1">
     <link rel="canonical" href="https://www.pubnub.com/" />
 
-    <title>Leave a Chat Room - PubNub ChatEngine</title>
+    <title>thirdPartyAuth - PubNub ChatEngine</title>
 
     <meta name="description" content="Focus on innovation and launch fast with our realtime APIs and global messaging infrastructure for web, mobile, and Internet of Things." />
     <link rel="publisher" href="https://plus.google.com/+Pubnub" />
@@ -526,7 +526,7 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                 <div id="main" class="col-md-8">
 
                     
-                    <h1 class="page-title">Leave a Chat Room</h1>
+                    <h1 class="page-title">thirdPartyAuth</h1>
                     
 
                     <section>
@@ -534,17 +534,134 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 <header>
     
 
-    <!-- <h2>Leave a Chat Room</h2> -->
+    <!-- <h2>thirdPartyAuth</h2> -->
 </header>
 
 <article>
-    <h2>Leave a Chat Room</h2><p>The <a href="Chat.html#leave"> <code>Chat.leave()</code> </a> method allows a user to leave a chat room and stop receiving messages.</p>
-<pre class="prettyprint source lang-js"><code>Chat.leave();</code></pre><p>// TODO: does this event exist???</p>
-<p>Listen to  <code>$.DISCONNECTED</code>  event.</p>
-<p>A $.disconnected event is generated when a user leaves the chat room:</p>
-<pre class="prettyprint source lang-js"><code>chat.on('$.disconnected', () => {
-    done();
-});</code></pre>
+    <h1>How to use the guide</h1><p>The following guide shows CE developers how one might setup 3rd party authentication for users. For the sake of popularity, a <em>Facebook Login App</em> is used as the authenticator. Despite which 3rd party service is used, the security mechanics remains the same.</p>
+<blockquote>
+<ol>
+<li>CE client inputs login creds to 3rd party authenticator.</li>
+<li>3rd party returns authKey upon successful authentication.</li>
+<li>CE server receives authKey and grants/authorizes user access to requisite CE channels (for time specified by authTTL) via <a href="https://www.pubnub.com/docs/pubnub-rest-api-documentation#pubnub-access-manager-pam">PAM</a>.</li>
+</ol>
+</blockquote>
+<h1>How CE 3rd Party Authentication Works</h1><p>The guide covers how to setup 3rd authentication within the CE platform. Its important to note that the following security pattern is not restricted to using FB Login App service, but any third-party authentication service.</p>
+<h3>Login flow to 3rd Party Provider via ChatEngine (e.g. FB Login App):</h3><p><img src="./ChatEngineAuthFB1.png" alt="Flowchart0" title="Blah"></p>
+<h3>Publish Chat Message (post-login routing):</h3><p><img src="./ChatEngineAuthMsgFlow.png" alt="Flowchart1" title="Blah"></p>
+<h2>JS SDK connects to servers with a Facebook uuid and authToken</h2><p>The Facebook JS SDK provides a method to login (and a GUI element too!). When Facebook tells us we're logged in, we boot ChatEngine with the authentication information that get from Facebook. This includes a user object, an id, and the Facebook Access Token.</p>
+<p>Check out the docs for <a href="https://developers.facebook.com/docs/facebook-login/access-tokens#usertokens">Facebook Access Tokens</a> and the properties for <a href="https://www.pubnub.com/docs/chat-engine/reference/chatengine#connect">ChatEngine.connect()</a>.</p>
+<pre class="prettyprint source lang-js"><code>function buildChatEngine(fbMe, fbAccessToken) {
+    ChatEngine.connect(fbMe.id, fbMe, fbAccessToken);
+};</code></pre><p>Authentication information is stored in memory on the client and sent with every single ChatEngine request.</p>
+<h2>Server Functions receives request but does not execute</h2><p>ChatEngine Server Function receives the request and immediately proxies it to the Gateway Function. It will not continue unless it receives <code>{ allow: true }</code> from the Gateway.</p>
+<p>The token and user information is forwarded to the Gateway function.</p>
+<h2>The Gateway Function Authorizes (or Rejects)</h2><p>The Gateway Function returns &quot;allow&quot; <code>true</code> or <code>false</code> depending on the policy. Authentication policies are defined on a <strong>per route basis</strong>. In general, a policy is in charge of &quot;who&quot; can do &quot;what.&quot;</p>
+<p>As soon as ChatEngine connect is called, it makes a request to <code>/login</code>. This is the only open route in our authorization policy.</p>
+<p>The login route should take the user's information and return a successful response if it is valid. The Gateway function will then store this information in it's own cache, so that 3rd party servers do not have to be contacted in the future.</p>
+<p>In this example, notice how login needs to <code>validateFBToken</code>. See below for what that does.</p>
+<p>Notice how the 'grant' policy calls a different function called <code>isOverAge</code>. This asks Facebook to validate that the user is over 13 before giving them access to any new chat (the /grant endpoint).</p>
+<p>All the information from the original request is available in the policy gateway.</p>
+<h2>Gateway Validates FB Token on Login</h2><p>This function validates the supplied uuid and authToken to grant the user access to ChatEngine. It uses the xhr module to call Facebook's debug endpoint and validate that the user token is legitimate and that it matches who the user claims to be.</p>
+<h2>The Server executes the business logic on good response from gateway</h2><p>If the token is valid on /login, the Server Function stores the <code>authKey</code> in the db keyed by <code>uuid</code>. This acts as a session cache, allowing us to validate the authToken ourselves in future requests; preventing us from hitting Facebook's servers every time we need to check if the user is valid (which is every time).</p>
+<p>If this were the /grant endpoint, the server would grant the user access to some chat. And if it were a invite request, it might send someone else a chat invite.</p>
+<h1>Every PubNub and Server request thereafter is validated</h1><p>By comparing the uuid and the cached authToken, we can validate that the user is who they say they are. This is because Facebook told us so, and we cached that in the db.</p>
+<p>All other ChatEngine requests will use this method rather than asking Facebook
+every time.</p>
+<p>With cached session validation and protected routes, we have a secure way allowing access to chat rooms and other functions.</p>
+<h1>Setup</h1><h2>Checkout The ChatEngine Repository</h2><p>This example depends on compiled JS SDK found in the <a href="https://github.com/pubnub/chat-engine/tree/auth-policy-refactor">auth-policy-refactor</a> branch.</p>
+<p>Make sure to compile this version of ChatEngine in the sibling directory:</p>
+<pre class="prettyprint source"><code>git clone git@github.com:pubnub/chat-engine.git
+git checkout auth-policy-refactor</code></pre><p>The remaining file assets are appended to the bottom of the guide.</p>
+<h2>I. Facebook Login App</h2><ol>
+<li><a href="https://developers.facebook.com/apps">Naviate to the following</a> and login to FB developer landing page.</li>
+<li>Next select <em>Add a New App</em> and follow the setup wizard.</li>
+<li>Enter in your app's domain address into <code>Site URL</code> and the <code>App Domain</code> fields (e.g. <code>https://localhost</code> &amp; <code>localhost</code> respectively).
+<img src="./FB_App_settings_1.png" alt="FB App Settings 1" title="blah">
+<img src="./FB_App_settings.png" alt="FB App Settings 0" title="blah"></li>
+<li>Save settings.</li>
+<li>Copy the <code>appID</code> value into the client code to replace the hardcoded value used by the <code>FB.init()</code> method in <code>../chat-engine-scratch/auth-guide/index.html</code>.</li>
+<li>Copy and save the <code>App Secret</code> for later use.</li>
+<li>Once app has been created, copy and paste the <code>appID</code> inside the <code>FB.init()</code> method used in the file: <code>../index.html</code>.</li>
+<li>Lastly, paste the <code>App Secret</code> value into the <code>chat-engine-gateway</code> Function, should look something like: <code>const appID = '&lt;INSERT_appID&gt;';</code>.</li>
+</ol>
+<h2>II. Functions</h2><p>The following are updated PubNub functions that implements swap-able auth policies to
+work with 3rd party services (see bottom of guide for copies of Functions code).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Function Name</th>
+<th style="text-align:center">Function Type</th>
+<th style="text-align:center">Channel Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">rest-gateway</td>
+<td style="text-align:center">On Request</td>
+<td style="text-align:center">chat-engine-gateway</td>
+</tr>
+<tr>
+<td style="text-align:center">rest-sever</td>
+<td style="text-align:center">On Request</td>
+<td style="text-align:center">chat-engine-server</td>
+</tr>
+<tr>
+<td style="text-align:center">msg-validator</td>
+<td style="text-align:center">Before Publish</td>
+<td style="text-align:center">*</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: Functions code appended to bottom of guide for ease of copying &amp; pasting.</p>
+</blockquote>
+<ol>
+<li>Copy and paste Functions code (in table above) into a Module.</li>
+<li>Within the <code>rest-gateway</code> Function, hardcode the <code>`appID</code> value.</li>
+<li>Select the <code>My Secrets</code> button and input the following key-val: <code>{'myFBSecret': '_COPY_PASTE_APP_SECRET_HERE_'}</code>, then save.</li>
+<li>Restart Module.</li>
+</ol>
+<h2>III. Client</h2><ol>
+<li>Go to the chat-engine:auth-policy-refactor repo.</li>
+<li><code>npm install</code></li>
+<li>Copy the index.html (at page bottom) into a directory at the same level as chat-engine repo.</li>
+<li>Copy and paste <code>publishKey</code> &amp; <code>subscribeKey</code> values into <code>index.html`</code>.</li>
+<li>Ensure that <code>appID</code> value from FB has been set within <code>../index.html</code>.</li>
+<li>FB requires you server applications over SSL. To serve the client code over https perform the following: <code>openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem</code>
+<code>npm install http-server -g</code>
+<code>http-server --ssl -C chat-engine-scratch/auth-preview/cert.pem -K chat-engine-scratch/auth-preview/key.pem</code></li>
+<li>Open <code>../index.html</code></li>
+<li>Boom! Login to FB and chat away!</li>
+</ol>
+<h2>Cost vs. Security</h2><p>The above authentication heavily relies on the usage of an <em>onBeforePublish</em> Function that is registered to listen on all channels ('*') on that subkey. Meaning, every published msg via CE will be authenticated by the <em>onBeforePublish</em> Function. Though a costly architecture, the approach is the most secure and expensive. Any reductions to cost would subsequently lead to a less secure architecture. <em>Lets explore these trade-offs..</em></p>
+<h3>Option #1: Everytime: <em>High Cost, High Security</em>:</h3><p>By far the most costly and secure option. On initilization of CE, user's third-party authentication information is sent to CE <em>login</em> rest Function endpoint. The Function handles requests to a third-party authenticator and caches the response within Function's KV store for cached authentication. If successfully authenticated via third-party, all subsequent CE calls are validated by <em>onBeforePublish</em> Function that checks message's <code>authKey</code> matches the associated user's <code>authKey</code> previously saved in the KV store.</p>
+<blockquote>
+<p>Configuration:</p>
+<ol>
+<li>Follow the above guide.</li>
+</ol>
+</blockquote>
+<h3>Option #2: Periodic: <em>Moderate Cost, Moderate Security</em>:</h3><p>If the cost of authenticating every CE msg gives you the willies, but require more than just a single authorization (i.e. SSO), implementing a periodical authorization can offer users moderate security.</p>
+<p>The mechanics of a periodical authorization requires SSO with some third-party credentials. Once the CE backend has determined the validity of the creds, the rest-server Function grants/authorizes users access to various channels required by CE for a given authTTL.</p>
+<blockquote>
+<p>Configuration:</p>
+<ol>
+<li>Remove the <em>onBeforePublish</em> Function;</li>
+<li>Update chat-engine-rest.js Functions code to grant PAM access with a specified TTL which expires every X seconds.</li>
+<li>Restart module.</li>
+<li>Update ChatEngine client code to retry authenticating upon expired authTTL.</li>
+</ol>
+</blockquote>
+<h3>Option #3:  Single Sign On: <em>Low Cost, Low Security</em>:</h3><p>The least secure authentication pattern relies on a single authentication attempt at the initilization of a CE user. When initilizing CE, once a user has entered their authentication credentials into the client, a <em>login</em> attempt is sent to CE <em>login</em> rest Function endpoint. Once successfully authenticated, CE will then grant PAM access to the user. No further authentication occurs until user <em>logs in</em> again.</p>
+<blockquote>
+<p>Configuration:</p>
+<ol>
+<li>Remove the <em>onBeforePublish</em> Function.</li>
+<li>Restart Module.</li>
+</ol>
+</blockquote>
+<h2>Code Snippets</h2>
 </article>
 
 </section>

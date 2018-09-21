@@ -514,7 +514,12 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                             let header = head.find('h3').text();
                             $('a:contains("'+header+'")').addClass('active');
 
-                        })
+                        });
+
+                        if(location.pathname.indexOf('plugins.html') > -1) {
+                            $('div[data-ce-type="module"]').show();
+                        }
+
                     </script>
                 </nav>
 

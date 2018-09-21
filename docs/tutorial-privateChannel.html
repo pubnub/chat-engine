@@ -44,7 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1">
     <link rel="canonical" href="https://www.pubnub.com/" />
 
-    <title>Leave a Chat Room - PubNub ChatEngine</title>
+    <title>Private Channel - PubNub ChatEngine</title>
 
     <meta name="description" content="Focus on innovation and launch fast with our realtime APIs and global messaging infrastructure for web, mobile, and Internet of Things." />
     <link rel="publisher" href="https://plus.google.com/+Pubnub" />
@@ -526,7 +526,7 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                 <div id="main" class="col-md-8">
 
                     
-                    <h1 class="page-title">Leave a Chat Room</h1>
+                    <h1 class="page-title">Private Channel</h1>
                     
 
                     <section>
@@ -534,17 +534,14 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 <header>
     
 
-    <!-- <h2>Leave a Chat Room</h2> -->
+    <!-- <h2>Private Channel</h2> -->
 </header>
 
 <article>
-    <h2>Leave a Chat Room</h2><p>The <a href="Chat.html#leave"> <code>Chat.leave()</code> </a> method allows a user to leave a chat room and stop receiving messages.</p>
-<pre class="prettyprint source lang-js"><code>Chat.leave();</code></pre><p>// TODO: does this event exist???</p>
-<p>Listen to  <code>$.DISCONNECTED</code>  event.</p>
-<p>A $.disconnected event is generated when a user leaves the chat room:</p>
-<pre class="prettyprint source lang-js"><code>chat.on('$.disconnected', () => {
-    done();
-});</code></pre>
+    <h2>Private Channel</h2><p>All private chats are created under the <code>globalChannel + '#chat#private.*'</code> namespace. This namespace is locked down and no users have read or write access. They must be granted them.</p>
+<pre class="prettyprint source lang-js"><code>let privateChat = new Chat('private-channel', true);
+console.log(privateChat.channel);
+// privateChat.channel == &quot;chat-engine#chat#private.#private-channel&quot;</code></pre>
 </article>
 
 </section>

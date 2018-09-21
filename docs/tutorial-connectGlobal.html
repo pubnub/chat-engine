@@ -44,7 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1">
     <link rel="canonical" href="https://www.pubnub.com/" />
 
-    <title>Leave a Chat Room - PubNub ChatEngine</title>
+    <title>Connect.Global - PubNub ChatEngine</title>
 
     <meta name="description" content="Focus on innovation and launch fast with our realtime APIs and global messaging infrastructure for web, mobile, and Internet of Things." />
     <link rel="publisher" href="https://plus.google.com/+Pubnub" />
@@ -526,7 +526,7 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                 <div id="main" class="col-md-8">
 
                     
-                    <h1 class="page-title">Leave a Chat Room</h1>
+                    <h1 class="page-title">Connect.Global</h1>
                     
 
                     <section>
@@ -534,17 +534,75 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 <header>
     
 
-    <!-- <h2>Leave a Chat Room</h2> -->
+    <!-- <h2>Connect.Global</h2> -->
 </header>
 
 <article>
-    <h2>Leave a Chat Room</h2><p>The <a href="Chat.html#leave"> <code>Chat.leave()</code> </a> method allows a user to leave a chat room and stop receiving messages.</p>
-<pre class="prettyprint source lang-js"><code>Chat.leave();</code></pre><p>// TODO: does this event exist???</p>
-<p>Listen to  <code>$.DISCONNECTED</code>  event.</p>
-<p>A $.disconnected event is generated when a user leaves the chat room:</p>
-<pre class="prettyprint source lang-js"><code>chat.on('$.disconnected', () => {
-    done();
-});</code></pre>
+    <h2>Connect ChatEngine.Global</h2><p>When a user initializes CE, the client tries to first perform a connection handshake. A series of four <code>ChatEngine.request()</code> are made in order to connect the user to the default set of CE channels. These channels are generated based on the <code>ChatEngine.global</code>  and the user's <code>UUID</code> strings.</p>
+<p>Each request made to the PubNub CE Function controller sets up ACLs for either <code>channels</code> _or_ <code>channelGroups</code> array. Granting either <code>read</code> and or <code>write</code> access to an array of <code>channels</code>. Effectively, these requests make up basic CE user authorization.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">HTTP method</th>
+<th style="text-align:center">controller*</th>
+<th style="text-align:center">read</th>
+<th style="text-align:center">write</th>
+<th style="text-align:left">channels</th>
+<th style="text-align:left">channelGroups</th>
+<th style="text-align:center">authKeys</th>
+<th style="text-align:center">ttl [sec]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>POST</code></td>
+<td style="text-align:center"><code>bootstrap</code></td>
+<td style="text-align:center"><code>true</code></td>
+<td style="text-align:center"><code>true</code></td>
+<td style="text-align:left">[<code>global</code>,<br><code>global-pnpres</code>,<br><code>global#chat#public.*</code>,<br><code>global#user#UUID#me.*</code>,<br><code>global#user#UUID#read.*</code>,<br><code>global#user#UUID#write.*</code>]</td>
+<td style="text-align:left"></td>
+<td style="text-align:center">[<code>request.body.authKey</code>]</td>
+<td style="text-align:center"><code>request.body.ttl</code><br>_or_<br><code>10800</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>POST</code></td>
+<td style="text-align:center"><code>user_read</code></td>
+<td style="text-align:center"><code>true</code></td>
+<td style="text-align:center"><code>false</code></td>
+<td style="text-align:left"><code>global#user#UUID#read.*</code></td>
+<td style="text-align:left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><code>request.body.ttl</code><br>_or_<br><code>10800</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>POST</code></td>
+<td style="text-align:center"><code>user_write</code></td>
+<td style="text-align:center"><code>false</code></td>
+<td style="text-align:center"><code>true</code></td>
+<td style="text-align:left"><code>global#user#UUID#write.*</code></td>
+<td style="text-align:left"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"><code>request.body.ttl</code><br>_or_<br><code>10800</code></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>POST</code></td>
+<td style="text-align:center"><code>group</code></td>
+<td style="text-align:center"><code>true</code></td>
+<td style="text-align:center"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left">[<code>global#UUID#rooms</code>,<br><code>global#UUID#rooms-pnpres</code>,<br><code>global#UUID#system</code>,<br><code>global#UUID#system-pnpres</code>,<br><code>global#UUID#custom</code>,<br><code>global#UUID#custom-pnpres</code>]</td>
+<td style="text-align:center">[<code>request.body.authKey</code>]</td>
+<td style="text-align:center"><code>request.body.ttl</code><br>_or_<br><code>10800</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>* <code>controller</code> field used to properly route grant requests within the PubNub CE Function
+<br>If field left blank, argument was not used with <code>pubnub.grant()</code>function.</p>
+</blockquote>
+<p>Once all of the above requests have made, CE.global awaits a <code>$.connected</code> event to be emitted, signaling a successful CE connection to the default global chats.</p>
 </article>
 
 </section>
