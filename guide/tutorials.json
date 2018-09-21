@@ -116,6 +116,57 @@
             }
         }
     },
+    "advancedConcepts": {
+        "title": "Advanced Concepts",
+        "children": {
+            "initializationOptions": {
+                "title": "Initialization Options"
+            },
+            "connectDeepDive": {
+                "title": "Connect Deep Dive",
+                "children": {
+                    "connectGlobal": {
+                        "title": "Connect.Global"
+                    },
+                    "connectMe": {
+                        "title": "Connect.Me"
+                    }
+                }
+            },
+            "authentication": {
+                "title": "Authentication"
+            },
+            "advancedSecurity": {
+                "title": "Advanced Security"
+            },
+            "integrateWithPubnubFunctions": {
+                "title": "Integrate with PubNub Functions"
+            },
+            "pubnubChannelTopology": {
+                "title": "PubNub Channel Topology",
+                "children": {
+                    "globalChannel": {
+                        "title": "Global Channel"
+                    },
+                    "feedChannel": {
+                        "title": "Feed Channel"
+                    },
+                    "directChannel": {
+                        "title": "Direct Channel"
+                    },
+                    "publicChannel": {
+                        "title": "Public Channel"
+                    },
+                    "privateChannel": {
+                        "title": "Private Channel"
+                    }
+                }
+            },
+            "buildAPlugin": {
+                "title": "Build a Plugin"
+            }
+        }
+    },
     "examples":{
         "title":"Examples",
         "children":{
