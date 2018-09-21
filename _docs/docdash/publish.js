@@ -499,7 +499,9 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
                 itemsNav += '</li>';
             } else if ( !hasOwnProp.call(itemsSeen, item.longname) ) {
 
-                itemsNav += '<li>' + linktoFn(item.longname, item.name.replace(/^module:/, ''));
+                itemsNav += '<li>' + linktoFn(item.longname, item.cepluginname || item.name.replace(/^module:/, ''));
+
+                itemsNav += '<p>'+ item.cepluginshort +'</p>';
 
                 if(loopAgain) {
 
@@ -516,7 +518,6 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
                         itemsNav += '</ul>';
 
                     } else {
-
 
 
                         // plugins
@@ -818,7 +819,7 @@ exports.publish = function(taffyData, opts, tutorials) {
     Object.keys(helper.longnameToUrl).forEach(function(longname) {
         var myModules = helper.find(modules, {longname: longname});
         if (myModules.length) {
-            generate('Module', myModules[0].name, myModules, helper.longnameToUrl[longname]);
+            generate('Module', myModules[0].cepluginname || myModules[0].name, myModules, helper.longnameToUrl[longname]);
         }
 
         var myClasses = helper.find(classes, {longname: longname});
