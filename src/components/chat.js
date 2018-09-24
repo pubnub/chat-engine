@@ -677,7 +677,7 @@ class Chat extends Emitter {
     }
 
     /**
-     * Establish authentication with the server, then subscribe with PubNub.
+     * Establish authentication with the server, then subscribe with PubNub. That's it!
      * @fires Chat#$"."ready
      */
     connect() {
