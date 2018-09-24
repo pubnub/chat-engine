@@ -693,7 +693,7 @@ class Chat extends Emitter {
     }
 
     /**
-     * Connect to PubNub servers to initialize the chat.
+     * Connect to PubNub servers to initialize the {@link Chat}.
      * @example
      * // create a new chatroom, but don't connect to it automatically
      * let chat = new Chat('some-chat', false)
