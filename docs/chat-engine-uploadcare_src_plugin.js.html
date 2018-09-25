@@ -44,7 +44,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1">
     <link rel="canonical" href="https://www.pubnub.com/" />
 
-    <title>JS Chat - PubNub ChatEngine</title>
+    <title>chat-engine-uploadcare/src/plugin.js - PubNub ChatEngine</title>
 
     <meta name="description" content="Focus on innovation and launch fast with our realtime APIs and global messaging infrastructure for web, mobile, and Internet of Things." />
     <link rel="publisher" href="https://plus.google.com/+Pubnub" />
@@ -500,7 +500,7 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 
                     <script type="text/javascript">
 
-                        var type = 'tutorial';
+                        var type = 'source';
 
                         $('#ce-side-nav div[data-ce-type="'+type+'"] a[href*="' + location.pathname.replace('/', '') + '"]').each((i, el) => {
 
@@ -528,22 +528,106 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                 <div id="main" class="col-md-8">
 
                     
-                    <h1 class="page-title">JS Chat</h1>
+                    <h1 class="page-title">chat-engine-uploadcare/src/plugin.js</h1>
                     
 
-                    <section>
+                    
 
-<header>
+
+
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+* Emits the ```$uploadCare.upload``` event when UploadCare completes an uplaod
+* @module chat-engine-uploadcare
+* @requires {@link ChatEngine}
+*/
 
-    <!-- <h2>JS Chat</h2> -->
-</header>
+/**
+* ```html
+* &lt;script>
+*   UPLOADCARE_LOCALE = "en";
+*   UPLOADCARE_TABS = "file url facebook gdrive dropbox instagram evernote flickr skydrive";
+*   UPLOADCARE_PUBLIC_KEY = "YOUR_UPLOADCARE_KEY";
+* &lt;/script>
+* &lt;script charset="utf-8" src="//ucarecdn.com/libs/widget/2.10.3/uploadcare.full.min.js">&lt;/script>
+*
+* &lt;script src="dist/chat-engine-uploadcare.js" type="text/javascript">&lt;/script>
+* ```
+* ```js
+* // initialize the UploadCare Widget
+* let widget = uploadcare.Widget('[role=uploadcare-uploader]');
+*
+* // create a new ChatEngine Chat.
+* let chat = new ChatEngine.Chat('uploads');
+*
+* // add the plugin to the Chat.
+* chat.plugin(ChatEngineCore.plugin['chat-engine-uploadcare']());
+*
+* // bind the widget to the Chat.
+* chat.uploadcare.bind(widget);
+*
+* Listen to upload events from the {@link Chat}.
+* chat.on('$uploadcare.upload', (payload) => {
+*     console.log('upload', payload.data.cdnUrl, 'from', payload.sender.uuid);
+* });
+* ```
+* @function
+* @example
+* Include the [Uploadcare](https://uploadcare.com) Javascript files and configure the widget. Check out the [Uploadcare Widget Docs](https://uploadcare.com/documentation/javascript_api/v2/) for more information.
+*/
+module.exports = () => {
 
-<article>
-    
-</article>
+    class extension {
 
-</section>
+        /**
+        Bind a {@link Chat} to an Uploadcare widget. The Chat will then fire $uploadcare.upload events when Uploadcare detects and upload.
+        @method uploadcare"."bind
+        @ceextends Chat
+        */
+        bind(widget) {
+
+            if(!widget) {
+                console.error('Must supply an uploadcare widget.');
+            }
+
+            widget.onUploadComplete((info) => {
+
+                /**
+                * Fired when a user uploads a file via the Uploadcare widget.
+                * @event $uploadcare"."upload
+                * @param payload {Object}
+                * @param payload.data {Object} The [Uploadcare fileInfo](https://uploadcare.com/documentation/javascript_api/v2/#file-info).
+                * @ceextends Chat
+                * @example
+                * chat.on('$uploadcare.upload', (payload) => {
+                *     console.log('upload', payload.data.cdnUrl, 'from', payload.sender.uuid);
+                * });
+                */
+                this.parent.emit(['$uploadcare', 'upload'].join('.'), info);
+                widget.value(null);
+
+            });
+
+        }
+    }
+
+    // add this plugin to the Chat classes
+    return {
+        namespace: 'uploadcare',
+        extends: {
+            Chat: extension
+        }
+    }
+
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
 
 
                     <footer>
