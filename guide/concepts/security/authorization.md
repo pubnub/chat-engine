@@ -17,9 +17,9 @@ By default, each user is granted access to the following channels upon login:
 
 | Channel | Reference      | Sample Format | Default Permissions |
 |:-------:|:--------------:|:-------------:|:--------------------|
-| Global Channel | {@link ```ChatEngine#.global```} | ```chat-engine``` | ```read```/```write``` access for all users |
-| Direct Channel | {@link ```Me#direct```} | ```chat-engine#user#joe#write#direct``` | The user who's {@link ```User#uuid```} matches {@link ```Me#uuid```} has all permissions, while other users only have ```write``` permissions. |
-| Feed Channel | {@link ```Me#feed```} | ```chat-engine#user#joe#read#feed``` | The user who's {@link ```User#uuid```} matches {@link ```Me#uuid```} has all permissions, while other users only have ```read``` permissions. |
+| Global Channel | {@link ```ChatEngine#.global```} | ```chat-engine``` | ```read```/```write``` access for all users. |
+| Direct Channel | {@link ```Me#direct```} | ```chat-engine#user#joe#write#direct``` | ```read```/```write``` access for all users. |
+| Feed Channel | {@link ```Me#feed```} | ```chat-engine#user#joe#read#feed``` | ```read```/```write``` access for all users. |
 | Public Channels | {@link ```ChatEngine#chats```} | ```chat-engine#chat#public.#custom-channel``` | ```read```/```write``` access for all users. |
 | Private Channels | {@link ```ChatEngine#chats```} | ```chat-engine#chat#private.#private-channel``` | ```read```/```write``` access for all users. |
 
