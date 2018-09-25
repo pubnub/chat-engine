@@ -1,4 +1,7 @@
 {
+    "plugin-list": {
+        "title": "Plugins"
+    },
     "getting-started": {
         "title":"Overview",
         "children": {

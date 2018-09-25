@@ -808,10 +808,6 @@ exports.publish = function(taffyData, opts, tutorials) {
         ).concat(files),
     indexUrl);
 
-    generate('', 'Plugins', packages.concat(
-        [{kind: 'mainpage', readme: 'plugins.md', longname: 'plugins'}]
-    ).concat(files), 'plugins.html');
-
     // set up the lists that we'll use to generate pages
     var classes = taffy(members.classes);
     var modules = taffy(members.modules);

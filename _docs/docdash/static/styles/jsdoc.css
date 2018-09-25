@@ -617,3 +617,23 @@ div[data-ce-type] {
   margin-top: 30px;
   padding-bottom: 14px;
 }
+
+#plugins-list {
+  text-align: center;
+}
+
+#plugins-list td {
+  vertical-align: top;
+}
+#plugins-list img {
+  height: 200px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+#docs-output article #plugins-list  a {
+  text-decoration: none;
+  border: none;
+}
+#docs-output article #plugins-list a:hover img {
+  border: 1px solid black;
+}
