@@ -33,17 +33,14 @@
             "theuser": {
                 "title": "User",
                 "children": {
-                    "listUsers": {
-                        "title": "List Users"
+                    "findAUser": {
+                        "title": "Find a User"
                     },
-                    "userState": {
-                        "title": " User State"
+                    "getUserState": {
+                        "title": "Get User State"
                     },
                     "onlineOfflineEvents": {
                         "title": "Online Offline User Events"
-                    },
-                    "meUser": {
-                        "title": "The 'Me' User"
                     }
                 }
             },
