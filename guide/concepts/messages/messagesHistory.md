@@ -49,4 +49,12 @@ mySearch.on('message', (data) => {
 });
 ```
 
-### TODO: History Pagination
+## ```Parameters``` for {@link Search| ```chat.search()``` }
+
+| Name  | Type  | Default   | Description   |
+|:-----:|:-----:|:---------:|:--------------|
+| ```event``` | ```Event``` | | The <a href=Event.html>Event</a> to search for. |
+| ```sender``` | ```User``` | | The <a href=User.html>User</a> who sent the message. |
+| ```limit``` | ```int```   | ```20``` | The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of chat history. Limit will be ignored in the case that both start and end time tokens have been passed in search configuration. |
+| ```start``` | ```int``` | ```0``` | The time token to begin searching between. |
+| ```end``` | ```int``` | ```0``` | The time token to end searching between. |

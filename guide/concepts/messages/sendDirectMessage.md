@@ -1,14 +1,14 @@
-## Send direct message to user
+While users can send messages to other users by creating private chat rooms, they can also send private messages to other users in their {@link User#direct| ```direct``` } chat channels.
 
-While users can send messages to other users by creating private chat rooms, they can also send direct messages to other users on their direct channels. For instance, in the example below, you can connect to Adam’s direct channel and send a private message.
+For instance, in the example below, you can connect to Adam’s {@link User#direct| ```direct``` } channel and send a private message.
 
 ```js
 adam = ChatEngine.users['adam'];
 adam.direct.connect();
-adam.direct.emit('private-message', { text: 'hello buddy!' });
+adam.direct.emit('private-message', {text: 'hello buddy!'});
 ```
 
-Other users can call chat.on listener on their own direct channel to receive incoming messages.
+Adam can call {@link Chat#on| ```chat.on()``` } on his own {@link Me#direct| ```Me.direct``` } channel to receive incoming messages.
 
 ```js
 me.direct.on('private-message', (payload) => {     

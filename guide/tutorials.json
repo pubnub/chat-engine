@@ -67,17 +67,17 @@
             "messages": {
                 "title": "Messages",
                 "children": {
-                    "sendMessagesToChat": {
-                        "title": "Send Messages to Chat"
+                    "sendMessages": {
+                        "title": "Send Messages"
                     },
                     "receiveMessageOnChat": {
                         "title": "Receive Message On Chat"
                     },
                     "sendDirectMessage": {
-                        "title": "Send a Direct Message"
+                        "title": "Send a Direct Message to a User"
                     },
                     "messagesHistory": {
-                        "title": "Messages History"
+                        "title": "Retrieve Past Messages"
                     }
                 }
             },

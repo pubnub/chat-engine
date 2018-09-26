@@ -41,8 +41,8 @@ chat.update({
 
 | Name | Type | Default | Description |
 |:----:|:----:|:-------:|:------------|
-| ```channel``` | ```String``` | ```new Date().getTime()``` | A ```channel``` represents a unique string identifier for a chat's namespace. |
-| ```isPrivate``` | ```Boolean``` | ```false``` | Attempt to authenticate ourselves before connecting to this Chat. |
-| ```autoConnect``` | ```Boolean``` | ```true``` | Connect to this chat as soon as it’s initiated. If set to false, call the Chat#connect method to connect to this Chat. |
-| ```meta``` | ```Object``` | ```{}``` | Chat metadata that will be persisted on the server and populated on creation. |
-| ```group``` | ```String``` | ```default``` | Groups chat into a type. This is the key which chats will be grouped into within Me.session object. |
+| ```channel``` | ```String``` | ```new Date().getTime()``` | A ```channel``` represents a unique string identifier for a chat's namespace. It is usually something like ```The Watercooler```, ```Support```, or ```Off Topic```. See <a href="https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-"> PubNub Channels</a>. <br> PubNub ```channel``` names are limited to ```92``` characters. If a user exceeds this limit while creating chat, an ```error``` will be thrown. The limit includes the prefixes and suffixes added by ChatEngine as listed <a href="https://www.pubnub.com/docs/chat-engine/pubnub-channel-topology">here</a>.|
+| ```isPrivate``` | ```Boolean``` | ```false``` | Attempt to authenticate ourselves before connecting to this {@link Chat ```Chat```}. |
+| ```autoConnect``` | ```Boolean``` | ```true``` | Connect to this chat as soon as it’s initiated. If set to ```false```, call the {@link Chat#connect ```Chat#connect```} method to connect to this {@link Chat ```Chat```}. |
+| ```meta``` | ```Object``` | ```{}``` | Chat {@link @Chat#meta ```meta``` } data that will be persisted on the server and populated on creation. |
+| ```group``` | ```String``` | ```default``` | Groups chat into a type. This is the key which chats will be grouped into within ```Me.session``` object. |
