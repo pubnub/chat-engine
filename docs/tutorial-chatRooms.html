@@ -477,7 +477,6 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                           <a href="tutorial-getting-started.html">Overview</a>
                           <a href="tutorial-js.html">Examples</a>
                           <a href="tutorial-concepts.html">Concepts</a>
-                          <a href="tutorial-advancedConcepts.html">Advanced</a>
                           <a href="tutorial-plugin-list.html">Plugins</a>
                           <a href="Chat.html">Reference</a>
                         </div>
@@ -554,7 +553,7 @@ ChatEngine <a href="User.html">User</a>s.</p>
 <h2>Chat Events</h2><p>When two clients both join a <a href="Chat.html">Chat</a> with the same channel name
 (<code>tutorial-chat</code> in this case), they can communicate with one
 another.</p>
-<p>This communication happens through events. To send an event to everyone
+<p>This communication happens through emt events. To send an event to everyone
 in a <a href="Chat.html">Chat</a>, call the <a href="Chat.html#emit"> <code>Chat.emit()</code> </a> method.</p>
 <pre class="prettyprint source lang-js"><code>chat.emit('message', {text: 'Hello world!'});</code></pre><p>This will send the &quot;message&quot; event to every other client in the <a href="Chat.html">Chat</a>.</p>
 <p>To get notified when a &quot;message&quot; is sent to the <a href="Chat.html">Chat</a>, a client can call

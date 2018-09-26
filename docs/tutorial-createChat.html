@@ -477,7 +477,6 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                           <a href="tutorial-getting-started.html">Overview</a>
                           <a href="tutorial-js.html">Examples</a>
                           <a href="tutorial-concepts.html">Concepts</a>
-                          <a href="tutorial-advancedConcepts.html">Advanced</a>
                           <a href="tutorial-plugin-list.html">Plugins</a>
                           <a href="Chat.html">Reference</a>
                         </div>
@@ -539,8 +538,58 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 </header>
 
 <article>
-    <h2>Create a Chat Room</h2><p>The <a href="Chat.html"> <code>ChatEngine.Chat()</code> </a> method allows a user to create a new chat room. All chat rooms are created as public by default. A user may want to create a <a href="Chat.html#isPrivate"> private chat </a> that no other users can access.</p>
-<h3>Public Chat</h3><pre class="prettyprint source lang-js"><code>let chat = new ChatEngine.Chat('public-chat');</code></pre><h3>Private Chat</h3><pre class="prettyprint source lang-js"><code>let privateChat = new ChatEngine.Chat('private-chat', true);</code></pre><p>The <a href="Chat.html"> <code>Chat()</code> </a>  method can also define chat <a href="Chat.html#meta"> <code>metadata</code> </a> for a chat room. Chat <code>metadata</code> is persisted on the server and can be access by calling <a href="Chat.html#meta"> <code>chat.meta</code> </a>.</p>
+    <h2>Create a Chat Room</h2><p>The <a href="Chat.html"> <code>ChatEngine.chat()</code> </a> method allows a user to create a new chat room. All chat rooms are created as public by default. A user may want to create a <a href="Chat.html#isPrivate"> private chat </a> that no other users can access.</p>
+<h3>Public Chat</h3><pre class="prettyprint source lang-js"><code>let chat = new ChatEngine.Chat('public-chat');</code></pre><h3>Private Chat</h3><pre class="prettyprint source lang-js"><code>let privateChat = new ChatEngine.Chat('private-chat', true);</code></pre><p>The <a href="Chat.html"> <code>Chat()</code> </a>  method can also define chat <a href="Chat.html#meta"> <code>meta</code> </a> data for a chat room. <a href="Chat.html#meta"> <code>chat.meta</code> </a> data is persisted on the server and can be access by calling <a href="Chat.html#meta"> <code>chat.meta</code> </a>.</p>
+<h3>Chat <code>meta</code> data</h3><p>The <a href="Chat.html"> <code>ChatEngine.chat()</code> </a> method can also define chat <a href="Chat.html#meta"> <code>meta</code> </a> data for a chat room. Chat <code>meta</code> data persists on the server and can be accessed by calling <a href="Chat.html#meta"> <code>chat.meta</code> </a>.</p>
+<pre class="prettyprint source lang-js"><code>let chat = new ChatEngine.Chat('public-chat',,,{
+    group: 'Soccer meetup',
+    team: 'A'
+});</code></pre><p>The <a href="Chat.html#update"> <code>chat.update()</code> </a> method allows a user to update chat <code>meta</code> data.</p>
+<pre class="prettyprint source lang-js"><code>chat.update({
+    group: 'Soccer meetup',
+    team: 'B'
+});</code></pre><h3>Parameters for <a href="Chat.html"> <code>ChatEngine.chat()</code> </a></h3><table>
+<thead>
+<tr>
+<th style="text-align:center">Name</th>
+<th style="text-align:center">Type</th>
+<th style="text-align:center">Default</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>channel</code></td>
+<td style="text-align:center"><code>String</code></td>
+<td style="text-align:center"><code>new Date().getTime()</code></td>
+<td style="text-align:left">A <code>channel</code> represents a unique string identifier for a chat's namespace.</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>isPrivate</code></td>
+<td style="text-align:center"><code>Boolean</code></td>
+<td style="text-align:center"><code>false</code></td>
+<td style="text-align:left">Attempt to authenticate ourselves before connecting to this Chat.</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>autoConnect</code></td>
+<td style="text-align:center"><code>Boolean</code></td>
+<td style="text-align:center"><code>true</code></td>
+<td style="text-align:left">Connect to this chat as soon as it’s initiated. If set to false, call the Chat#connect method to connect to this Chat.</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>meta</code></td>
+<td style="text-align:center"><code>Object</code></td>
+<td style="text-align:center"><code>{}</code></td>
+<td style="text-align:left">Chat metadata that will be persisted on the server and populated on creation.</td>
+</tr>
+<tr>
+<td style="text-align:center"><code>group</code></td>
+<td style="text-align:center"><code>String</code></td>
+<td style="text-align:center"><code>default</code></td>
+<td style="text-align:left">Groups chat into a type. This is the key which chats will be grouped into within Me.session object.</td>
+</tr>
+</tbody>
+</table>
 </article>
 
 </section>

@@ -477,7 +477,6 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                           <a href="tutorial-getting-started.html">Overview</a>
                           <a href="tutorial-js.html">Examples</a>
                           <a href="tutorial-concepts.html">Concepts</a>
-                          <a href="tutorial-advancedConcepts.html">Advanced</a>
                           <a href="tutorial-plugin-list.html">Plugins</a>
                           <a href="Chat.html">Reference</a>
                         </div>
@@ -542,8 +541,7 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
     <h2>Create Private Chat</h2><pre class="prettyprint source lang-js"><code>let privChat = new ChatEngine.Chat('private-chat', true);</code></pre><p>Once chat rooms are created, users can join any public chat room by going through  <code>ChatEngine.chats</code> . They can only join a private chat room if they are explicitly invited to it. They can also find a particular chat room by calling  <code>ChatEngine.chats[‘channel’]</code>.</p>
 <h2>Invite Users to Chat Room</h2><p>The <a href="Chat.html#invite"> <code>chat.invite()</code> </a> method allows a user to invite other users to a chat room.</p>
 <pre class="prettyprint source lang-js"><code>otherUser = ChatEngine.users['adam-UUID'];
-chat.invite(otherUser);</code></pre><p>Listen for a <a href="Chat.html#invite"> <code>$.INVITE</code> </a> event.</p>
-<p>Users can listen to <a href="Chat.html#invite"> <code>$.invite</code></a> events on their direct channel to receive invites for chats. If the user is offline, they can call search on their direct channel to retrieve missed invites.</p>
+chat.invite(otherUser);</code></pre><h2>Listen for a  <code>$.invite</code>  event.</h2><p>Users can listen to  <code>$.invite</code> events on their direct channel to receive invites for chats. If the user is offline, they can call search on their direct channel to retrieve missed invites.</p>
 <pre class="prettyprint source lang-js"><code>me.direct.on('$.invite', (payload) => {
     let invitedChat = new ChatEngine.Chat(payload.data.channel);
 });</code></pre>

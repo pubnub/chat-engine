@@ -477,7 +477,6 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
                           <a href="tutorial-getting-started.html">Overview</a>
                           <a href="tutorial-js.html">Examples</a>
                           <a href="tutorial-concepts.html">Concepts</a>
-                          <a href="tutorial-advancedConcepts.html">Advanced</a>
                           <a href="tutorial-plugin-list.html">Plugins</a>
                           <a href="Chat.html">Reference</a>
                         </div>
@@ -540,12 +539,13 @@ xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewbox="0 0 20 20
 
 <article>
     <h2>Public Chat</h2><pre class="prettyprint source lang-js"><code>let pubChat = new ChatEngine.Chat('public-chat');</code></pre><p>The chat will automatically connect when created. Then, the client will be
-in a <a href="Chat.html">Chat</a> with every other client that has a copy of that chat on their
+in a <a href="Chat.html"> <code>chat</code> </a> with every other client that has a copy of that chat on their
 machine.</p>
-<p>You can get notified of when a chat is connected by subscribing to the <a href="Chat.html#event:$%2522.%2522connected">Chat#event:$"."connected</a> event.</p>
+<p>You can get notified of when a chat is connected by subscribing to the <a href="Chat.html#event:$%2522.%2522connected"> <code>$.connected</code> </a> event.</p>
 <pre class="prettyprint source lang-js"><code>pubChat.on('$.connected', () => {
     console.log('The chat is connected!');
-});</code></pre>
+});</code></pre><p>Once chat rooms are created, a user can get a list of chat rooms and join a chat room by calling  <code>ChatEngine.chats</code>  //TODO FIX CHATS REF LINK!!!</p>
+<pre class="prettyprint source lang-js"><code>pubChat = ChatEngine.chats['public-chat'];</code></pre>
 </article>
 
 </section>

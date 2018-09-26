@@ -9,7 +9,7 @@ When two clients both join a {@link Chat} with the same channel name
 (```tutorial-chat``` in this case), they can communicate with one
 another.
 
-This communication happens through {@tutorial events}. To send an event to everyone
+This communication happens through emt {@tutorial events}. To send an event to everyone
 in a {@link Chat}, call the {@link Chat#emit| ```Chat.emit()``` } method.
 
 ```js
