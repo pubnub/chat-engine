@@ -634,6 +634,7 @@ describe('chat', () => {
 describe('history', () => {
 
     beforeEach(reset);
+    beforeEach(createChatEngine);
     beforeEach(createChatEngineHistory);
 
     it('should get previously set state', function shouldGetState(done) {
@@ -659,6 +660,20 @@ describe('history', () => {
         newChat.connect();
 
     });
+
+    it('offline user state', function shouldGetState(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        let newUser = new ChatEngineHistory.User(ChatEngineHistory.me.uuid)._restoreState(new ChatEngineHistory.Chat('chat-history'), (newUserState) => {
+            assert.equal(newUserState.oldState, true);
+            done();
+        });
+
+    });
+
     it('should get 50 messages', function get50(done) {
 
         let count = 0;
