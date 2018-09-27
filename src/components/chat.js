@@ -661,6 +661,7 @@ class Chat extends Emitter {
 
     /**
      * Ask PubNub for information about {@link User}s in this {@link Chat}.
+     * @private
      */
     getUserUpdates() {
 
@@ -694,6 +695,7 @@ class Chat extends Emitter {
 
     /**
      * Connect to PubNub servers to initialize the chat.
+     * @private
      * @example
      * // create a new chatroom, but don't connect to it automatically
      * let chat = new Chat('some-chat', false)

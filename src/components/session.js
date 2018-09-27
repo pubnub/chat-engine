@@ -1,5 +1,10 @@
 const Emitter = require('../modules/emitter');
 
+/**
+@class Session
+@extends Emitter
+@extends RootEmitter
+*/
 class Session extends Emitter {
 
     constructor(chatEngine) {
@@ -19,7 +24,7 @@ class Session extends Emitter {
         /**
          * The {@link Chat} that syncs session between instances. Only connects
          * if "enableSync" has been set to true in ceConfig.
-         * @type {this}
+         * @type {Chat}
          */
         this.sync = null;
 
