@@ -834,7 +834,7 @@
     
     <h4 class="name" id="connect">
 
-    <span class="type-signature"></span>connect<span class="signature">(uuid, state, authKey<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <span class="type-signature"></span>connect<span class="signature">(uuid, state<span class="signature-attributes">opt</span>, authKey<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
 
     
 
@@ -918,6 +918,8 @@
         
 
         
+        <th>Default</th>
+        
 
         <th class="last">Description</th>
     </tr>
@@ -951,6 +953,10 @@
             
 
             
+                <td class="default">
+                
+                </td>
+            
 
             <td class="description last"><p>A unique string for <a href="Me.html">Me</a>. It can be a device id, username, user id, email, etc. Must be alphanumeric.</p></td>
         </tr>
@@ -974,6 +980,8 @@
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
 
                 
 
@@ -981,6 +989,12 @@
                 </td>
             
 
+            
+                <td class="default">
+                
+                    <code>{}</code>
+                
+                </td>
             
 
             <td class="description last"><p>An object containing information about this client (<a href="Me.html">Me</a>). This JSON object is sent to all other clients on the network, so no passwords!</p></td>
@@ -1014,6 +1028,10 @@
                 </td>
             
 
+            
+                <td class="default">
+                
+                </td>
             
 
             <td class="description last"><p>A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See auth for more.</p></td>
