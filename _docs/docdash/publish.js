@@ -456,10 +456,28 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn, loopAgain, clas
                         // tutorials
                         item.children.forEach(function(item) {
 
-                            itemsNav += '<li data-sidebar="'+item.name+'">' + linktoFn('', item.name);
+                            itemsNav += '<li>' + linktoFn('', item.name);
+
+                            if(item.children.length) {
+
+                                itemsNav += '<ul>';
+
+                                item.children.forEach(function(item) {
+
+                                    itemsNav += '<li>' + linktoFn('', item.name);
+                                    itemsNav += '</li>';
+
+                                });
+
+                                itemsNav += '</ul>';
+
+                            }
+
                             itemsNav += '</li>';
 
+
                         });
+
                         itemsNav += '</ul>';
 
                     } else {

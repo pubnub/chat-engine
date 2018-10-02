@@ -16,7 +16,8 @@
     },
     "plugins": [
         "plugins/markdown",
-        "./_docs/doc_plugins/ceplugin.js"
+        "./_docs/doc_plugins/ceplugin.js",
+        "./_docs/doc_plugins/ceextend.js"
     ],
     "templates": {
         "default": {
