@@ -661,6 +661,7 @@ class Chat extends Emitter {
 
     /**
      * Ask PubNub for information about {@link User}s in this {@link Chat}.
+     * @private
      */
     getUserUpdates() {
 
