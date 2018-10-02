@@ -680,6 +680,12 @@ class Chat extends Emitter {
     /**
      * Establish authentication with the server, then subscribe with PubNub.
      * @fires Chat#$"."ready
+     * @example
+     * // create a new chatroom, but don't connect to it automatically
+     * let chat = new Chat('some-chat', false, false);
+     *
+     * // connect to the chat when we feel like it
+     * chat.connect();
      */
     connect() {
 
@@ -695,12 +701,7 @@ class Chat extends Emitter {
 
     /**
      * Connect to PubNub servers to initialize the chat.
-     * @example
-     * // create a new chatroom, but don't connect to it automatically
-     * let chat = new Chat('some-chat', false)
-     *
-     * // connect to the chat when we feel like it
-     * chat.connect();
+     * @private
      */
     handshake(complete) {
 
