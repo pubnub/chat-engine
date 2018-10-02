@@ -134,6 +134,10 @@ class Search extends Emitter {
 
         };
 
+        /**
+         * Continue searching the next batch of pages.
+         * @see $.search.pause
+         */
         this.next = () => {
 
             if (this.hasMore) {
@@ -142,7 +146,13 @@ class Search extends Emitter {
                 this.find();
 
             } else {
+
+                /**
+                 * Search has returned all results or reached the end of history.
+                 * @event Search#$."search"."finish"
+                 */
                 this._emit('$.search.finish');
+
             }
         };
 
@@ -157,6 +167,12 @@ class Search extends Emitter {
                 eachSeries(response.messages, this.triggerHistory, () => {
 
                     if (this.hasMore && this.numPage === this.maxPage) {
+
+                        /**
+                         * PubNub History has reached the maximum allocated pages and requires user input to continue.
+                         * @see Search#next
+                         * @event Search#$"."search"."pause"
+                         */
                         this._emit('$.search.pause');
                     } else if (this.hasMore && (this.needleCount < this.config.limit || this.messagesBetweenTimetokens)) {
                         this.find();
