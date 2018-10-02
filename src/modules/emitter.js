@@ -83,7 +83,10 @@ class Emitter extends RootEmitter {
 
     }
 
-    // add an object as a subobject under a namespoace
+    // add an object as a subobject under a namespace
+    /**
+     * @private
+     */
     addChild(childName, childOb) {
         // assign the new child object as a property of parent under the
         // given namespace
@@ -145,6 +148,9 @@ class Emitter extends RootEmitter {
 
     }
 
+    /**
+     * @private
+     */
     bindProtoPlugins() {
 
         if (this.chatEngine.protoPlugins[this.name]) {
@@ -230,6 +236,9 @@ class Emitter extends RootEmitter {
 
     }
 
+    /**
+     * @private
+     */
     onConstructed() {
 
         this.bindProtoPlugins();
