@@ -21,10 +21,6 @@ class Search extends Emitter {
 
         this.chatEngine = chatEngine;
 
-        /**
-        Handy property to identify what this class is.
-        @type String
-        */
         this.name = 'Search';
 
         /**
