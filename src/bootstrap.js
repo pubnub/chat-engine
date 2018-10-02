@@ -64,6 +64,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ready = false;
 
     /**
+     * Indicates if ChatEngine is already connected.
+     * @member {Object} pubnub
+     * @memberof ChatEngine
+     */
+    ChatEngine.isConnected = false;
+
+    /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
      */
@@ -435,15 +442,17 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * ChatEngine.connect()
      */
     ChatEngine.disconnect = () => {
+        if (ChatEngine.isConnected) {
+            // Unsubscribe from all PubNub chats
+            ChatEngine.pubnub.unsubscribeAll();
 
-        // Unsubscribe from all PubNub chats
-        ChatEngine.pubnub.unsubscribeAll();
+            // for every chat in ChatEngine.chats, signal disconnected
+            Object.keys(ChatEngine.chats).forEach((key) => {
+                ChatEngine.chats[key].sleep();
+            });
 
-        // for every chat in ChatEngine.chats, signal disconnected
-        Object.keys(ChatEngine.chats).forEach((key) => {
-            ChatEngine.chats[key].sleep();
-        });
-
+            ChatEngine.isConnected = false;
+        }
     };
 
     /**
@@ -481,6 +490,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             ChatEngine.subscribeToPubNub();
         }
+
+        ChatEngine.isConnected = true;
     };
 
     /**
@@ -524,7 +535,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         });
 
         ChatEngine.disconnect();
-
     };
 
     /**
@@ -536,18 +546,21 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @fires $"."connected
      */
     ChatEngine.connect = (uuid, state = {}, authKey) => {
+        if (!ChatEngine.isConnected) {
+            // this creates a user known as Me and
+            // connects to the global chatroom
+            ChatEngine.pnConfig.uuid = uuid;
+            ChatEngine.pnConfig.authKey = authKey;
 
-        // this creates a user known as Me and
-        // connects to the global chatroom
-        ChatEngine.pnConfig.uuid = uuid;
-        ChatEngine.pnConfig.authKey = authKey;
-
-        if (authKey) {
-            ChatEngine.handshake(() => {
+            if (authKey) {
+                ChatEngine.handshake(() => {
+                    ChatEngine.firstConnect(state);
+                });
+            } else {
                 ChatEngine.firstConnect(state);
-            });
-        } else {
-            ChatEngine.firstConnect(state);
+            }
+
+            ChatEngine.isConnected = true;
         }
     };
 
