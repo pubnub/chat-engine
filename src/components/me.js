@@ -21,6 +21,11 @@ class Me extends User {
 
         this.chatEngine = chatEngine;
 
+        /**
+         * Link sessions between multiple identical instances of ChatEngine. Returns {@link Session} when ```enableSync: true``` supplied to ```ChatEngine.create()```..
+         * @see Session
+         * @type {Boolean}
+         */
         this.session = false;
 
         this.name = 'Me';

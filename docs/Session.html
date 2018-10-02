@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Chat Rooms - PubNub ChatEngine</title>
+    <title>Session - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,44 +29,1122 @@
 
 <div id="main">
     
-    <h1 class="page-title">Chat Rooms</h1>
+    <h1 class="page-title">Session</h1>
     
 
-    <section>
+    
+
+
+
+
+<section>
 
 <header>
     
-    <ul>
-        <li><a href="tutorial-createChat.html">Create a Chat Room</a></li>
+        <h2>
+        Session
+        </h2>
+        
     
-        <li><a href="tutorial-joinPublicChat.html">Join a Public Chat Room</a></li>
-    
-        <li><a href="tutorial-inviteUserPrivateChat.html">Invite a User to a Private Chat Room</a></li>
-    
-        <li><a href="tutorial-leaveChat.html">Leave a Chat Room</a></li>
-    </ul>
-    
-
-    <!-- <h2>Chat Rooms</h2> -->
 </header>
 
 <article>
-    <h1>Chat Rooms</h1><p>Also referred to as <a href="Chat.html">Chat</a>s, are the core object in ChatEngine. Chats are rooms of connected
-ChatEngine <a href="User.html">User</a>s.</p>
-<h2>Chat Events</h2><p>When two clients both join a <a href="Chat.html">Chat</a> with the same channel name
-(<code>tutorial-chat</code> in this case), they can communicate with one
-another.</p>
-<p>This communication happens through emt events. To send an event to everyone
-in a <a href="Chat.html">Chat</a>, call the <a href="Chat.html#emit"> <code>Chat.emit()</code> </a> method.</p>
-<pre class="prettyprint source lang-js"><code>chat.emit('message', {text: 'Hello world!'});</code></pre><p>This will send the &quot;message&quot; event to every other client in the <a href="Chat.html">Chat</a>.</p>
-<p>To get notified when a &quot;message&quot; is sent to the <a href="Chat.html">Chat</a>, a client can call
-the <a href="Chat.html#on">Chat#on</a> method.</p>
-<pre class="prettyprint source lang-js"><code>chat.on('message', (payload) => {
-    console.log(payload);
-});</code></pre><p>See events for more information on events.</p>
+    <div class="container-overview">
+    
+        
+
+    
+    <h4 class="name" id="Session">
+
+    <span class="type-signature"></span>new Session<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_session.js.html">chat-engine/src/components/session.js</a>, <a href="chat-engine_src_components_session.js.html#line3">line 3</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Automatically created by supplying <code>enableSync: true</code> in <code>ChatEngineCore.create</code>.
+Access via <a href="Me.html#session">Me#session</a>.</p>
+<p>Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+Sessions are the same when identical instance of <a href="ChatEngine.html">ChatEngine</a> and <a href="Me.html">Me</a> connects to ChatEngine.
+Should not be created directly.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="Emitter.html">Emitter</a></li>
+    
+        <li><a href="RootEmitter.html">RootEmitter</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+
+<h4 class="name" id="chats">
+
+<span class="type-signature"></span>chats<span class="type-signature"> :Object</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_session.js.html">chat-engine/src/components/session.js</a>, <a href="chat-engine_src_components_session.js.html#line28">line 28</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Stores a map of <a href="Chat.html">Chat</a> objects that this <a href="Me.html">Me</a> has joined across all clients.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+
+<h4 class="name" id="sync">
+
+<span class="type-signature"></span>sync<span class="type-signature"> :this</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_components_session.js.html">chat-engine/src/components/session.js</a>, <a href="chat-engine_src_components_session.js.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>The <a href="Chat.html">Chat</a> that syncs session between instances.</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">this</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="off">
+
+    <span class="type-signature"></span>off<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_root_emitter.js.html">chat-engine/src/modules/root_emitter.js</a>, <a href="chat-engine_src_modules_root_emitter.js.html#line94">line 94</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="RootEmitter.html#off">RootEmitter#off</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Stop a callback from listening to an event.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>let callback = function(payload;) {
+   console.log('something happend!');
+};
+object.on('event', callback);
+// ...
+object.off('event', callback);</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The event name</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="on">
+
+    <span class="type-signature"></span>on<span class="signature">(event, cb)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_emitter.js.html">chat-engine/src/modules/emitter.js</a>, <a href="chat-engine_src_modules_emitter.js.html#line72">line 72</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="RootEmitter.html#on">RootEmitter#on</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Listen for a specific event and fire a callback when it's emitted. Supports wildcard matching.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>// Get notified whenever someone joins the room
+object.on('event', (payload) => {
+    console.log('event was fired').
+})
+
+// Get notified of event.a and event.b
+object.on('event.*', (payload) => {
+    console.log('event.a or event.b was fired').;
+})</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The event name</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>cb</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The function to run when the event is emitted</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="onAny">
+
+    <span class="type-signature"></span>onAny<span class="signature">(callback)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_root_emitter.js.html">chat-engine/src/modules/root_emitter.js</a>, <a href="chat-engine_src_modules_root_emitter.js.html#line112">line 112</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="RootEmitter.html#onAny">RootEmitter#onAny</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Listen for any event on this object and fire a callback when it's emitted</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>object.onAny((event, payload) => {
+    console.log('All events trigger this.');
+});</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The function to run when any event is emitted. First parameter is the event name and second is the payload.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="once">
+
+    <span class="type-signature"></span>once<span class="signature">(event, callback)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_root_emitter.js.html">chat-engine/src/modules/root_emitter.js</a>, <a href="chat-engine_src_modules_root_emitter.js.html#line131">line 131</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="RootEmitter.html#once">RootEmitter#once</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Listen for an event and only fire the callback a single time</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>object.once('message', => (event, payload) {
+    console.log('This is only fired once!');
+});</code></pre>
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The event name</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The function to run once</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+            
+
+    
+    <h4 class="name" id="plugin">
+
+    <span class="type-signature"></span>plugin<span class="signature">(module)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="chat-engine_src_modules_emitter.js.html">chat-engine/src/modules/emitter.js</a>, <a href="chat-engine_src_modules_emitter.js.html#line123">line 123</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="Emitter.html#plugin">Emitter#plugin</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-tutorial">Tutorials:</dt>
+    <dd class="tag-tutorial">
+        <ul>
+            <li><em class="disabled">Tutorial: using</em></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Binds a plugin to this object</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>module</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The plugin module</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+
+    
+
+    
 </article>
 
 </section>
+
+
+
 
 </div>
 

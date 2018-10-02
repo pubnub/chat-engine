@@ -1,5 +1,16 @@
 const Emitter = require('../modules/emitter');
 
+/**
+Automatically created by supplying ```enableSync: true``` in ```ChatEngineCore.create```.
+Access via {@link Me#session}.
+
+Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+Sessions are the same when identical instance of {@link ChatEngine} and {@link Me} connects to ChatEngine.
+Should not be created directly.
+@class Session
+@extends Emitter
+@extends RootEmitter
+*/
 class Session extends Emitter {
 
     constructor(chatEngine) {
@@ -17,8 +28,7 @@ class Session extends Emitter {
         this.chats = {};
 
         /**
-         * The {@link Chat} that syncs session between instances. Only connects
-         * if "enableSync" has been set to true in ceConfig.
+         * The {@link Chat} that syncs session between instances.
          * @type {this}
          */
         this.sync = null;
