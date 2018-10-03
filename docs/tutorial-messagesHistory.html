@@ -41,7 +41,7 @@
 </header>
 
 <article>
-    <h2>Messages History</h2><p>The <a href="Chat.html#search"> <code>chat.search()</code> </a> method can be used to retrieve old events that were fired before ChatEngine was loaded or when you were disconnected from a chat.</p>
+    <p>The <a href="Chat.html#search"> <code>chat.search()</code> </a> method can be used to retrieve old events that were fired before ChatEngine was loaded or when users were <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect"> disconnected</a> from chat.</p>
 <pre class="prettyprint source lang-js"><code>chat.search({
     event: 'message',
     limit: 50
@@ -49,78 +49,21 @@
     console.log('this is an old event!', event);
 }).on('$.search.finish', () => {
     console.log('we have all our results!')
-});</code></pre><p><a href="Search.html">Search</a> will stop after looking through after 1,0000 messages and then emit the <code>$.search.pause</code> event [TODO: gotta add this event to source code comments!!!].</p>
-<p>The <code>chat.search.next()</code> method can be used to search an additional 1,000 events. Below code sample shows how to implement <code>$.search.pause</code> and get the next set of messages if <a href="Search.html#hasMore"> <code>search.hasMore</code> </a> is <code>true</code>.</p>
+});</code></pre><p>If no <code>limit</code> is set, search will stop after looking through the <code>1,000</code> most recent messages and then <a href="Chat.html#emit"> <code>emit()</code> </a> the  <code>$.search.pause</code>  event. The <a href="Search.html#next"> <code>chat.search.next()</code> </a> method can be used to search an additional <code>1,000</code> events. The code sample below shows how to implement  <code>$.search.pause</code>  and get the next set of messages if <a href="Search.html#hasMore"> <code>Search.hasMore</code> </a> is <code>true</code>.</p>
 <pre class="prettyprint source lang-js"><code>let mySearch = chat.search({
     event: 'message',
-    start: downloadAllStart,
-    end:   downloadAllEnd,
     pages: 2
 });
 
-mySearch.on('message', (data) => {
-    messageBody = data.data
-    messageBody.timestamp = parseInt(data.timetoken)                    
-
-    if(typeof(messageBody.time) === 'number')
-        messageBody.time = messageBody.time + &quot;&quot;
-
-    if(typeof(messageBody.avatar) === 'string' || messageBody.avatar == undefined)
-        this.connections[chatID].downloadedMessages.push(messageBody);
+mySearch.on('message', (payload) => {
+    console.log('got an old message ', payload.data.text);
 })
-.on('$.search.finish', () => {
-    this.updateAndSave(&quot;finished_loading&quot;, chatID);
-    this.connections[chatID].messagesLoading = false
-})
-.on('$.search.pause', () => {
-    console.log(&quot;pausing search&quot;);
-    this.updateAndSave(null, chatID);
-
-    if (search.hasMore) {
-        mySearch.next();
+.on('$.search.pause', () => {    
+    console.log('searched 2 pages for messages');
+    if(mySearch.hasMore){
+        mySearch.next(); //call next() to try another 2 pages
     }
-});</code></pre><h2><code>Parameters</code> for <a href="Search.html"> <code>chat.search()</code> </a></h2><table>
-<thead>
-<tr>
-<th style="text-align:center">Name</th>
-<th style="text-align:center">Type</th>
-<th style="text-align:center">Default</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><code>event</code></td>
-<td style="text-align:center"><code>Event</code></td>
-<td style="text-align:center"></td>
-<td style="text-align:left">The <a href=Event.html>Event</a> to search for.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>sender</code></td>
-<td style="text-align:center"><code>User</code></td>
-<td style="text-align:center"></td>
-<td style="text-align:left">The <a href=User.html>User</a> who sent the message.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>limit</code></td>
-<td style="text-align:center"><code>int</code></td>
-<td style="text-align:center"><code>20</code></td>
-<td style="text-align:left">The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of chat history. Limit will be ignored in the case that both start and end time tokens have been passed in search configuration.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>start</code></td>
-<td style="text-align:center"><code>int</code></td>
-<td style="text-align:center"><code>0</code></td>
-<td style="text-align:left">The time token to begin searching between.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>end</code></td>
-<td style="text-align:center"><code>int</code></td>
-<td style="text-align:center"><code>0</code></td>
-<td style="text-align:left">The time token to end searching between.</td>
-</tr>
-</tbody>
-</table>
+});</code></pre>
 </article>
 
 </section>

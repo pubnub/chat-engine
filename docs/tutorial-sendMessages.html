@@ -41,30 +41,10 @@
 </header>
 
 <article>
-    <p>The <a href="Chat.html#emit"> <code>chat.emit()</code> </a> method allows users to send messages once they are connected to a chat room.</p>
+    <p>The <a href="Chat.html#emit"> <code>chat.emit()</code> </a> method allows you to send messages once a <a href="User.html"> <code>user</code> </a> is connected to a chat room. In the code below, <code>‘message’</code> is the event name and the <code>{text: 'hey'}</code> object is the event payload.</p>
 <pre class="prettyprint source lang-js"><code>chat.emit('message', {
     text: 'hey'
-});</code></pre><h2><code>Parameters</code> for <a href="Chat.html#emit"> <code>chat.emit()</code> </a></h2><table>
-<thead>
-<tr>
-<th style="text-align:center">Name</th>
-<th style="text-align:center">Type</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><code>event</code></td>
-<td style="text-align:center"><code>String</code></td>
-<td style="text-align:left">The event name.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>data</code></td>
-<td style="text-align:center"><code>Object</code></td>
-<td style="text-align:left">The event payload object.</td>
-</tr>
-</tbody>
-</table>
+});</code></pre>
 </article>
 
 </section>

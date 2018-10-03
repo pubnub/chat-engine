@@ -41,17 +41,15 @@
 </header>
 
 <article>
-    <p>While users can send messages to other users by creating private chat rooms, they can also send private messages to other users in their <a href="User.html#direct"> <code>direct</code> </a> chat channels.</p>
-<p>For instance, in the example below, you can connect to Adam’s <a href="User.html#direct"> <code>direct</code> </a> channel and send a private message.</p>
+    <p>While users can send messages to other users by creating private chat rooms, they can also send private messages to other users through users’ <a href="User.html#direct"> <code>direct</code> </a> chat rooms.</p>
+<p>For instance, in the example below, the user can connect to Adam’s direct chat and send a private message.</p>
 <pre class="prettyprint source lang-js"><code>adam = ChatEngine.users['adam'];
 adam.direct.connect();
-adam.direct.emit('private-message', {text: 'hello buddy!'});</code></pre><p>Adam can call <a href="Chat.html#on"> <code>chat.on()</code> </a> on his own <a href="Me.html#direct"> <code>Me.direct</code> </a> channel to receive incoming messages.</p>
-<pre class="prettyprint source lang-js"><code>me.direct.on('private-message', (payload) => {     
-    console.log(payload.sender.uuid, 'sent your a direct message');    
+adam.direct.emit('message', {text: 'hello buddy!'});</code></pre><p>Adam can call <a href="Chat.html#on"> <code>chat.on()</code> </a> on his own direct chat to receive incoming messages.</p>
+<pre class="prettyprint source lang-js"><code>me.direct.on('message', (payload) => {     
+    console.log(payload.sender.uuid, ' sent you a direct message');    
     console.log(payload.data.text);
-});</code></pre><blockquote>
-<p>A user only has write permissions to another user’s direct channel and will not be able to add a listener to receive messages on the chat.</p>
-</blockquote>
+});</code></pre><p>Users only have write permissions to other users’ direct chat and cannot add a listener to receive messages on the chat.</p>
 </article>
 
 </section>

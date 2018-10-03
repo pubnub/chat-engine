@@ -41,40 +41,11 @@
 </header>
 
 <article>
-    <h2>Receive messages on chat</h2><p>The <a href="Chat.html#on"> <code>chat.on()</code> </a> listener allows users to receive messages in a chat room.</p>
+    <p>The <a href="Chat.html#on"> <code>chat.on()</code> </a> listener allows you to receive messages in a chat room.</p>
 <pre class="prettyprint source lang-js"><code>chat.on('message', (payload) => {
     console.log(payload.sender.uuid);
     console.log(payload.data.text);
-});</code></pre><p>Although you may emit any valid object using <a href="Chat.html#emit"> <code>chat.emit()</code> </a>, when the same payload is received by other users, the payload is augmented with additional data. The original message can be retrieved by calling <code>payload.data</code>. Users can also call <code>payload.chat</code> and <code>payload.sender</code> to display chat room and sender details along with the message.</p>
-<p>The sample below shows how to read the contents of a message payload.</p>
-<pre class="prettyprint source lang-js"><code>{
-   &quot;data&quot;: {
-      &quot;text&quot;: &quot;hey&quot;
-   },
-   &quot;sender&quot;: &quot;john-UUID&quot;,
-   &quot;event&quot;: &quot;message&quot;,
-   &quot;chatengineSDK&quot;: &quot;0.9.19&quot;
-}</code></pre><h2><code>Parameters</code> for <a href="Chat.html#on"> <code>chat.on()</code> </a></h2><table>
-<thead>
-<tr>
-<th style="text-align:center">Name</th>
-<th style="text-align:center">Type</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><code>event</code></td>
-<td style="text-align:center"><code>String</code></td>
-<td style="text-align:left">The event name.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>cb</code></td>
-<td style="text-align:center"><code>function</code></td>
-<td style="text-align:left">The function to run when the event is emitted.</td>
-</tr>
-</tbody>
-</table>
+});</code></pre><p>Although you may send any valid object using <a href="Chat.html#emit"> <code>chat.emit()</code> </a>, when the same <code>payload</code> is received by other users, it is augmented with additional data. The original message can be retrieved by calling <code>payload.data</code>. You can also call <code>payload.chat</code>  and <code>payload.sender</code> to display chat room and sender details along with the message.</p>
 </article>
 
 </section>
