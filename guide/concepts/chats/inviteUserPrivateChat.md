@@ -1,23 +1,13 @@
-## Create Private Chat
+The {@link Chat#invite| ```chat.invite()``` } method allows you to invite other users to a private chat room.
 
 ```js
-let privChat = new ChatEngine.Chat('private-chat', true);
+let adam = new ChatEngine.user('adam-UUID');
+privateChat.invite(adam);
 ```
 
-Once chat rooms are created, users can join any public chat room by going through {@link ChatEngine#chats| ```ChatEngine.chats``` }. They can only join a private chat room if they are explicitly invited to it. They can also find a particular chat room by calling  ```ChatEngine.chats[‘channel’]```.
+Listen to {@link Me#event:$"."invite| ```$.INVITE``` } event
 
-## Invite Users to Chat Room
-
-The {@link Chat#invite| ```chat.invite()``` } method allows a user to invite other users to a chat room.
-
-```js
-otherUser = ChatEngine.users['adam-UUID'];
-chat.invite(otherUser);
-```
-
-## Listen for a {@link Chat#event:$"."invite| ```$.invite``` } event.
-
-Users can listen to {@link Chat#event:$"."invite| ```$.invite```} events on their direct channel to receive invites for chats. If the user is offline, they can call search on their direct channel to retrieve missed invites.
+An {@link Me#event:$"."invite| ```$.invite``` } event is emitted on the invited user’s {@link Me#direct| ```direct``` } chat when they are invited to a private chat room. The user can listen to these events or retrieve them later by using {@link Search| ```chat.search()``` } on their direct chat channel.
 
 ```js
 me.direct.on('$.invite', (payload) => {

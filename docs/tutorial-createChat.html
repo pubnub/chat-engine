@@ -41,58 +41,19 @@
 </header>
 
 <article>
-    <h2>Create a Chat Room</h2><p>The <a href="Chat.html"> <code>ChatEngine.chat()</code> </a> method allows a user to create a new chat room. All chat rooms are created as public by default. A user may want to create a <a href="Chat.html#isPrivate"> private chat </a> that no other users can access.</p>
-<h3>Public Chat</h3><pre class="prettyprint source lang-js"><code>let chat = new ChatEngine.Chat('public-chat');</code></pre><h3>Private Chat</h3><pre class="prettyprint source lang-js"><code>let privateChat = new ChatEngine.Chat('private-chat', true);</code></pre><p>The <a href="Chat.html"> <code>Chat()</code> </a>  method can also define chat <a href="Chat.html#meta"> <code>meta</code> </a> data for a chat room. <a href="Chat.html#meta"> <code>chat.meta</code> </a> data is persisted on the server and can be access by calling <a href="Chat.html#meta"> <code>chat.meta</code> </a>.</p>
-<h3>Chat <code>meta</code> data</h3><p>The <a href="Chat.html"> <code>ChatEngine.chat()</code> </a> method can also define chat <a href="Chat.html#meta"> <code>meta</code> </a> data for a chat room. Chat <code>meta</code> data persists on the server and can be accessed by calling <a href="Chat.html#meta"> <code>chat.meta</code> </a>.</p>
-<pre class="prettyprint source lang-js"><code>let chat = new ChatEngine.Chat('public-chat',,,{
-    group: 'Soccer meetup',
+    <p>The <a href="Chat.html"> <code>ChatEngine.Chat()</code> </a> class allows you to create a new chat room. The user will automatically join the chat room when it is created if the <code>autoConnect</code> flag is set to <code>true</code>.</p>
+<p>All chat rooms are created as public by default. A private chat room can be created by setting the <code>isPrivate</code> flag to <code>true</code>.</p>
+<h2>Public Chat</h2><pre class="prettyprint source lang-js"><code>let chat = new ChatEngine.Chat('public-chat');</code></pre><h2>Private Chat</h2><pre class="prettyprint source lang-js"><code>let privateChat = new ChatEngine.Chat('private-chat', true);</code></pre><p>You can get a list of all chat rooms by using  <code>ChatEngine.chats</code> .</p>
+<pre class="prettyprint source lang-js"><code>console.log(ChatEngine.chats);
+chat = ChatEngine.chats['public-chat'];</code></pre><h2>Chat <a href="Chat.html#meta"> <code>metadata</code></a></h2><p>The <a href="Chat.html"> <code>ChatEngine.Chat()</code> </a> class can also define chat <code>metadata</code> for a chat room. Chat <code>metadata</code> persists on the server and can be accessed by calling <a href="Chat.html#meta"> <code>chat.meta</code> </a>.</p>
+<pre class="prettyprint source lang-js"><code>let chat = new ChatEngine.Chat('public-chat', false, true,{
+    name: 'Soccer meetup',
     team: 'A'
-});</code></pre><p>The <a href="Chat.html#update"> <code>chat.update()</code> </a> method allows a user to update chat <code>meta</code> data.</p>
+});</code></pre><p>The <a href="Chat.html#update"> <code>chat.update()</code> </a> method allows you to update chat <code>metadata</code>.</p>
 <pre class="prettyprint source lang-js"><code>chat.update({
-    group: 'Soccer meetup',
+    name: 'Soccer meetup',
     team: 'B'
-});</code></pre><h3>Parameters for <a href="Chat.html"> <code>ChatEngine.chat()</code> </a></h3><table>
-<thead>
-<tr>
-<th style="text-align:center">Name</th>
-<th style="text-align:center">Type</th>
-<th style="text-align:center">Default</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><code>channel</code></td>
-<td style="text-align:center"><code>String</code></td>
-<td style="text-align:center"><code>new Date().getTime()</code></td>
-<td style="text-align:left">A <code>channel</code> represents a unique string identifier for a chat's namespace. It is usually something like <code>The Watercooler</code>, <code>Support</code>, or <code>Off Topic</code>. See <a href="https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-"> PubNub Channels</a>. <br> PubNub <code>channel</code> names are limited to <code>92</code> characters. If a user exceeds this limit while creating chat, an <code>error</code> will be thrown. The limit includes the prefixes and suffixes added by ChatEngine as listed <a href="https://www.pubnub.com/docs/chat-engine/pubnub-channel-topology">here</a>.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>isPrivate</code></td>
-<td style="text-align:center"><code>Boolean</code></td>
-<td style="text-align:center"><code>false</code></td>
-<td style="text-align:left">Attempt to authenticate ourselves before connecting to this <a href="Chat.html"><code>Chat</code></a>.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>autoConnect</code></td>
-<td style="text-align:center"><code>Boolean</code></td>
-<td style="text-align:center"><code>true</code></td>
-<td style="text-align:left">Connect to this chat as soon as it’s initiated. If set to <code>false</code>, call the <a href="Chat.html#connect"><code>Chat#connect</code></a> method to connect to this <a href="Chat.html"><code>Chat</code></a>.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>meta</code></td>
-<td style="text-align:center"><code>Object</code></td>
-<td style="text-align:center"><code>{}</code></td>
-<td style="text-align:left">Chat <code>meta</code>  data that will be persisted on the server and populated on creation.</td>
-</tr>
-<tr>
-<td style="text-align:center"><code>group</code></td>
-<td style="text-align:center"><code>String</code></td>
-<td style="text-align:center"><code>default</code></td>
-<td style="text-align:left">Groups chat into a type. This is the key which chats will be grouped into within <code>Me.session</code> object.</td>
-</tr>
-</tbody>
-</table>
+});</code></pre>
 </article>
 
 </section>
