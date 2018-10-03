@@ -44,3 +44,15 @@ control across their ChatEngine user base.
 It is possible to edit the default auth policy by adding logic to the ChatEngine PubNub 
 Function. This logic can be added to the ```authPolicy()`` method within the PubNub
 Function code.
+
+For example, you may send a request to a 3rd party server to validate a user’s UUID
+and ```authKey```. If the ```authKey``` is invalid or expired, the auth policy can
+prevent the client from ever connecting.
+
+Follow the steps below to edit the ChatEngine auth policy:
+
+- Navigate to the [PubNub Admin Portal](https://admin.pubnub.com/).
+- Find your ChatEngine app.
+- Locate the ChatEngine PubNub Functions.
+- Edit the ```authPolicy()``` code within the PubNub Function.
+- Save the PubNub Function code and restart the PubNub Module.
