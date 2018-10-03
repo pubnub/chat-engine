@@ -51,19 +51,7 @@
 </header>
 
 <article>
-    <h1>Chat Rooms</h1><p>Also referred to as <a href="Chat.html">Chat</a>s, are the core object in ChatEngine. Chats are rooms of connected
-ChatEngine <a href="User.html">User</a>s.</p>
-<h2>Chat Events</h2><p>When two clients both join a <a href="Chat.html">Chat</a> with the same channel name
-(<code>tutorial-chat</code> in this case), they can communicate with one
-another.</p>
-<p>This communication happens through emt events. To send an event to everyone
-in a <a href="Chat.html">Chat</a>, call the <a href="Chat.html#emit"> <code>Chat.emit()</code> </a> method.</p>
-<pre class="prettyprint source lang-js"><code>chat.emit('message', {text: 'Hello world!'});</code></pre><p>This will send the &quot;message&quot; event to every other client in the <a href="Chat.html">Chat</a>.</p>
-<p>To get notified when a &quot;message&quot; is sent to the <a href="Chat.html">Chat</a>, a client can call
-the <a href="Chat.html#on">Chat#on</a> method.</p>
-<pre class="prettyprint source lang-js"><code>chat.on('message', (payload) => {
-    console.log(payload);
-});</code></pre><p>See events for more information on events.</p>
+    
 </article>
 
 </section>

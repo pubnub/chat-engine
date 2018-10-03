@@ -41,10 +41,10 @@
 </header>
 
 <article>
-    <h2>Create Private Chat</h2><pre class="prettyprint source lang-js"><code>let privChat = new ChatEngine.Chat('private-chat', true);</code></pre><p>Once chat rooms are created, users can join any public chat room by going through  <code>ChatEngine.chats</code> . They can only join a private chat room if they are explicitly invited to it. They can also find a particular chat room by calling  <code>ChatEngine.chats[‘channel’]</code>.</p>
-<h2>Invite Users to Chat Room</h2><p>The <a href="Chat.html#invite"> <code>chat.invite()</code> </a> method allows a user to invite other users to a chat room.</p>
-<pre class="prettyprint source lang-js"><code>otherUser = ChatEngine.users['adam-UUID'];
-chat.invite(otherUser);</code></pre><h2>Listen for a  <code>$.invite</code>  event.</h2><p>Users can listen to  <code>$.invite</code> events on their direct channel to receive invites for chats. If the user is offline, they can call search on their direct channel to retrieve missed invites.</p>
+    <p>The <a href="Chat.html#invite"> <code>chat.invite()</code> </a> method allows you to invite other users to a private chat room.</p>
+<pre class="prettyprint source lang-js"><code>let adam = new ChatEngine.user('adam-UUID');
+privateChat.invite(adam);</code></pre><p>Listen to <a href="Me.html#event:$%2522.%2522invite"> <code>$.INVITE</code> </a> event</p>
+<p>An <a href="Me.html#event:$%2522.%2522invite"> <code>$.invite</code> </a> event is emitted on the invited user’s <a href="Me.html#direct"> <code>direct</code> </a> chat when they are invited to a private chat room. The user can listen to these events or retrieve them later by using <a href="Search.html"> <code>chat.search()</code> </a> on their direct chat channel.</p>
 <pre class="prettyprint source lang-js"><code>me.direct.on('$.invite', (payload) => {
     let invitedChat = new ChatEngine.Chat(payload.data.channel);
 });</code></pre>

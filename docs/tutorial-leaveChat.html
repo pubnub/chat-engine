@@ -41,11 +41,13 @@
 </header>
 
 <article>
-    <h2>Leave a Chat Room</h2><p>The <a href="Chat.html#leave"> <code>chat.leave()</code> </a> method allows a user to leave a chat room and stop receiving messages.</p>
-<pre class="prettyprint source lang-js"><code>chat.leave();</code></pre><h2>Listen to <a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave"> <code>$.offline</code></a> Event</h2><p>A <a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave"> <code>$.offline.leave</code> </a> event is emitted when a user intentionally leaves a chat room. Other users in the chat room can listen to <code>$.offline.*</code> to receive all leave events and mark the user offline.</p>
+    <p>The <a href="Chat.html#leave"> <code>chat.leave()</code> </a> method allows a user to leave a chat room and stop receiving events.</p>
+<pre class="prettyprint source lang-js"><code>chat.leave();</code></pre><p>Listen to  <code>$.OFFLINE</code>  event</p>
+<p>A <a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave"> <code>$.offline.leave</code></a> event is emitted when a <a href="User.html"> <code>user</code> </a> intentionally leaves a chat room. Other users in the chat room can listen to <code>$.offline.*</code> to receive all <a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave"> <code>$.leave</code></a> events and mark the user as <code>offline</code>.</p>
 <pre class="prettyprint source lang-js"><code>chat.on('$.offline.*', (payload) => {
     console.log('User left the room:', payload.user);
-});</code></pre><h2>Listen to <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect"> <code>$.offline.disconnect</code> </a> Event</h2><p>A <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect"> <code>$.disconnected</code> </a> event is emitted towards the user when they are successfully disconnected from the chat room. The user can listen to the event to execute additional business logic upon <a href="Chat.html#leave"> <code>chat.leave()</code> </a>.</p>
+});</code></pre><p>Listen to  <code>$.DISCONNECTED</code>  event</p>
+<p>A <code>$.disconnected</code> event is emitted towards the user when they are successfully disconnected from the chat room. The user can listen to the event to execute additional business logic upon leave.</p>
 <pre class="prettyprint source lang-js"><code>chat.on('$.disconnected', () => {
     done();
 });</code></pre>
