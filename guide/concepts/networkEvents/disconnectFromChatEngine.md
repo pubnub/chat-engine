@@ -1,6 +1,8 @@
 ## Disconnect from ChatEngine
 
-The client needs to {@link ChatEngine#disconnect| ```disconnect()```} from ChatEngine and close all open connections with PubNub gracefully before closing the application.
+The {@link ChatEngine#disconnect| ```disconnect()```} method allows you to disconnect
+ a user from ChatEngine. You should call the method before exiting the application so 
+ connections with PubNub are closed gracefully. 
 
 ```js
 ChatEngine.disconnect();

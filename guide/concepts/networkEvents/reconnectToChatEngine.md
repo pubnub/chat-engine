@@ -1,8 +1,12 @@
 ## Reconnect to ChatEngine
 
-The client will receive  $.network.down and $.network.up events when the browser detects network activity if autoNetworkDetection flag is set to true when ChatEngine is initialized.
+If the ```autoNetworkDetection``` flag is set to ```true``` when ChatEngine is initialized,
+the client will receive  ```$.network.down.*``` and ```$.network.up.*``` events when the
+browser detects network changes.
 
-The client should reconnect to ChatEngine when the network connection is restored. This method will reconnect a user to its chats automatically.
+The {@link ChatEngine#reconnect| ```reconnect()```} method allows you to reconnect a user 
+to ChatEngine when the ```$.network.up``` event is received and the network connection is
+stored. 
 
 ```js
 ChatEngine.on('$.network.up.*', (data) => {
@@ -10,13 +14,18 @@ ChatEngine.on('$.network.up.*', (data) => {
     ChatEngine.reconnect();
 });
 ```
+
 ### Reconnect to Existing Chats
 
-ChatEngine automatically reconnects a user to existing chats if {@link ChatEngineCore|  ``` {"ceConfig": { "enableSync": true}} ```} flag is set to true when ChatEngine is initialized. Once the user is reconnected, a list of active chats can be retrieved by calling ```ChatEngine.me.session.chats```.
+ChatEngine automatically reconnects the user to existing chats if the 
+```enableSync``` flag is set to ```true``` when ChatEngine is initialized. You can 
+use ```ChatEngine.me.session.chats``` to retrieve a list of chats that the user
+has connected to before. The list is kept in sync as users join and leave
+chat rooms.
 
 ```js
-ChatEngine.me.session.on('$.group.restored', (data) => {
-    if (data.group === 'default') {
+ChatEngine.me.session.on('$.group.restored', (payload) => {
+    if (payload.group === 'default') {
         console.log('Chats:', ChatEngine.me.session.chats);
     }
 });
