@@ -1,4 +1,4 @@
-A user can get the ```state``` of other users by retrieving the {@link User ```user```} from the list and calling {@link User#state ```user.state``` }.
+You can also get state for online users by calling {@link User#state| ```User.state``` }.
 
 ```js
 let joe = ChatEngine.users['joe-UUID'];

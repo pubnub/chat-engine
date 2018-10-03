@@ -41,10 +41,8 @@
 </header>
 
 <article>
-    <p>The <a href="User.html"><code>ChatEngine.User()</code></a> method allows you to reference a user that has previously connected to ChatEngine by providing a <a href="User.html#uuid"><code>uuid</code></a>. The method will not return a user if the <a href="User.html#uuid"><code>uuid</code></a> is not valid.</p>
-<pre class="prettyprint source lang-js"><code>let joe = new ChatEngine.User('joe-UUID');</code></pre><p>A user can also retrieve a list of all online users connected to ChatEngine by calling <code>ChatEngine.users</code> . The list is kept in sync as users <code>join</code> and <a href="Chat.html#leave"><code>leave</code></a> the chats.</p>
-<pre class="prettyprint source lang-js"><code>console.log(ChatEngine.users); //list of online users
-let stephen = ChatEngine.users['stephen-UUID'];</code></pre>
+    <p>The <a href="User.html"> <code>ChatEngine.User()</code> </a> class allows you to create or find a user by providing a <a href="User.html#uuid"> <code>uuid</code> </a>.</p>
+<pre class="prettyprint source lang-js"><code>let joe = new ChatEngine.User('joe-UUID');</code></pre>
 </article>
 
 </section>

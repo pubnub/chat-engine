@@ -41,17 +41,19 @@
 </header>
 
 <article>
-    <p><a href="ChatEngine.html">ChatEngine</a> generates <a href="Chat.html#event:$%2522.%2522online%2522.%2522join"><code>$.online</code></a> and  <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect"><code>$.offline</code></a> events when users <code>join</code> or <a href="Chat.html#leave"><code>leave</code></a> chat rooms. These events can be consumed by other users in the chat room to show <code>online</code>/<code>offline</code> status indicators.</p>
+    <p>ChatEngine generates <a href="Chat.html#event:$%2522.%2522online%2522.%2522here"> <code>$.online.*</code> </a> and <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect">  <code>$.offline.*</code> </a> events for each user when they <a href="Chat.html#event:$%2522.%2522online%2522.%2522join"> <code>join</code> </a> or <a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave"> <code>leave</code> </a> chat rooms. These events can be consumed by other users in the chat room to show <code>online</code>/<code>offline</code> status.</p>
 <ul>
-<li>When a new user joins a chat room, a <a href="Chat.html#event:$%2522.%2522online%2522.%2522here">  <code>$.online.here</code> </a> event is emitted.</li>
-<li>When an existing user joins a chat room, a <a href="Chat.html#event:$%2522.%2522online%2522.%2522join">  <code>$.online.join</code> </a> event is emitted.</li>
-<li>When a user intentionally leaves a chat room, a <a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave">  <code>$.offline.leave</code> </a> event is emitted.</li>
-<li>When a user loses network connectivity, a <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect">  <code>$.offline.disconnect</code> </a> event is generated.</li>
+<li>When a new user joins a chat room, a  <a href="Chat.html#event:$%2522.%2522online%2522.%2522join"> <code>$.online.join</code> </a> event is emitted.</li>
+<li>When an existing user joins a chat room, a <a href="Chat.html#event:$%2522.%2522online%2522.%2522here"> <code>$.online.here</code> </a> event is emitted.</li>
+<li>When a user intentionally <a href="Chat.html#leave"> leaves </a> a chat room, a <a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave"> <code>$.offline.leave</code> </a> event is emitted.</li>
+<li>When a user loses network connectivity, a <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect"> <code>$.offline.disconnect</code> </a> event is generated.</li>
 </ul>
-<h2>Listen to <a href="Chat.html#event:$%2522.%2522online%2522.%2522join"><code>$.online</code></a> Events</h2><pre class="prettyprint source lang-js"><code>ChatEngine.on('$.online.*', (payload) => {
-  appendMessage('Status', payload.user.uuid + ' is in this room!');
-});</code></pre><h2>Listen to <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect"><code>$.offline</code></a> Events</h2><pre class="prettyprint source lang-js"><code>chat.on('$.offline.*', (data) => {
-    console.log('User left the room:', data.user);
+<p>Listen to <a href="Chat.html#event:$%2522.%2522online%2522.%2522join"> <code>$.online</code> </a> events</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine.on('$.online.*', (payload) => {
+    appendMessage('Status', payload.user.uuid + ' is in this room!');
+});</code></pre><p>Listen to <a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect"> <code>$.offline</code> </a> events</p>
+<pre class="prettyprint source lang-js"><code>chat.on('$.offline.*', (payload) => {
+    console.log('User left the room:', payload.user);
 });</code></pre>
 </article>
 
