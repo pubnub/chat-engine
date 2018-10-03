@@ -27,6 +27,12 @@
                 "children": {
                     "connectToChatEngine": {
                         "title": "Connect to ChatEngine"
+                    },
+                    "setUserState": {
+                        "title": "Set User State"
+                    },
+                    "updateUserState": {
+                        "title": "Update User State"
                     }
                 }
             },
