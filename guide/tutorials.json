@@ -29,41 +29,41 @@
                         "title": "Connect to ChatEngine"
                     },
                     "setUserState": {
-                        "title": "Set User State"
+                        "title": "Set user state"
                     },
                     "updateUserState": {
-                        "title": "Update User State"
+                        "title": "Update user state"
                     }
                 }
             },
             "theuser": {
-                "title": "User",
+                "title": "Users",
                 "children": {
                     "findAUser": {
-                        "title": "Find a User"
+                        "title": "Find a user"
                     },
                     "getUserState": {
-                        "title": "Get User State"
+                        "title": "Get state for online users"
                     },
                     "onlineOfflineEvents": {
-                        "title": "Online Offline User Events"
+                        "title": "Online and offline status"
                     }
                 }
             },
             "chatRooms": {
-                "title": "Chat Rooms",
+                "title": "Chat rooms",
                 "children": {
                     "createChat": {
-                        "title": "Create a Chat Room"
-                    },
-                    "joinPublicChat": {
-                        "title": "Join a Public Chat Room"
+                        "title": "Create a chat room"
                     },
                     "inviteUserPrivateChat": {
-                        "title": "Invite a User to a Private Chat Room"
+                        "title": "Invite a user to a private chat room"
+                    },
+                    "showUsers": {
+                        "title": "Show users in a chat room"
                     },
                     "leaveChat": {
-                        "title": "Leave a Chat Room"
+                        "title": "Leave a chat room"
                     }
                 }
             },
@@ -71,21 +71,21 @@
                 "title": "Messages",
                 "children": {
                     "sendMessages": {
-                        "title": "Send Messages"
+                        "title": "Send messages"
                     },
                     "receiveMessageOnChat": {
-                        "title": "Receive Message On Chat"
+                        "title": "Receive messages"
                     },
                     "sendDirectMessage": {
-                        "title": "Send a Direct Message to a User"
+                        "title": "Send a direct message to a user"
                     },
                     "messagesHistory": {
-                        "title": "Retrieve Past Messages"
+                        "title": "Retrieve past messages"
                     }
                 }
             },
             "networkEvents": {
-                "title": "Network Events",
+                "title": "Network events",
                 "children": {
                     "disconnectFromChatEngine": {
                         "title":  "Disconnect from ChatEngine"
@@ -103,20 +103,6 @@
                     },
                     "authorization": {
                         "title": "Authorization"
-                    }
-                }
-            },
-            "pubnubFunctions": {
-                "title": "PubNub Functions",
-                "children": {
-                    "functionsOverview": {
-                        "title": "PubNub Functions Overview"
-                    },
-                    "onRequestFunction": {
-                        "title": "On Request Function"
-                    },
-                    "pubnubCeFunction": {
-                        "title": "PubNub ChatEngine Function(s)"
                     }
                 }
             }

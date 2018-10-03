@@ -7,7 +7,7 @@ ChatEngine.connect('john-UUID', {
 });
 ```
 
-## Listen to ```$.STATE``` event
+## Listen to ```$.state``` Event
 
 A ```$.state``` event is triggered to all users in the {@link ChatEngine#"."global| ```global```} chat room if a user connects with a user state.
 
