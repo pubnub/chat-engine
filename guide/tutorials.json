@@ -3,16 +3,16 @@
         "title": "Plugins"
     },
     "getting-started": {
-        "title":"Overview",
+        "title":"Setup",
         "children": {
             "install": {
                 "title":"Install ChatEngine"
             },
             "pubnub": {
-                "title":"Configure ChatEngine"
+                "title":"Account setup"
             },
             "quick": {
-                "title":"Quick Start Guide"
+                "title":"Quick start guide"
             }
         }
     },

@@ -1,36 +1,17 @@
-## Install PubNub ChatEngine
+## Install with NPM:
 
-### CDN Hotlink
-
-You can grab the latest version of ChatEngine by hotlinking to the GitHub pages hosted version of ChatEngine
-
-```js
-<script src="https://cdn.jsdelivr.net/npm/chat-engine@0.8.4/dist/chat-engine.min.js"></script>
+```
+npm install chat-engine
 ```
 
-The ChatEngine library will then be available as ```window.ChatEngineCore```.
+## CDN:
 
-### NPM
+<a href="https://cdn.jsdelivr.net/npm/chat-engine@latest/dist/chat-engine.min.js">https://cdn.jsdelivr.net/npm/chat-engine@latest/dist/chat-engine.min.js</a>
 
-Install PubNub ChatEngine by running:
+## Source Files
 
-```sh
-npm install chat-engine --save
-```
+<a href="https://github.com/pubnub/chat-engine">https://github.com/pubnub/chat-engine</a>
 
-This will install the PubNub ChatEngine Javascript SDK into your ```node_modules``` directory.
+## Licence
 
-You can then include it directly on the front end by:
-
-```js
-<script src="node_modules/chat-engine/dist/latest/chat-engine.js"></script>
-```
-
-The ChatEngine library will then be available as ```window.ChatEngineCore```.
-
-Or in NodeJS:
-
-```js
-let ChatEngineCore = require('chat-engine');
-```
-
+<a href="https://github.com/pubnub/chat-engine/blob/master/LICENSE">https://github.com/pubnub/chat-engine/blob/master/LICENSE</a>
