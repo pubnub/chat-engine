@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>chat-engine-online-user-search - PubNub ChatEngine</title>
+    <title>Plugins - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,454 +29,59 @@
 
 <div id="main">
     
-    <h1 class="page-title">chat-engine-online-user-search</h1>
+    <h1 class="page-title">Plugins</h1>
     
 
-    
-
-
-
-
-<section>
+    <section>
 
 <header>
     
-        
-            
-        
-            
-        
-    
+
+    <!-- <h2>Plugins</h2> -->
 </header>
 
 <article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Searches a <a href="Chat.html">Chat</a> for a <a href="User.html">User</a> with a <code>state.username</code> containing a given string.</p></div>
-        
-
-        
-            
-
-    
-    <h4 class="name" id="module:chat-engine-online-user-search">
-
-    <span class="type-signature"></span>require('chat-engine-online-user-search')<span class="signature">(config<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line18">line 18</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>//providing a config is optional, the defaults are below
-let config = { prop: 'uuid', caseSensitive: false }
-chat.plugin(ChatEngineCore.plugin['chat-engine-online-user-search'](config));
-
-let results = chat.onlineUserSearch.search('foo');</code></pre>
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The config object</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line1">line 1</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-
-        
-            
-            
-
-    
-    <h4 class="name" id="~search">
-
-    <span class="type-signature">(inner) </span>search<span class="signature">(needle)</span><span class="type-signature"> &rarr; {Array}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Augments:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Chat.html">Chat</a>
-    </li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line26">line 26</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>needle</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The username to search for.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>An array of <a href="User.html">User</a>s that match the input string.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-        
-    
-
-    
-
-    
+    <h3>Using Plugins</h3><h4>Node</h4><p>It's super easy to use plugins in NodeJs. Just include the file like any other
+dependency and attach it to your ChatEngine objects.</p>
+<pre class="prettyprint source lang-js"><code>// include the plugin from the remote file
+const myPlugin = require('plugin.js');
+
+// create a new chatroom
+let someChatroom = new ChatEngine.Chat('new-channel');
+
+// attach the plugin to the new chatroom
+someChatroom.plugin(myPlugin(config));</code></pre><h4>Web</h4><p>You'll need the <code>chat-engine-plugin</code> tool described in the next section to
+build the package for web.</p>
+<p>Once you build the package you would include the plugin with a <code>&lt;script&gt;</code> tag like:</p>
+<pre class="prettyprint source lang-html"><code>&lt;script src=&quot;/web/plugin.js&quot;>&lt;/script></code></pre><p>And the plugin will be available under <code>ChatEngineCore.plugin[namespace]</code>.
+The namespace is defined in package.json and you can learn more about it in the
+next section.</p>
+<p>Once the plugin is available, you can attach it to ChatEngine objects like we do in the
+Node version.</p>
+<pre class="prettyprint source lang-js"><code>let someChatroom = new ChatEngine.Chat('new-channel');
+someChatroom.plugin(ChatEngineCore.plugin.myPlugin(config));</code></pre><h2>Open Chat Framework Plugin Tool</h2><p>This is a build tool for Open Chat Framework plugins. Because ChatEngine works
+on the front and back end, the plugin system requires a standardized method
+for building for web.</p>
+<p>This build process assures us that the plugin can be used identically on
+both web and nodeJS. It uses browserify to compile assets.</p>
+<p>It's main features are:</p>
+<ul>
+<li>Name spacing plugins to avoid collisions</li>
+<li>Preventing global scope leak in browser</li>
+<li>Consistent API for integration on web and node</li>
+<li>Singular tests for web and node</li>
+</ul>
+<h2>Setup</h2><p>Install the tool globally.</p>
+<pre class="prettyprint source lang-sh"><code>npm install chat-engine-plugin -g</code></pre><p>When used in a browser, this will provide your plugin as a property of the
+global <code>ChatEngineCore.plugin</code> property.</p>
+<p><code>ChatEngineCore.plugin.emoji</code>.</p>
+<p>This helps to avoid collisions with
+global variables. Be careful to avoid collisions with other ChatEngine plugins!</p>
+<h2>Run chat-engine-plugin</h2><p>Then, just run <code>chat-engine-plugin</code> from the command line. This will bundle your
+<code>plugin.js</code> file and it's dependencies so it can be used on the web.</p>
 </article>
 
 </section>
-
-
-
 
 </div>
 

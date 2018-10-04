@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>chat-engine-online-user-search - PubNub ChatEngine</title>
+    <title>Event Payload - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,454 +29,62 @@
 
 <div id="main">
     
-    <h1 class="page-title">chat-engine-online-user-search</h1>
+    <h1 class="page-title">Event Payload</h1>
     
 
-    
-
-
-
-
-<section>
+    <section>
 
 <header>
     
-        
-            
-        
-            
-        
-    
+
+    <!-- <h2>Event Payload</h2> -->
 </header>
 
 <article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Searches a <a href="Chat.html">Chat</a> for a <a href="User.html">User</a> with a <code>state.username</code> containing a given string.</p></div>
-        
-
-        
-            
-
-    
-    <h4 class="name" id="module:chat-engine-online-user-search">
-
-    <span class="type-signature"></span>require('chat-engine-online-user-search')<span class="signature">(config<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line18">line 18</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>//providing a config is optional, the defaults are below
-let config = { prop: 'uuid', caseSensitive: false }
-chat.plugin(ChatEngineCore.plugin['chat-engine-online-user-search'](config));
-
-let results = chat.onlineUserSearch.search('foo');</code></pre>
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The config object</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line1">line 1</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-
-        
-            
-            
-
-    
-    <h4 class="name" id="~search">
-
-    <span class="type-signature">(inner) </span>search<span class="signature">(needle)</span><span class="type-signature"> &rarr; {Array}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Augments:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Chat.html">Chat</a>
-    </li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line26">line 26</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>needle</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The username to search for.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>An array of <a href="User.html">User</a>s that match the input string.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-        
-    
-
-    
-
-    
+    <h2>Event Payload</h2><p>Although you may emit any valid JSON using <a href="Chat.html#emit">Chat#emit</a>, when the same
+event is received by other <a href="User.html">User</a>s, it will be augmented with additional
+data.</p>
+<pre class="prettyprint source lang-js"><code>{
+    user: ChatEngine.User(),    // the User responsible for emitting the message
+    chat: ChatEngine.Chat(),    // the Chat the event was broadcast over
+    data: {}                    // anything sent to Chat.emit() shows up here
+}</code></pre><p>You can find the actual message contents supplied to <a href="Chat.html#emit">Chat#emit</a> within the <code>payload.data</code> property.</p>
+<p>ChatEngine event payloads are augmented with additional information supplied by the framework. Most of the time these are <code>payload.sender</code> and <code>payload.chat</code>.</p>
+<p>The property <code>payload.chat</code> is the <a href="Chat.html">Chat</a> that event was broadcast broadcast on, and the <code>payload.sender</code> is the <a href="User.html">User</a> that broadcast the message via <a href="Chat.html#emit">Chat#emit</a>.</p>
+<p>The <a href="User.html">User</a> and <a href="Chat.html">Chat</a> properties are both fully interactive instances. Therefor, you can do things like <code>payload.chat.emit('message')</code> to automatically reply to a message.</p>
+<h2>Simple Example</h2><p>In this demo we'll mock up a user named 'Ian' emitting the 'like' event on a user named 'Alex'.</p>
+<p>On Ian's page:</p>
+<pre class="prettyprint source lang-js"><code>// connect with UUID 'ian' and add a user state
+ChatEngine.connect('ian', {fullName: 'Ian Jennings'});
+
+// emit a 'like' event over global chat
+ChatEngine.global.emit('like', {
+    who: 'alex'
+});</code></pre><p>On Alex's page:</p>
+<pre class="prettyprint source lang-js"><code>// connect with UUID 'alex'
+ChatEngine.connect('alex');
+
+// when we received a 'like' event on global chat
+ChatEngine.global.on('like', (payload) => {
+
+    // if that event matches 'alex'
+    if(payload.data.who == 'alex') {
+
+        // opens an alert that says &quot;ian likes you!&quot;&quot;
+        alert(payload.sender.uuid + ' likes you!');
+
+        // Log 'Ian Jennings' from Ian's state
+        console.log('His full name is', payload.sender.state().fullName);
+
+        // Get all the other users in the chat that emitted this event
+        console.log('Other users who saw this are', payload.chat.users);
+
+    }
+
+});</code></pre>
 </article>
 
 </section>
-
-
-
 
 </div>
 

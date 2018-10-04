@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>chat-engine-online-user-search - PubNub ChatEngine</title>
+    <title>PubNub Channel Topology - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,454 +29,52 @@
 
 <div id="main">
     
-    <h1 class="page-title">chat-engine-online-user-search</h1>
+    <h1 class="page-title">PubNub Channel Topology</h1>
     
 
-    
-
-
-
-
-<section>
+    <section>
 
 <header>
     
-        
-            
-        
-            
-        
-    
+
+    <!-- <h2>PubNub Channel Topology</h2> -->
 </header>
 
 <article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Searches a <a href="Chat.html">Chat</a> for a <a href="User.html">User</a> with a <code>state.username</code> containing a given string.</p></div>
-        
-
-        
-            
-
-    
-    <h4 class="name" id="module:chat-engine-online-user-search">
-
-    <span class="type-signature"></span>require('chat-engine-online-user-search')<span class="signature">(config<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line18">line 18</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>//providing a config is optional, the defaults are below
-let config = { prop: 'uuid', caseSensitive: false }
-chat.plugin(ChatEngineCore.plugin['chat-engine-online-user-search'](config));
-
-let results = chat.onlineUserSearch.search('foo');</code></pre>
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The config object</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line1">line 1</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-
-        
-            
-            
-
-    
-    <h4 class="name" id="~search">
-
-    <span class="type-signature">(inner) </span>search<span class="signature">(needle)</span><span class="type-signature"> &rarr; {Array}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Augments:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Chat.html">Chat</a>
-    </li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line26">line 26</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>needle</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The username to search for.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>An array of <a href="User.html">User</a>s that match the input string.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-        
-    
-
-    
-
-    
+    <p>PubNub Channels in ChatEngine</p>
+<h2>Global Chat / Channel</h2><p>By default the Global Channel is called <code>chat-engine</code>.</p>
+<p>Every <a href="Chat.html">Chat</a> created within an instanced of <a href="ChatEngine.html">ChatEngine</a> is perpended with
+the string <code>chat-engine#</code>.</p>
+<p>This allows you to create multi-tenant apps without overlap. For example, you may want to
+support multiple organizations with different top level ids. Every organization would have
+a unique global channel.</p>
+<p>Every channel created within ChatEngine thereafter is prepended with the global channel.</p>
+<h2>Channel Namespaces</h2><p>Every <a href="Chat.html">Chat</a>s is created under a sub namespace dependent on the context and permissions.</p>
+<h4><code>globalChannel</code></h4><p>This is the channel for ChatEngine#global. All <a href="User.html">User</a>s have read and write access to this channel.</p>
+<pre class="prettyprint source lang-js"><code>ChatEngine.global.on('message', () => {});
+
+console.log(ChatEngine.global.channel);
+// ChatEngine.global.channel == &quot;chat-engine&quot;</code></pre><h4><code>globalChannel + '#chat#public.*'</code></h4><p>All public <a href="Chat.html">Chat</a>s are created under this namespace. All <a href="User.html">User</a>s have read and write access to this channel.</p>
+<pre class="prettyprint source lang-js"><code>let chat = new Chat('custom-channel')
+
+console.log(chat.channel);
+// chat.channel == &quot;chat-engine#chat#public.#custom-channel&quot;</code></pre><h4><code>globalChannel + '#chat#private.*'</code></h4><p>All private <a href="Chat.html">Chat</a>s are create under this namespace. This namespace is locked down and no users have
+read or write access. They must be granted them.</p>
+<pre class="prettyprint source lang-js"><code>let privateChat = new Chat('private-channel', true);
+
+console.log(privateChat.channel);
+// privateChat.channel == &quot;chat-engine#chat#private.#private-channel&quot;</code></pre><h4><code>globalChannel + '#user#' + myUUID + '#read.*'</code></h4><p>This is the namespace containing <a href="User.html">User</a> owned <a href="Chat.html">Chat</a>s. The user who's User#uuid matches <code>myUUID</code> has all permissions, while other <a href="User.html">User</a>s only have read permissions. <a href="User.html#feed">User#feed</a> belongs to this namespace.</p>
+<pre class="prettyprint source lang-js"><code>let joe = new ChatEngine.User('joe');
+
+console.log(joe.feed.channel);
+// joe.feed.channel == &quot;chat-engine#user#joe#read#feed&quot;</code></pre><h4><code>globalChannel + '#user#' + myUUID + '#write.*'</code></h4><p>This is the namespace containing <a href="User.html">User</a> owned <a href="Chat.html">Chat</a>s. The user who's User#uuid matches <code>myUUID</code> has all permissions, while other <a href="User.html">User</a>s only have write permissions. <a href="User.html#direct">User#direct</a> belongs to this namespace.</p>
+<pre class="prettyprint source lang-js"><code>let joe = new ChatEngine.User('joe');
+
+console.log(joe.direct.channel);
+// joe.direct.channel == &quot;chat-engine#user#joe#write#direct&quot;</code></pre>
 </article>
 
 </section>
-
-
-
 
 </div>
 

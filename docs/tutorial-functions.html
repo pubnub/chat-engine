@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>chat-engine-online-user-search - PubNub ChatEngine</title>
+    <title>PubNub Functions - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,454 +29,46 @@
 
 <div id="main">
     
-    <h1 class="page-title">chat-engine-online-user-search</h1>
+    <h1 class="page-title">PubNub Functions</h1>
     
 
-    
-
-
-
-
-<section>
+    <section>
 
 <header>
     
-        
-            
-        
-            
-        
-    
+
+    <!-- <h2>PubNub Functions</h2> -->
 </header>
 
 <article>
-    <div class="container-overview">
-    
-        
-            <div class="description"><p>Searches a <a href="Chat.html">Chat</a> for a <a href="User.html">User</a> with a <code>state.username</code> containing a given string.</p></div>
-        
-
-        
-            
-
-    
-    <h4 class="name" id="module:chat-engine-online-user-search">
-
-    <span class="type-signature"></span>require('chat-engine-online-user-search')<span class="signature">(config<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line18">line 18</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Example</h5>
-    
-    <pre class="prettyprint"><code>//providing a config is optional, the defaults are below
-let config = { prop: 'uuid', caseSensitive: false }
-chat.plugin(ChatEngineCore.plugin['chat-engine-online-user-search'](config));
-
-let results = chat.onlineUserSearch.search('foo');</code></pre>
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>config</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last"><p>The config object</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-
-
-
-<dl class="details">
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line1">line 1</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-
-        
-            
-            
-
-    
-    <h4 class="name" id="~search">
-
-    <span class="type-signature">(inner) </span>search<span class="signature">(needle)</span><span class="type-signature"> &rarr; {Array}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-
-    
-    <dt class="tag-source">Augments:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Chat.html">Chat</a>
-    </li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="chat-engine-online-user-search_src_plugin.js.html">chat-engine-online-user-search/src/plugin.js</a>, <a href="chat-engine-online-user-search_src_plugin.js.html#line26">line 26</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>needle</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>The username to search for.</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>An array of <a href="User.html">User</a>s that match the input string.</p>
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Array</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-        
-    
-
-    
-
-    
+    <p>It's possible to use awesome PubNub Functions with ChatEngine.</p>
+<h2>Event Type</h2><p>Create a new PubNub function. Select <code>Before Publish or Fire</code> as the
+function event type.</p>
+<h2>Channel</h2><p>In the channel, enter in the chat channel you'd like to trigger the Function.
+Wildcard <code>*</code> selection is allowed.</p>
+<p>To run a function on all public chats (most popular), enter
+<code>chat-engine#chat#public.*</code> in the &quot;channel&quot; field of PubNub Functions. See
+the tutorial on <a href="tutorial-topology.html">PubNub Channel Topology</a> for more information on ChatEngine channel names.</p>
+<p>You may wish to create an additional Function targeting private chats:</p>
+<pre class="prettyprint source"><code>chat-engine#chat#private.*</code></pre><h2>Code</h2><p>You can access the ChatEngine Event type via <code>request.messag=e.event</code> and the
+event payload via <code>request.message.data</code>.</p>
+<p>For example, to build a simple PubNub function that replaces all sent 'message's with
+pirate speak:</p>
+<pre class="prettyprint source lang-js"><code>export default (request) => {
+    const kvstore = require('kvstore');
+    const xhr = require('xhr');
+
+    console.log('request',request); // Log the request envelope passed
+
+    if(request.message.event == &quot;message&quot;) {
+        request.message.data = &quot;Ahoy there matey!&quot;
+    }
+
+    return request.ok(); // Return a promise when you're done
+}</code></pre>
 </article>
 
 </section>
-
-
-
 
 </div>
 
