@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Angular - PubNub ChatEngine</title>
+    <title>Install - PubNub ChatEngine</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -29,25 +29,24 @@
 
 <div id="main">
     
-    <h1 class="page-title">Angular</h1>
+    <h1 class="page-title">Install</h1>
     
 
     <section>
 
 <header>
     
-    <ul>
-        <li><a href="tutorial-ng-simple.html">Angular Bootstrap</a></li>
-    
-        <li><a href="tutorial-ng-flowtron.html">Angular Desktop Chat</a></li>
-    </ul>
-    
 
-    <!-- <h2>Angular</h2> -->
+    <!-- <h2>Install</h2> -->
 </header>
 
 <article>
-    <p>Angular Examples</p>
+    <h3>CDN:</h3><p>To get started using the CDN version of ChatEngine, include a reference to the minified javascript package in your HTML file.</p>
+<script src="https://cdn.jsdelivr.net/npm/chat-engine@latest/dist/chat-engine.min.js"></script>
+
+<p>The ChatEngine library will then be available as <code>window.ChatEngineCore</code>.</p>
+<h3>NPM:</h3><p>To get started using the NodeJS version of ChatEngine, install chat-engine from npm and require it into your application:</p>
+<pre class="prettyprint source lang-js"><code>let ChatEngineCore = require('chat-engine');</code></pre>
 </article>
 
 </section>

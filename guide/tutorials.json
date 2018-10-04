@@ -19,8 +19,11 @@
     "concepts": {
          "title": "Concepts",
          "children": {
-            "configuration": {
-                "title": "Configuration"
+            "installing": {
+                "title": "Install"
+            },
+            "initialization": {
+                "title": "Initialization"
             },
             "connect": {
                 "title": "Connect",
