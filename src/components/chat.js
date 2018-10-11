@@ -268,8 +268,11 @@ class Chat extends Emitter {
       * });
      */
     emit(event, data) {
+        if (!event) {
+            throw new Error('the event has to be defined');
+        }
 
-        if (event === 'message' && typeof data !== 'object') {
+        if (typeof data !== 'object') {
             throw new Error('the payload has to be an object');
         }
 
