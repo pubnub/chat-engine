@@ -1,139 +1,228 @@
- {
-     "getting-started": {
-         "title": "Get Started",
-         "children": {
-             "install": {
-                 "title": "Install ChatEngine"
-             },
-             "pubnub": {
-                 "title": "Configure ChatEngine"
-             },
-             "quick": {
-                 "title": "Quick Start Guide"
-             }
-         }
-     },
-     "concepts": {
+{
+    "plugin-list": {
+        "title": "Plugins"
+    },
+    "getting-started": {
+        "title":"Setup",
+        "children": {
+            "install": {
+                "title":"Install ChatEngine"
+            },
+            "pubnub": {
+                "title":"Account setup"
+            },
+            "quick": {
+                "title":"Quick start guide"
+            }
+        }
+    },
+    "concepts": {
          "title": "Concepts",
          "children": {
-             "me": {
-                 "title": "Me"
-             },
-             "users": {
-                 "title": "Users and State"
-             },
-             "chats": {
-                 "title": "Chats"
-             },
-             "events": {
-                 "title": "Events"
-             },
-             "payload": {
-                 "title": "Event Payload"
-             },
-             "namespaces": {
-                 "title": "Namespaces"
-             },
-             "wildcard": {
-                 "title": "Wildcards"
-             },
-             "search": {
-                 "title": "Search"
-             },
-             "globalChat": {
-                 "title": "Global Chat"
-             },
-             "online-list": {
-                 "title": "Online List"
-             },
-             "auth": {
-                 "title": "Authentication"
-             },
-             "privacy": {
-                 "title": "Privacy"
-             },
-             "private": {
-                 "title": "Private Chats"
-             },
-             "templating": {
-                 "title": "Templating"
-             },
-             "debugging": {
-                 "title": "Debugging"
-             },
-             "errors": {
-                 "title": "Errors"
-             },
-             "using": {
-                 "title": "Plugins"
-             },
-             "build": {
-                 "title": "Build a Plugin"
-             },
-             "functions": {
-                 "title": "PubNub Functions"
-             },
-             "topology": {
-                 "title": "PubNub Channel Topology"
-             }
-         }
-     },
-     "js": {
-         "title": "Javascript",
-         "children": {
-             "chat": {
-                 "title": "JS Chat"
-             },
-             "friends": {
-                 "title": "JS Friends List"
-             },
-             "online": {
-                 "title": "JS Online List"
-             },
-             "facebook": {
-                 "title": "JS Facebook Auth"
-             }
-         }
-     },
-     "angular": {
-         "title": "Angular",
-         "children": {
-             "ng-simple": {
-                 "title": "Angular Bootstrap"
-             },
-             "ng-flowtron": {
-                 "title": "Angular Desktop Chat"
-             }
-         }
-     },
-     "react": {
-         "title": "React",
-         "children": {
-             "react-simple": {
-                 "title": "React Web"
-             },
-             "react-native": {
-                 "title": "React Native"
-             }
-         }
-     },
-     "jquery": {
-         "title": "jQuery",
-         "children": {
-             "jq-simple": {
-                 "title": "jQuery Chat"
-             },
-             "jq-kitchen": {
-                 "title": "jQuery Kitchen Sink"
-             }
-         }
-     },
-     "nodejs": {
-         "title": "NodeJS",
-         "children": {
-             "chatbot": {
-                 "title": "NodeJS Chat Bot"
-             }
-         }
-     }
- }
+            "installing": {
+                "title": "Installing"
+            },
+            "initialization": {
+                "title": "Initialization"
+            },
+            "connect": {
+                "title": "Connect",
+                "children": {
+                    "connectToChatEngine": {
+                        "title": "Connect to ChatEngine"
+                    },
+                    "setUserState": {
+                        "title": "Set user state"
+                    },
+                    "updateUserState": {
+                        "title": "Update user state"
+                    }
+                }
+            },
+            "theuser": {
+                "title": "Users",
+                "children": {
+                    "findAUser": {
+                        "title": "Find a user"
+                    },
+                    "getUserState": {
+                        "title": "Get state for online users"
+                    },
+                    "onlineOfflineEvents": {
+                        "title": "Online and offline status"
+                    }
+                }
+            },
+            "chatRooms": {
+                "title": "Chat rooms",
+                "children": {
+                    "createChat": {
+                        "title": "Create a chat room"
+                    },
+                    "inviteUserPrivateChat": {
+                        "title": "Invite a user to a private chat room"
+                    },
+                    "showUsers": {
+                        "title": "Show users in a chat room"
+                    },
+                    "leaveChat": {
+                        "title": "Leave a chat room"
+                    }
+                }
+            },
+            "messages": {
+                "title": "Messages",
+                "children": {
+                    "sendMessages": {
+                        "title": "Send messages"
+                    },
+                    "receiveMessageOnChat": {
+                        "title": "Receive messages"
+                    },
+                    "sendDirectMessage": {
+                        "title": "Send a direct message to a user"
+                    },
+                    "messagesHistory": {
+                        "title": "Retrieve past messages"
+                    }
+                }
+            },
+            "networkEvents": {
+                "title": "Network events",
+                "children": {
+                    "disconnectFromChatEngine": {
+                        "title":  "Disconnect from ChatEngine"
+                    },
+                    "reconnectToChatEngine": {
+                        "title": "Reconnect To ChatEngine"
+                    }
+                }
+            },
+            "security": {
+                "title": "Security",
+                "children": {
+                    "encryption": {
+                        "title": "Encryption"
+                    },
+                    "authorization": {
+                        "title": "Authorization"
+                    }
+                }
+            }
+        }
+    },
+    "advancedConcepts": {
+        "title": "Advanced Concepts",
+        "children": {
+            "initializationOptions": {
+                "title": "Initialization Options"
+            },
+            "connectDeepDive": {
+                "title": "Connect Deep Dive",
+                "children": {
+                    "connectGlobal": {
+                        "title": "Connect.Global"
+                    },
+                    "connectMe": {
+                        "title": "Connect.Me"
+                    }
+                }
+            },
+            "authentication": {
+                "title": "Authentication"
+            },
+            "advancedSecurity": {
+                "title": "Advanced Security"
+            },
+            "integrateWithPubnubFunctions": {
+                "title": "Integrate with PubNub Functions"
+            },
+            "pubnubChannelTopology": {
+                "title": "PubNub Channel Topology",
+                "children": {
+                    "globalChannel": {
+                        "title": "Global Channel"
+                    },
+                    "feedChannel": {
+                        "title": "Feed Channel"
+                    },
+                    "directChannel": {
+                        "title": "Direct Channel"
+                    },
+                    "publicChannel": {
+                        "title": "Public Channel"
+                    },
+                    "privateChannel": {
+                        "title": "Private Channel"
+                    }
+                }
+            },
+            "buildAPlugin": {
+                "title": "Build a Plugin"
+            }
+        }
+    },
+    "examples":{
+        "title":"Examples",
+        "children":{
+            "js":{
+                "title":"Javascript",
+                "children":{
+                    "chat":{
+                        "title":"JS Chat"
+                    },
+                    "friends":{
+                        "title":"JS Friends List"
+                    },
+                    "online":{
+                        "title":"JS Online List"
+                    },
+                    "facebook":{
+                        "title":"JS Facebook Auth"
+                    }
+                }
+            },
+            "angular":{
+                "title":"Angular",
+                "children":{
+                    "ng-simple":{
+                        "title":"Angular Bootstrap"
+                    },
+                    "ng-flowtron":{
+                        "title":"Angular Desktop Chat"
+                    }
+                }
+            },
+            "react":{
+                "title":"React",
+                "children":{
+                    "react-simple":{
+                        "title":"React Web"
+                    },
+                    "react-native":{
+                        "title":"React Native"
+                    }
+                }
+            },
+            "jquery":{
+                "title":"jQuery",
+                "children":{
+                    "jq-simple":{
+                        "title":"jQuery Chat"
+                    },
+                    "jq-kitchen":{
+                        "title":"jQuery Kitchen Sink"
+                    }
+                }
+            },
+            "nodejs":{
+                "title":"NodeJS",
+                "children":{
+                    "chatbot":{
+                        "title":"NodeJS Chat Bot"
+                    }
+                }
+            }
+        }
+    }
+}

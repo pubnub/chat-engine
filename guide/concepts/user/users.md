@@ -1,16 +1,16 @@
-## Users
+<!-- ## Users
 
-{@link User}s are other browser windows connected to the {@link Chat} via {@link ChatEngine}. A {@link User} represents a connected client.
+{@link User}s are other browser windows connected to the {@link Chat} via {@link ChatEngine}. A {@link User} represents a connected client. -->
 
-## Me
+<!-- ## Me
 
 When a client calls {@link ChatEngine#connect}, they create a special {@link User} called {@link Me}. {@link Me} represents "this {@link User} for this instance."
 
 {@link Me} and {@link User} are similar in many ways, with the main difference being that {@link Me} has the ability to edit {@link Me#state} via {@link Me#update} while you can not updated some other {@link User#state}.
 
-See {@tutorial me} for more information.
+See {@tutorial me} for more information. -->
 
-## State
+<!-- ## State
 
 So how do we add other information to Users? Like a profile? We update {@link Me#state} via {@link Me#update}.
 
@@ -55,4 +55,4 @@ let user = ChatEngine.global.users[0];
 
 // output the user's state
 console.log(user.state);
-```
+``` -->

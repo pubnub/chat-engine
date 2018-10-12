@@ -17,6 +17,11 @@ class RootEmitter {
         */
         this.events = {};
 
+        /**
+        Handy property to identify what this class is.
+        @type String
+        @private
+        */
         this.name = 'RootEmitter';
 
         /**

@@ -10,7 +10,7 @@ const augmentChat = require('../plugins/augment/chat');
  This is the root {@link Chat} class that represents a chat room
 
  @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
+ @param {Boolean} [isPrivate=false] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
@@ -661,6 +661,7 @@ class Chat extends Emitter {
 
     /**
      * Ask PubNub for information about {@link User}s in this {@link Chat}.
+     * @private
      */
     getUserUpdates() {
 
@@ -679,6 +680,12 @@ class Chat extends Emitter {
     /**
      * Establish authentication with the server, then subscribe with PubNub.
      * @fires Chat#$"."ready
+     * @example
+     * // create a new chatroom, but don't connect to it automatically
+     * let chat = new Chat('some-chat', false, false);
+     *
+     * // connect to the chat when we feel like it
+     * chat.connect();
      */
     connect() {
 
@@ -694,12 +701,7 @@ class Chat extends Emitter {
 
     /**
      * Connect to PubNub servers to initialize the chat.
-     * @example
-     * // create a new chatroom, but don't connect to it automatically
-     * let chat = new Chat('some-chat', false)
-     *
-     * // connect to the chat when we feel like it
-     * chat.connect();
+     * @private
      */
     handshake(complete) {
 
