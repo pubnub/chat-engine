@@ -464,6 +464,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reconnect = (authKey) => {
 
+        authKey = authKey || PubNub.generateUUID();
+
         if (authKey) {
             // do the whole auth flow with the new authKey
             ChatEngine.handshake(() => {
@@ -487,6 +489,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     @private
     */
     ChatEngine.setAuth = (authKey) => {
+
+        authKey = authKey || PubNub.generateUUID();
 
         ChatEngine.pnConfig.authKey = authKey;
         ChatEngine.pubnub.setAuthKey(authKey);
@@ -516,6 +520,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.reauthorize = (authKey) => {
 
+        authKey = authKey || PubNub.generateUUID();
+
         ChatEngine.global.once('$.disconnected', () => {
 
             ChatEngine.setAuth(authKey);
@@ -536,6 +542,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @fires $"."connected
      */
     ChatEngine.connect = (uuid, state = {}, authKey) => {
+
+        authKey = authKey || PubNub.generateUUID();
 
         // this creates a user known as Me and
         // connects to the global chatroom
