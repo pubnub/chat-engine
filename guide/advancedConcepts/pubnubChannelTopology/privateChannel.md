@@ -1,6 +1,6 @@
 ## Private Channel
 
-All private chats are created under the ```globalChannel + '#chat#private.*'``` namespace. This namespace is locked down and no users have read or write access. They must be granted them.
+All ```private``` {@link Chat| ```Chat```s} are created under the ```globalChannel + '#chat#private.*'``` namespace. This namespace is locked down and no ```User```s have read or write access. A ```User``` must be granted them.
 
 ```js
 let privateChat = new Chat('private-channel', true);

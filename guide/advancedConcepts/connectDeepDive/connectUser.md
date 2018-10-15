@@ -1,0 +1,1 @@
+The ChatEngine architecture consists of a client side running ChatEngine client code and a backend side (PubNub Functions) handling various server-side ops such as authorization via [PAM](https://www.pubnub.com/docs/web-javascript/api-reference-configuration).

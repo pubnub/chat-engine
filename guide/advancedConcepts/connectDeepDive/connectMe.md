@@ -1,10 +1,10 @@
 ## Connect to ChatEngine.Me
 
-Once CE has connected the default global channels, CE will create a ```ChatEngine.Me``` class which extends the ```ChatEngine.User``` class.
+Once ChatEngine has connected the default global channels, ChatEngine will create a ```ChatEngine.Me``` class which extends the ```ChatEngine.User``` class.
 
 > FYI: ChatEngine.User is an extension of the ```ChatEngine.Emitter``` class.
 
-Similar to connecting to ```ChatEngine.global```, CE then uses the PubNub CE Function controller to grant user access to their ```ChatEngine.Me``` chat channels. The ACLs defined for the ```Me``` chat channels restricts other users from reading or writing content on that channel.   
+Similar to connecting to ```ChatEngine.global```, ChatEngine then uses the PubNub ChatEngine Function controller to grant user access to their ```ChatEngine.Me``` chat channels. The access control levels defined for the {@link Me| ```Me```} chat channels restricts other {@link User| ```User```s } from reading or writing content on that channel.   
 
 
 | HTTP method | controller\* |  read | write | channels| channelGroups| authKeys | ttl [sec]|
@@ -15,6 +15,6 @@ Similar to connecting to ```ChatEngine.global```, CE then uses the PubNub CE Fun
 
 > \** The last row's ```grant``` request only made if user has configured ```ceConfig.enableSync: true```
 
-After each grant request, CE will make a ```join``` request to the PubNub CE Function controller in order to add the above channels to the _system_```channelGroup```.
+After each grant request, ChatEngine will make a ```join``` request to the PubNub ChatEngine Function controller in order to add the above channels to the ```system``` ```channelGroup```.
 
-Once the above has completed, CE will emit an ```$.ready``` event to signal a successful connection to ```ChatEngine.Global``` and ```ChatEngine.Me```.
+Once the above has completed, ChatEngine will {@link Chat#emit| ```emit()``` } a {@link ChatEngine#event:$"."ready| ```$.ready``` } {@link Event| ```Event``` } to signal a successful connection to {@link ChatEngine#global| ```ChatEngine.global``` } and {@link Me| ```ChatEngine.Me``` }.

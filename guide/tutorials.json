@@ -108,25 +108,54 @@
                         "title": "Authorization"
                     }
                 }
+            },
+            "errors": {
+                "title": "Errors"
             }
         }
     },
     "advancedConcepts": {
         "title": "Advanced Concepts",
         "children": {
-            "initializationOptions": {
-                "title": "Initialization Options"
+            "pubnubChannelTopology": {
+                "title": "PubNub Channel Topology",
+                "children": {
+                    "globalChannel": {
+                        "title": "Global Channel"
+                    },
+                    "directChannel": {
+                        "title": "Direct Channel"
+                    },
+                    "feedChannel": {
+                        "title": "Feed Channel"
+                    },
+                    "publicChannel": {
+                        "title": "Public Channel"
+                    },
+                    "privateChannel": {
+                        "title": "Private Channel"
+                    }
+                }
             },
             "connectDeepDive": {
                 "title": "Connect Deep Dive",
                 "children": {
+                    "connectUser": {
+                        "title": "Connect User to ChatEngine"
+                    },
                     "connectGlobal": {
-                        "title": "Connect.Global"
+                        "title": "Connect ChatEngine.Global"
                     },
                     "connectMe": {
-                        "title": "Connect.Me"
+                        "title": "Connect ChatEngine.Me"
                     }
                 }
+            },
+            "pubSubApi": {
+                "title": "Access Publish and Subscribe API"
+            },
+            "integrateWithSdks": {
+                "title": "Integrate with Server SDKs"
             },
             "authentication": {
                 "title": "Authentication"
@@ -136,26 +165,6 @@
             },
             "integrateWithPubnubFunctions": {
                 "title": "Integrate with PubNub Functions"
-            },
-            "pubnubChannelTopology": {
-                "title": "PubNub Channel Topology",
-                "children": {
-                    "globalChannel": {
-                        "title": "Global Channel"
-                    },
-                    "feedChannel": {
-                        "title": "Feed Channel"
-                    },
-                    "directChannel": {
-                        "title": "Direct Channel"
-                    },
-                    "publicChannel": {
-                        "title": "Public Channel"
-                    },
-                    "privateChannel": {
-                        "title": "Private Channel"
-                    }
-                }
             },
             "buildAPlugin": {
                 "title": "Build a Plugin"
