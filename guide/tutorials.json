@@ -117,6 +117,55 @@
     "advancedConcepts": {
         "title": "Advanced Concepts",
         "children": {
+            "pubSubApi": {
+                "title": "Access Publish and Subscribe API"
+            },
+            "advancedSecurity": {
+                "title": "Advanced Security",
+                "children": {
+                    "thirdPartyAuth": {
+                        "title": "Setup Third Party Authentication"
+                    },
+                    "aesEncryptionArchitecture": {
+                        "title": "AES Encryption Architecture"
+                    }
+                }
+            },
+            "authentication": {
+                "title": "Authentication"
+            },
+            "authenticationGuide": {
+                "title": "Authentication Guide"
+            },
+            "buildAPlugin": {
+                "title": "Build a Plugin"
+            },
+            "connectDeepDive": {
+                "title": "Connect Deep Dive",
+                "children": {
+                    "connectUser": {
+                        "title": "Connect User to ChatEngine"
+                    },
+                    "connectGlobal": {
+                        "title": "Connect ChatEngine.Global"
+                    },
+                    "connectMe": {
+                        "title": "Connect ChatEngine.Me"
+                    }
+                }
+            },
+            "errors": {
+                "title": "Errors"
+            },
+            "integrateWithPubnubFunctions": {
+                "title": "Integrate with PubNub Functions"
+            },
+            "integrateWithSdks": {
+                "title": "Integrate with Server SDKs"
+            },
+            "namespaces": {
+                "title": "Namespaces"
+            },
             "pubnubChannelTopology": {
                 "title": "PubNub Channel Topology",
                 "children": {
@@ -137,45 +186,11 @@
                     }
                 }
             },
-            "connectDeepDive": {
-                "title": "Connect Deep Dive",
-                "children": {
-                    "connectUser": {
-                        "title": "Connect User to ChatEngine"
-                    },
-                    "connectGlobal": {
-                        "title": "Connect ChatEngine.Global"
-                    },
-                    "connectMe": {
-                        "title": "Connect ChatEngine.Me"
-                    }
-                }
+            "templating": {
+                "title": "Templating"
             },
-            "pubSubApi": {
-                "title": "Access Publish and Subscribe API"
-            },
-            "integrateWithSdks": {
-                "title": "Integrate with Server SDKs"
-            },
-            "authentication": {
-                "title": "Authentication"
-            },
-            "advancedSecurity": {
-                "title": "Advanced Security",
-                "children": {
-                    "thirdPartyAuth": {
-                        "title": "Setup Third Party Authentication"
-                    },
-                    "aesEncryptionArchitecture": {
-                        "title": "AES Encryption Architecture"
-                    }
-                }
-            },
-            "integrateWithPubnubFunctions": {
-                "title": "Integrate with PubNub Functions"
-            },
-            "buildAPlugin": {
-                "title": "Build a Plugin"
+            "wildcards": {
+                "title": "Wildcards"
             }
         }
     }
