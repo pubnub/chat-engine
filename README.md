@@ -4,6 +4,70 @@ PubNub ChatEngine is an object oriented event emitter based framework for buildi
 
 The real time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
 
+# 0.10 Alpha Preview Instructions
+
+Thanks for testing the new version of ChatEngine. This branch is still under development and is subject to change. 0.10 includes many improvements and optimizations over 0.9:
+
+- Online and offline events fire more reliablity.
+- $.ready returns Me rather than the object {me}
+- Document all emitted errors, provide more accurate namespacing for error events.
+- $.online.join and $.online.leave reliablity fire in rooms with more than 20 users
+- Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
+- .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. Works for both Chat and Search.
+- Adds the ability to disable globalChannel preventing transactions for users who do not use it.
+- State can be set within specific chats.
+- Errors are properly caught by promise rejections.
+- References to globalChannel are now called namespace.
+- Message augmentation further isolated into plugin structure.
+- PubNub HereNow only called a single time.
+
+## Using the new version
+
+
+### Update the PubNub Function Code
+
+You'll need to update your ChatEngine PubNub Function to use the latest code found here. It would be wise to [use our account configuration tool to set up a new 0.9 app](https://www.pubnub.com/tutorials/chatengine/) and then copy and paste the new server code into it.
+
+https://github.com/pubnub/chat-engine-setup/blob/CHAT-354-no-global/src/functions/server.js
+
+### Enable Presence Deltas
+
+Enable Presence Deltas within your PubNub key configuration on https://admin.pubnub.com/. This can be found within your app and key settings.
+
+### Update the SDK
+
+You can install the new version of ChatEngine with ```npm install chat-engine@alpha``` which will return a version of 0.10.x. You can also use the jsdelivr link ```https://cdn.jsdelivr.net/npm/chat-engine@0.10.13/dist/chat-engine.min.js```.
+
+### Migrate your client code
+
+A migration guide from 0.9 to 0.10 is available here:
+
+https://github.com/pubnub/chat-engine/blob/0.10-alpha/migrate-0.9-0.10.md
+
+### Documentation and Reference
+
+The documentation within the repository is mostly up to date. Clone this repository and render it locally by running ```gulp serve_docs```.
+
+### Examples
+
+Updated examples can be found here:
+
+https://github.com/pubnub/chat-engine-examples/tree/CHAT-354-migration
+
+Our [integration tests](https://github.com/pubnub/chat-engine/blob/0.10-alpha/test/integration/main.test.js) are also passing and can be used as reference.
+
+### Plugins
+
+Plugins, plugin tests and examples, have been migrated or verified to work with 0.10. You can find them within a branch called ```chat-354```. Plugins can be compiled with ```chat-engine-plugin``` if needed. See this plugin branch for an example:
+
+https://github.com/pubnub/chat-engine-emoji/tree/chat-354
+
+## Get Help with 0.10
+
+Please let support@pubnub.com know about any trouble you're having with 0.10 and we'll do our best to get you going.
+
+# 0.9 Readme
+
 [![](https://data.jsdelivr.com/v1/package/npm/chat-engine/badge)](https://www.jsdelivr.com/package/npm/chat-engine)
 [![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)

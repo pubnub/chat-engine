@@ -25,7 +25,7 @@ In a production app, it is not a good idea to throw errors. If you'd like to sup
 These are the errors thrown when a client tries to access a {@link Chat} you don’t have PAM access to (see {@link privacy}):
 
 ```js
-let PrivateChat = new ChatEngine.Chat(‘locked-down-i-dont-have-permissions’);
+let PrivateChat = new ChatEngine.Chat(‘locked-down-i-dont-have-permissions’, { isPrivate: true });
 ```
 
 Private Chat Emits These Events

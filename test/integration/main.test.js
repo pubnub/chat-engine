@@ -1,3 +1,8 @@
+process.on('unhandledRejection', (reason, p) => {
+    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+    // application specific logging, throwing an error, or other logic here
+});
+
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 
@@ -44,12 +49,14 @@ function createChatEngine(done) {
 
     ChatEngine = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey
+        subscribeKey: subkey,
+        heartbeatInterval: 15,
+        presenceTimeout: 15
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.connect(username, username);
     ChatEngine.on('$.ready', () => {
         done();
     });
@@ -64,12 +71,12 @@ function createChatEngineSync(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         enableSync: true,
         throwErrors: true
     });
 
-    ChatEngineSync.connect(username, { works: false }, username);
+    ChatEngineSync.connect(username, username);
     ChatEngineSync.on('$.ready', () => {
         done();
     });
@@ -85,11 +92,11 @@ function createChatEngineClone(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         enableSync: true,
         throwErrors: true
     });
-    ChatEngineClone.connect(username, { works: true }, username);
+    ChatEngineClone.connect(username, username);
     ChatEngineClone.on('$.ready', () => {
         done();
     });
@@ -102,12 +109,14 @@ function createChatEngineYou(done) {
 
     ChatEngineYou = require('../../src/index.js').create({
         publishKey: pubkey,
-        subscribeKey: subkey
+        subscribeKey: subkey,
+        heartbeatInterval: 15,
+        presenceTimeout: 15
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngineYou.connect(yousername, { works: true }, yousername);
+    ChatEngineYou.connect(yousername, yousername);
     ChatEngineYou.on('$.ready', () => {
         done();
     });
@@ -122,10 +131,10 @@ function createChatEngineHistory(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel: 'g',
+        namespace: 'g',
         throwErrors: true
     });
-    ChatEngineHistory.connect(yousername, { works: true }, yousername);
+    ChatEngineHistory.connect('robot-stephen', yousername);
     ChatEngineHistory.on('$.ready', () => {
         done();
     });
@@ -140,10 +149,10 @@ function createChatEngineConnect(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true
     });
-    ChatEngineConnect.connect(username, { works: true }, username);
+    ChatEngineConnect.connect(username, username);
     ChatEngineConnect.on('$.ready', () => {
 
         setTimeout(() => {
@@ -162,11 +171,11 @@ function createChatEngineMeta(done) {
         publishKey: pubkey,
         subscribeKey: subkey
     }, {
-        globalChannel,
+        namespace: globalChannel,
         throwErrors: true,
         enableMeta: true
     });
-    ChatEngine.connect(username, { works: true }, username);
+    ChatEngine.connect(username, username);
     ChatEngine.on('$.ready', () => {
         done();
     });
@@ -315,15 +324,15 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
 
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -337,14 +346,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -358,14 +367,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -379,14 +388,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -400,14 +409,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -421,14 +430,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -442,14 +451,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -463,14 +472,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -484,14 +493,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -505,14 +514,14 @@ describe('connect.fail', () => {
             publishKey: pubkey,
             subscribeKey: subkey
         }, {
-            globalChannel,
+            namespace: globalChannel,
             throwErrors: false
         });
 
-        ChatEngine.connect(username, { works: true }, username);
-        ChatEngine.on('$.error.auth', (err) => {
-            assert.equal(err.error.response.status, 401);
-            const expected = 'Illegal ChatEngine `globalChannel`: ' + globalChannel + ' initialized.';
+        ChatEngine.connect(username, username);
+        ChatEngine.on('$.error.connect.handshake', (err) => {
+            assert.equal(err.error.response.status, 400);
+            const expected = 'Illegal ChatEngine `namespace`: ' + globalChannel + ' initialized.';
             assert.equal(err.error.response.data, expected);
             done();
         });
@@ -540,13 +549,14 @@ describe('chat', () => {
 
     });
 
-    it('should get me as join event', function getMe(done) {
+    it('should get me as online event', function getMe(done) {
 
         this.timeout(60000);
 
         let chat = new ChatEngine.Chat('chat-teser' + new Date().getTime());
 
-        chat.on('$.online.join', (p) => {
+        // it's unclear if you'll be "here" or "join" by the time we're connected
+        chat.on('$.online.*', (p) => {
 
             if (p.user.uuid === ChatEngine.me.uuid) {
                 done();
@@ -573,7 +583,7 @@ describe('chat', () => {
 
         this.timeout(60000);
 
-        let chat3 = new ChatEngine.Chat('chat-teser3' + new Date().getTime());
+        let chat3 = new ChatEngine.Chat('chat-3' + new Date().getTime());
 
         chat3.once('something', (payload) => {
 
@@ -583,12 +593,17 @@ describe('chat', () => {
 
         });
 
-        setTimeout(() => {
-            chat3.emit('something', {
-                text: 'hello world'
-            });
-        }, 5000);
+        chat3.on('$.connected', () => {
 
+            setTimeout(() => {
+
+                chat3.emit('something', {
+                    text: 'hello world'
+                });
+            }, 5000);
+
+
+        });
 
     });
 
@@ -619,7 +634,45 @@ describe('chat', () => {
 describe('history', () => {
 
     beforeEach(reset);
+    beforeEach(createChatEngine);
     beforeEach(createChatEngineHistory);
+
+    it('should get previously set state', function shouldGetState(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        let newChat = new ChatEngineHistory.Chat('chat-history', { autoConnect: false }).restoreState();
+
+        newChat.on('$.online.*', (payload) => {
+
+            if (payload.user.uuid === ChatEngineHistory.me.uuid && !doneCalled) {
+
+                assert.equal(payload.user.state(newChat).oldState, true);
+
+                doneCalled = true;
+                done();
+            }
+
+        });
+
+        newChat.connect();
+
+    });
+
+    it('offline user state', function shouldGetState(done) {
+
+        this.timeout(20000);
+
+        let doneCalled = false;
+
+        let newUser = new ChatEngineHistory.User(ChatEngineHistory.me.uuid)._restoreState(new ChatEngineHistory.Chat('chat-history'), (newUserState) => {
+            assert.equal(newUserState.oldState, true);
+            done();
+        });
+
+    });
 
     it('should get 50 messages', function get50(done) {
 
@@ -630,13 +683,15 @@ describe('history', () => {
         let chatHistory = new ChatEngineHistory.Chat('chat-history');
 
         // let i = 0;
-        // while(i < 200) {
+        // while(i <= 200) {
         //     chatHistory.emit('tester', {works: true, count: i});
         //     chatHistory.emit('not-tester', {works: false, count: i});
         //     i++;
         // }
 
         chatHistory.on('$.connected', () => {
+
+            chatHistory.setState({ oldState: true });
 
             let search = chatHistory.search({
                 event: 'tester',
@@ -821,7 +876,7 @@ describe('meta', () => {
 
         let meta = { works: true };
 
-        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), false, true, meta);
+        let chat = new ChatEngine.Chat('chat-tester' + new Date().getTime(), { meta });
 
         chat.on('$.connected', () => {
             assert.equal(chat.meta, meta);
@@ -865,7 +920,6 @@ describe('remote chat list', () => {
         this.timeout(60000);
 
         ChatEngineSync.me.session.once('$.group.restored', (payload) => {
-
             assert.isObject(ChatEngineSync.me.session.chats[payload.group]);
             done();
 
@@ -904,6 +958,7 @@ describe('remote chat list', () => {
         let syncChat;
 
         ChatEngineSync.me.session.on('$.chat.leave', (payload) => {
+
             if (payload.chat.channel.indexOf(newChannel3) > -1) {
                 // Reconnect to CE with same user
                 ChatEngineSync = require('../../src/index.js').create({
@@ -915,13 +970,12 @@ describe('remote chat list', () => {
                     throwErrors: true
                 });
 
-                ChatEngineSync.connect(username, { works: false }, username);
+                ChatEngineSync.connect(username, username);
 
                 let groupRestored = false;
 
                 ChatEngineSync.on('$.group.restored', () => {
-                    assert.isObject(ChatEngineSync.me.session.chats.system);
-                    assert.equal(ChatEngineSync.me.session.chats.custom, undefined);
+                    assert.equal(ChatEngineSync.me.session.chats.custom[newChannel3], undefined);
                     groupRestored = true;
                 });
 
@@ -962,7 +1016,7 @@ describe('interactions', () => {
 
         ChatEngine.me.direct.on('$.invite', (payload) => {
 
-            myChat = new ChatEngine.Chat(payload.data.channel);
+            myChat = new ChatEngine.Chat(payload.data.channel, { isPrivate: true });
 
             myChat.on('$.connected', () => {
 
@@ -974,7 +1028,7 @@ describe('interactions', () => {
 
         });
 
-        yourChat = new ChatEngineYou.Chat(privChannel, true);
+        yourChat = new ChatEngineYou.Chat(privChannel, { isPrivate: true });
 
         yourChat.on('$.connected', () => {
 
@@ -1010,7 +1064,7 @@ describe('interactions', () => {
         let ourChan = 'chat-tester4' + new Date().getTime();
 
         let chatConnected = new ChatEngine.Chat(ourChan);
-        let chatNOTConnected = new ChatEngineYou.Chat(ourChan, false, false);
+        let chatNOTConnected = new ChatEngineYou.Chat(ourChan, { autoConnect: false });
 
         chatNOTConnected.on('$.connected', () => {
             done('should not connect');
@@ -1070,36 +1124,19 @@ describe('state', () => {
     beforeEach(createChatEngine);
     beforeEach(createChatEngineYou);
 
-    it('should get previously set state', function shouldGetState(done) {
-
-        this.timeout(20000);
-
-        let doneCalled = false;
-
-        ChatEngine.on('$.online.*', (payload) => {
-
-            if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
-
-                assert.equal(payload.user.state.works, true);
-                doneCalled = true;
-                done();
-            }
-
-        });
-
-    });
-
     it('should get state update', function shouldGetStateUpdate(done) {
 
         this.timeout(20000);
 
         let doneCalled = false;
 
-        ChatEngine.on('$.state', (payload) => {
+        let newChat = new ChatEngine.Chat('get-state-update');
+
+        newChat.on('$.state', (payload) => {
 
             if (payload.user.uuid === ChatEngineYou.me.uuid && !doneCalled) {
 
-                if (payload.user.state.newParam && payload.user.state.newParam === true && !doneCalled) {
+                if (payload.user.state(newChat).newParam && payload.user.state(newChat).newParam === true && !doneCalled) {
                     doneCalled = true;
                     done();
                 }
@@ -1107,7 +1144,11 @@ describe('state', () => {
 
         });
 
-        ChatEngineYou.me.update({ newParam: true });
+        let youNewChat = new ChatEngineYou.Chat('get-state-update');
+
+        youNewChat.on('$.connected', () => {
+            youNewChat.setState({ newParam: true });
+        });
 
     });
 
@@ -1136,7 +1177,7 @@ describe('memory', () => {
 
                 doneCalled = true;
 
-                expect(Object.keys(a.users)).to.include.members(Object.keys(b.users));
+                expect(aUsers).to.include.members(bUsers);
 
                 // now we test leaving
                 a.once('$.offline.leave', () => {
@@ -1179,7 +1220,7 @@ describe('connection management', () => {
                 publishKey: pubkey,
                 subscribeKey: subkey
             }, {
-                globalChannel,
+                namespace: globalChannel,
                 throwErrors: true
             });
 
@@ -1189,7 +1230,7 @@ describe('connection management', () => {
 
             });
 
-            ChatEngineConnect.connect(newUsername, {}, newUsername);
+            ChatEngineConnect.connect(newUsername, newUsername);
 
         });
 

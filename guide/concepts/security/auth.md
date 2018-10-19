@@ -15,7 +15,7 @@ const ChatEngine = ChatEngineCore.create({
     subscribeKey: 'YOUR_SUB_KEY'
 });
 
-ChatEngine.connect(username, {}, 'YOUR_AUTH_KEY');
+ChatEngine.connect(username, 'YOUR_AUTH_KEY');
 ```
 
 It authorizes PubNub Access Manager permissions for the supplied authentication key on all read and write channels. See {@tutorial topology}.

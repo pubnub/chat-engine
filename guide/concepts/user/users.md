@@ -41,18 +41,12 @@ ChatEngine.global.on('$.state', (payload) => {
 
 ```
 
-You can set {@link Me#state} during connection by supplying the second param of {@link ChatEngine#connect}.
-
-```js
-ChatEngine.connect('ian-jennings', {color: getColor()});
-```
-
-What if we want to get a {@link User}'s state some other time without events? You can simply check for the {@link User.state} property.
+What if we want to get a {@link User}'s state some other time without events? You can simply check for the {@link User#state} method.
 
 ```js
 // get the first user in global chat
 let user = ChatEngine.global.users[0];
 
 // output the user's state
-console.log(user.state);
+console.log(user.state());
 ```

@@ -15,7 +15,9 @@ const rename = require('gulp-rename');
 const surge = require('gulp-surge');
 
 let sourceFiles = ['src/**/*.js'];
-let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
+let unitTestFiles = ['test/unit/**/*.js'];
+let integrationTestFiles = ['test/integration/**/*.js'];
+let testFiles = unitTestFiles.concat(integrationTestFiles);
 let pluginFiles = [
     '../chat-engine-uploadcare/src/plugin.js',
     '../chat-engine-typing-indicator/src/plugin.js',
@@ -62,8 +64,14 @@ gulp.task('lint_tests', [], () => {
         .pipe(eslint.failAfterError());
 });
 
-gulp.task('run_tests', () => {
-    return gulp.src(testFiles, { read: false })
+gulp.task('itest', () => {
+    return gulp.src(integrationTestFiles, { read: false })
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports());
+});
+
+gulp.task('utest', () => {
+    return gulp.src(unitTestFiles, { read: false })
         .pipe(mocha({ reporter: 'spec' }))
         .pipe(istanbul.writeReports());
 });
@@ -79,7 +87,7 @@ gulp.task('pre-test', () => {
 });
 
 gulp.task('test', () => {
-    runSequence('pre-test', 'run_tests', 'validate', () => {
+    runSequence('pre-test', 'utest', 'itest', 'validate', () => {
         process.exit();
     });
 });

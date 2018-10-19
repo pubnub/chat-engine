@@ -11,6 +11,7 @@ const waterfall = require('async/waterfall');
 /**
 @class ChatEngine
 @extends RootEmitter
+@fires ChatEngine#$"."ready
 @return {ChatEngine} Returns an instance of {@link ChatEngine}
 */
 module.exports = (ceConfig = {}, pnConfig = {}) => {
@@ -36,13 +37,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.chats = {};
 
     /**
-     * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
-     * @member {Chat} global
-     * @memberof ChatEngine
-     */
-    ChatEngine.global = false;
-
-    /**
      * This instance of ChatEngine represented as a special {@link User} know as {@link Me}.
      * @member {Me} me
      * @memberof ChatEngine
@@ -57,6 +51,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.pubnub = false;
 
     /**
+     * A global {@link Chat} that all {@link User}s join when they connect to ChatEngine. Useful for announcements, alerts, and global events.
+     * @member {Chat} global
+     * @memberof ChatEngine
+     */
+    ChatEngine.global = false;
+
+    /**
      * Indicates if ChatEngine has fired the {@link ChatEngine#$"."ready} event.
      * @member {Object} ready
      * @memberof ChatEngine
@@ -69,14 +70,14 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.package = pack;
 
-    ChatEngine.throwError = (self, cb, key, ceError, payload = {}) => {
+    ChatEngine.throwError = (self, cb, key, ceError, payload = false) => {
 
         if (ceConfig.throwErrors) {
             // throw ceError;
-            console.error(payload);
-            throw ceError;
+            console.error(payload || ceError);
         }
 
+        payload = payload || {};
         payload.ceError = ceError.toString();
 
         self[cb](['$', 'error', key].join('.'), payload);
@@ -133,7 +134,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             uuid: ChatEngine.pnConfig.uuid,
             global: ceConfig.globalChannel,
             authKey: ChatEngine.pnConfig.authKey,
-            ttl: ChatEngine.pnConfig.ttl
+            ttl: ChatEngine.pnConfig.ttl,
+            namespace: ceConfig.namespace,
+            authKey: ChatEngine.pnConfig.authKey
         };
 
         let params = {
@@ -162,8 +165,8 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         let info = channel.split('#');
 
         return {
-            global: info[0],
-            type: info[1],
+            namespace: info[0],
+            group: info[1],
             private: info[2] === 'private.'
         };
 
@@ -173,7 +176,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Get the internal channel name of supplied string
      * @private
      */
-    ChatEngine.augmentChannel = (original = new Date().getTime(), isPrivate = true) => {
+    ChatEngine.augmentChannel = (original = new Date().getTime(), config = {}) => {
 
         let channel = original.toString();
 
@@ -181,12 +184,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         // private.* is totally locked down and users must be granted access one by one
         let chanPrivString = 'public.';
 
-        if (isPrivate) {
+        if (config.isPrivate) {
             chanPrivString = 'private.';
         }
 
-        if (channel.indexOf(ChatEngine.ceConfig.globalChannel) === -1) {
-            channel = [ChatEngine.ceConfig.globalChannel, 'chat', chanPrivString, channel].join('#');
+        if (channel.indexOf(ChatEngine.ceConfig.namespace) === -1) {
+            channel = [ChatEngine.ceConfig.namespace, 'chat', chanPrivString, channel].join('#');
         }
 
         return channel;
@@ -200,31 +203,39 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      */
     ChatEngine.handshake = (complete) => {
 
+        let handshakeError = (error) => {
+            /**
+             * There was a problem during the initial connection with the server
+             * @event Chat#$"."error"."connect"."handshake
+             */
+            ChatEngine.throwError(ChatEngine, '_emit', 'connect.handshake', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+        };
+
         waterfall([
             (next) => {
                 ChatEngine.request('post', 'bootstrap').then(() => {
                     next(null);
-                }).catch(next);
+                }).catch(handshakeError);
             },
             (next) => {
                 ChatEngine.request('post', 'user_read').then(() => {
                     next(null);
-                }).catch(next);
+                }).catch(handshakeError);
             },
             (next) => {
                 ChatEngine.request('post', 'user_write').then(() => {
                     next(null);
-                }).catch(next);
+                }).catch(handshakeError);
             },
             (next) => {
                 ChatEngine.request('post', 'group').then(() => {
                     next();
-                }).catch(next);
+                }).catch(handshakeError);
             }
         ], (error) => {
 
             if (error) {
-                ChatEngine.throwError(ChatEngine, '_emit', 'auth', new Error('There was a problem logging into the auth server (' + ceConfig.endpoint + ').' + error && error.response && error.response.data), { error });
+                ChatEngine.throwError(ChatEngine, '_emit', 'connect.unhandled', new Error('Error thrown during connect handshake.'));
             } else {
                 complete();
             }
@@ -339,9 +350,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.subscribeToPubNub = () => {
 
         let chanGroups = [
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#rooms',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#system',
-            ceConfig.globalChannel + '#' + ChatEngine.me.uuid + '#custom'
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#rooms',
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#system',
+            ceConfig.namespace + '#' + ChatEngine.me.uuid + '#custom'
         ];
 
         ChatEngine.pubnub.subscribe({
@@ -355,15 +366,12 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Initialize ChatEngine modules on first time boot.
      * @private
      */
-    ChatEngine.firstConnect = (state) => {
+    ChatEngine.firstConnect = (globalChannel = 'global') => {
 
+        // create the PubNub instance but don't connect
         ChatEngine.pubnub = new PubNub(ChatEngine.pnConfig);
 
-        // create a new chat to use as global chat
-        // we don't do auth on this one because it's assumed to be done with the /auth request below
-        ChatEngine.global = new ChatEngine.Chat(ceConfig.globalChannel, false, true, {}, 'system');
-
-        ChatEngine.global.once('$.connected', () => {
+        let firstConnection = () => {
 
             // build the current user
             ChatEngine.me = new Me(ChatEngine, ChatEngine.pnConfig.uuid);
@@ -378,38 +386,39 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             */
             ChatEngine.me.onConstructed();
 
+            // Set the internal state as ready
+            ChatEngine.ready = true;
+
+            /**
+             *  Fired when ChatEngine is connected to the internet and ready to go!
+             * @event ChatEngine#$"."ready
+             * @example
+             * ChatEngine.on('$.ready', (me) => {
+             *     console.log('I am ', me.uuid);
+             * })
+             */
+            ChatEngine._emit('$.ready', ChatEngine.me);
+
+            // Bind to PubNub events
+            ChatEngine.listenToPubNub();
+
+            // Subscribe to PubNub
+            ChatEngine.subscribeToPubNub();
+
+            // Restore the session
             if (ChatEngine.ceConfig.enableSync) {
                 ChatEngine.me.session.subscribe();
+                ChatEngine.me.session.restore();
             }
 
-            ChatEngine.me.update(state, () => {
+        };
 
-                /**
-                 *  Fired when ChatEngine is connected to the internet and ready to go!
-                 * @event ChatEngine#$"."ready
-                 * @example
-                 * ChatEngine.on('$.ready', (data) => {
-                 *     let me = data.me;
-                 * })
-                 */
-                ChatEngine._emit('$.ready', {
-                    me: ChatEngine.me
-                });
-
-                ChatEngine.ready = true;
-
-                ChatEngine.listenToPubNub();
-                ChatEngine.subscribeToPubNub();
-
-                ChatEngine.global.getUserUpdates();
-
-                if (ChatEngine.ceConfig.enableSync) {
-                    ChatEngine.me.session.restore();
-                }
-
-            });
-
-        });
+        if (ChatEngine.ceConfig.enableGlobal) {
+            ChatEngine.global = new ChatEngine.Chat(globalChannel);
+            ChatEngine.global.once('$.connected', firstConnection);
+        } else {
+            firstConnection();
+        }
 
     };
 
@@ -502,7 +511,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * // early
      * ChatEngine.connect(...);
      *
-     * ChatEngine.once('$.connected', () => {
+     * ChatEngine.once('$.ready', () => {
      *     // first connection established
      * });
      *
@@ -510,20 +519,15 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * ChatEngine.reauthorize(authKey);
      *
      * // we are connected again
-     * ChatEngine.once('$.connected', () => {
+     * ChatEngine.once('$.ready', () => {
      *     // we are connected again
      * });
      */
     ChatEngine.reauthorize = (authKey) => {
 
-        ChatEngine.global.once('$.disconnected', () => {
-
-            ChatEngine.setAuth(authKey);
-            ChatEngine.reconnect();
-
-        });
-
         ChatEngine.disconnect();
+        ChatEngine.setAuth(authKey);
+        ChatEngine.reconnect();
 
     };
 
@@ -531,23 +535,35 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
-     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
+     * @param {String} [globalChannel='global'] The channel to be used for ChatEngine#global.
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, state = {}, authKey) => {
-
-        // this creates a user known as Me and
-        // connects to the global chatroom
-        ChatEngine.pnConfig.uuid = uuid;
-        ChatEngine.pnConfig.authKey = authKey;
-
-        if (authKey) {
+    ChatEngine.connect = (uuid, authKey = PubNub.generateUUID(), globalChannel = 'global') => {
+        if (typeof authKey === 'number' || typeof authKey === 'string') {
             ChatEngine.handshake(() => {
                 ChatEngine.firstConnect(state);
             });
         } else {
             ChatEngine.firstConnect(state);
+        }
+            // this creates a user known as Me and
+            // connects to the global chatroom
+            ChatEngine.pnConfig.uuid = uuid;
+            ChatEngine.pnConfig.authKey = authKey;
+
+            ChatEngine.handshake(() => {
+                ChatEngine.firstConnect(globalChannel);
+            });
+
+        } else {
+
+            /**
+             * Invalid auth key provided. Auth key must be a string or integer.
+             * @event Chat#$"."error"."connect"."invalidAuthKey
+             */
+            ChatEngine.throwError(ChatEngine, '_emit', 'connect.invalidAuthKey', new Error('Auth key must be a string or integer. You may be using a connect call from v0.9, please migrate your .connect() call to v0.10.'));
+
         }
     };
 
@@ -581,6 +597,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
 
             let newChat = new Chat(ChatEngine, ...args);
 
+            // assign the chat to internal memory store
+            ChatEngine.chats[internalChannel] = ChatEngine.chats[internalChannel] || newChat;
+
             /**
             * Fired when a {@link Chat} has been created within ChatEngine.
             * @event ChatEngine#$"."created"."chat
@@ -612,6 +631,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         } else {
 
             let newUser = new User(ChatEngine, ...args);
+
+            // assign the user to internal memory store
+            ChatEngine.users[args[0]] = ChatEngine.users[args[0]] || newUser;
 
             /**
             * Fired when a {@link User} has been created within ChatEngine.

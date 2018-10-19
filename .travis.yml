@@ -6,7 +6,8 @@ node_js:
 - '8'
 cache: yarn
 script:
-- gulp test
+- gulp utest
+- gulp itest
 after_success:
 - npm install codecov codacy-coverage
 - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage

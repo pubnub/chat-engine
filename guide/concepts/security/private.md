@@ -4,7 +4,7 @@ A user may want to make a private chat no other users can access. To do this,
 create a new chat with the syntax:
 
 ```
-let privChat = new Chat('private', true);
+let privChat = new Chat('private', {isPrivate: true});
 ```
 
 The second parameter tells ChatEngine to lock down the chat and only make it
@@ -28,7 +28,7 @@ You can get notified of invites by subscribing to the {@link Me#event:$"."invite
 
 ```js
 me.direct.on('$.invite', (payload) => {
-    let privChat = new ChatEngine.Chat(payload.data.channel));
+    let privChat = new ChatEngine.Chat(payload.data.channel, {isPrivate: true}));
 });
 ```
 
