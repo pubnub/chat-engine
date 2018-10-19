@@ -6,6 +6,32 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
+  - version: v0.10.x
+    changes:
+      - type: improvement
+        text: Online and offline events fire more reliablity.
+      - type: improvement
+        text: $.ready returns Me rather than the object {me: Me}.
+      - type: improvement
+        text: Document all emitted errors, provide more accurate namespacing for error events.
+      - type: improvement
+        text: $.online.join and $.online.leave reliablity fire in rooms with more than 20 users
+      - type: feature
+        text: Chat config is now a single parameter object {autoConnect: false} rather than individual parameters. This makes it easier to design flags in the future
+      - type: feature
+        text: .restoreState(ChatEngine.global) restores the user state from the kv-store before events are emitted. Works for both Chat and Search.
+      - type: feature
+        text: Adds the ability to disable globalChannel preventing transactions for users who do not use it.
+      - type: feature
+        text: State can be set within specific chats.
+      - type: improvement
+        text: Errors are properly caught by promise rejections.
+      - type: improvement
+        text: References to globalChannel are now called namespace.
+      - type: improvement
+        text: Message augmentation further isolated into plugin structure.
+      - type: improvement
+        text: PubNub HereNow only called a single time.
   - version: v0.9.18
     date: 2018-7-16
     changes:

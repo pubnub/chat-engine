@@ -47,7 +47,7 @@ describe('#emitter', () => {
         };
 
         emitterInstance.plugin(plugin);
-        assert(emitterInstance.plugins.length === 2, 'plugin works!');
+        assert(emitterInstance.plugins.length === 1, 'plugin works!');
         done();
     });
 
@@ -90,7 +90,7 @@ describe('#emitter', () => {
 
         emitterInstance.plugin(plugin());
 
-        assert(emitterInstance.plugins.length === 2, 'plugin works!');
+        assert(emitterInstance.plugins.length === 1, 'plugin works!');
         assert(emitterInstance.demo_plugin.get('stringKey') === 'plugin state', 'got the expected value');
 
         done();

@@ -1,8 +1,8 @@
 const waterfall = require('async/waterfall');
 const RootEmitter = require('./root_emitter');
 const Event = require('../components/event');
+const restoreState = require('../plugins/augment/restoreState');
 
-const augmentSender = require('../plugins/augment/sender');
 /**
  An ChatEngine generic emitter that supports plugins and duplicates
  events on the root emitter.
@@ -30,8 +30,6 @@ class Emitter extends RootEmitter {
          @private
          */
         this._dataset = {};
-
-        this.plugin(augmentSender(chatEngine));
 
         /**
          Emit events locally.
@@ -223,6 +221,7 @@ class Emitter extends RootEmitter {
 
         });
 
+
         // waterfall runs the functions in assigned order
         // waiting for one to complete before moving to the next
         // when it's done, the ```last``` parameter is called
@@ -237,6 +236,33 @@ class Emitter extends RootEmitter {
 
     }
 
+    restoreState(chat = false) {
+
+        if (!chat && this.name === 'Chat') {
+            chat = this;
+        }
+
+        if (!chat && this.chat) {
+            chat = this.chat;
+        }
+
+        if (!chat && this.chatEngine.global) {
+            chat = this.chatEngine.global;
+        }
+
+        if (chat) {
+            if (this.name === 'Me' || this.name === 'User') {
+                this._restoreState(chat, () => {});
+            } else {
+                this.plugin(restoreState(chat));
+            }
+        } else {
+            this.chatEngine.throwError(this, 'emit', 'restoreState', new Error('Must supply a chat to restoreState'));
+        }
+
+        return this;
+
+    }
 }
 
 module.exports = Emitter;
