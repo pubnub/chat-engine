@@ -21,10 +21,15 @@ class Me extends User {
 
         this.chatEngine = chatEngine;
 
+        /**
+         * The {@link Session} Class for {@link Me}
+         * @type {Boolean}
+         */
         this.session = false;
 
         this.name = 'Me';
 
+        // only fill in session if enabled via config
         if (this.chatEngine.ceConfig.enableSync) {
             this.session = new Session(chatEngine);
         }
@@ -45,23 +50,17 @@ class Me extends User {
      * // update state
      * me.update({value: true});
      */
-    update(state, callback = () => {}) {
+    update(state, chat = this.chatEngine.global) {
 
-        // assign state values locally before broadcasting them over the network
-        this.assign(state);
-
-        // publish the update over the global channel
-        this.chatEngine.global.setState(state, callback);
-    }
-
-    /**
-     * assign updates from network
-     * @private
-     */
-    assign(state) {
-
-        // run the root update function
-        super.assign(state);
+        if (!chat) {
+            /**
+            * No chat supplied for chat update.
+            * @event Me#$"."error"."update
+            */
+            this.chatEngine.throwError(this, 'trigger', 'updateParam', new Error('No chat specified for state update.'));
+        } else {
+            chat.setState(this.assign(state, chat));
+        }
 
     }
 

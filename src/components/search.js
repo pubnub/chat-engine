@@ -3,6 +3,10 @@ const eachSeries = require('async/eachSeries');
 
 const eventFilter = require('../plugins/filter/event');
 const senderFilter = require('../plugins/filter/sender');
+
+const augmentChat = require('../plugins/augment/chat');
+const augmentSender = require('../plugins/augment/sender');
+
 /**
 Returned by {@link Chat#search}. This is our Search class which allows one to search the backlog of messages.
 Powered by [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history).
@@ -37,14 +41,27 @@ class Search extends Emitter {
         An object containing configuration parameters supplied by {@link Chat#search}. See {@link Chat#search} for possible parameters.
         @type {Object}
         */
-        this.config = config;
-        this.config.event = config.event;
-        this.config.limit = config.limit || 20;
-        this.config.channel = this.chat.channel;
-        this.config.includeTimetoken = true;
-        this.config.stringifiedTimeToken = true;
-        this.config.count = this.config.count || 100;
-        this.config.pages = this.config.pages || 10;
+        let defaults = {
+            limit: 20,
+            channel: this.chat.channel,
+            includeTimetoken: true,
+            stringifiedTimeToken: true,
+            count: 100,
+            pages: 10
+        };
+
+        this.config = Object.assign(defaults, config);
+
+        if (this.config.event) {
+            this.plugins.unshift(eventFilter(this.config.event));
+        }
+
+        if (this.config.sender) {
+            this.plugins.unshift(senderFilter(this.config.sender));
+        }
+
+        this.plugin(augmentChat(chat));
+        this.plugin(augmentSender(this.chatEngine));
 
         /** @private */
         this.maxPage = this.config.pages;
@@ -91,8 +108,8 @@ class Search extends Emitter {
                 if (status.error) {
 
                     /**
-                     * There was a problem fetching the history of this chat
-                     * @event Chat#$"."error"."history
+                     * There was a problem fetching the history of this chat.
+                     * @event Search#$"."error"."search
                      */
                     this.chatEngine.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
                 } else {
@@ -183,14 +200,6 @@ class Search extends Emitter {
 
             return this;
         };
-
-        if (this.config.event) {
-            this.plugins.unshift(eventFilter(this.config.event));
-        }
-
-        if (this.config.sender) {
-            this.plugins.unshift(senderFilter(this.config.sender));
-        }
 
         /**
          * Search has started.

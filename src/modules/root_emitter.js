@@ -101,7 +101,7 @@ class RootEmitter {
         };
 
         /**
-        * Listen for any event on this object and fire a callback when it's emitted
+        * Listen for any event on this object and fire a callback when it's emitted.
         * @method
         * @param {Function} callback The function to run when any event is emitted. First parameter is the event name and second is the payload.
         * @example
@@ -119,7 +119,7 @@ class RootEmitter {
         };
 
         /**
-        * Listen for an event and only fire the callback a single time
+        * Listen for an event and only fire the callback a single time.
         * @method
         * @param {String} event The event name
         * @param {Function} callback The function to run once
