@@ -20,7 +20,7 @@ You can subscribe to custom events by supplying any string as first parameter in
 
 ```js
 chat.on('message', (payload) => {
-  console.log(payload.sender.uuid, payload.data);
+    console.log(payload.sender.uuid, payload.data);
 });
 ```
 

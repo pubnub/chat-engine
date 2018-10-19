@@ -18,8 +18,12 @@ describe('#user', () => {
     });
 
     it('should be updated with the state', (done) => {
-        userInstance.update({ typing: true });
-        assert(userInstance.state.typing, 'got the expected value');
+
+        let someChat = new chatEngineInstance.Chat('state-chat');
+
+        userInstance.update({ typing: true }, someChat);
+        assert(userInstance.state(someChat).typing, 'got the expected value');
         done();
     });
+
 });

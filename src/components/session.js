@@ -31,7 +31,10 @@ class Session extends Emitter {
      */
     subscribe() {
 
-        this.sync = new this.chatEngine.Chat([this.chatEngine.global.channel, 'user', this.chatEngine.me.uuid, 'me.', 'sync'].join('#'), false, this.chatEngine.ceConfig.enableSync, {}, 'system');
+        this.sync = new this.chatEngine.Chat([this.chatEngine.ceConfig.namespace, 'user', this.chatEngine.me.uuid, 'me.', 'sync'].join('#'), {
+            isPrivate: false,
+            group: 'system'
+        });
 
         // subscribe to the events on our sync chat and forward them
         this.sync.on('$.session.notify.chat.join', (payload) => {
@@ -52,13 +55,13 @@ class Session extends Emitter {
 
         // these are custom groups that separate custom chats from system chats
         // for better fitlering
-        let groups = ['custom', 'system'];
+        let groups = ['custom'];
 
         // loop through the groups
         groups.forEach((group) => {
 
             // generate the channel group string for PubNub using the current uuid
-            let channelGroup = [this.chatEngine.ceConfig.globalChannel, this.chatEngine.me.uuid, group].join('#');
+            let channelGroup = [this.chatEngine.ceConfig.namespace, this.chatEngine.me.uuid, group].join('#');
 
             // ask pubnub for a list of channels for this group
             this.chatEngine.pubnub.channelGroups.listChannels({
@@ -66,7 +69,11 @@ class Session extends Emitter {
             }, (status, response) => {
 
                 if (status.error) {
-                    this.chatEngine.throwError(this.chatEngine, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
+                    /**
+                    * There was a problem restoring the chats for your session.
+                    * @event Session#$"."error"."sync
+                    */
+                    this.chatEngine.throwError(this, '_emit', 'sync', new Error('There was a problem restoring your session from PubNub servers.'), { status });
                 } else {
 
                     // loop through the returned channels
@@ -79,14 +86,14 @@ class Session extends Emitter {
                             group
                         });
 
-                        /**
-                        Fired when session has been restored at boot. Fired once per
-                        session group.
-                        @event Me#$"."session"."group"."restored
-                        */
-                        this.trigger('$.group.restored', { group });
-
                     });
+
+                    /**
+                    Fired when session has been restored at boot. Fired once per
+                    session group.
+                    @event Me#$"."session"."group"."restored
+                    */
+                    this.trigger('$.group.restored', { group });
 
                 }
 
@@ -138,7 +145,12 @@ class Session extends Emitter {
         } else {
 
             // otherwise, try to recreate it with the server information
-            this.chats[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
+            this.chats[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, {
+                private: chat.private,
+                autoConnect: false,
+                meta: chat.meta,
+                group: chat.group
+            });
 
             /**
             Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.

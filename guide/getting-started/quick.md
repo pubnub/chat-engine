@@ -11,10 +11,10 @@ The values input into {@link ChatEngine#connect} create a new {@link User} calle
 {@link Me} that this client will act as.
 
 ```js
-ChatEngine.connect('ian', {team: 'red'});
+ChatEngine.connect('ian');
 ```
 
-This will connect to {@link ChatEngine} with {@link Me#uuid} equal to "ian a {@link Me#state} of ```{team: red}```.
+This will connect to {@link ChatEngine} with {@link Me#uuid} equal to "ian".
 
 ## The $.ready event
 
@@ -36,7 +36,7 @@ The ```$``` represents a "system" event. You can read more about system events i
 When {@link ChatEngine#on} is fired, {@link Me} is supplied as ```data.me``` in the response.
 
 ```js
-ChatEngine.connect('ian', {team: 'red'});
+ChatEngine.connect('ian');
 ChatEngine.on('$.ready', (data) => {
     let me = data.me; // ian
 });
@@ -123,11 +123,10 @@ lobby.on('message', (payload) => {
 
 ## State
 
-But hey, what if we want more information about the user that sent the ```message```. Remember how we supplied
-```{team: 'red'}``` during {@link ChatEngine#connect}?
+But hey, what if we want more information about the user that sent the ```message```. The state of {@link Me} can be updated with {@link Me#update}. Here we set {@link Me#state} as ```{team: 'red'}```.
 
 ```js
-ChatEngine.connect('ian', {team: 'red'});
+Me.update({team: 'red'});
 ```
 
 We can get that value with {@link User#state}. This value will be the same
@@ -136,7 +135,7 @@ on every machine because state is synced between everybody.
 ```js
 lobby.on('message', (payload) => {
     console.log(payload.sender.uuid, 'sent a message', payload.data.text);
-    console.log('they are on team', payload.sender.state.team);
+    console.log('they are on team', payload.sender.state().team);
 });
 ```
 
@@ -155,7 +154,7 @@ Ok, let's make a new chat and invite him to it. We'll create a new {@link Chat}
 and then fire the {@link Chat#invite} which invites a {@link User} to a {@link Chat}.
 
 ```js
-let privateChat = new ChatEngine.Chat('private');
+let privateChat = new ChatEngine.Chat('private', {isPrivate: true});
 privateChat.invite(stephen);
 ```
 
@@ -169,7 +168,7 @@ via {@link Me#direct}. The key for the new chat that we created is available as 
 ```js
 me.direct.on('$.invite', (payload) => {
 
-    let invitedChat = new $scope.ChatEngine.Chat(payload.data.channel);
+    let invitedChat = new $scope.ChatEngine.Chat(payload.data.channel, {isPrivate: true});
 
     invitedChat.emit('message', {
         text: 'hello everybody!'

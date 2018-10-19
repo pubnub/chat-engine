@@ -1,7 +1,18 @@
 const assert = require('chai').assert;
 const sinon = require('sinon');
-const Bootstrap = require('../../../src/bootstrap');
+const proxyquire = require('proxyquire');
 const Chat = require('../../../src/components/chat');
+
+const mock = {
+    get: () => {
+        return Promise.resolve({ data: {} });
+    },
+    post: () => {
+        return Promise.resolve({ data: {} });
+    }
+};
+
+const Bootstrap = proxyquire('../../../src/bootstrap', { axios: mock });
 
 describe('#chat', () => {
 
@@ -48,6 +59,7 @@ describe('#chat', () => {
 
     it('disconnect chat', (done) => {
         chatInstance.users.user1 = {};
+        chatInstance.plugins = [];
 
         chatInstance.on('$.offline.disconnect', () => {
             done();
@@ -66,19 +78,9 @@ describe('#chat', () => {
 
     });
 
-    it('user join to chat already here', (done) => {
-
-        chatInstance.on('$.online.here', () => {
-            done();
-        });
-
-        chatInstance.userJoin('user2', { state: 'active' });
-        chatInstance.userJoin('user2', { state: 'active' });
-
-    });
-
     it('user leave the chat', (done) => {
         chatInstance.users.user1 = {};
+        chatInstance.plugins = [];
         chatInstance.on('$.offline.leave', () => {
             done();
         });
@@ -87,12 +89,15 @@ describe('#chat', () => {
     });
 
     it('update state', (done) => {
-        chatEngineInstance.on('$.state', (obj) => {
-            assert(obj.user.uuid === 'user2', 'was updated to the right user');
-            assert.deepEqual(obj.state, { state: 'not disturb' }, 'was updated the state correctly');
-            done();
-        });
 
+        chatInstance.on('$.state', (obj) => {
+
+            assert(obj.user.uuid === 'user2', 'was updated to the right user');
+            assert.deepEqual(obj.user.state(chatInstance), { state: 'not disturb' }, 'was updated the state correctly');
+            done();
+
+        });
+        chatInstance.userJoin('user2', { state: 'active' });
         chatInstance.userUpdate('user2', { state: 'not disturb' });
     });
 
