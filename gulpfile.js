@@ -17,21 +17,15 @@ const surge = require('gulp-surge');
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
 let pluginFiles = [
-    '../chat-engine-typing-indicator/src/plugin.js',
-    '../chat-engine-unread-messages/src/plugin.js',
-    '../chat-engine-event-status/src/plugin.js',
-    '../chat-engine-open-graph/src/plugin.js',
-    '../chat-engine-muter/src/plugin.js',
-    '../chat-engine-emoji/src/plugin.js',
-    '../chat-engine-markdown/src/plugin.js',
-    '../chat-engine-desktop-notifications/src/plugin.js',
-    '../chat-engine-gravatar/src/plugin.js',
-    '../chat-engine-online-user-search/src/plugin.js',
-    '../chat-engine-random-username/src/plugin.js',
     '../chat-engine-uploadcare/src/plugin.js',
-    '../chat-engine-update-message/src/plugin.js'
-];
-
+    '../chat-engine-typing-indicator/src/plugin.js',
+    '../chat-engine-desktop-notifications/src/plugin.js',
+    '../chat-engine-emoji/src/plugin.js',
+    '../chat-engine-random-username/src/plugin.js',
+    '../chat-engine-unread-messages/src/plugin.js',
+    '../chat-engine-gravatar/src/plugin.js',
+    '../chat-engine-markdown/src/plugin.js',
+    '../chat-engine-online-user-search/src/plugin.js'];
 let guideFiles = ['guide/**/*'];
 let readme = ['README.md'];
 
