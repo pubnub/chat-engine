@@ -481,6 +481,7 @@ class Chat extends Emitter {
         if (this.asleep) {
             this.handshake(() => {
                 this.onConnected();
+                this.asleep = false;
             });
         }
 
