@@ -854,7 +854,7 @@ class Chat extends Emitter {
                             if (response.data.found) {
                                 this.meta = response.data.chat.meta;
                             } else {
-                                this.update(this.meta);
+                                this.meta = this.meta || {};
                             }
 
                             next();
