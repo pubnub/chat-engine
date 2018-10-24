@@ -503,6 +503,14 @@ class Chat extends Emitter {
          * });
          */
         this.trigger('$.connected');
+
+        // perform extra routines for user made chats
+        if (this.group === 'custom') {
+            // This timeout ensures we get our own online event
+            setTimeout(() => {
+                this.getUserUpdates();
+            }, 1000);
+        }
     }
 
     /**
@@ -740,12 +748,6 @@ class Chat extends Emitter {
             if (this.chatEngine.me.session) {
                 this.chatEngine.me.session.join(this);
             }
-
-            // This timeout ensures we get our own online event
-            setTimeout(() => {
-                this.getUserUpdates();
-            }, 1000);
-
         }
 
     }
