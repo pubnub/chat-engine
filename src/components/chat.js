@@ -853,12 +853,11 @@ class Chat extends Emitter {
                             // asign metadata locally
                             if (response.data.found) {
                                 this.meta = response.data.chat.meta;
-                            } else {
-                                this.meta = this.meta || {};
+                            } else if (Object.keys(this.meta).length > 0) {
+                                this.update(this.meta);
                             }
 
                             next();
-
                         })
                         .catch(handshakeError);
 
