@@ -1,6 +1,5 @@
 const waterfall = require('async/waterfall');
 const RootEmitter = require('./root_emitter');
-const Event = require('../components/event');
 
 const augmentSender = require('../plugins/augment/sender');
 /**
@@ -70,9 +69,6 @@ class Emitter extends RootEmitter {
          * })
          */
         this.on = (event, cb) => {
-
-            // keep track of all events on this emitter
-            this.events[event] = this.events[event] || new Event(this.chatEngine, this, event);
 
             // call the private _on property
             this._on(event, cb);
