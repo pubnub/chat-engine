@@ -65,6 +65,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
     ChatEngine.ready = false;
 
     /**
+     * Indicates if ChatEngine is already connected.
+     * @member {Object} pubnub
+     * @memberof ChatEngine
+     */
+    ChatEngine.isConnected = false;
+
+    /**
      * The package.json for ChatEngine. Used mainly for detecting package version.
      * @type {Object}
      */
@@ -441,15 +448,17 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * ChatEngine.connect()
      */
     ChatEngine.disconnect = () => {
+        if (ChatEngine.isConnected) {
+            // Unsubscribe from all PubNub chats
+            ChatEngine.pubnub.unsubscribeAll();
 
-        // Unsubscribe from all PubNub chats
-        ChatEngine.pubnub.unsubscribeAll();
+            // for every chat in ChatEngine.chats, signal disconnected
+            Object.keys(ChatEngine.chats).forEach((key) => {
+                ChatEngine.chats[key].sleep();
+            });
 
-        // for every chat in ChatEngine.chats, signal disconnected
-        Object.keys(ChatEngine.chats).forEach((key) => {
-            ChatEngine.chats[key].sleep();
-        });
-
+            ChatEngine.isConnected = false;
+        }
     };
 
     /**
@@ -469,7 +478,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      *
      */
     ChatEngine.reconnect = () => {
-
         // do the whole auth flow with the new authKey
         ChatEngine.handshake(() => {
 
@@ -479,9 +487,9 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             });
 
             ChatEngine.subscribeToPubNub();
-
         });
 
+        ChatEngine.isConnected = true;
     };
 
     /**
@@ -540,9 +548,13 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
             ChatEngine.pnConfig.uuid = uuid;
             ChatEngine.pnConfig.authKey = authKey;
 
-            ChatEngine.handshake(() => {
-                ChatEngine.firstConnect(globalChannel);
-            });
+            if (!ChatEngine.isConnected) {
+                ChatEngine.handshake(() => {
+                    ChatEngine.firstConnect(globalChannel);
+                });
+
+                ChatEngine.isConnected = true;
+            }
 
         } else {
 
