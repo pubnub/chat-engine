@@ -1,4 +1,4 @@
-ChatEngine SDKs are built on top of existing publish & subscribe SDKs and provides full access to the original method by reference the {@link ChatEngie#pubnub| ```ChatEngine.pubnub``` } object.
+ChatEngine SDKs are built on top of existing publish & subscribe SDKs and provides full access to the original method by reference the {@link ChatEngine#pubnub| ```ChatEngine.pubnub``` } object.
 
 For instance, the ```pubnub``` instance can be used to call batch {@link Search| history } on multiple {@link Chat| ```Chat```} channels instead of calling {@link Search| ```Search``` } on individual {@link Chat| '''Chat''' } rooms.
 
