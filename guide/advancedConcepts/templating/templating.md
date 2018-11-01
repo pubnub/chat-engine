@@ -1,6 +1,6 @@
 ChatEngine does not contain any pre-made templates or GUI code as part of the main package (there are plenty in the [chat-engine-examples](http://www.github.com/pubnub/chat-engine-examples) repository however).
 
-ChatEngine leaves the design and interaction up to the developer. ChatEngine provides events, methods, and data but does not make any assumptions of template engines.
+ChatEngine leaves the design and interaction flow up to the developer. ChatEngine provides events, methods, and data, but does not make any assumptions of template engines.
 
 ChatEngine works on both the front and back ends, with popular frameworks like [jQuery](https://jquery.com/), [React](https://reactjs.org/), [Angular](https://angularjs.org/), [React Native](https://facebook.github.io/react-native/), [NodeJS](https://nodejs.org/en/), and good old [Javascript](https://www.javascript.com/).
 
@@ -20,7 +20,7 @@ Create a place for message output and give the {@link User| ```User``` } a way t
 <button type="submit" onclick="sendChat()">Send</button>
 ```
 
-The ```sendChat()``` method emits ```Chat#emit```.
+The ```sendChat()``` method emits ```Chat.emit```.
 
 ```js
 // send a message to all users in the chat
@@ -49,7 +49,7 @@ chat.on('message', (payload) => {
 
 ## Data Binding (Angular and React)
 
-ChatEngine has a local data system that keeps data about {@link Chat| Chats } and {@link User| Users } in sync. So when working with data bound system we get some functionality for free!
+ChatEngine has a local data system that keeps data about {@link Chat| Chats } and {@link User| Users } in sync. So when working with a data-bound system we get some functionality for free!
 
 For example in Angular:
 
@@ -61,7 +61,7 @@ For example in Angular:
 </ul>
 ```
 
-Note that binding ChatEngine data to Angular requires forcefully telling Angular that something has changed. The following is a small Angular plugin that, when loaded, will render your Angular app anytime anything changes in ChatEngine.
+Note that binding ChatEngine data to Angular requires forcefully telling Angular that something has changed. The following is a small Angular plugin that, when loaded, will re-render your Angular app anytime anything changes in ChatEngine.
 
 ```js
 // plugin
