@@ -1,4 +1,4 @@
-ChatEngine SDKs are meant to be used on client-side mobile & web applications. If developers also need to build a server component that interacts with {@link User| ```User```s }, they can utilize one of the PubNub server-side [SDKs](https://www.pubnub.com/docs).
+ChatEngine SDKs are designed to be used on client-side mobile & web applications. If you also need to build a server component that interacts with {@link User| ```User```s }, you can utilize one of the PubNub server-side [SDKs](https://www.pubnub.com/docs).
 
 ### Server-side security
 
@@ -14,7 +14,7 @@ var pubnub = require('pubnub').PubNub({
 
 ### Server-side messages
 
-While servers have full read/write privileges to publish messages on any {@link Chat| ```Chat``` } channels, it is important to note that the channel names and message payload needs to follow a specific format to be understood by ChatEngine client-side SDKs. More info on message payload below:
+While servers have full read/write privileges to publish messages on any {@link Chat| ```Chat``` } channels, it is important to note that the channel names and message payload need to follow a specific format to be understood by ChatEngine client-side SDKs. More info on message payload below:
 
 ```
 pubnub.publish(
