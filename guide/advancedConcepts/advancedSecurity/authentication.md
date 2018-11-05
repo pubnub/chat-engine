@@ -16,4 +16,4 @@ When a user initializes default ChatEngine, a number of asynchronous requests ar
 
 The PubNub ChatEngine Function passes these requests through an ```authPolicy()``` function that, by default, allows any user (with the arguments specified above) to connect to ChatEngine. In order to prevent this, a ChatEngine developer must update the PubNub ChatEngine Function's ```authPolicy()``` function to make an authentication request attempt against a specified 3rd-party authentication service.
 
-If the 3rd-party authentication attempt is successful, ChatEngine developers may add cached responses via the ```kvstore``` module. That way a ChatEngine Function (i.e. backend server) can used the cahced responses rather than having to make requests to the 3rd party authentication micro-service on every published ChatEngine message.
+If the 3rd-party authentication attempt is successful, ChatEngine developers may add cached responses via the ```kvstore``` module. That way a ChatEngine Function (i.e. backend server) can used the cached responses rather than having to make requests to the 3rd party authentication micro-service on every published ChatEngine message.
