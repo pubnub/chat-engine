@@ -1,4 +1,4 @@
-{@link Event| ```Event``` } names follow a pattern that helps determine the origination point of an object.
+{@link Event| ```Event``` } names follow a pattern that helps determine the origination point of the ```Event``` object.
 
 ## Custom Events
 
