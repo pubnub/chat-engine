@@ -10,7 +10,7 @@ System events always begin with a ```$.``` For example, ```$.ready``` and ```$.o
 
 ## ```$plugin``` - Plugin Events
 
-Plugin events always begin with ```$pluginName```. For example, ```$typingIndicator.startTyping``` indicated a plugin event {@link Event| ```Event``` } emitted by the [module:chat-engine-typing-indicator](http://www.github.com/pubnub/chat-engine-typing-indicator) plugin. The ```$typingIndicator``` string is a plugin namespace and ```startTyping``` is the plugin ```Event```. Namespacing plugins helps ensure that there are no collisions between plugins.
+Plugin events always begin with ```$pluginName```. For example, ```$typingIndicator.startTyping``` indicates a plugin event {@link Event| ```Event``` } emitted by the [module:chat-engine-typing-indicator](http://www.github.com/pubnub/chat-engine-typing-indicator) plugin. The ```$typingIndicator``` string is a plugin namespace and ```startTyping``` is the plugin ```Event```. Namespacing plugins helps ensure that there are no collisions between plugins.
 
 ## Event Children
 
