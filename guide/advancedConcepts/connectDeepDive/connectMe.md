@@ -4,7 +4,7 @@ Once ChatEngine has connected the default global channels, ChatEngine will creat
 
 > Note: ChatEngine.User is an extension of the ```ChatEngine.Emitter``` class.
 
-Similar to connecting to ```ChatEngine.global```, ChatEngine then uses the PubNub ChatEngine function controller to grant user access to their ```ChatEngine.Me``` chat channels. The access control levels defined for the {@link Me| ```Me```} chat channels restrict other {@link User| ```User```s } from reading or writing content on that channel.   
+Similar to connecting to ```ChatEngine.global```, ChatEngine then uses the PubNub ChatEngine Function controller to grant user access to their ```ChatEngine.Me``` chat channels. The access control levels defined for the {@link Me| ```Me```} chat channels restrict other {@link User| ```User```s } from reading or writing content on that channel.   
 
 
 | HTTP method | controller\* |  read | write | channels| channelGroups| authKeys | ttl [sec]|
