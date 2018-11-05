@@ -1,14 +1,14 @@
-# How to use the guide
-The following guide shows CE developers how one might setup 3rd party authentication for users. For the sake of popularity, a _Facebook Login App_ is used as the authenticator. Despite which 3rd party service is used, the security mechanics remains the same.
+# How to Use This Guide
+The following guide shows ChatEngine developers how to setup 3rd party authentication. To clearly illustrate the approach, a _Facebook Login App_ is used as the authenticator. Regardless of which 3rd party service is used, the security mechanics remain the same.
 
-> 1. CE client inputs login creds to 3rd party authenticator.
-> 2. 3rd party returns authKey upon successful authentication.
-> 3. CE server receives authKey and grants/authorizes user access to requisite CE channels (for time specified by authTTL) via [PAM](https://www.pubnub.com/docs/pubnub-rest-api-documentation#pubnub-access-manager-pam).
+> 1. ChatEngine client inputs login credentials to 3rd party authenticator
+> 2. 3rd party returns authKey upon successful authentication
+> 3. ChatEngine server receives authKey and grants/authorizes user access to appropriate ChatEngine channels (for time specified by authTTL) via [PAM](https://www.pubnub.com/docs/pubnub-rest-api-documentation#pubnub-access-manager-pam).
 
 
-# How CE 3rd Party Authentication Works
+# How ChatEngine 3rd Party Authentication Works
 
-The guide covers how to setup 3rd authentication within the CE platform. Its important to note that the following security pattern is not restricted to using FB Login App service, but any third-party authentication service.
+This guide explains how to setup 3rd authentication within the ChatEngine platform. Its important to note that the following security pattern is not restricted to using the Facebook Login App service:  it can be used in conjunction with substantially any third-party authentication service.
 
 ### Login flow to 3rd Party Provider via ChatEngine (e.g. FB Login App):
 
