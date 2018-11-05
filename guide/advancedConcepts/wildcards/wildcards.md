@@ -22,7 +22,7 @@ You can get notified of all plugin events by subscribing to ```$plugin.*```.
 
 ## All Events Everywhere
 
-All events of any ```Object``` in ChatEngine fires is also emitted from the ChatEngine ```Object```. You can get notified of every ```Event``` by subscribing to ```ChatEngine#onAny```.
+All events fired by an ```Object``` in ChatEngine are also emitted from the ChatEngine ```Object```. You can get notified of every ```Event``` by subscribing to ```ChatEngine#onAny```.
 
 This is helpful for debugging and notifying frameworks like [Angular](https://angularjs.org/) when the GUI needs to be updated.
 
