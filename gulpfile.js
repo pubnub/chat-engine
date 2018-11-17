@@ -15,7 +15,7 @@ const rename = require('gulp-rename');
 const surge = require('gulp-surge');
 
 let sourceFiles = ['src/**/*.js'];
-let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
+let testFiles = ['test/unit/**/*.js', 'test/integration/pact.test.js'];
 let pluginFiles = [
     '../chat-engine-emoji/src/plugin.js',
     '../chat-engine-gravatar/src/plugin.js',
