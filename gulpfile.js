@@ -13,6 +13,8 @@ const path = require('path');
 const uglify = require('gulp-uglify-es').default;
 const rename = require('gulp-rename');
 const surge = require('gulp-surge');
+const asyncdocs = require('asyncapi-docgen');
+const fs = require('fs');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
@@ -95,6 +97,46 @@ gulp.task('compile_docs', (cb) => {
     gulp.src(sourceFiles.concat(pluginFiles), { read: false })
         .pipe(jsdoc(config, cb));
 });
+
+gulp.task('compile_async', (cb) => {
+
+    const asyncapi = fs.readFileSync(path.resolve(__dirname, 'asyncapi.yml'), 'utf8');
+
+    asyncdocs
+      .generateFullHTML(asyncapi)
+      .catch((err) => {
+        console.error(`Something went wrong: ${err.message}`);
+      })
+      .then((html) => {
+        console.log('Done!');
+
+        let dir = __dirname + '/docs';
+
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+
+        dir = dir + '/asyncapi';
+
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+
+        dir = dir + '/css';
+
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+
+        fs.writeFileSync(__dirname + '/docs/asyncapi/index.html', html)
+
+        fs.createReadStream(__dirname + '/_docs/asyncapi/css/main.css').pipe(fs.createWriteStream(__dirname + '/docs/asyncapi/css/main.css'));
+
+
+        cb();
+      });
+
+})
 
 gulp.task('watch_docs', () => {
     gulp.watch(sourceFiles.concat(guideFiles).concat(readme), ['compile_docs']);
