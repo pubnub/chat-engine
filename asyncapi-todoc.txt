@@ -1,0 +1,33 @@
+
+  187:                     user.direct.emit('$.invite', {
+  188                          channel: this.channel
+  189                      });
+
+
+
+  485:                 this.emit('$.system.leave', { subject: this.objectify() });
+
+  117:             this.sync.emit('$.session.notify.chat.join', { subject: chat.objectify() });
+
+  127:         this.sync.emit('$.session.notify.chat.leave', { subject: chat.objectify() });
+
+ chat.emit('custom-event', {value: true});
+
+chat.on('custom-event', (payload) => {
+
+        // subscribe to the events on our sync chat and forward them
+        this.sync.on('$.session.notify.chat.join', (payload) => {
+            this.onJoin(payload.data.subject);
+        });
+
+        this.sync.on('$.session.notify.chat.leave', (payload) => {
+            this.onleave(payload.data.subject);
+        });
+
+
+        this.on('$.system.leave', (payload) => {
+            this.userLeave(payload.sender.uuid);
+        });
+
+
+.on('$.invite')

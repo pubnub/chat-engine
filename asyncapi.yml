@@ -16,7 +16,16 @@ servers:
 topics:
   ready:
     subscribe:
-      $ref: "#/components/messages/userSignedUp"
+      summary: Fired when ChatEngine has connected to the server for the first time.
+      description: |
+        Multiline description of what this action does. **It allows Markdown.**
+      payload:
+        type: object
+        properties:
+          me:
+            title: uuid
+            description: uuid for the current user
+            type: string
 
 components:
   messages:
@@ -42,7 +51,6 @@ components:
             $ref: "#/components/schemas/userCreate"
           signup:
             $ref: "#/components/schemas/signup"
-
 
     userSignedUp:
       payload:

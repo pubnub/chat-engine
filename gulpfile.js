@@ -132,8 +132,8 @@ gulp.task('compile_async', (cb) => {
 
         fs.createReadStream(__dirname + '/_docs/asyncapi/css/main.css').pipe(fs.createWriteStream(__dirname + '/docs/asyncapi/css/main.css'));
 
-
         cb();
+
       });
 
 })
