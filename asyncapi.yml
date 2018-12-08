@@ -14,134 +14,75 @@ servers:
     scheme: wss
 
 topics:
-  ready:
+  invite:
+    publish:
+      summary: Invite another user to the chat.
+      description: Fired when a user invites another user to a chat. Contains the chat channel as the payload.
+      $ref: "#/components/messages/invite"
     subscribe:
-      summary: Fired when ChatEngine has connected to the server for the first time.
-      description: |
-        Multiline description of what this action does. **It allows Markdown.**
+      summary: This user was invited to a chat.
+      description: Fired when this client was invited to a chat. Contains the chat channel as the payload.
+      $ref: "#/components/messages/invite"
+  system.leave:
+    publish:
+      summary: When this user leaves a chat.
+      description: Fired when this user leaves a chat. Emitting this message lets other users know that you've intentionally left.
       payload:
-        type: object
-        properties:
-          me:
-            title: uuid
-            description: uuid for the current user
-            type: string
+        $ref: "#/components/schemas/subject"
+    subscribe:
+      summary: When another user leaves the chat.
+      description: Emits when another user leaves the chat. Keeps list of users in sync.
+      payload:
+        $ref: "#/components/schemas/subject"
+  session.notify.chat.join:
+    publish:
+      summary: Alert other subscribers of this session that a chat has been joined.
+      payload:
+        $ref: "#/components/schemas/subject"
+    subscribe:
+      summary: A new chat has been joined in this session.
+      payload:
+        $ref: "#/components/schemas/subject"
+  session.notify.chat.leave:
+    publish:
+      summary: Alert other subscribers of this session that a chat has been left.
+      payload:
+        $ref: "#/components/schemas/subject"
+    subscribe:
+      summary: A chat has been left in this session.
+      payload:
+        $ref: "#/components/schemas/subject"
 
 components:
   messages:
-    userSignUp:
-      deprecated: true
-      summary: Action to sign a user up.
-      description: |
-        Multiline description of what this action does. **It allows Markdown.**
-      tags:
-        - name: user
-        - name: signup
-      headers:
-        type: object
-        properties:
-          qos:
-            $ref: "#/components/schemas/MQTTQoSHeader"
-          retainFlag:
-            $ref: "#/components/schemas/MQTTRetainHeader"
+    invite:
       payload:
         type: object
         properties:
-          user:
-            $ref: "#/components/schemas/userCreate"
-          signup:
-            $ref: "#/components/schemas/signup"
-
-    userSignedUp:
-      payload:
-        type: object
-        properties:
-          test:
-            type: array
-            items:
-              type: object
-              properties:
-                key1:
-                  type: string
-                key2:
-                  type: integer
-          user:
-            $ref: "#/components/schemas/user"
-          signup:
-            $ref: "#/components/schemas/signup"
+          channel:
+            title: channel
+            description: The channel the user is invited to.
+            type: string
   schemas:
-    id:
-      title: id
-      description: Resource identifier
-      type: string
-    username:
-      title: username
-      description: User handle
-      type: string
-    datetime:
-      title: datetime
-      description: Date and Time of the message
-      type: string
-      format: date-time
-    MQTTQoSHeader:
-      title: qos
-      description: Quality of Service
-      type: integer
-      format: int32
-      default: 1
-      enum:
-        - 0
-        - 2
-    MQTTRetainHeader:
-      title: retainFlag
-      description: |
-        This flag determines if the message will be saved by the broker for the specified
-        topic as last known good value. New clients that subscribe to that topic will receive
-        the last retained message on that topic instantly after subscribing. More on retained messages
-        and best practices in one of the next posts.
-      type: boolean
-      default: false
-    user:
+    subject:
+      title: subject
+      description: The chat your client has left.
       type: object
-      required:
-        - id
-        - username
       properties:
-        id:
-          description: User Id
-          $ref: "#/components/schemas/id"
-        full_name:
-          description: User full name
+        channel:
           type: string
-        username:
-          $ref: "#/components/schemas/username"
-    userCreate:
-      type: object
-      required:
-        - username
-      properties:
-        full_name:
-          description: User full name
-          type: string
-        username:
-          $ref: "#/components/schemas/username"
-
-    signup:
-      type: object
-      required:
-        - method
-        - datetime
-      properties:
-        method:
-          description: Signup method
+          description: The PubNub channel for the chat.
+        group:
+          description: The PubNub channel group this chat belongs to.
           type: string
           enum:
-            - email
-            - facebook
-            - twitter
-            - github
-            - google
-        datetime:
-          $ref: "#/components/schemas/datetime"
-
+            - system
+            - custom
+            - rooms
+        private:
+          description: Does this chat require additional authentication to join?
+          type: boolean
+        meta:
+          description: Extra data to attach to this chat.
+          type: object
 
