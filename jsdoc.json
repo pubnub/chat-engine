@@ -1,7 +1,7 @@
 {
     "opts": {
         "template": "./_docs/docdash",
-        "destination": "./docs/",
+        "destination": "./docs/js",
         "recurse": true,
         "tutorials": "./guide/",
         "readme": "./README.md"

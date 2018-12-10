@@ -1,0 +1,88 @@
+asyncapi: "1.2.0"
+info:
+  title: AsyncAPI Sample
+  version: "1.0.0"
+  x-logo: https://avatars0.githubusercontent.com/u/16401334?v=4&s=200
+  description: |
+    This is a simple example of an _AsyncAPI_ document.
+  termsOfService: https://api.company.com/terms
+baseTopic: '$'
+
+servers:
+  - url: pubsub.pubub.com
+    description: The PubNub server host that allows you to publish and subscribe. See https://www.pubnub.com/docs/pubnub-rest-api-documentation#publish-subscribe-publish-v1-via-get-get
+    scheme: wss
+
+topics:
+  invite:
+    publish:
+      summary: Invite another user to the chat.
+      description: Fired when a user invites another user to a chat. Contains the chat channel as the payload.
+      $ref: "#/components/messages/invite"
+    subscribe:
+      summary: This user was invited to a chat.
+      description: Fired when this client was invited to a chat. Contains the chat channel as the payload.
+      $ref: "#/components/messages/invite"
+  system.leave:
+    publish:
+      summary: When this user leaves a chat.
+      description: Fired when this user leaves a chat. Emitting this message lets other users know that you've intentionally left.
+      payload:
+        $ref: "#/components/schemas/subject"
+    subscribe:
+      summary: When another user leaves the chat.
+      description: Emits when another user leaves the chat. Keeps list of users in sync.
+      payload:
+        $ref: "#/components/schemas/subject"
+  session.notify.chat.join:
+    publish:
+      summary: Alert other subscribers of this session that a chat has been joined.
+      payload:
+        $ref: "#/components/schemas/subject"
+    subscribe:
+      summary: A new chat has been joined in this session.
+      payload:
+        $ref: "#/components/schemas/subject"
+  session.notify.chat.leave:
+    publish:
+      summary: Alert other subscribers of this session that a chat has been left.
+      payload:
+        $ref: "#/components/schemas/subject"
+    subscribe:
+      summary: A chat has been left in this session.
+      payload:
+        $ref: "#/components/schemas/subject"
+
+components:
+  messages:
+    invite:
+      payload:
+        type: object
+        properties:
+          channel:
+            title: channel
+            description: The channel the user is invited to.
+            type: string
+  schemas:
+    subject:
+      title: subject
+      description: The chat your client has left.
+      type: object
+      properties:
+        channel:
+          type: string
+          description: The PubNub channel for the chat.
+        group:
+          description: The PubNub channel group this chat belongs to.
+          type: string
+          enum:
+            - system
+            - custom
+            - rooms
+        private:
+          description: Does this chat require additional authentication to join?
+          type: boolean
+        meta:
+          description: Extra data to attach to this chat.
+          type: object
+
