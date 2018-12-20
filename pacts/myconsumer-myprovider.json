@@ -11,12 +11,16 @@
       "request": {
         "method": "GET",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
-        "query": "route=bootstrap"
+        "query": "route=bootstrap",
+        "params": {}
       },
       "response": {
         "status": 200,
         "headers": {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
         },
         "body": {
         }
