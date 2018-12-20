@@ -12,7 +12,8 @@
         "method": "GET",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
         "query": "route=bootstrap",
-        "params": {}
+        "params": {},
+        "body": "{}"
       },
       "response": {
         "status": 200,
