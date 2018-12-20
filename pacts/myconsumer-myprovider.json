@@ -7,9 +7,9 @@
   },
   "interactions": [
     {
-      "description": "GET bootstrap",
+      "description": "POST bootstrap",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
         "query": "route=bootstrap",
         "params": {},
