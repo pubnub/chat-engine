@@ -154,7 +154,9 @@ class Session extends Emitter {
             Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
             Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
             ChatEngine stores sessions on the server side identified by {@link User#uuid}.
-            @event Me#$"."session"."chat"."join
+            @event Session#$"."chat"."join
+            * @type {object}
+            * @property {Chat} chat The chat added to the user session.
             @example
             *
             * // Logged in as "Ian" in first window
@@ -183,9 +185,10 @@ class Session extends Emitter {
 
             /**
             * Fired when another identical instance of {@link ChatEngine} with an identical {@link Me} leaves a {@link Chat} via {@link Chat#leave}.
-            * @event Me#$"."session"."chat"."leave
+            * @event Session#$"."chat"."leave
+            * @type {object}
+            * @property {Chat} chat The chat removed from the user session.
             */
-
             delete this.chatEngine.chats[chat.channel];
             delete this.chats[chat.group][chat.channel];
 
