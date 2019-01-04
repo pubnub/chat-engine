@@ -82,7 +82,7 @@ class Event extends Emitter {
                 /**
                  * Message successfully published
                  * @event Event#$"."emitted"
-                 * @param {Object} data The message payload
+                 * @property {Object} data The message payload
                  */
                 this._emit('$.emitted', m);
 

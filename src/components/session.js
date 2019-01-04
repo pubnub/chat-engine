@@ -90,9 +90,11 @@ class Session extends Emitter {
                         });
 
                         /**
-                        Fired when session has been restored at boot. Fired once per
-                        session group.
-                        @event Me#$"."session"."group"."restored
+                        * Fired when session has been restored at boot. Fired once per
+                        * session group.
+                        * @event Session#$"."group"."restored
+                        * @type {object}
+                        * @property {string} group The {@link Chat#group} that has been restored.
                         */
                         this.trigger('$.group.restored', { group });
 
@@ -151,10 +153,10 @@ class Session extends Emitter {
             this.chats[chat.group][chat.channel] = new this.chatEngine.Chat(chat.channel, chat.private, false, chat.meta, chat.group);
 
             /**
-            Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
-            Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-            ChatEngine stores sessions on the server side identified by {@link User#uuid}.
-            @event Session#$"."chat"."join
+            * Fired when another identical instance of {@link ChatEngine} and {@link Me} joins a {@link Chat} that this instance of {@link ChatEngine} is unaware of.
+            * Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
+            * ChatEngine stores sessions on the server side identified by {@link User#uuid}.
+            * @event Session#$"."chat"."join
             * @type {object}
             * @property {Chat} chat The chat added to the user session.
             @example
