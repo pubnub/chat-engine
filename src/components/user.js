@@ -132,6 +132,11 @@ class User extends Emitter {
                 callback(this.state);
 
             }).catch((err) => {
+                /**
+                 * There was a problem restoring the state for this user
+                 * @event Chat#$"."error"."getState
+                 * @property {String} ceError The specific error thrown by ChatEngine
+                 */
                 this.chatEngine.throwError(this, 'trigger', 'getState', err);
             });
 
