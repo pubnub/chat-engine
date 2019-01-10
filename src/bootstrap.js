@@ -403,7 +403,6 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 /**
                  *  Fired when ChatEngine is connected to the internet and ready to go!
                  * @event ChatEngine#$"."ready
-                 * @type {object}
                  * @property {Me} me The ChatEngine {@link Me} object representing this client.
                  * @example
                  * ChatEngine.on('$.ready', (data) => {
