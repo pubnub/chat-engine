@@ -343,8 +343,7 @@ class Chat extends Emitter {
              * notify the framework of a new user.
              *
              * @event Chat#$"."online"."here
-             * @property {Object} data The payload returned by the event
-             * @property {User} data.user The {@link User} that came online
+             * @property {User} user The {@link User} that came online
              * @example
              * chat.on('$.online.here', (data) => {
                       *     console.log('User has come online:', data.user);
@@ -399,9 +398,8 @@ class Chat extends Emitter {
         /**
          * Broadcast that a {@link User} has changed state.
          * @event ChatEngine#$"."state
-         * @property {Object} data The payload returned by the event
-         * @property {User} data.user The {@link User} that changed state
-         * @property {Object} data.state The new user state
+         * @property {User} user The {@link User} that changed state
+         * @property {Object} state The new user state
          * @example
          * ChatEngine.on('$.state', (data) => {
          *     console.log('User has changed state:', data.user, 'new state:', data.state);
@@ -528,8 +526,7 @@ class Chat extends Emitter {
              * Fired when a {@link User} intentionally leaves a {@link Chat}.
              *
              * @event Chat#$"."offline"."leave
-             * @property {Object} data The data payload from the event
-             * @property {User} data.user The {@link User} that has left the room
+             * @property {User} user The {@link User} that has left the room
              * @example
              * chat.on('$.offline.leave', (data) => {
                       *     console.log('User left the room manually:', data.user);
@@ -560,8 +557,7 @@ class Chat extends Emitter {
              * to the {@link Chat} involuntarily.
              *
              * @event Chat#$"."offline"."disconnect
-             * @property {Object} data The {@link User} that disconnected
-             * @property {Object} data.user The {@link User} that disconnected
+             * @property {Object} user The {@link User} that disconnected
              * @example
              * chat.on('$.offline.disconnect', (data) => {
              *     console.log('User disconnected from the network:', data.user);

@@ -262,51 +262,121 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
                 /**
                  * SDK detected that network is online.
                  * @event ChatEngine#$"."network"."up"."online
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * SDK detected that network is down.
                  * @event ChatEngine#$"."network"."down"."offline
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * A subscribe event experienced an exception when running.
                  * @event ChatEngine#$"."network"."down"."issue
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * SDK was able to reconnect to pubnub.
                  * @event ChatEngine#$"."network"."up"."reconnected
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * SDK subscribed with a new mix of channels.
                  * @event ChatEngine#$"."network"."up"."connected
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * JSON parsing crashed.
                  * @event ChatEngine#$"."network"."down"."malformed
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * Server rejected the request.
                  * @event ChatEngine#$"."network"."down"."badrequest
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * If using decryption strategies and the decryption fails.
                  * @event ChatEngine#$"."network"."down"."decryption
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * Request timed out.
                  * @event ChatEngine#$"."network"."down"."timeout
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 /**
                  * PAM permission failure.
                  * @event ChatEngine#$"."network"."down"."denied
+                 * @property {String} category The [PubNub statusEvent category](https://www.pubnub.com/docs/web-javascript/status-events).
+                 * @property {String} operation The PubNub operation attempted to be performed.
+                 * @property {Array} affectedChannelGroups
+                 * @property {Array} affectedChannel
+                 * @property {Array} subscribedChannels
+                 * @property {String} lastTimetoken
+                 * @property {String} currentTimetoken
                  */
 
                 // map the pubnub events into ChatEngine events

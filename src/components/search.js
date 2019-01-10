@@ -72,7 +72,8 @@ class Search extends Emitter {
 
             /**
              * Requesting another page from PubNub History.
-             * @event Search#$"."page"."request
+             *
+             *  Search#$"."page"."request
              */
             this._emit('$.search.page.request');
 
