@@ -486,10 +486,7 @@ var Emitter = function (_RootEmitter) {
         return _this;
     }
 
-    // add an object as a subobject under a namespace
-    /**
-     * @private
-     */
+    // add an object as a subobject under a namespoace
 
 
     _createClass(Emitter, [{
@@ -557,11 +554,6 @@ var Emitter = function (_RootEmitter) {
 
             return this;
         }
-
-        /**
-         * @private
-         */
-
     }, {
         key: 'bindProtoPlugins',
         value: function bindProtoPlugins() {
@@ -652,11 +644,6 @@ var Emitter = function (_RootEmitter) {
             // when it's done, the ```last``` parameter is called
             waterfall(pluginQueue, last);
         }
-
-        /**
-         * @private
-         */
-
     }, {
         key: 'onConstructed',
         value: function onConstructed() {
@@ -800,11 +787,6 @@ var RootEmitter = function RootEmitter() {
     */
     this.events = {};
 
-    /**
-    Handy property to identify what this class is.
-    @type String
-    @private
-    */
     this.name = 'RootEmitter';
 
     /**
@@ -2437,8 +2419,7 @@ module.exports = function () {
         var body = {
             uuid: ChatEngine.pnConfig.uuid,
             global: ceConfig.globalChannel,
-            authKey: ChatEngine.pnConfig.authKey,
-            ttl: ChatEngine.pnConfig.ttl
+            authKey: ChatEngine.pnConfig.authKey
         };
 
         var params = {
@@ -2746,35 +2727,26 @@ module.exports = function () {
      * ChatEngine.reconnect();
      *
      */
-    ChatEngine.reconnect = function (authKey) {
+    ChatEngine.reconnect = function () {
 
-        authKey = authKey || PubNub.generateUUID();
+        // do the whole auth flow with the new authKey
+        ChatEngine.handshake(function () {
 
-        if (authKey) {
-            // do the whole auth flow with the new authKey
-            ChatEngine.handshake(function () {
-                // for every chat in ChatEngine.chats, call .connect()
-                Object.keys(ChatEngine.chats).forEach(function (key) {
-                    ChatEngine.chats[key].wake();
-                });
-
-                ChatEngine.subscribeToPubNub();
-            });
-        } else {
+            // for every chat in ChatEngine.chats, call .connect()
             Object.keys(ChatEngine.chats).forEach(function (key) {
                 ChatEngine.chats[key].wake();
             });
 
             ChatEngine.subscribeToPubNub();
-        }
+        });
     };
 
     /**
     @private
     */
-    ChatEngine.setAuth = function (authKey) {
+    ChatEngine.setAuth = function () {
+        var authKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : PubNub.generateUUID();
 
-        authKey = authKey || PubNub.generateUUID();
 
         ChatEngine.pnConfig.authKey = authKey;
         ChatEngine.pubnub.setAuthKey(authKey);
@@ -2801,9 +2773,9 @@ module.exports = function () {
      *     // we are connected again
      * });
      */
-    ChatEngine.reauthorize = function (authKey) {
+    ChatEngine.reauthorize = function () {
+        var authKey = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : PubNub.generateUUID();
 
-        authKey = authKey || PubNub.generateUUID();
 
         ChatEngine.global.once('$.disconnected', function () {
 
@@ -2818,29 +2790,23 @@ module.exports = function () {
      * Connect to realtime service and create instance of {@link Me}
      * @method ChatEngine#connect
      * @param {String} uuid A unique string for {@link Me}. It can be a device id, username, user id, email, etc. Must be alphanumeric.
-     * @param {Object} [state={}] An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
+     * @param {Object} state An object containing information about this client ({@link Me}). This JSON object is sent to all other clients on the network, so no passwords!
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
      * @fires $"."connected
      */
     ChatEngine.connect = function (uuid) {
         var state = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-        var authKey = arguments[2];
+        var authKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : PubNub.generateUUID();
 
-
-        authKey = authKey || PubNub.generateUUID();
 
         // this creates a user known as Me and
         // connects to the global chatroom
         ChatEngine.pnConfig.uuid = uuid;
         ChatEngine.pnConfig.authKey = authKey;
 
-        if (authKey) {
-            ChatEngine.handshake(function () {
-                ChatEngine.firstConnect(state);
-            });
-        } else {
+        ChatEngine.handshake(function () {
             ChatEngine.firstConnect(state);
-        }
+        });
     };
 
     ChatEngine.destroy = function () {
@@ -3811,7 +3777,7 @@ default:e}}(l)},function(e,t,n){"use strict";function r(e){return e&&e.__esModul
 /* 50 */
 /***/ (function(module, exports) {
 
-module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.19","description":"ChatEngine","browser":"dist/chat-engine.js","main":"src/index.js","react-native":"src/index.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-es2015":"^6.24.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
+module.exports = {"author":"PubNub","name":"chat-engine","version":"0.9.18","description":"ChatEngine","browser":"dist/chat-engine.js","main":"src/index.js","react-native":"src/index.js","scripts":{"build":"gulp","deploy":"gulp; npm publish;","docs":"jsdoc src/index.js -c jsdoc.json"},"repository":{"type":"git","url":"git+https://github.com/pubnub/chat-engine.git"},"keywords":["pubnub","chat","sdk","realtime"],"bugs":{"url":"https://github.com/pubnub/chat-engine/issues"},"homepage":"https://github.com/pubnub/chat-engine#readme","devDependencies":{"babel-loader":"^7.1.4","babel-preset-es2015":"^6.24.1","body-parser":"^1.17.2","chai":"^3.5.0","chat-engine-typing-indicator":"0.0.x","decache":"^4.3.0","docdash":"^0.4.0","es6-promise":"^4.1.1","eslint":"^4.7.1","eslint-config-airbnb":"^15.1.0","eslint-plugin-import":"^2.7.0","express":"^4.15.3","gulp":"^3.9.1","gulp-clean":"^0.3.2","gulp-eslint":"^4.0.0","gulp-istanbul":"^1.1.2","gulp-jsdoc3":"^1.0.1","gulp-mocha":"^3.0.1","gulp-rename":"^1.2.2","gulp-surge":"^0.1.0","gulp-uglify":"^2.0.0","gulp-uglify-es":"^0.1.3","http-server":"^0.10.0","isparta":"^4.0.0","jsdoc":"^3.5.5","mocha":"^3.1.2","proxyquire":"^1.8.0","pubnub-functions-mock":"^0.0.13","request":"^2.82.0","run-sequence":"^2.2.0","sinon":"^4.0.0","stats-webpack-plugin":"^0.6.1","surge":"^0.19.0","uglifyjs-webpack-plugin":"^1.0.1","webpack":"^3.6.0","webpack-stream":"^4.0.0"},"dependencies":{"async":"2.1.2","axios":"0.16.2","eventemitter2":"2.2.1","pubnub":"4.20.2"}}
 
 /***/ }),
 /* 51 */
@@ -4570,7 +4536,7 @@ var augmentChat = __webpack_require__(98);
  This is the root {@link Chat} class that represents a chat room
 
  @param {String} [channel=new Date().getTime()] A unique identifier for this chat {@link Chat}. Must be alphanumeric. The channel is the unique name of a {@link Chat}, and is usually something like "The Watercooler", "Support", or "Off Topic". See [PubNub Channels](https://support.pubnub.com/support/solutions/articles/14000045182-what-is-a-channel-).
- @param {Boolean} [isPrivate=false] Attempt to authenticate ourselves before connecting to this {@link Chat}.
+ @param {Boolean} [isPrivate=true] Attempt to authenticate ourselves before connecting to this {@link Chat}.
  @param {Boolean} [autoConnect=true] Connect to this chat as soon as its initiated. If set to ```false```, call the {@link Chat#connect} method to connect to this {@link Chat}.
  @param {Object} [meta={}] Chat metadata that will be persisted on the server and populated on creation.
  @param {String} [group='default'] Groups chat into a "type". This is the key which chats will be grouped into within {@link Me.session} object.
@@ -5176,9 +5142,7 @@ var Chat = function (_Emitter) {
          @param {Object} [config] Our configuration for the PubNub history request. See the [PubNub History](https://www.pubnub.com/docs/web-javascript/storage-and-history) docs for more information on these parameters.
          @param {Event} [config.event] The {@link Event} to search for.
          @param {User} [config.sender] The {@link User} who sent the message.
-         @param {Number} [config.pages=10] The maximum number of history requests which {@link ChatEngine} will do automatically to fulfill `limit` requirement.
          @param {Number} [config.limit=20] The maximum number of results to return that match search criteria. Search will continue operating until it returns this number of results or it reached the end of history. Limit will be ignored in case if both 'start' and 'end' timetokens has been passed in search configuration.
-         @param {Number} [config.count=100] The maximum number of messages which can be fetched with single history request.
          @param {Number} [config.start=0] The timetoken to begin searching between.
          @param {Number} [config.end=0] The timetoken to end searching between.
          @param {Boolean} [config.reverse=false] Search oldest messages first.
@@ -5259,7 +5223,6 @@ var Chat = function (_Emitter) {
 
         /**
          * Ask PubNub for information about {@link User}s in this {@link Chat}.
-         * @private
          */
 
     }, {
@@ -5281,12 +5244,6 @@ var Chat = function (_Emitter) {
         /**
          * Establish authentication with the server, then subscribe with PubNub.
          * @fires Chat#$"."ready
-         * @example
-         * // create a new chatroom, but don't connect to it automatically
-         * let chat = new Chat('some-chat', false, false);
-         *
-         * // connect to the chat when we feel like it
-         * chat.connect();
          */
 
     }, {
@@ -5304,7 +5261,12 @@ var Chat = function (_Emitter) {
 
         /**
          * Connect to PubNub servers to initialize the chat.
-         * @private
+         * @example
+         * // create a new chatroom, but don't connect to it automatically
+         * let chat = new Chat('some-chat', false)
+         *
+         * // connect to the chat when we feel like it
+         * chat.connect();
          */
 
     }, {
@@ -5940,6 +5902,10 @@ var Search = function (_Emitter) {
 
         _this.chatEngine = chatEngine;
 
+        /**
+        Handy property to identify what this class is.
+        @type String
+        */
         _this.name = 'Search';
 
         /**
@@ -6053,10 +6019,6 @@ var Search = function (_Emitter) {
             }
         };
 
-        /**
-         * Continue searching the next batch of pages.
-         * @see $.search.pause
-         */
         _this.next = function () {
 
             if (_this.hasMore) {
@@ -6064,11 +6026,6 @@ var Search = function (_Emitter) {
                 _this.maxPage = _this.maxPage + _this.config.pages;
                 _this.find();
             } else {
-
-                /**
-                 * Search has returned all results or reached the end of history.
-                 * @event Search#$."search"."finish"
-                 */
                 _this._emit('$.search.finish');
             }
         };
@@ -6079,19 +6036,13 @@ var Search = function (_Emitter) {
         _this.find = function () {
             _this.page(function (response) {
                 response.messages.reverse();
-                _this.numPage += 1;
 
                 eachSeries(response.messages, _this.triggerHistory, function () {
 
                     if (_this.hasMore && _this.numPage === _this.maxPage) {
-
-                        /**
-                         * PubNub History has reached the maximum allocated pages and requires user input to continue.
-                         * @see Search#next
-                         * @event Search#$"."search"."pause"
-                         */
                         _this._emit('$.search.pause');
                     } else if (_this.hasMore && (_this.needleCount < _this.config.limit || _this.messagesBetweenTimetokens)) {
+                        _this.numPage += 1;
                         _this.find();
                     } else {
 
@@ -7090,11 +7041,6 @@ var Me = function (_User) {
 
         _this.chatEngine = chatEngine;
 
-        /**
-         * Link sessions between multiple identical instances of ChatEngine. Returns {@link Session} when ```enableSync: true``` supplied to ```ChatEngine.create()```..
-         * @see Session
-         * @type {Boolean}
-         */
         _this.session = false;
 
         _this.name = 'Me';
@@ -7169,18 +7115,6 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var Emitter = __webpack_require__(1);
 
-/**
-Automatically created by supplying ```enableSync: true``` in ```ChatEngineCore.create```.
-Access via {@link Me#session}.
-
-Used to synchronize ChatEngine sessions between desktop and mobile, duplicate windows, etc.
-Sessions are the same when identical instance of {@link ChatEngine} and {@link Me} connects to ChatEngine.
-Should not be created directly.
-@class Session
-@extends Emitter
-@extends RootEmitter
-*/
-
 var Session = function (_Emitter) {
     _inherits(Session, _Emitter);
 
@@ -7200,7 +7134,8 @@ var Session = function (_Emitter) {
         _this.chats = {};
 
         /**
-         * The {@link Chat} that syncs session between instances.
+         * The {@link Chat} that syncs session between instances. Only connects
+         * if "enableSync" has been set to true in ceConfig.
          * @type {this}
          */
         _this.sync = null;
