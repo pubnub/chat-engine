@@ -12,7 +12,6 @@ const httpServer = require('http-server');
 const path = require('path');
 const uglify = require('gulp-uglify-es').default;
 const rename = require('gulp-rename');
-const surge = require('gulp-surge');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
