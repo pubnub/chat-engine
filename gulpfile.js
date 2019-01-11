@@ -66,7 +66,7 @@ gulp.task('lint_tests', [], () => {
 
 gulp.task('itest', () => {
     return gulp.src(integrationTestFiles, { read: false })
-        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(mocha({ reporter: 'spec', timeout: 20000 }))
         .pipe(istanbul.writeReports());
 });
 

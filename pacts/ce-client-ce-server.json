@@ -1,0 +1,164 @@
+{
+  "consumer": {
+    "name": "CE-client"
+  },
+  "provider": {
+    "name": "CE-server"
+  },
+  "interactions": [
+    {
+      "description": "POST bootstrap",
+      "request": {
+        "method": "POST",
+        "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
+        "query": "route=bootstrap",
+        "body": {
+          "uuid": "user1",
+          "global": "chat-engine-demo",
+          "authKey": "auth-key"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        }
+      }
+    },
+    {
+      "description": "POST join",
+      "request": {
+        "method": "POST",
+        "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
+        "query": "route=join"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        }
+      }
+    },
+    {
+      "description": "POST grant",
+      "request": {
+        "method": "POST",
+        "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
+        "query": "route=grant"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        }
+      }
+    },
+    {
+      "description": "POST user_read",
+      "request": {
+        "method": "POST",
+        "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
+        "query": "route=user_read",
+        "body": {
+          "uuid": "user1",
+          "global": "chat-engine-demo",
+          "authKey": "auth-key"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        }
+      }
+    },
+    {
+      "description": "POST user_write",
+      "request": {
+        "method": "POST",
+        "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
+        "query": "route=user_write",
+        "body": {
+          "uuid": "user1",
+          "global": "chat-engine-demo",
+          "authKey": "auth-key"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        }
+      }
+    },
+    {
+      "description": "POST group",
+      "request": {
+        "method": "POST",
+        "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
+        "query": "route=group",
+        "body": {
+          "uuid": "user1",
+          "global": "chat-engine-demo",
+          "authKey": "auth-key"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        }
+      }
+    },
+    {
+      "description": "GET chat",
+      "request": {
+        "method": "GET",
+        "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
+        "query": "route=chat&channel=chat-engine-demo&uuid=user1&global=chat-engine-demo&authKey=auth-key"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        },
+        "body": {
+          "found": true,
+          "chat": {
+            "channel": "chat-engine-demo",
+            "group": "system",
+            "private": false,
+            "meta": {
+            }
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

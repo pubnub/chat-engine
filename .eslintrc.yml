@@ -4,7 +4,9 @@ extends: airbnb/base
 globals:
   describe: true
   it: true
+  before: true
   beforeEach: true
+  after: true
   afterEach: true
   Promise: true
   window: true
