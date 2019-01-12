@@ -333,13 +333,7 @@ describe('Pact', () => {
                         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, PUT, DELETE'
                     },
                     body: {
-                        found: true,
-                        chat: {
-                            channel: 'chat-engine-demo',
-                            group: 'system',
-                            private: false,
-                            meta: {}
-                        }
+                        found: false
                     }
                 }
             };
@@ -356,13 +350,7 @@ describe('Pact', () => {
                 .then((res) => {
                     assert(res.status === 200);
                     assert.deepEqual(res.data, {
-                        found: true,
-                        chat: {
-                            channel: 'chat-engine-demo',
-                            group: 'system',
-                            private: false,
-                            meta: {}
-                        }
+                        found: false
                     });
                     done();
                 });
