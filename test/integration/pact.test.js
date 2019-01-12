@@ -34,7 +34,10 @@ describe('Pact', () => {
                     method: 'POST',
                     path: '/v1/blocks/sub-key/sub-c-key/chat-engine-server',
                     query: 'route=bootstrap',
-                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' }
+                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -61,7 +64,7 @@ describe('Pact', () => {
                 authKey: 'auth-key'
             };
 
-            axios({ method: 'POST', headers: {}, data, url })
+            axios({ method: 'POST', headers: { 'Content-Type': 'application/json' }, data, url })
                 .then((res) => {
                     assert(res.status === 200);
                     done();
@@ -149,7 +152,10 @@ describe('Pact', () => {
                     method: 'POST',
                     path: '/v1/blocks/sub-key/sub-c-key/chat-engine-server',
                     query: 'route=user_read',
-                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' }
+                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -176,7 +182,7 @@ describe('Pact', () => {
                 authKey: 'auth-key'
             };
 
-            axios({ method: 'POST', headers: {}, data, url })
+            axios({ method: 'POST', headers: { 'Content-Type': 'application/json' }, data, url })
                 .then((res) => {
                     assert(res.status === 200);
                     done();
@@ -192,7 +198,10 @@ describe('Pact', () => {
                     method: 'POST',
                     path: '/v1/blocks/sub-key/sub-c-key/chat-engine-server',
                     query: 'route=user_write',
-                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' }
+                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -219,7 +228,7 @@ describe('Pact', () => {
                 authKey: 'auth-key'
             };
 
-            axios({ method: 'POST', headers: {}, data, url })
+            axios({ method: 'POST', headers: { 'Content-Type': 'application/json' }, data, url })
                 .then((res) => {
                     assert(res.status === 200);
                     done();
@@ -235,7 +244,10 @@ describe('Pact', () => {
                     method: 'POST',
                     path: '/v1/blocks/sub-key/sub-c-key/chat-engine-server',
                     query: 'route=group',
-                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' }
+                    body: { uuid: 'user1', global: 'chat-engine-demo', authKey: 'auth-key' },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -262,7 +274,7 @@ describe('Pact', () => {
                 authKey: 'auth-key'
             };
 
-            axios({ method: 'POST', headers: {}, data, url })
+            axios({ method: 'POST', headers: { 'Content-Type': 'application/json' }, data, url })
                 .then((res) => {
                     assert(res.status === 200);
                     done();

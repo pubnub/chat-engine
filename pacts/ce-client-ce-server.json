@@ -12,6 +12,9 @@
         "method": "POST",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
         "query": "route=bootstrap",
+        "headers": {
+          "Content-Type": "application/json"
+        },
         "body": {
           "uuid": "user1",
           "global": "chat-engine-demo",
@@ -68,6 +71,9 @@
         "method": "POST",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
         "query": "route=user_read",
+        "headers": {
+          "Content-Type": "application/json"
+        },
         "body": {
           "uuid": "user1",
           "global": "chat-engine-demo",
@@ -90,6 +96,9 @@
         "method": "POST",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
         "query": "route=user_write",
+        "headers": {
+          "Content-Type": "application/json"
+        },
         "body": {
           "uuid": "user1",
           "global": "chat-engine-demo",
@@ -112,6 +121,9 @@
         "method": "POST",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
         "query": "route=group",
+        "headers": {
+          "Content-Type": "application/json"
+        },
         "body": {
           "uuid": "user1",
           "global": "chat-engine-demo",
