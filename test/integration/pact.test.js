@@ -79,7 +79,16 @@ describe('Pact', () => {
                 withRequest: {
                     method: 'POST',
                     path: '/v1/blocks/sub-key/sub-c-key/chat-engine-server',
-                    query: 'route=join'
+                    query: 'route=join',
+                    body: {
+                        uuid: 'user1',
+                        global: 'chat-engine-demo',
+                        authKey: 'auth-key',
+                        chat: { channel: 'chat-engine-demo', group: 'system', private: false, meta: {} }
+                    },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -100,7 +109,14 @@ describe('Pact', () => {
         it('verify', (done) => {
             const url = `http://localhost:${MOCK_SERVER_PORT}/v1/blocks/sub-key/sub-c-key/chat-engine-server?route=join`;
 
-            axios({ method: 'POST', headers: {}, url })
+            const data = {
+                uuid: 'user1',
+                global: 'chat-engine-demo',
+                authKey: 'auth-key',
+                chat: { channel: 'chat-engine-demo', group: 'system', private: false, meta: {} }
+            };
+
+            axios({ method: 'POST', headers: { 'Content-Type': 'application/json' }, data, url })
                 .then((res) => {
                     assert(res.status === 200);
                     done();
@@ -115,7 +131,16 @@ describe('Pact', () => {
                 withRequest: {
                     method: 'POST',
                     path: '/v1/blocks/sub-key/sub-c-key/chat-engine-server',
-                    query: 'route=grant'
+                    query: 'route=grant',
+                    body: {
+                        uuid: 'user1',
+                        global: 'chat-engine-demo',
+                        authKey: 'auth-key',
+                        chat: { channel: 'chat-engine-demo#user#bat#read.#feed', group: 'system', private: false, meta: {} }
+                    },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 },
                 willRespondWith: {
                     status: 200,
@@ -136,7 +161,14 @@ describe('Pact', () => {
         it('verify', (done) => {
             const url = `http://localhost:${MOCK_SERVER_PORT}/v1/blocks/sub-key/sub-c-key/chat-engine-server?route=grant`;
 
-            axios({ method: 'POST', headers: {}, url })
+            const data = {
+                uuid: 'user1',
+                global: 'chat-engine-demo',
+                authKey: 'auth-key',
+                chat: { channel: 'chat-engine-demo#user#bat#read.#feed', group: 'system', private: false, meta: {} }
+            };
+
+            axios({ method: 'POST', headers: { 'Content-Type': 'application/json' }, data, url })
                 .then((res) => {
                     assert(res.status === 200);
                     done();

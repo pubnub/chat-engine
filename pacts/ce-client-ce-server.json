@@ -36,7 +36,22 @@
       "request": {
         "method": "POST",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
-        "query": "route=join"
+        "query": "route=join",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "uuid": "user1",
+          "global": "chat-engine-demo",
+          "authKey": "auth-key",
+          "chat": {
+            "channel": "chat-engine-demo",
+            "group": "system",
+            "private": false,
+            "meta": {
+            }
+          }
+        }
       },
       "response": {
         "status": 200,
@@ -53,7 +68,22 @@
       "request": {
         "method": "POST",
         "path": "/v1/blocks/sub-key/sub-c-key/chat-engine-server",
-        "query": "route=grant"
+        "query": "route=grant",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "uuid": "user1",
+          "global": "chat-engine-demo",
+          "authKey": "auth-key",
+          "chat": {
+            "channel": "chat-engine-demo#user#bat#read.#feed",
+            "group": "system",
+            "private": false,
+            "meta": {
+            }
+          }
+        }
       },
       "response": {
         "status": 200,
