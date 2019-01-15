@@ -132,8 +132,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         let body = {
             uuid: ChatEngine.pnConfig.uuid,
             global: ceConfig.globalChannel,
-            authKey: ChatEngine.pnConfig.authKey,
-            ttl: ChatEngine.pnConfig.ttl
+            authKey: ChatEngine.pnConfig.authKey
         };
 
         let params = {
