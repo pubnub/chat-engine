@@ -132,8 +132,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
         let body = {
             uuid: ChatEngine.pnConfig.uuid,
             global: ceConfig.globalChannel,
-            authKey: ChatEngine.pnConfig.authKey,
-            ttl: ChatEngine.pnConfig.ttl
+            authKey: ChatEngine.pnConfig.authKey
         };
 
         let params = {
@@ -462,35 +461,23 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * ChatEngine.reconnect();
      *
      */
-    ChatEngine.reconnect = (authKey) => {
+    ChatEngine.reconnect = () => {
 
-        authKey = authKey || PubNub.generateUUID();
-
-        if (authKey) {
-            // do the whole auth flow with the new authKey
-            ChatEngine.handshake(() => {
-                // for every chat in ChatEngine.chats, call .connect()
-                Object.keys(ChatEngine.chats).forEach((key) => {
-                    ChatEngine.chats[key].wake();
-                });
-
-                ChatEngine.subscribeToPubNub();
-            });
-        } else {
+        // do the whole auth flow with the new authKey
+        ChatEngine.handshake(() => {
+            // for every chat in ChatEngine.chats, call .connect()
             Object.keys(ChatEngine.chats).forEach((key) => {
                 ChatEngine.chats[key].wake();
             });
 
             ChatEngine.subscribeToPubNub();
-        }
+        });
     };
 
     /**
     @private
     */
-    ChatEngine.setAuth = (authKey) => {
-
-        authKey = authKey || PubNub.generateUUID();
+    ChatEngine.setAuth = (authKey = PubNub.generateUUID()) => {
 
         ChatEngine.pnConfig.authKey = authKey;
         ChatEngine.pubnub.setAuthKey(authKey);
@@ -518,9 +505,7 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      *     // we are connected again
      * });
      */
-    ChatEngine.reauthorize = (authKey) => {
-
-        authKey = authKey || PubNub.generateUUID();
+    ChatEngine.reauthorize = (authKey = PubNub.generateUUID()) => {
 
         ChatEngine.global.once('$.disconnected', () => {
 
@@ -541,22 +526,17 @@ module.exports = (ceConfig = {}, pnConfig = {}) => {
      * @param {String} [authKey] A authentication secret. Will be sent to authentication backend for validation. This is usually an access token. See {@tutorial auth} for more.
      * @fires $"."connected
      */
-    ChatEngine.connect = (uuid, state = {}, authKey) => {
-
-        authKey = authKey || PubNub.generateUUID();
+    ChatEngine.connect = (uuid, state = {}, authKey = PubNub.generateUUID()) => {
 
         // this creates a user known as Me and
         // connects to the global chatroom
         ChatEngine.pnConfig.uuid = uuid;
         ChatEngine.pnConfig.authKey = authKey;
 
-        if (authKey) {
-            ChatEngine.handshake(() => {
-                ChatEngine.firstConnect(state);
-            });
-        } else {
+        ChatEngine.handshake(() => {
             ChatEngine.firstConnect(state);
-        }
+        });
+
     };
 
     ChatEngine.destroy = () => {
