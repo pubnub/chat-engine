@@ -6,6 +6,85 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
+- version: v.0.9.20
+    date: 2019-1-24
+    changes:
+      - type: Improvement
+        text: Client changes to make event-status work.
+      - type: Improvement
+        text: NPM audit to resolve vulnerabilities. Updates to gulp4, mocha, etc.
+      - type: Bug-fix
+        text: Remove faulty 'authKey' reuse logic.
+      - type: Improvement
+        text: Added ```'exit': true``` flag to stop hanging connections in mocha tests.
+      - type: Bug-fix
+        text: Remove spurious ttl from ```ce.request()```.
+      - type: Documentation
+        text: Update and fix typo in authentication.md.
+      - type: Documentation
+        text: Update pubSubApi.md.
+      -	type: Documentation
+        text: Update advancedSecurity.md.
+      -	type: Documentation
+        text: Update thirdPartyAuth.md.
+      -	type: Documentation
+        text: Update connectGlobal.md.
+      -	type: Documentation
+        text: Update connectMe.md and capitalization.
+      -	type: Documentation
+        text: Update errors.md.
+      -	type: Documentation
+        text: Update namespaces.md, clarify language, and correct tense.
+      -	type: Documentation
+        text: Update integrateWithSdks.md.
+      -	type: Documentation
+        text: Update directChannel.md.
+      -	type: Documentation
+        text: Update privateChannel.md.
+      -	type: Documentation
+        text: Update pubnubChannelTopology.md.
+      -	type: Documentation
+        text: Update templating.md.
+      -	type: Documentation
+        text: Update wildcards.md, and more accurate wording.
+      -	type: Documentation
+        text: Fix typo pubSubApi, and update pubSubApi.md.
+      -	type: Documentation
+        text: Port remaining adv concepts sections and add back error section.
+      -	type: Documentation
+        text: Added advanced concepts section. Add docs to gitignore. Delete docs/ dir.
+      - type: Documentation
+        text: Clean up generated js_doc outline to mirror website.
+      - type: Documentation
+        text: Update guide/advancedConcepts/buildAPlugin/buildAPlugin.md.
+      - type: Documentation
+        text: Improve Chat wording.
+      - type: Documentation
+        text: Ported skeleton of new docs format. Added: security,chat room, advanced security docs.
+      - type: Documentation
+        text: Advanced topics in these areas moved to new advanced concepts section.
+      - type: Documentation
+        text: Updates to all docs pages with markdown additions, markdown formatting, and spelling corrections
+      - type: Documentation
+        text: Added plugins dedicated page.
+      - type: Documentation
+        text: Fix read/write permissions for direct/feed chats.
+      - type: Documentation
+        text: Render nested tutorials.
+      - type: Documentation
+        text: Expose event class.
+      - type: Documentation
+        text: Migrate encryption, authorization.
+      - type: Bug-fix
+        text: Fix authKey undefined bug.
+      - type: Improvement
+        text: Allow to reuse authKey when this is not set [Eventually reverted. See above.].
+      - type: Documentation
+        text: Fixed role of 'pages' in iterative search with configured 'limit'. Added docs for two existing search configuration options.
+      - type: Improvement
+        text: Disable mangle in gulp task. Patch to attempt to pass tests.
+      - type: Improvement
+        text: Add a test to emit to a chat that we are not connected to. Emit to chat without connecting to it first. Revert dist.
   - version: v0.9.18
     date: 2018-7-16
     changes:
