@@ -1,0 +1,195 @@
+{
+  "consumer": {
+    "name": "CE-client"
+  },
+  "provider": {
+    "name": "PUBSUB-server"
+  },
+  "interactions": [
+    {
+      "description": "GET publish",
+      "request": {
+        "method": "GET",
+        "path": "/publish/pub-c-key/sub-c-key/0/chat-engine-demo%23chat%23public.%23chat/0/%7B%22data%22%3A%7B%22text%22%3A%22hello%22%7D%2C%22sender%22%3A%22user1%22%2C%22event%22%3A%22message%22%2C%22chatengineSDK%22%3A%220.9.19%22%7D",
+        "query": "store=1&uuid=user1&pnsdk=PubNub-JS-Web%2F4.20.2&auth=auth-key"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        }
+      }
+    },
+    {
+      "description": "GET here now",
+      "request": {
+        "method": "GET",
+        "path": "/v2/presence/sub-key/sub-c-key/channel/chat-engine-demo%23chat%23public.%23chat",
+        "query": "state=1&uuid=user1&pnsdk=PubNub-JS-Web%2F4.20.2&auth=auth-key"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        },
+        "body": {
+          "status": 200,
+          "message": "OK",
+          "occupancy": 2,
+          "uuids": [
+            {
+              "uuid": "user1"
+            },
+            {
+              "uuid": "user2"
+            }
+          ],
+          "service": "Presence"
+        }
+      }
+    },
+    {
+      "description": "GET subscribe",
+      "request": {
+        "method": "GET",
+        "path": "/v2/subscribe/sub-c-bfaaf6f8-da0e-11e8-befe-22cc51e2fc9c/%2C/0",
+        "query": "heartbeat=300&channel-group=chat-engine-demo%23bat%23rooms%2Cchat-engine-demo%23user1%23system%2Cchat-engine-demo%23user1%23custom%2Cchat-engine-demo%23user1%23rooms-pnpres%2Cchat-engine-demo%23user1%23system-pnpres%2Cchat-engine-demo%23user1%23custom-pnpres&&tt=15483650228517674&tr=2&uuid=user1&pnsdk=PubNub-JS-Web%2F4.20.2&auth=auth-key"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        },
+        "body": {
+          "t": {
+            "t": "15483650229757386",
+            "r": 2
+          },
+          "m": [
+            {
+              "a": "3",
+              "f": 0,
+              "i": "user2",
+              "p": {
+                "t": "15483650229791065",
+                "r": 2
+              },
+              "k": "sub-c-key",
+              "c": "chat-engine-demo#chat#public.#chat",
+              "d": {
+                "sender": "user2",
+                "event": "$typingIndicator.stopTyping",
+                "chatengineSDK": "0.9.19"
+              },
+              "b": "chat-engine-demo#user1#custom"
+            },
+            {
+              "a": "3",
+              "f": 0,
+              "i": "user2",
+              "p": {
+                "t": "15483650229732509",
+                "r": 2
+              },
+              "k": "sub-c-bfaaf6f8-da0e-11e8-befe-22cc51e2fc9c",
+              "c": "chat-engine-demo#chat#public.#chat",
+              "d": {
+                "data": {
+                  "text": "test message"
+                },
+                "sender": "user2",
+                "event": "message",
+                "chatengineSDK": "0.9.19"
+              },
+              "b": "chat-engine-angular2-simple#user1#custom"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "GET presence",
+      "request": {
+        "method": "GET",
+        "path": "/v2/subscribe/sub-c-key/%2C/0",
+        "query": "heartbeat=300&channel-group=chat-engine-demo%23user2%23rooms%2Cchat-engine-demo%23user2%23system%2Cchat-engine-demo%23user2%23custom%2Cchat-engine-demo%23user2%23rooms-pnpres%2Cchat-engine-demo%23user2%23system-pnpres%2Cchat-engine-demo%23user2%23custom-pnpres&tt=15485145022049956&tr=2&uuid=user2&pnsdk=PubNub-JS-Web%2F4.20.2&auth=auth-key"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        },
+        "body": {
+          "t": {
+            "t": "15485145047631864",
+            "r": 2
+          },
+          "m": [
+            {
+              "a": "3",
+              "f": 0,
+              "p": {
+                "t": "15485145047329573",
+                "r": 1
+              },
+              "k": "sub-c-key",
+              "c": "chat-engine-demo#user#user2#write.#direct-pnpres",
+              "d": {
+                "action": "join",
+                "uuid": "user2",
+                "timestamp": 1548514504,
+                "occupancy": 1
+              },
+              "b": "chat-engine-demo#user2#system-pnpres"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "GET history",
+      "request": {
+        "method": "GET",
+        "path": "/v1/channel-registration/sub-key/sub-c-key/channel-group/chat-engine-demo%23user1%23custom",
+        "query": "uuid=user1&pnsdk=PubNub-JS-Web%2F4.20.2&auth=auth-key"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE"
+        },
+        "body": {
+          "status": 200,
+          "payload": {
+            "channels": [
+
+            ],
+            "group": "chat-engine-demo#user1#custom"
+          },
+          "service": "channel-registry",
+          "error": false
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
