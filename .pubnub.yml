@@ -1,5 +1,5 @@
 name: chat-engine
-version: 0.9.18
+version: 0.9.20
 schema: 1
 scm: github.com/pubnub/chat-engine
 files:
@@ -7,7 +7,7 @@ files:
   - dist/chat-engine.min.js
 changelog:
 - version: v.0.9.20
-    date: 2019-1-24
+    date: 2019-1-31
     changes:
       - type: Improvement
         text: Client changes to make event-status work.
