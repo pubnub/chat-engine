@@ -6,6 +6,17 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
+- version: v.0.9.20
+    date: 2019-1-24
+    changes:
+      - type: Improvement
+        text: Client changes to make event-status work.
+      - type: Improvement
+        text: Dependency updates to resolve vulnerabilities. Updates to gulp4, mocha, etc.
+      - type: Documentation
+        text: Made large docs improvements and updates.
+      - type: Improvement
+        text: Add a test to emit to a chat that we are not connected to. Emit to chat without connecting to it first. Revert dist.
   - version: v0.9.18
     date: 2018-7-16
     changes:
