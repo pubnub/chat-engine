@@ -1,12 +1,12 @@
 name: chat-engine
-version: 0.9.20
+version: 0.9.21
 schema: 1
 scm: github.com/pubnub/chat-engine
 files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
-- version: v.0.9.20
+- version: v.0.9.21
     date: 2019-1-31
     changes:
       - type: Improvement
