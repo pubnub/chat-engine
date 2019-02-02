@@ -6,7 +6,7 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
-- version: v.0.9.21
+  - version: v.0.9.21
     date: 2019-1-31
     changes:
       - type: Improvement
@@ -91,7 +91,7 @@ changelog:
       - type: improvement
         text: set auth key as unique token by default
       - type: bug
-        text: - to =
+        text: "- to ="
       - type: improvement
         text: throw and error if you have never connected to the chat before calling $.history
       - type: improvement
