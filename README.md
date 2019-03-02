@@ -223,3 +223,7 @@ You can find the scripts for the [PubNub Automagic Setup](https://www.pubnub.com
 ```
 npm version patch && git push origin master --tags
 ```
+
+## Support
+
+- If you **need help**, have a **general question** a **feature request** or to file a **bug**, contact <support@pubnub.com>
