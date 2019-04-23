@@ -1,5 +1,10 @@
 language: node_js
 sudo: false
+# Build all branches, *including* gh-pages:
+branches:
+  only:
+  - gh-pages
+  - /.*/
 node_js:
 - '6'
 - '7'
