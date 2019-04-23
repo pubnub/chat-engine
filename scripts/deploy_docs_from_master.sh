@@ -15,10 +15,10 @@ function uploadToGithubPagesRepo() {
 }
 
 ## RUN
+gulp compile_docs
 if [ "${TRAVIS_BRANCH}" == "master" ] \
   && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
     # Build the JS_DOCs into docs/ dir
-    gulp compile_docs
     pushd docs
     uploadToGithubPagesRepo()
     popd
