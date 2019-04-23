@@ -2,8 +2,6 @@
 set -e
 set -x
 
-# Build the JS_DOCs into docs/ dir
-
 function uploadToGithubPagesRepo() {
   git init
   git add .
