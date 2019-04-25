@@ -17,6 +17,7 @@ function cloneGitRepo() {
   if [ REPO_TO_CLONE != "" ]; then
     git clone "https://${GH_TOKEN_PUBLISH_DOCS}@github.com/pubnub/${REPO_TO_CLONE}.git"
   fi
+  return
 }
 
 function cloneAllRepos() {
@@ -37,6 +38,9 @@ function cloneAllRepos() {
 
   ls | grep chat-engine*
   popd
+  pwd
+  ls
+  return
 }
 
 ## RUN
