@@ -24,9 +24,6 @@ function uploadToGithubPagesRepo() {
 }
 
 function cloneGitRepo() {
-  git config user.name "${GH_USER_NAME}"
-  git config user.email "${GH_USER_EMAIL}"
-
   REPO_TO_CLONE="${1}"
   if [ REPO_TO_CLONE != "" ]; then
     git clone "https://${GH_TOKEN_PUBLISH_DOCS}@github.com/pubnub/${REPO_TO_CLONE}.git"
@@ -34,6 +31,8 @@ function cloneGitRepo() {
 }
 
 function cloneAllRepos() {
+  git config user.name "${GH_USER_NAME}"
+  git config user.email "${GH_USER_EMAIL}"
   pwd
   pushd ../
   for i in ${CE_GH_REPOS};
