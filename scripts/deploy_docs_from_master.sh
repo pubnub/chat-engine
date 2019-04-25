@@ -2,17 +2,6 @@
 set -e
 set -x
 
-declare -a CE_GH_REPOS=("chat-engine-emoji"
-  "chat-engine-gravatar"
-  "chat-engine-markdown"
-  "chat-engine-muter"
-  "chat-engine-online-user-search"
-  "chat-engine-open-graph"
-  "chat-engine-uploadcare"
-  "chat-engine-typing-indicator"
-  "chat-engine-unread-messages")
-
-
 function uploadToGithubPagesRepo() {
   git init
   git add .
@@ -35,10 +24,17 @@ function cloneAllRepos() {
   git config user.email "${GH_USER_EMAIL}"
   pwd
   pushd ../
-  for i in ${CE_GH_REPOS};
-  do
-    cloneGitRepo "${i}"
-  done
+
+  cloneGitRepo "chat-engine-emoji"
+  cloneGitRepo "chat-engine-gravatar"
+  cloneGitRepo "chat-engine-markdown"
+  cloneGitRepo "chat-engine-muter"
+  cloneGitRepo "chat-engine-online-user-search"
+  cloneGitRepo "chat-engine-open-graph"
+  cloneGitRepo "chat-engine-uploadcare"
+  cloneGitRepo "chat-engine-typing-indicator"
+  cloneGitRepo "chat-engine-unread-messages"
+
   ls | grep chat-engine*
   popd
 }
