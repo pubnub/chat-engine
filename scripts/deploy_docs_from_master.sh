@@ -36,7 +36,7 @@ function cloneAllRepos() {
   cloneGitRepo "chat-engine-typing-indicator"
   cloneGitRepo "chat-engine-unread-messages"
 
-  ls | grep chat-engine*
+  ls | grep "chat-engine" || true
   popd
   pwd
   ls
@@ -45,6 +45,7 @@ function cloneAllRepos() {
 
 ## RUN
 cloneAllRepos
+echo "compiling js_docs with plugin assets..."
 gulp compile_docs
 if [ "${TRAVIS_BRANCH}" == "master" ] \
   && [ "${TRAVIS_PULL_REQUEST}" == "false" ]; then
