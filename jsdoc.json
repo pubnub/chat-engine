@@ -23,7 +23,9 @@
         "default": {
             "includeDate": false,
             "staticFiles": {
-                "include": ["./guide/static"]
+                "include": [
+                  "./guide/static"
+                ]
             }
         }
     }
