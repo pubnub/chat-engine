@@ -6,7 +6,7 @@ files:
   - dist/chat-engine.js
   - dist/chat-engine.min.js
 changelog:
-- version: v.0.9.21
+  - version: v.0.9.21
     date: 2019-1-31
     changes:
       - type: Improvement
