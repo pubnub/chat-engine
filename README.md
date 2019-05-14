@@ -1,8 +1,8 @@
 ![](images/logo.png)
 
-PubNub ChatEngine is an object oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
+PubNub ChatEngine is an object-oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring, and message history out of the box.
 
-The real time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
+The real-time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
 
 [![](https://data.jsdelivr.com/v1/package/npm/chat-engine/badge)](https://www.jsdelivr.com/package/npm/chat-engine)
 [![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
@@ -31,13 +31,13 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 
 * [Me](https://www.pubnub.com/docs/chat-engine/me) - It's you dummy. The user that represents the current application.
 * [Users and State](https://www.pubnub.com/docs/chat-engine/users-and-state) - Explains how to interact with other users using ChatEngine and get additional information about them.
-* [Chats](https://www.pubnub.com/docs/chat-engine/chats) - ChatEngine's bread and butter. These are isolated rooms that users can talk to each other in.
+* [Chats](https://www.pubnub.com/docs/chat-engine/chats) - ChatEngine's bread and butter. These are isolated rooms that users can talk to each other.
 * [Events](https://www.pubnub.com/docs/chat-engine/events) - Events are things that happen in a chat. Like ```message``` or ```image_upload``` for example.
 * [Event Payload](https://www.pubnub.com/docs/chat-engine/event-payload) - The data that comes with an event. Includes things like who sent the event and what chat it was sent to.
-* [Namespaces](https://www.pubnub.com/docs/chat-engine/namespaces) - ChatEngine has a lot of events, so we use name spacing to isolate them.
+* [Namespaces](https://www.pubnub.com/docs/chat-engine/namespaces) - ChatEngine has a lot of events, so we use namespacing to isolate them.
 * [Wildcards](https://www.pubnub.com/docs/chat-engine/wildcards) - Get all the events of a single namespace, like $.online.* to get all types of online events.
 * [Search](https://www.pubnub.com/docs/chat-engine/search) - Retrieve old events that happened in the past. Usually done when your application boots up to show what happened before.
-* [Global Chat](https://www.pubnub.com/docs/chat-engine/global-chat) - The chat that all users connect to. It's used for state management and application wide events.
+* [Global Chat](https://www.pubnub.com/docs/chat-engine/global-chat) - The chat that all users connect to. It's used for state management and application-wide events.
 * [Online List](https://www.pubnub.com/docs/chat-engine/online-list) - Get all the users online in the chat room.
 * [Authentication](https://www.pubnub.com/docs/chat-engine/authentication) - How to use auth keys to identify your users and protect access to channels.
 * [Privacy](https://www.pubnub.com/docs/chat-engine/privacy) - Every user has a special feed chat that only they can publish to, and a direct chat that nobody else can read from. Outlines other ways of handling permissions as well.
@@ -45,7 +45,7 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 * [Templating](https://www.pubnub.com/docs/chat-engine/templating) - How ChatEngine works with other frameworks like React, Angular, jQuery, and plain ol' Javascript.
 * [Errors](https://www.pubnub.com/docs/chat-engine/errors) - Sometimes things don't go as planned, here's how you can catch errors gracefully.
 * [Debugging](https://github.com/pubnub/chat-engine/blob/master/guide/concepts/events/debugging.md) - How to use the built-in utilities for logging events and network requests.
-* [Plugins](https://www.pubnub.com/docs/chat-engine/plugins) - Drop in extra functionality, like emojii or typing indicators with plugins.
+* [Plugins](https://www.pubnub.com/docs/chat-engine/plugins) - Drop in extra functionality, like emoji or typing indicators with plugins.
 * [Building a Plugin](https://www.pubnub.com/docs/chat-engine/build-a-plugin) - If what you need doesn't exist, it's easy to build yourself. Share it with us!
 * [PubNub Functions](https://www.pubnub.com/docs/chat-engine/pubnub-functions) - ChatEngine uses PubNub functions as a server component and details about that can be found here.
 * [PubNub Channel Topology](https://www.pubnub.com/docs/chat-engine/pubnub-channel-topology) - Describes what PubNub channels ChatEngine is using under the hood.
@@ -77,11 +77,11 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 ## Angular
 
 * [Angular Simple](https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple) - Angular "Hello World" app. Simple app that uses a custom Angular plugin to render when anything updates.
-* [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron) - The largest demo app out there, almost a complete Desktop Team Chat clone (Slack, Stride, Flowdock). Persistent URLS and renders into a real desktop app with Electron!
+* [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron) - The largest demo app out there, almost a complete Desktop Team Chat clone (Slack, Stride, Flowdock). Persistent URLs and renders into a real desktop app with Electron!
 
 ## jQuery
 
-* [jQuery Simple](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple) - jQuery ChatEngine "Hello World" app. Simple app where everyone chats together.
+* [jQuery Simple](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple) - jQuery ChatEngine "Hello World" app. A simple app where everyone chats together.
 * [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink) - Huge example that uses most ChatEngine features. Has an online list that spawns new chats when you click on usernames.
 
 ## 3rd Party Authentication
@@ -109,7 +109,7 @@ Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-exampl
 
 <img src="images/upload.gif" width="600" />
 
-Uses UploadCare service to uplaod images and render them in chats. [Example](https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/).
+Uses UploadCare service to upload images and render them in chats. [Example](https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/).
 
 ## [Markdown Support](https://github.com/pubnub/chat-engine-markdown)
 
@@ -147,7 +147,7 @@ Uses HTML5 Notification API to send "toaster" updates.
 
 ## [Emoji Support](https://github.com/pubnub/chat-engine-emoji)
 
-Uses images as fallback for devices that might not yet support :poop:.
+Uses images as a fallback for devices that might not yet support :poop:.
 
 ## [Event Status and Read Receipts](https://github.com/pubnub/chat-engine-event-status)
 
@@ -159,7 +159,7 @@ Uses Gravatar service to create an avatar based on user state information.
 
 ## [Random Usernames](https://github.com/pubnub/chat-engine-random-username)
 
-A plugin that gives every use a random username combining a color and an animal.
+A plugin that gives every user a random username combining color and an animal.
 
 # Development
 
@@ -178,7 +178,7 @@ chat-engine-examples
 //...
 ```
 
-## Setting up environment
+## Setting up the environment
 
 ```
 nvm use v6

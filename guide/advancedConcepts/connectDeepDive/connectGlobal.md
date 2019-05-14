@@ -1,8 +1,8 @@
 ## Connect ChatEngine.Global
 
-When a {@link User| ```user``` } initializes ChatEngine, the client first tries to  perform a connection handshake. A series of four ```ChatEngine.request()```s are made in order to connect the ```User``` to the default set of ChatEngine channels. These channels are generated based on the ```ChatEngine.global```  and the ```User```'s {@link User#uuid| ```uuid``` } strings.
+When a {@link User| ```user``` } initializes ChatEngine, the client first tries to perform a connection handshake. A series of four ```ChatEngine.request()```s are made in order to connect the ```User``` to the default set of ChatEngine channels. These channels are generated based on the ```ChatEngine.global```  and the ```User```'s {@link User#uuid| ```uuid``` } strings.
 
-Each request made to the PubNub ChatEngine Function controller sets up ACLs for either the ```channels``` or ```channelGroups``` array. Granting either read and / or write access to an array of ```channels```. Effectively, these requests make up basic ChatEngine user authorization.
+Each request made to the PubNub ChatEngine Function controller sets up ACLs for either the ```channels``` or ```channelGroups``` array. Granting either read and/or write access to an array of ```channels```. Effectively, these requests make up basic ChatEngine user authorization.
 
 | HTTP method | controller\* |  read | write | channels| channelGroups| authKeys | ttl [sec]|
 |:-----------:|:----------:|:--------:|:----:|:-----|:-----|:-----:|:-------:|

@@ -3,12 +3,12 @@ The following guide shows ChatEngine developers how to setup 3rd party authentic
 
 > 1. ChatEngine client inputs login credentials to 3rd party authenticator
 > 2. 3rd party returns authKey upon successful authentication
-> 3. ChatEngine server receives authKey and grants/authorizes user access to appropriate ChatEngine channels (for time specified by authTTL) via [PAM](https://www.pubnub.com/docs/pubnub-rest-api-documentation#pubnub-access-manager-pam).
+> 3. ChatEngine server receives authKey and grants/authorizes user access to appropriate ChatEngine channels (for the time specified by authTTL) via [PAM](https://www.pubnub.com/docs/pubnub-rest-api-documentation#pubnub-access-manager-pam).
 
 
 # How ChatEngine 3rd Party Authentication Works
 
-This guide explains how to setup 3rd authentication within the ChatEngine platform. Its important to note that the following security pattern is not restricted to using the Facebook Login App service:  it can be used in conjunction with substantially any third-party authentication service.
+This guide explains how to setup 3rd authentication within the ChatEngine platform. It is important to note that the following security pattern is not restricted to using the Facebook Login App service:  it can be used in conjunction with substantially any third-party authentication service.
 
 ### Login flow to 3rd Party Provider via ChatEngine (e.g. FB Login App):
 
@@ -20,7 +20,7 @@ This guide explains how to setup 3rd authentication within the ChatEngine platfo
 
 ## JS SDK connects to servers with a Facebook uuid and authToken
 
-The Facebook JS SDK provides a method to login (and a GUI element too!). When Facebook tells us we're logged in, we boot ChatEngine with the authentication information that get from Facebook. This includes a user object, an id, and the Facebook Access Token.
+The Facebook JS SDK provides a method to login (and a GUI element too!). When Facebook tells us we're logged in, we boot ChatEngine with the authentication information that gets from Facebook. This includes a user object, an id, and the Facebook Access Token.
 
 Check out the docs for [Facebook Access Tokens](https://developers.facebook.com/docs/facebook-login/access-tokens#usertokens) and the properties for [ChatEngine.connect()](https://www.pubnub.com/docs/chat-engine/reference/chatengine#connect).
 
@@ -44,7 +44,7 @@ The Gateway Function returns "allow" ```true``` or ```false``` depending on the 
 
 As soon as ChatEngine connect is called, it makes a request to ```/login```. This is the only open route in our authorization policy.
 
-The login route should take the user's information and return a successful response if it is valid. The Gateway function will then store this information in it's own cache, so that 3rd party servers do not have to be contacted in the future.
+The login route should take the user's information and return a successful response if it is valid. The Gateway function will then store this information in its own cache so that 3rd party servers do not have to be contacted in the future.
 
 In this example, notice how login needs to ```validateFBToken```. See below for what that does.
 
@@ -56,7 +56,7 @@ All the information from the original request is available in the policy gateway
 
 This function validates the supplied uuid and authToken to grant the user access to ChatEngine. It uses the xhr module to call Facebook's debug endpoint and validate that the user token is legitimate and that it matches who the user claims to be.
 
-## The Server executes the business logic on good response from gateway
+## The Server executes the business logic on a good response from the gateway
 
 If the token is valid on /login, the Server Function stores the ```authKey``` in the db keyed by ```uuid```. This acts as a session cache, allowing us to validate the authToken ourselves in future requests; preventing us from hitting Facebook's servers every time we need to check if the user is valid (which is every time).
 
