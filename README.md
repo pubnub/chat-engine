@@ -189,6 +189,6 @@ gulp test
 npm version patch && git push origin master --tags
 ```
 
-## Support
+# Support
 
 - If you **need help**, have a **general question** a **feature request** or to file a **bug**, contact <support@pubnub.com>
