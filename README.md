@@ -5,9 +5,12 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
 
-PubNub ChatEngine is an object oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
+PubNub ChatEngine is an object-oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
 
 The real-time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
+
+For more information on building chat applications with PubNub, see our 
+[Chat Resource Center](http://www.pubnub.com/developers/chat-resource-center/).
 
 # Documentation
 
@@ -21,17 +24,19 @@ You can find the full docs on [the documentation website](https://pubnub.github.
 * Twitter Bootstrap
 * jQuery
 
-## PubNub Account Setup
+## PubNub Account Set Up
 
-To setup ChatEngine on PubNub, one must first setup a PubNub Key. The following steps outlines how to manually setup a PubNub Key to work with ChatEngine client-side SDKs.
+To set up ChatEngine on PubNub, one must first set up a PubNub Key. The following steps outlines how to manually set up a PubNub Key to work with ChatEngine client-side SDKs.
 
 ### Sign Up for a PubNub Account
 If you don't already have an account, you can create one for free [here](https://dashboard.pubnub.com/).
 
-### Setup the REST API Service using PubNub Functions
-The ChatEngine framework and client-side SDKs interact with a REST API service that runs on PubNub Functions. You'll need tp setup the function on your PubNub Account before you can use the SDKs.
+### Set Up the REST API Service using PubNub Functions
+The ChatEngine framework and client-side SDKs interact with a REST API service that runs as a PubNub Function. 
 
-Follow the instructions in the [link here](https://github.com/pubnub/chat-engine-server) to setup the ChatEngine server.
+*You'll need to set up the function on your PubNub Account before you can use the SDKs.*
+
+[Follow the ChatEngine Server Setup Instructions](https://github.com/pubnub/chat-engine-server).
 
 ## Download Code
 
@@ -148,20 +153,20 @@ chat-engine-examples
 //...
 ```
 
-## Setting up the environment
+## Setting up the Environment
 
 ```
 nvm use v6
 ```
 
-run ```http-server``` from my ```/development``` directory which has all chat-engine repos:
+Run ```http-server``` from my ```/development``` directory which has all chat-engine repos:
 
 
 ```cd chat-engine```
 
 ```node server.js```
 
-load http://localhost:8080 in browser and navigate to /chat-engine-examples/jquery/kitchen-sink
+Load http://localhost:8080 in browser and navigate to /chat-engine-examples/jquery/kitchen-sink
 
 ## Compiling
 
@@ -191,4 +196,4 @@ npm version patch && git push origin master --tags
 
 # Support
 
-- If you **need help**, have a **general question** a **feature request** or to file a **bug**, contact <support@pubnub.com>
+- If you **need help**, have a **general question**, have a **feature request** or to file a **bug**, contact <support@pubnub.com>
