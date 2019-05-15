@@ -3,7 +3,7 @@ A plugin allows developers to add nearly any functionality to ChatEngine. This f
 ## Plugin Anatomy
 A plugin is a NodeJS module that exports a mixin-like object that augments ChatEngine objects. This effectively hooks into the events ChatEngine creates and allows the developer to do anything before or after an {@link Event| ```Event``` } happens.
 
-The plugin entry must be a file called ```plugin.js``` in the root directory. From this file you can require any other file as normal, but the entry must be ```plugin.js``` Every plugin must return an object containing the property ```namespace``` and ```middleware``` or ```extends```. One use case would be to modify ChatEngine objects and add new methods to them. For example, this plugin adds a method called ```newMethod()``` to the {@link Chat| ```Chat``` } class.
+The plugin entry must be a file called ```plugin.js``` in the root directory. From this file, you can require any other file as normal, but the entry must be ```plugin.js``` Every plugin must return an object containing the property ```namespace``` and ```middleware``` or ```extends```. One use case would be to modify ChatEngine objects and add new methods to them. For example, this plugin adds a method called ```newMethod()``` to the {@link Chat| ```Chat``` } class.
 
 ```js
 // newmethod/plugin.js
