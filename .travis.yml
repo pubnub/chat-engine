@@ -1,5 +1,10 @@
 language: node_js
 sudo: false
+# Build all branches, *including* gh-pages:
+branches:
+  only:
+  - gh-pages
+  - /.*/
 node_js:
 - '6'
 - '7'
@@ -10,3 +15,4 @@ script:
 after_success:
 - npm install codecov codacy-coverage
 - cat ./coverage/lcov.info | node_modules/.bin/codacy-coverage
+- ./scripts/deploy_docs_from_master.sh

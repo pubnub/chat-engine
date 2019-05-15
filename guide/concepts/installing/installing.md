@@ -1,4 +1,4 @@
-### CDN:
+# CDN:
 
 To get started using the CDN version of ChatEngine, include a reference to the minified javascript package in your HTML file.
 

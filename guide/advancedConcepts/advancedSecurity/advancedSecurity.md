@@ -1,15 +1,15 @@
 ## Basics
 
-Currently ChatEngine leverages two internal PubNub services to handle _granting_ and _revoking_ user access control lists (ACLs) across the various chat channels assigned to CE users.
+Currently, ChatEngine leverages two internal PubNub services to handle _granting_ and _revoking_ user access control lists (ACLs) across the various chat channels assigned to CE users.
 
 1. PubNub [Functions](https://www.pubnub.com/tutorials/pubnub-functions/) (microservice).
 2. PubNub Access Monitor ([PAM](https://www.pubnub.com/tutorials/pubnub-access-manager/)).
 
-In short, the communication follows this pattern:
+In short, communication follows this pattern:
 
 1. ChatEngine Client code sends a series of RESTful HTTP calls to a PubNub On Request Function (i.e. a microservice running the ChatEngine backend).
 2. ChatEngine first tries to connect to default chat channels generated from ```ChatEngine.global```. The PubNub ChatEngine Function receives a request and makes subsequent ```grant``` calls to PubNub's PAM service (the authorization service), granting either read and/or write access to appropriate ChatEngine ```ChatEngine.global``` chat channels.
-3. Next, ChatEngine tries to connect to default chat channels generated from ```ChatEngine.Me```. Similar to step 2, requests are routed to the PubNub ChatEngine On Request Function, granting read and/or write access to the relevent ChatEngine ```ChatEngine.Me``` chat channels.
+3. Next, ChatEngine tries to connect to default chat channels generated from ```ChatEngine.Me```. Similar to step 2, requests are routed to the PubNub ChatEngine On Request Function, granting read and/or write access to the relevant ChatEngine ```ChatEngine.Me``` chat channels.
 4. After the two connection attempts, if successful, ChatEngine emits a ```$.ready``` event, signaling that ChatEngine has successfully initialized and connected to the default ```ChatEngine.global``` and ```ChatEngine.Me``` chat channels.
 
 > A ```secretKey``` is required to grant access with PAM. The PubNub ChatEngine Function stores an encrypted version of the ```secretKey``` within a secret store ([PubNub Functions Vault module](https://www.pubnub.com/docs/blocks/vault-module))
