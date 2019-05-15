@@ -1,13 +1,17 @@
-# PubNub ChatEngine Framework
-
-PubNub ChatEngine is an object oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
-
-The real time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
+# [PubNub ChatEngine Framework](https://pubnub.github.io/chat-engine/)
 
 [![](https://data.jsdelivr.com/v1/package/npm/chat-engine/badge)](https://www.jsdelivr.com/package/npm/chat-engine)
 [![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
+
+PubNub ChatEngine is an object oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
+
+The real time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.
+
+# Documentation
+
+You can find the full docs on [the Github documentation website](https://pubnub.github.io/chat-engine/).
 
 # Getting Started
 
@@ -61,28 +65,34 @@ Alright, now for the part you've probably never done before! Install PubNub Chat
 npm install chat-engine@latest --save
 ```
 
-# Documentation
+# Additional Resources
 
-# Reference
+## Plugins
 
-### Getting Started
+Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink) and [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron) examples to see plugins in action.
 
-Check out [the getting started guide](https://github.com/pubnub/chat-engine-tutorial).
+* [Image Uploads](https://github.com/pubnub/chat-engine-uploadcare) - Uses UploadCare service to uplaod images and render them in chats. [Example](https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/).
+* [Markdown Support](https://github.com/pubnub/chat-engine-markdown) - Render Markdown in HTML when receiving messages. [Example](https://raw.github.com/pubnub/chat-engine-markdown/master/example/).
+* [Mute Users](https://github.com/pubnub/chat-engine-muter) - Allows the current user to stop receiving events from other users. [Example](https://raw.github.com/pubnub/chat-engine-muter/master/example/).
+* [Online User Search](https://github.com/pubnub/chat-engine-online-user-search) - A simple way to search through the list of users online in the chat. [Example](https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/).
+* [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator) - Provides convenience methods that fire when a user starts or stops typing. [Example](https://github.com/pubnub/chat-engine-typing-indicator/tree/master/example)
+* [Unread Messages](https://github.com/pubnub/chat-engine-unread-messages) - Allows you to mark a chat as being in the background and increments a counter as events are sent to it. [Example](https://raw.github.com/pubnub/chat-engine-online-unread-messages/master/example/).
+* [Desktop Notifications](https://github.com/pubnub/chat-engine-desktop-notifications) - Uses HTML5 Notification API to send "toaster" updates.
+* [Emoji Support](https://github.com/pubnub/chat-engine-emoji) - Uses images as fallback for devices that might not yet support :poop:.
+* [Event Status and Read Receipts](https://github.com/pubnub/chat-engine-event-status) - Emits additional events when someone reads a receives and/or reads a message.
+* [Gravatar Support](https://github.com/pubnub/chat-engine-gravatar) - Uses Gravatar service to create an avatar based on user state information.
+* [Random Usernames](https://github.com/pubnub/chat-engine-random-username)- A plugin that gives every use a random username combining a color and an animal.
 
-### Videos
+## Videos
 
 * [ChatEngine Intro](https://www.youtube.com/watch?v=o529w2ABH6s)
 * [5 Minute ChatEngine Tutorial](https://www.youtube.com/watch?v=sUUekUsfed4)
 * [Chat in 30 Lines of Code Webinar](https://www.youtube.com/watch?v=jnF9fLo7xfk)
 
-# Docs
-
-You can find the full docs on [the full documentation website](https://www.pubnub.com/docs/chat-engine/getting-started). Concepts are linked below for convenience.
-
-# Resources
+## Tutorials
 
 ### Javascript
-
+* [Getting Started tutorial](https://github.com/pubnub/chat-engine-tutorial).
 * [Chat](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/chat.html) - Really simple chat example. The "hello world" of ChatEngine.
 * [Online List](https://github.com/pubnub/chat-engine-examples/blob/master/javascript/online-list.html) - No chats, just renders who is online. See the Kitchen Sinks for how to combine this with private chats.
 
@@ -120,32 +130,6 @@ You can find the full docs on [the full documentation website](https://www.pubnu
 ### NodeJS + Chatbot
 
 * [NodeJS ChatBot](https://github.com/pubnub/chat-engine-examples/blob/master/nodejs/bot.js) - An example bot that responds to messages and emulates typing. Works with the jQuery Kitchen Sink example by default.
-
-# Plugins
-
-Check out the [jQuery Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink) and [Angular Kitchen Sink](https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron) examples to see plugins in action.
-
-* [Image Uploads](https://github.com/pubnub/chat-engine-uploadcare) - Uses UploadCare service to uplaod images and render them in chats. [Example](https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/).
-
-* [Markdown Support](https://github.com/pubnub/chat-engine-markdown) - Render Markdown in HTML when receiving messages. [Example](https://raw.github.com/pubnub/chat-engine-markdown/master/example/).
-
-* [Mute Users](https://github.com/pubnub/chat-engine-muter) - Allows the current user to stop receiving events from other users. [Example](https://raw.github.com/pubnub/chat-engine-muter/master/example/).
-
-* [Online User Search](https://github.com/pubnub/chat-engine-online-user-search) - A simple way to search through the list of users online in the chat. [Example](https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/).
-
-* [Typing Indicator](https://github.com/pubnub/chat-engine-typing-indicator) - Provides convenience methods that fire when a user starts or stops typing. [Example](https://github.com/pubnub/chat-engine-typing-indicator/tree/master/example)
-
-* [Unread Messages](https://github.com/pubnub/chat-engine-unread-messages) - Allows you to mark a chat as being in the background and increments a counter as events are sent to it. [Example](https://raw.github.com/pubnub/chat-engine-online-unread-messages/master/example/).
-
-* [Desktop Notifications](https://github.com/pubnub/chat-engine-desktop-notifications) - Uses HTML5 Notification API to send "toaster" updates.
-
-* [Emoji Support](https://github.com/pubnub/chat-engine-emoji) - Uses images as fallback for devices that might not yet support :poop:.
-
-* [Event Status and Read Receipts](https://github.com/pubnub/chat-engine-event-status) - Emits additional events when someone reads a receives and/or reads a message.
-
-* [Gravatar Support](https://github.com/pubnub/chat-engine-gravatar) - Uses Gravatar service to create an avatar based on user state information.
-
-* [Random Usernames](https://github.com/pubnub/chat-engine-random-username)- A plugin that gives every use a random username combining a color and an animal.
 
 # Development
 
