@@ -72,7 +72,8 @@ class Search extends Emitter {
 
             /**
              * Requesting another page from PubNub History.
-             * @event Search#$"."page"."request
+             *
+             *  Search#$"."page"."request
              */
             this._emit('$.search.page.request');
 
@@ -88,7 +89,8 @@ class Search extends Emitter {
 
                     /**
                      * There was a problem fetching the history of this chat
-                     * @event Chat#$"."error"."history
+                     * @event Chat#$"."error"."search
+                     * @property {String} ceError The specific error thrown by ChatEngine
                      */
                     this.chatEngine.throwError(this, 'trigger', 'search', new Error('There was a problem searching history. Make sure your request parameters are valid and history is enabled for this PubNub key.'), status);
                 } else {

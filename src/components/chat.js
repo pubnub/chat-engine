@@ -118,6 +118,11 @@ class Chat extends Emitter {
             /**
              * There was a problem fetching the presence of this chat
              * @event Chat#$"."error"."presence
+             * @property {String} ceError The specific error thrown by ChatEngine
+             * @property {Number} status The PubNub service that surfaced this error
+             * @property {String} error
+             * @property {String} message The PubNub supplied error
+             * @property {Object} payload
              */
             this.chatEngine.throwError(this, 'trigger', 'presence', new Error('Getting presence of this Chat. Make sure PubNub presence is enabled for this key'));
 
@@ -178,6 +183,14 @@ class Chat extends Emitter {
                      * Notifies {@link Me} that they've been invited to a new private {@link Chat}.
                      * Fired by the {@link Chat#invite} method.
                      * @event Me#$"."invite
+                     * @type {object}
+                     * @property {Chat} chat The chat the event was emitted on. This is the {@link User}'s direct chat and NOT the chat invited to.
+                     * @property {string} chatengineSDK The ChatEngine client version number.
+                     * @property {object} data The message payload data.
+                     * @property {string} data.channel The {@link Chat#channel} for the invited chat. Use this to create a new {@link Chat}.
+                     * @property {string} event The event fired.
+                     * @property {User} sender The {@link User} that sent the invite.
+                     * @property {string} timetoken The 17 digit timetoken when the message was sent.
                      * @tutorial private
                      * @example
                      * me.direct.on('$.invite', (payload) => {
@@ -199,7 +212,13 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'search', new Error('Something went wrong while making a request to authentication server.'), { error });
+
+                /**
+                 * Something went wrong with the server request to invite the user.
+                 * @event Chat#$"."error"."invite
+                 * @property {String} ceError The specific error thrown by ChatEngine
+                 */
+                this.chatEngine.throwError(this, 'trigger', 'invite', new Error('Something went wrong while making a request to authentication server.'), { error });
             });
 
     }
@@ -249,7 +268,13 @@ class Chat extends Emitter {
             chat: this.objectify()
         }).then(() => {
         }).catch((error) => {
-            this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
+
+            /**
+             * Something went wrong updating the chat metadata.
+             * @event Chat#$"."error"."chatMeta
+             * @property {String} ceError The specific error thrown by ChatEngine
+             */
+            this.chatEngine.throwError(this, 'trigger', 'chatMeta', new Error('Something went wrong while making a request to chat server.'), { error });
         });
 
     }
@@ -335,12 +360,11 @@ class Chat extends Emitter {
              * notify the framework of a new user.
              *
              * @event Chat#$"."online"."here
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
+             * @property {User} user The {@link User} that came online
              * @example
              * chat.on('$.online.here', (data) => {
-                      *     console.log('User has come online:', data.user);
-                      * });
+             *     console.log('User has come online:', data.user);
+             * });
              */
 
             this.trigger('$.online.here', { user: this.users[uuid] });
@@ -351,8 +375,8 @@ class Chat extends Emitter {
              * Fired when a {@link User} has joined the room.
              *
              * @event Chat#$"."online"."join
-             * @param {Object} data The payload returned by the event
-             * @param {User} data.user The {@link User} that came online
+             * @property {Object} data The payload returned by the event
+             * @property {User} data.user The {@link User} that came online
              * @example
              * chat.on('$.join', (data) => {
              *     console.log('User has joined the room!', data.user);
@@ -391,9 +415,8 @@ class Chat extends Emitter {
         /**
          * Broadcast that a {@link User} has changed state.
          * @event ChatEngine#$"."state
-         * @param {Object} data The payload returned by the event
-         * @param {User} data.user The {@link User} that changed state
-         * @param {Object} data.state The new user state
+         * @property {User} user The {@link User} that changed state
+         * @property {Object} state The new user state
          * @example
          * ChatEngine.on('$.state', (data) => {
          *     console.log('User has changed state:', data.user, 'new state:', data.state);
@@ -491,7 +514,14 @@ class Chat extends Emitter {
 
             })
             .catch((error) => {
-                this.chatEngine.throwError(this, 'trigger', 'chat', new Error('Something went wrong while making a request to chat server.'), { error });
+
+                /**
+                 * There was a problem leaving the chat.
+                 * @event Chat#$"."error"."chatLeave
+                 * @property {String} ceError The specific error thrown by ChatEngine
+                 */
+                this.chatEngine.throwError(this, 'trigger', 'chatLeave', new Error('Something went wrong while making a request to chat server.'), { error });
+
             });
 
     }
@@ -520,8 +550,7 @@ class Chat extends Emitter {
              * Fired when a {@link User} intentionally leaves a {@link Chat}.
              *
              * @event Chat#$"."offline"."leave
-             * @param {Object} data The data payload from the event
-             * @param {User} user The {@link User} that has left the room
+             * @property {User} user The {@link User} that has left the room
              * @example
              * chat.on('$.offline.leave', (data) => {
                       *     console.log('User left the room manually:', data.user);
@@ -552,8 +581,7 @@ class Chat extends Emitter {
              * to the {@link Chat} involuntarily.
              *
              * @event Chat#$"."offline"."disconnect
-             * @param {Object} data The {@link User} that disconnected
-             * @param {Object} data.user The {@link User} that disconnected
+             * @property {Object} user The {@link User} that disconnected
              * @example
              * chat.on('$.offline.disconnect', (data) => {
              *     console.log('User disconnected from the network:', data.user);
@@ -605,7 +633,13 @@ class Chat extends Emitter {
         if (this.hasConnected) {
             return new Search(this.chatEngine, this, config);
         } else {
-            this.chatEngine.throwError(this, 'trigger', 'search', new Error('You must wait for the $.connected event before calling Chat#search'));
+
+            /**
+             * There was a problem searching the chat.
+             * @event Chat#$"."error"."notConnected
+             * @property {String} ceError The specific error thrown by ChatEngine
+             */
+            this.chatEngine.throwError(this, 'trigger', 'notConnected', new Error('You must wait for the $.connected event before calling Chat#search'));
         }
 
     }
@@ -759,7 +793,14 @@ class Chat extends Emitter {
         ], (error) => {
 
             if (error) {
+
+                /**
+                 * There was a problem searching the chat.
+                 * @event Chat#$"."error"."auth
+                 * property {String} ceError The specific error thrown by ChatEngine
+                 */
                 this.chatEngine.throwError(this, 'trigger', 'auth', new Error('Something went wrong while making a request to authentication server.'), { error });
+
             } else {
                 complete();
             }
