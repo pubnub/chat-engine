@@ -1,6 +1,7 @@
 {
   "author": "PubNub",
   "name": "chat-engine",
+  "license": "SEE LICENSE IN LICENSE",
   "version": "0.9.21",
   "description": "ChatEngine",
   "browser": "dist/chat-engine.js",
