@@ -12,7 +12,6 @@ const httpServer = require('http-server');
 const path = require('path');
 const uglify = require('gulp-uglify-es').default;
 const rename = require('gulp-rename');
-const surge = require('gulp-surge');
 
 let sourceFiles = ['src/**/*.js'];
 let testFiles = ['test/unit/**/*.js', 'test/integration/**/*.js'];
@@ -49,14 +48,14 @@ gulp.task('minify_code', () => {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('lint_code', [], () => {
+gulp.task('lint_code', () => {
     return gulp.src(sourceFiles)
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());
 });
 
-gulp.task('lint_tests', [], () => {
+gulp.task('lint_tests', () => {
     return gulp.src(testFiles)
         .pipe(eslint())
         .pipe(eslint.format())
@@ -65,13 +64,9 @@ gulp.task('lint_tests', [], () => {
 
 gulp.task('run_tests', () => {
     return gulp.src(testFiles, { read: false })
-        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(mocha({ reporter: 'spec', exit: true }))
         .pipe(istanbul.writeReports());
 });
-
-gulp.task('default', ['compile']);
-
-gulp.task('validate', ['lint_code', 'lint_tests']);
 
 gulp.task('pre-test', () => {
     return gulp.src(sourceFiles)
@@ -79,16 +74,16 @@ gulp.task('pre-test', () => {
         .pipe(istanbul.hookRequire());
 });
 
-gulp.task('test', () => {
-    runSequence('pre-test', 'run_tests', 'validate', () => {
-        process.exit();
-    });
-});
 
-gulp.task('watch', () => {
-    runSequence('compile');
+gulp.task('validate', gulp.parallel('lint_code', 'lint_tests'));
+
+gulp.task('test', gulp.series('pre-test', 'run_tests', 'validate'));
+
+gulp.task('compile', gulp.series('clean', 'build_code', 'minify_code'));
+
+gulp.task('watch', gulp.series('compile', () => {
     gulp.watch(sourceFiles, ['compile']);
-});
+}));
 
 gulp.task('compile_docs', (cb) => {
     let config = require('./jsdoc.json');
@@ -100,9 +95,7 @@ gulp.task('watch_docs', () => {
     gulp.watch(sourceFiles.concat(guideFiles).concat(readme), ['compile_docs']);
 });
 
-gulp.task('serve_docs', () => {
-
-    runSequence('compile_docs');
+gulp.task('serve_docs', gulp.series('compile_docs', () => {
 
     let server = httpServer.createServer({
         root: path.join(__dirname, 'docs'),
@@ -115,13 +108,8 @@ gulp.task('serve_docs', () => {
 
     server.listen(8080);
 
-});
+}));
 
-gulp.task('compile', (done) => {
-    runSequence('clean', 'build_code', 'minify_code', done);
-});
+gulp.task('default', gulp.series('compile'));
 
-gulp.task('docs_dev', () => {
-    runSequence('serve_docs');
-    runSequence('watch_docs');
-});
+gulp.task('docs_dev', gulp.series('serve_docs', 'watch_docs'));

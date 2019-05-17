@@ -1,4 +1,4 @@
-const Emitter = require('../modules/root_emitter');
+const Emitter = require('../modules/emitter');
 
 /**
  * @class Event
@@ -11,7 +11,7 @@ class Event extends Emitter {
 
     constructor(chatEngine, chat, event) {
 
-        super();
+        super(chatEngine);
 
         /**
          * @private
@@ -79,12 +79,14 @@ class Event extends Emitter {
                     m.timetoken = response.timetoken;
                 }
 
+                m.chat = this.chat;
+
                 /**
                  * Message successfully published
                  * @event Event#$"."emitted"
                  * @property {Object} data The message payload
                  */
-                this._emit('$.emitted', m);
+                this.trigger('$.emitted', m);
 
             } else {
 
