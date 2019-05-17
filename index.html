@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Home - PubNub ChatEngine</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Guides</h3><ul><li data-sidebar="concepts"><a href="tutorial-concepts.html">Concepts</a><ul><li><a href="tutorial-installing.html">Installing</a></li><li><a href="tutorial-initialization.html">Initialization</a></li><li><a href="tutorial-connect.html">Connect</a><ul><li><a href="tutorial-connectToChatEngine.html">Connect to ChatEngine</a></li><li><a href="tutorial-setUserState.html">Set user state</a></li><li><a href="tutorial-updateUserState.html">Update user state</a></li></ul></li><li><a href="tutorial-theuser.html">Users</a><ul><li><a href="tutorial-findAUser.html">Find a user</a></li><li><a href="tutorial-getUserState.html">Get state for online users</a></li><li><a href="tutorial-onlineOfflineEvents.html">Online and offline status</a></li></ul></li><li><a href="tutorial-chatRooms.html">Chat rooms</a><ul><li><a href="tutorial-createChat.html">Create a chat room</a></li><li><a href="tutorial-inviteUserPrivateChat.html">Invite a user to a private chat room</a></li><li><a href="tutorial-showUsers.html">Show users in a chat room</a></li><li><a href="tutorial-leaveChat.html">Leave a chat room</a></li></ul></li><li><a href="tutorial-messages.html">Messages</a><ul><li><a href="tutorial-sendMessages.html">Send messages</a></li><li><a href="tutorial-receiveMessageOnChat.html">Receive messages</a></li><li><a href="tutorial-sendDirectMessage.html">Send a direct message to a user</a></li><li><a href="tutorial-messagesHistory.html">Retrieve past messages</a></li></ul></li><li><a href="tutorial-networkEvents.html">Network events</a><ul><li><a href="tutorial-disconnectFromChatEngine.html">Disconnect from ChatEngine</a></li><li><a href="tutorial-reconnectToChatEngine.html">Reconnect To ChatEngine</a></li></ul></li><li><a href="tutorial-security.html">Security</a><ul><li><a href="tutorial-encryption.html">Encryption</a></li><li><a href="tutorial-authorization.html">Authorization</a></li></ul></li></ul></li><li data-sidebar="advancedConcepts"><a href="tutorial-advancedConcepts.html">Advanced Concepts</a><ul><li><a href="tutorial-pubSubApi.html">Access Publish and Subscribe API</a></li><li><a href="tutorial-advancedSecurity.html">Advanced Security</a><ul><li><a href="tutorial-thirdPartyAuth.html">Setup Third Party Authentication</a></li><li><a href="tutorial-aesEncryptionArchitecture.html">AES Encryption Architecture</a></li></ul></li><li><a href="tutorial-authentication.html">Authentication</a></li><li><a href="tutorial-authenticationGuide.html">Authentication Guide</a></li><li><a href="tutorial-buildAPlugin.html">Build a Plugin</a></li><li><a href="tutorial-connectDeepDive.html">Connect Deep Dive</a><ul><li><a href="tutorial-connectUser.html">Connect User to ChatEngine</a></li><li><a href="tutorial-connectGlobal.html">Connect ChatEngine.Global</a></li><li><a href="tutorial-connectMe.html">Connect ChatEngine.Me</a></li></ul></li><li><a href="tutorial-errors.html">Errors</a></li><li><a href="tutorial-integrateWithPubnubFunctions.html">Integrate with PubNub Functions</a></li><li><a href="tutorial-integrateWithSdks.html">Integrate with Server SDKs</a></li><li><a href="tutorial-namespaces.html">Namespaces</a></li><li><a href="tutorial-pubnubChannelTopology.html">PubNub Channel Topology</a><ul><li><a href="tutorial-globalChannel.html">Global Channel</a></li><li><a href="tutorial-directChannel.html">Direct Channel</a></li><li><a href="tutorial-feedChannel.html">Feed Channel</a></li><li><a href="tutorial-publicChannel.html">Public Channel</a></li><li><a href="tutorial-privateChannel.html">Private Channel</a></li></ul></li><li><a href="tutorial-templating.html">Templating</a></li><li><a href="tutorial-wildcards.html">Wildcards</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#ChatEngineCore">ChatEngineCore</a></li></ul><h3>Plugins</h3><ul><li data-sidebar="chat-engine-emoji"><a href="module-chat-engine-emoji.html">chat-engine-emoji</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-emoji.html#~parseEmoji">parseEmoji()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~render">render()</a></li><li data-type='method'><a href="module-chat-engine-emoji.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-gravatar"><a href="module-chat-engine-gravatar.html">chat-engine-gravatar</a><ul><li><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="module-chat-engine-gravatar.html#~state%2522.%2522gravatar">state.gravatar</a></li></ul></ul></li><li data-sidebar="chat-engine-markdown"><a href="module-chat-engine-markdown.html">chat-engine-markdown</a></li><li data-sidebar="chat-engine-mute"><a href="module-chat-engine-mute.html">chat-engine-mute</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-mute.html#~muter%2522.%2522isMuted">muter.isMuted()</a></li><li data-type='method'><a href="module-chat-engine-mute.html#~muter%2522.%2522mute">muter.mute()</a></li><li data-type='method'><a href="module-chat-engine-mute.html#~muter%2522.%2522unmute">muter.unmute()</a></li></ul></ul></li><li data-sidebar="chat-engine-online-user-search"><a href="module-chat-engine-online-user-search.html">chat-engine-online-user-search</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-online-user-search.html#~search">search()</a></li></ul></ul></li><li data-sidebar="chat-engine-typing-indicator"><a href="module-chat-engine-typing-indicator.html">chat-engine-typing-indicator</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522startTyping">typingindicator.startTyping()</a></li><li data-type='method'><a href="module-chat-engine-typing-indicator.html#~typingindicator%2522.%2522stopTyping">typingindicator.stopTyping()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-typing-indicator.html#~event:$typingIndiciator%2522.%2522stopTyping">$typingIndiciator.stopTyping</a></li></ul></ul></li><li data-sidebar="chat-engine-unread-messages"><a href="module-chat-engine-unread-messages.html">chat-engine-unread-messages</a><ul><li><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadCount">unreadCount</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522isActive">unreadMessages.isActive</a></li><li data-type='member'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522unreadCount">unreadMessages.unreadCount</a></li></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li><li data-type='method'><a href="module-chat-engine-unread-messages.html#~unreadMessages%2522.%2522active">unreadMessages.active()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-unread-messages.html#~event:$unread">$unread</a></li></ul></ul></li><li data-sidebar="chat-engine-uploadcare"><a href="module-chat-engine-uploadcare.html">chat-engine-uploadcare</a><ul><li><a href="Chat.html">Chat</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="module-chat-engine-uploadcare.html#~uploadcare%2522.%2522bind">uploadcare.bind()</a></li></ul><ul class='events'><li data-type='event'><a href="module-chat-engine-uploadcare.html#~event:$uploadcare%2522.%2522upload">$uploadcare.upload</a></li></ul></ul></li></ul><h3>Reference</h3><ul><li data-sidebar="Chat"><a href="Chat.html">Chat</a><ul class='members'><li data-type='member'><a href="Chat.html#asleep">asleep</a></li><li data-type='member'><a href="Chat.html#channel">channel</a></li><li data-type='member'><a href="Chat.html#connected">connected</a></li><li data-type='member'><a href="Chat.html#hasConnected">hasConnected</a></li><li data-type='member'><a href="Chat.html#isPrivate">isPrivate</a></li><li data-type='member'><a href="Chat.html#meta">meta</a></li><li data-type='member'><a href="Chat.html#users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="Chat.html#connect">connect()</a></li><li data-type='method'><a href="Chat.html#emit">emit()</a></li><li data-type='method'><a href="Chat.html#invite">invite()</a></li><li data-type='method'><a href="Chat.html#leave">leave()</a></li><li data-type='method'><a href="Chat.html#objectify">objectify()</a></li><li data-type='method'><a href="Chat.html#off">off()</a></li><li data-type='method'><a href="Chat.html#on">on()</a></li><li data-type='method'><a href="Chat.html#onAny">onAny()</a></li><li data-type='method'><a href="Chat.html#once">once()</a></li><li data-type='method'><a href="Chat.html#plugin">plugin()</a></li><li data-type='method'><a href="Chat.html#search">search()</a></li><li data-type='method'><a href="Chat.html#update">update()</a></li></ul><ul class='events'><li data-type='event'><a href="Chat.html#event:$%2522.%2522connected">$.connected</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522chatLeave">$.error.chatLeave</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522chatMeta">$.error.chatMeta</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522getState">$.error.getState</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522invite">$.error.invite</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522notConnected">$.error.notConnected</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522presence">$.error.presence</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522publish">$.error.publish</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522search">$.error.search</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522error%2522.%2522sync">$.error.sync</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522disconnect">$.offline.disconnect</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522offline%2522.%2522leave">$.offline.leave</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522here">$.online.here</a></li><li data-type='event'><a href="Chat.html#event:$%2522.%2522online%2522.%2522join">$.online.join</a></li></ul></li><li data-sidebar="ChatEngine"><a href="ChatEngine.html">ChatEngine</a><ul class='members'><li data-type='member'><a href="ChatEngine.html#.Chat">Chat</a></li><li data-type='member'><a href="ChatEngine.html#.chats">chats</a></li><li data-type='member'><a href="ChatEngine.html#.global">global</a></li><li data-type='member'><a href="ChatEngine.html#.me">me</a></li><li data-type='member'><a href="ChatEngine.html#.pubnub">pubnub</a></li><li data-type='member'><a href="ChatEngine.html#.ready">ready</a></li><li data-type='member'><a href="ChatEngine.html#.User">User</a></li><li data-type='member'><a href="ChatEngine.html#.users">users</a></li></ul><ul class='methods'><li data-type='method'><a href="ChatEngine.html#connect">connect()</a></li><li data-type='method'><a href="ChatEngine.html#disconnect">disconnect()</a></li><li data-type='method'><a href="ChatEngine.html#off">off()</a></li><li data-type='method'><a href="ChatEngine.html#on">on()</a></li><li data-type='method'><a href="ChatEngine.html#onAny">onAny()</a></li><li data-type='method'><a href="ChatEngine.html#once">once()</a></li><li data-type='method'><a href="ChatEngine.html#proto">proto()</a></li><li data-type='method'><a href="ChatEngine.html#reauthorize">reauthorize()</a></li><li data-type='method'><a href="ChatEngine.html#reconnect">reconnect()</a></li></ul><ul class='events'><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522chat">$.created.chat</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522me">$.created.me</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522created%2522.%2522user">$.created.user</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522badrequest">$.network.down.badrequest</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522decryption">$.network.down.decryption</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522denied">$.network.down.denied</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522issue">$.network.down.issue</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522malformed">$.network.down.malformed</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522offline">$.network.down.offline</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522down%2522.%2522timeout">$.network.down.timeout</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522connected">$.network.up.connected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522online">$.network.up.online</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522network%2522.%2522up%2522.%2522reconnected">$.network.up.reconnected</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522ready">$.ready</a></li><li data-type='event'><a href="ChatEngine.html#event:$%2522.%2522state">$.state</a></li></ul></li><li data-sidebar="Emitter"><a href="Emitter.html">Emitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="Emitter.html#off">off()</a></li><li data-type='method'><a href="Emitter.html#on">on()</a></li><li data-type='method'><a href="Emitter.html#onAny">onAny()</a></li><li data-type='method'><a href="Emitter.html#once">once()</a></li><li data-type='method'><a href="Emitter.html#plugin">plugin()</a></li></ul></li><li data-sidebar="Event"><a href="Event.html">Event</a><ul class='members'><li data-type='member'><a href="Event.html#channel">channel</a></li><li data-type='member'><a href="Event.html#chat">chat</a></li><li data-type='member'><a href="Event.html#event">event</a></li><li data-type='member'><a href="Event.html#name">name</a></li></ul><ul class='methods'><li data-type='method'><a href="Event.html#off">off()</a></li><li data-type='method'><a href="Event.html#on">on()</a></li><li data-type='method'><a href="Event.html#onAny">onAny()</a></li><li data-type='method'><a href="Event.html#once">once()</a></li><li data-type='method'><a href="Event.html#plugin">plugin()</a></li></ul><ul class='events'><li data-type='event'><a href="Event.html#event:$%2522.%2522emitted%2522">$.emitted</a></li></ul></li><li data-sidebar="Me"><a href="Me.html">Me</a><ul class='members'><li data-type='member'><a href="Me.html#direct">direct</a></li><li data-type='member'><a href="Me.html#feed">feed</a></li><li data-type='member'><a href="Me.html#session">session</a></li><li data-type='member'><a href="Me.html#state">state</a></li><li data-type='member'><a href="Me.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="Me.html#off">off()</a></li><li data-type='method'><a href="Me.html#on">on()</a></li><li data-type='method'><a href="Me.html#onAny">onAny()</a></li><li data-type='method'><a href="Me.html#once">once()</a></li><li data-type='method'><a href="Me.html#plugin">plugin()</a></li><li data-type='method'><a href="Me.html#update">update()</a></li></ul><ul class='events'><li data-type='event'><a href="Me.html#event:$%2522.%2522invite">$.invite</a></li></ul></li><li data-sidebar="RootEmitter"><a href="RootEmitter.html">RootEmitter</a><ul class='members'></ul><ul class='methods'><li data-type='method'><a href="RootEmitter.html#off">off()</a></li><li data-type='method'><a href="RootEmitter.html#on">on()</a></li><li data-type='method'><a href="RootEmitter.html#onAny">onAny()</a></li><li data-type='method'><a href="RootEmitter.html#once">once()</a></li></ul></li><li data-sidebar="Search"><a href="Search.html">Search</a><ul class='members'><li data-type='member'><a href="Search.html#chat">chat</a></li><li data-type='member'><a href="Search.html#config">config</a></li><li data-type='member'><a href="Search.html#hasMore">hasMore</a></li></ul><ul class='methods'><li data-type='method'><a href="Search.html#next">next()</a></li><li data-type='method'><a href="Search.html#off">off()</a></li><li data-type='method'><a href="Search.html#on">on()</a></li><li data-type='method'><a href="Search.html#onAny">onAny()</a></li><li data-type='method'><a href="Search.html#once">once()</a></li><li data-type='method'><a href="Search.html#plugin">plugin()</a></li></ul><ul class='events'><li data-type='event'><a href="Search.html#event:$%2522.%2522page%2522.%2522response">$.page.response</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522search%2522.%2522finish">$.search.finish</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522search%2522.%2522pause%2522">$.search.pause</a></li><li data-type='event'><a href="Search.html#event:$%2522.%2522search%2522.%2522start">$.search.start</a></li></ul></li><li data-sidebar="Session"><a href="Session.html">Session</a><ul class='members'><li data-type='member'><a href="Session.html#chats">chats</a></li><li data-type='member'><a href="Session.html#sync">sync</a></li></ul><ul class='methods'><li data-type='method'><a href="Session.html#off">off()</a></li><li data-type='method'><a href="Session.html#on">on()</a></li><li data-type='method'><a href="Session.html#onAny">onAny()</a></li><li data-type='method'><a href="Session.html#once">once()</a></li><li data-type='method'><a href="Session.html#plugin">plugin()</a></li></ul><ul class='events'><li data-type='event'><a href="Session.html#event:$%2522.%2522chat%2522.%2522join">$.chat.join</a></li><li data-type='event'><a href="Session.html#event:$%2522.%2522chat%2522.%2522leave">$.chat.leave</a></li><li data-type='event'><a href="Session.html#event:$%2522.%2522group%2522.%2522restored">$.group.restored</a></li></ul></li><li data-sidebar="User"><a href="User.html">User</a><ul class='members'><li data-type='member'><a href="User.html#direct">direct</a></li><li data-type='member'><a href="User.html#feed">feed</a></li><li data-type='member'><a href="User.html#state">state</a></li><li data-type='member'><a href="User.html#uuid">uuid</a></li></ul><ul class='methods'><li data-type='method'><a href="User.html#off">off()</a></li><li data-type='method'><a href="User.html#on">on()</a></li><li data-type='method'><a href="User.html#onAny">onAny()</a></li><li data-type='method'><a href="User.html#once">once()</a></li><li data-type='method'><a href="User.html#plugin">plugin()</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1><a href="https://pubnub.github.io/chat-engine/">PubNub ChatEngine Framework</a></h1>
+<p><a href="https://www.jsdelivr.com/package/npm/chat-engine"><img src="https://data.jsdelivr.com/v1/package/npm/chat-engine/badge" alt=""></a>
+<a href="https://travis-ci.org/pubnub/chat-engine"><img src="https://travis-ci.org/pubnub/chat-engine.svg?branch=master" alt="Build Status"></a>
+<a href="https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pubnub/chat-engine&amp;utm_campaign=badger"><img src="https://api.codacy.com/project/badge/Grade/d8b6e41d61164170873bb8fe79bab020" alt="Codacy Badge"></a>
+<a href="https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pubnub/chat-engine&amp;utm_campaign=badger"><img src="https://api.codacy.com/project/badge/Coverage/d8b6e41d61164170873bb8fe79bab020" alt="Codacy Badge"></a></p>
+<p>PubNub ChatEngine is an object-oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.</p>
+<p>The real-time server component is provided by PubNub. ChatEngine is designed to be extensible and includes a plugin framework to make adding new features simple.</p>
+<p>For more information on building chat applications with PubNub, see our
+<a href="http://www.pubnub.com/developers/chat-resource-center/">Chat Resource Center</a>.</p>
+<h1>Documentation</h1>
+<p>You can find the full docs on <a href="https://pubnub.github.io/chat-engine/">the documentation website</a>.</p>
+<h1>Getting Started</h1>
+<h2>Prerequisites</h2>
+<ul>
+<li>NodeJS</li>
+<li>Twitter Bootstrap</li>
+<li>jQuery</li>
+</ul>
+<h2>PubNub Account Set Up</h2>
+<p>To set up ChatEngine on PubNub, one must first set up a PubNub Key. The following steps outlines how to manually set up a PubNub Key to work with ChatEngine client-side SDKs.</p>
+<h3>Sign Up for a PubNub Account</h3>
+<p>If you don't already have an account, you can create one for free <a href="https://dashboard.pubnub.com/">here</a>.</p>
+<h3>Set Up the REST API Service using PubNub Functions</h3>
+<p>The ChatEngine framework and client-side SDKs interact with a REST API service that runs as a PubNub Function.</p>
+<p><em>You'll need to set up the function on your PubNub Account before you can use the SDKs.</em></p>
+<p><a href="https://github.com/pubnub/chat-engine-server">Follow the ChatEngine Server Setup Instructions</a>.</p>
+<h2>Download Code</h2>
+<h3>Create a new NPM project</h3>
+<p>Since we'll be installing dependencies, it's helpful to create a new <code>package.json</code> to keep track of all of the packages we're going to install.</p>
+<p>In your project directory, run this command to create a new package. Complete the interactive set up guide and we'll be ready to go.</p>
+<pre class="prettyprint source"><code>npm init
+</code></pre>
+<p>That'll create a <code>package.json</code> in your project directory.</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;name&quot;: &quot;chat-engine-tutorial&quot;,
+  &quot;version&quot;: &quot;0.0.1&quot;,
+  &quot;description&quot;: &quot;An example PubNub ChatEngine Tutorial&quot;,
+  &quot;main&quot;: &quot;index.js&quot;,
+  &quot;author&quot;: &quot;Ian Jennings&quot;
+}
+</code></pre>
+<h3>Install PubNub ChatEngine</h3>
+<p>Alright, now for the part you've probably never done before! Install PubNub ChatEngine by running:</p>
+<pre class="prettyprint source lang-sh"><code>npm install chat-engine@latest --save
+</code></pre>
+<h1>Additional Resources</h1>
+<h2>Plugins</h2>
+<p>Check out the <a href="https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink">jQuery Kitchen Sink</a> and <a href="https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron">Angular Kitchen Sink</a> examples to see plugins in action.</p>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-uploadcare">Image Uploads</a> - Uses UploadCare service to upload images and render them in chats. <a href="https://raw.github.com/pubnub/chat-engine-uploadcare/master/example/">Example</a>.</li>
+<li><a href="https://github.com/pubnub/chat-engine-markdown">Markdown Support</a> - Render Markdown in HTML when receiving messages. <a href="https://raw.github.com/pubnub/chat-engine-markdown/master/example/">Example</a>.</li>
+<li><a href="https://github.com/pubnub/chat-engine-muter">Mute Users</a> - Allows the current user to stop receiving events from other users. <a href="https://raw.github.com/pubnub/chat-engine-muter/master/example/">Example</a>.</li>
+<li><a href="https://github.com/pubnub/chat-engine-online-user-search">Online User Search</a> - A simple way to search through the list of users online in the chat. <a href="https://raw.github.com/pubnub/chat-engine-online-user-search/master/example/">Example</a>.</li>
+<li><a href="https://github.com/pubnub/chat-engine-typing-indicator">Typing Indicator</a> - Provides convenience methods that fire when a user starts or stops typing. <a href="https://github.com/pubnub/chat-engine-typing-indicator/tree/master/example">Example</a></li>
+<li><a href="https://github.com/pubnub/chat-engine-unread-messages">Unread Messages</a> - Allows you to mark a chat as being in the background and increments a counter as events are sent to it. <a href="https://raw.github.com/pubnub/chat-engine-online-unread-messages/master/example/">Example</a>.</li>
+<li><a href="https://github.com/pubnub/chat-engine-desktop-notifications">Desktop Notifications</a> - Uses HTML5 Notification API to send &quot;toaster&quot; updates.</li>
+<li><a href="https://github.com/pubnub/chat-engine-emoji">Emoji Support</a> - Uses images as a fallback for devices that might not yet support :poop:.</li>
+<li><a href="https://github.com/pubnub/chat-engine-event-status">Event Status and Read Receipts</a> - Emits additional events when someone reads a receives and/or reads a message.</li>
+<li><a href="https://github.com/pubnub/chat-engine-gravatar">Gravatar Support</a> - Uses Gravatar service to create an avatar based on user state information.</li>
+<li><a href="https://github.com/pubnub/chat-engine-random-username">Random Usernames</a>- A plugin that gives every user a random username combining color and an animal.</li>
+</ul>
+<h2>Videos</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=o529w2ABH6s">ChatEngine Intro</a></li>
+<li><a href="https://www.youtube.com/watch?v=sUUekUsfed4">5 Minute ChatEngine Tutorial</a></li>
+<li><a href="https://www.youtube.com/watch?v=jnF9fLo7xfk">Chat in 30 Lines of Code Webinar</a></li>
+</ul>
+<h2>Tutorials</h2>
+<h3>Javascript</h3>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-tutorial">Getting Started tutorial</a>.</li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/javascript/chat.html">Chat</a> - Really simple chat example. The &quot;hello world&quot; of ChatEngine.</li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/javascript/online-list.html">Online List</a> - No chats, just renders who is online. See the Kitchen Sinks for how to combine this with private chats.</li>
+</ul>
+<h3>React Native + Mobile</h3>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/react-native">React Native Example</a> - Made with <code>create-react-app</code>.</li>
+<li><a href="https://github.com/pubnub/chat-engine-react-native">React Native Components</a> - Premade components for rendering Chats, Messages, Users, and more.</li>
+<li><a href="https://www.pubnub.com/docs/chat-engine/samples/ios">Integrating into an existing iOS App</a> - Guide on adding ChatEngine React native app into iOS.</li>
+<li><a href="https://www.pubnub.com/docs/chat-engine/samples/android">Integrating into an existing Android App</a> - Guide on adding ChatEngine React Native app in Android.</li>
+</ul>
+<h3>React</h3>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/react">React</a> - Bare bones react web example.</li>
+</ul>
+<h3>Vue</h3>
+<ul>
+<li><a href="https://www.pubnub.com/blog/introducing-the-chatengine-plugin-for-vue/">Vue Guide</a> - Guide on using ChatEngine and Vue together. Uses the following resources.</li>
+<li><a href="https://github.com/ajb413/chat-engine-vue">Vue Example</a> - Full featured ChatEngine vue example.</li>
+<li><a href="https://github.com/ajb413/vue-chat-engine">Vue Plugin</a> - ChatEngine plugin for vue.</li>
+</ul>
+<h3>Angular</h3>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/angular/simple">Angular Simple</a> - Angular &quot;Hello World&quot; app. Simple app that uses a custom Angular plugin to render when anything updates.</li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/angular/flowtron">Angular Kitchen Sink</a> - The largest demo app out there, almost a complete Desktop Team Chat clone (Slack, Stride, Flowdock). Persistent URLs and renders into a real desktop app with Electron!</li>
+</ul>
+<h3>jQuery</h3>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/jquery/simple">jQuery Simple</a> - jQuery ChatEngine &quot;Hello World&quot; app. A simple app where everyone chats together.</li>
+<li><a href="https://github.com/pubnub/chat-engine-examples/tree/master/jquery/kitchen-sink">jQuery Kitchen Sink</a> - Huge example that uses most ChatEngine features. Has an online list that spawns new chats when you click on usernames.</li>
+</ul>
+<h3>3rd Party Authentication</h3>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/javascript/facebook-login.html">Facebook Login</a> - Use Facebook Profiles with ChatEngine.</li>
+</ul>
+<h3>NodeJS + Chatbot</h3>
+<ul>
+<li><a href="https://github.com/pubnub/chat-engine-examples/blob/master/nodejs/bot.js">NodeJS ChatBot</a> - An example bot that responds to messages and emulates typing. Works with the jQuery Kitchen Sink example by default.</li>
+</ul>
+<h1>Development</h1>
+<h2>Cloning</h2>
+<p>Clone repos (chat-engine and plugins).</p>
+<p>All repos should be siblings of one another. This is required for rendering docs
+properly.</p>
+<pre class="prettyprint source"><code>chat-engine
+chat-engine-desktop-notifications
+chat-engine-emoji
+chat-engine-examples
+//...
+</code></pre>
+<h2>Setting up the Environment</h2>
+<pre class="prettyprint source"><code>nvm use v6
+</code></pre>
+<p>Run <code>http-server</code> from my <code>/development</code> directory which has all chat-engine repos:</p>
+<p><code>cd chat-engine</code></p>
+<p><code>node server.js</code></p>
+<p>Load http://localhost:8080 in browser and navigate to /chat-engine-examples/jquery/kitchen-sink</p>
+<h2>Compiling</h2>
+<p>Run <code>gulp</code> to compile, but you should probably run <code>gulp watch</code> to get consistent changes.</p>
+<h2>Running Tests</h2>
+<p>You will need to assign environment variables <code>PUB_KEY_0</code> and <code>SUB_KEY_0</code> to your own PubNub keys. Add these variables into your <code>.bashrc</code> or <code>.zshrc</code>.</p>
+<pre class="prettyprint source lang-sh"><code># pubnub chatengine keys
+export PUB_KEY_0=&quot;YOUR PUBNUB PUBLISH KEY&quot;
+export SUB_KEY_0=&quot;YOUR PUBNUB SUBSCRIBE KEY&quot;
+</code></pre>
+<p>Then, in the root folder run:</p>
+<pre class="prettyprint source"><code>gulp test
+</code></pre>
+<h2>Releasing a patch (chat engine and plugins)</h2>
+<pre class="prettyprint source"><code>npm version patch && git push origin master --tags
+</code></pre>
+<h1>Support</h1>
+<ul>
+<li>If you <strong>need help</strong>, have a <strong>general question</strong>, have a <strong>feature request</strong> or to file a <strong>bug</strong>, contact <a href="mailto:support@pubnub.com">support@pubnub.com</a></li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.2</a> using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
