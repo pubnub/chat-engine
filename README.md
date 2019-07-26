@@ -23,6 +23,7 @@ You can find the full docs on [the documentation website](https://pubnub.github.
 * NodeJS
 * Twitter Bootstrap
 * jQuery
+* ES6
 
 ## PubNub Account Set Up
 
@@ -196,4 +197,4 @@ npm version patch && git push origin master --tags
 
 # Support
 
-- If you **need help**, have a **general question**, have a **feature request** or to file a **bug**, contact <support@pubnub.com>
+- If you **need help**, have a **general question**, or to file a **bug**, contact <support@pubnub.com>
