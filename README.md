@@ -1,13 +1,13 @@
+## Deprecation Notice
+ChatEngine has been deprecated with no plans for additional releases. Support for the ChatEngine SDK will end on July 16, 2021. If you have questions about ChatEngine, please contact us at support@pubnub.com.
+Please visit our newer chat product, [PubNub Chat](https://www.pubnub.com/products/pubnub-chat/). 
+
 # [PubNub ChatEngine Framework](https://pubnub.github.io/chat-engine/)
 
 [![](https://data.jsdelivr.com/v1/package/npm/chat-engine/badge)](https://www.jsdelivr.com/package/npm/chat-engine)
 [![Build Status](https://travis-ci.org/pubnub/chat-engine.svg?branch=master)](https://travis-ci.org/pubnub/chat-engine)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/d8b6e41d61164170873bb8fe79bab020)](https://www.codacy.com/app/PubNub/chat-engine?utm_source=github.com&utm_medium=referral&utm_content=pubnub/chat-engine&utm_campaign=badger)
-
-## Deprecation Notice
-ChatEngine has been deprecated with no plans for additional releases. Support for the ChatEngine SDK will end on July 16, 2021. If you have questions about ChatEngine, please contact us at support@pubnub.com.
-Please visit our newer chat product, [PubNub Chat](https://www.pubnub.com/products/pubnub-chat/). 
 
 PubNub ChatEngine is an object-oriented event emitter based framework for building chat applications in Javascript. It reduces the time to build chat applications drastically and provides essential components like typing indicators, online presence monitoring and message history out of the box.
 
